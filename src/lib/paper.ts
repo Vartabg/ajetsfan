@@ -50,7 +50,7 @@ export const WEAR_NOTE: Record<number, string> = {
  * The lead story: whichever number in the archive is most extreme. In season
  * this would be the most recent game; in the offseason the archive supplies it.
  */
-export function pickLead(games: Game[]): Game | null {
+export function pickLead(games: Game[], streak: Streak | null): Game | null {
   const eligible = games.filter((g) => !g.dataSuspect && g.swing != null);
   if (!eligible.length) return null;
   const worst = eligible
@@ -61,7 +61,12 @@ export function pickLead(games: Game[]): Game | null {
     .sort((a, b) => a.swing! - b.swing!)[0];
   if (!worst) return best ?? null;
   if (!best) return worst;
-  // Whichever sits further from a coin flip leads the page.
+
+  // The page leads with the mood. Losing, it leads with heartbreak; coming off a
+  // win, it leads with a miracle. Only when there is no streak to read does raw
+  // extremity decide.
+  if (streak?.type === "loss") return worst;
+  if (streak?.type === "win") return best;
   return worst.swing! >= 1 - best.swing! ? worst : best;
 }
 

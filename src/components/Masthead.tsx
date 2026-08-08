@@ -6,7 +6,6 @@ import styles from "./Masthead.module.css";
 const SECTIONS = [
   { href: "/", label: "The Back Page" },
   { href: "/morgue", label: "The Morgue" },
-  { href: "/how-it-was-made", label: "Colophon" },
 ];
 
 export default function Masthead({ streak, wear }: { streak: Streak | null; wear: number }) {
