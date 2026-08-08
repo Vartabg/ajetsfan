@@ -1,0 +1,42 @@
+.main {
+  position: relative;
+  z-index: 1;
+  width: var(--shell);
+  margin-inline: auto;
+  padding: 1.1rem 0 3rem;
+}
+
+.head {
+  max-width: 46rem;
+  border-bottom: 3px solid var(--rule);
+  padding-bottom: 0.9rem;
+}
+
+.kicker {
+  color: var(--spot);
+  font-weight: 700;
+  margin: 0 0 0.3rem;
+}
+
+.title {
+  font-size: clamp(3rem, 11vw, 6.5rem);
+  margin: 0;
+}
+
+.standfirst {
+  margin: 0.8rem 0 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 40rem;
+}
+
+.crossref {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-sans-narrow), sans-serif;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-2);
+}
+
+.crossref a { color: var(--spot); font-weight: 700; }

@@ -43,7 +43,7 @@ export default function Boards({
               key={b}
               role="tab"
               aria-selected={board === b}
-              className={`${styles.tab} ${board === b ? styles.tabOn : ""} ${styles[b]}`}
+              className={`${styles.tab} ${board === b ? styles.tabOn : ""}`}
               onClick={() => {
                 setBoard(b);
                 setSelectedId(null);

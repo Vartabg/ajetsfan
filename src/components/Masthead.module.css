@@ -1,0 +1,49 @@
+.head {
+  position: relative;
+  z-index: 3;
+  width: var(--shell);
+  margin-inline: auto;
+  padding-top: 0.9rem;
+}
+
+.sections {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--rule);
+}
+
+.section {
+  padding: 0.5rem 0.85rem;
+  text-decoration: none;
+  border-right: 1px solid var(--rule);
+  transition: background 0.15s, color 0.15s;
+}
+
+.section:first-child {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.section:last-child {
+  border-right: none;
+}
+
+.section:hover:not(:first-child) {
+  background: var(--spot);
+  color: var(--paper);
+}
+
+.folio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+  justify-content: space-between;
+  padding: 0.45rem 0.1rem;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-2);
+}
+
+.wear {
+  color: var(--spot);
+  cursor: help;
+}

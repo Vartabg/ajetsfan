@@ -16,7 +16,7 @@
 }
 
 .back:hover {
-  color: var(--field-bright);
+  color: var(--spot);
 }
 
 .title {
@@ -37,7 +37,7 @@
 .section h2 {
   font-size: 1.35rem;
   padding-bottom: 0.7rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--rule-soft);
 }
 
 .section p {
@@ -46,8 +46,8 @@
 }
 
 .section a {
-  color: var(--field-bright);
-  text-decoration-color: color-mix(in srgb, var(--field-bright) 35%, transparent);
+  color: var(--spot);
+  text-decoration-color: color-mix(in srgb, var(--spot) 35%, transparent);
   text-underline-offset: 3px;
 }
 
@@ -58,9 +58,9 @@
 
 .section code {
   padding: 0.12em 0.4em;
-  border-radius: 4px;
-  background: var(--bg-2);
-  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--paper-2);
+  border: 1px solid var(--rule-soft);
   font-family: var(--font-mono), monospace;
   font-size: 0.86em;
   color: var(--ink);
@@ -69,9 +69,9 @@
 .finding {
   margin-top: 2.25rem;
   padding: 1.35rem 1.5rem 1.5rem;
-  background: var(--bg-1);
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule-soft);
+  border-radius: 0;
 }
 
 .finding h3 {
@@ -95,12 +95,12 @@
   text-align: left;
   font-weight: 400;
   color: var(--ink-3);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--rule-soft);
 }
 
 .table td {
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--rule-soft);
   color: var(--ink-2);
   vertical-align: top;
 }
@@ -115,7 +115,7 @@
 }
 
 .bad td {
-  color: var(--break);
+  color: var(--ink);
 }
 
 .quote {
@@ -126,15 +126,15 @@
   gap: 0.5rem 1rem;
   margin: 1.15rem 0 0;
   padding: 0.85rem 1rem;
-  border-left: 2px solid var(--break);
-  border-radius: 0 var(--r) var(--r) 0;
-  background: var(--bg-2);
+  border-left: 2px solid var(--ink);
+  border-radius: 0 0 0 0;
+  background: var(--paper-2);
   font-size: 0.85rem;
   color: var(--ink-2);
 }
 
 .quoteNum {
-  color: var(--break);
+  color: var(--ink);
   white-space: nowrap;
   font-size: 0.8rem;
 }
@@ -161,8 +161,8 @@
   top: 0.65em;
   width: 5px;
   height: 5px;
-  border-radius: 50%;
-  background: var(--field);
+  border-radius: 0;
+  background: var(--spot);
 }
 
 .stack {
