@@ -40,6 +40,24 @@
   font-size: 1.05rem;
 }
 
+.how {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  color: var(--ink-2);
+  font-size: 0.87rem;
+  text-decoration: none;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.how:hover {
+  color: var(--ink);
+  border-color: var(--field-bright);
+  background: var(--bg-1);
+}
+
 .tiles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));

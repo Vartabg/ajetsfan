@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { rank } from "@/lib/games";
 import { loadGames } from "@/lib/load-games";
 import Boards from "@/components/Boards";
@@ -26,6 +27,10 @@ export default async function Home() {
           before it all went wrong. Or right. Second half only — this measures
           collapse, not a hot start.
         </p>
+
+        <Link href="/how-it-was-made" className={styles.how}>
+          How this was made — and the three things the data got wrong →
+        </Link>
 
         <dl className={styles.tiles}>
           <div className={styles.tile}>
@@ -61,7 +66,8 @@ export default async function Home() {
         <p className={styles.note}>
           One game is held out of both boards: 2002-09-29 at Jacksonville, where
           the play-by-play scoring never reaches the official final, so its win
-          probability describes a game that did not happen.
+          probability describes a game that did not happen.{" "}
+          <Link href="/how-it-was-made">Why, and what else was wrong</Link>.
         </p>
       </footer>
     </main>
