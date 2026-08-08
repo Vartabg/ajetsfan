@@ -15,7 +15,7 @@ export default async function BackPage() {
   const games = await loadGames();
   const streak = currentStreak(games);
   const wear = wearLevel(streak);
-  const lead = pickLead(games)!;
+  const lead = pickLead(games, streak)!;
   const curve = await loadCurve(lead.id);
   const heartbreak = rank(games, "heartbreak");
   const miracle = rank(games, "miracle");
@@ -141,8 +141,7 @@ export default async function BackPage() {
             </tbody>
           </table>
           <p className={styles.stripNote}>
-            Full archive in <Link href="/morgue">The Morgue</Link>. Method and known
-            faults in the <Link href="/how-it-was-made">Colophon</Link>.
+            Full archive in <Link href="/morgue">The Morgue</Link>.
           </p>
         </div>
       </section>

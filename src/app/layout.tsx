@@ -3,6 +3,7 @@ import { Anton, Archivo_Narrow, Source_Serif_4, Geist_Mono } from "next/font/goo
 import { loadGames } from "@/lib/load-games";
 import { currentStreak, wearLevel } from "@/lib/paper";
 import Masthead from "@/components/Masthead";
+import Colophon from "@/components/Colophon";
 import "./globals.css";
 
 const hed = Anton({ variable: "--font-hed", subsets: ["latin"], weight: "400" });
@@ -30,6 +31,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <Masthead streak={streak} wear={wear} />
         {children}
+        <Colophon />
       </body>
     </html>
   );

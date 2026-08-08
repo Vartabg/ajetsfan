@@ -1,0 +1,21 @@
+.foot {
+  position: relative;
+  z-index: 1;
+  width: var(--shell);
+  margin: 2.25rem auto 0;
+  padding: 0.55rem 0 2rem;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-3);
+}
+
+.foot p {
+  margin: 0;
+  max-width: 62rem;
+  line-height: 1.5;
+}
+
+.foot a {
+  color: var(--spot);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}

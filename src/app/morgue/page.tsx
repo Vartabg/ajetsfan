@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { rank } from "@/lib/games";
 import { loadGames } from "@/lib/load-games";
 import Boards from "@/components/Boards";
@@ -26,10 +25,6 @@ export default async function Morgue() {
           already happened. {heartbreak.length + miracle.length} games, ranked by the
           win probability they reached in the second half before it all went wrong.
           Or right.
-        </p>
-        <p className={styles.crossref}>
-          Method, and the three things the data got wrong, in the{" "}
-          <Link href="/how-it-was-made">Colophon</Link>.
         </p>
       </header>
 
