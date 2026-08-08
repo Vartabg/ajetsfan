@@ -1,89 +1,98 @@
+/*
+  Newsprint. Light stock, one spot ink, hairline rules.
+  Everything about this file is chosen against the dark-dashboard default.
+*/
+
 :root {
-  --ink: #f2f5f1;
-  --ink-2: #a8b2a6;
-  --ink-3: #6b756a;
+  --ink: #16160f;
+  --ink-2: #4a4940;
+  --ink-3: #7d7b70;
+  --rule: #16160f;
+  --rule-soft: #b6b09c;
+  --spot: #0b6b3a;
+  --spot-bright: #12874a;
 
-  --bg: #080b09;
-  --bg-1: #0e1310;
-  --bg-2: #151b17;
-  --line: #212a24;
-  --line-2: #33403a;
+  /* Overwritten per wear level below. */
+  --paper: #faf8f1;
+  --paper-2: #f2eee1;
+  --fox: 0;
+  --crease: 0;
+  --grain: 0.035;
 
-  --field: #1d6b4c;
-  --field-bright: #35c184;
-
-  --break: #e5484d;
-  --break-dim: #6d1f22;
-  --miracle: #35c184;
-  --miracle-dim: #17513a;
-
-  --shell: min(1180px, 100% - 2.5rem);
-  --r: 10px;
+  --shell: min(1240px, 100% - 2rem);
 }
 
-* {
-  box-sizing: border-box;
-}
+/* The paper ages with the losing streak. Driven by data, not decoration. */
+[data-wear="1"] { --paper: #f6f2e5; --paper-2: #ede8d7; --fox: 0.12; --crease: 0.10; --grain: 0.05; }
+[data-wear="2"] { --paper: #f0e9d5; --paper-2: #e6dcc3; --fox: 0.28; --crease: 0.22; --grain: 0.07; }
+[data-wear="3"] { --paper: #e9dcc0; --paper-2: #ddcda9; --fox: 0.46; --crease: 0.38; --grain: 0.09; }
+[data-wear="4"] { --paper: #ded0a8; --paper-2: #cebd90; --fox: 0.66; --crease: 0.58; --grain: 0.12; }
 
-html,
-body {
-  padding: 0;
-  margin: 0;
-}
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
 
 body {
-  background: var(--bg);
+  background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-serif), Georgia, serif;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  font-synthesis-weight: none;
+  transition: background-color 0.6s ease;
 }
 
-/* A faint field texture. Sits behind everything, never intercepts a click. */
-body::before {
+/* Foxing, creases and press grain. Purely visual, never interactive. */
+body::after {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 2;
   pointer-events: none;
+  mix-blend-mode: multiply;
   background:
-    radial-gradient(120% 70% at 50% -10%, rgba(29, 107, 76, 0.22), transparent 60%),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0 119px,
-      rgba(255, 255, 255, 0.022) 119px 120px
-    );
+    radial-gradient(38% 26% at 12% 18%, rgba(126, 92, 34, var(--fox)), transparent 70%),
+    radial-gradient(24% 18% at 88% 34%, rgba(126, 92, 34, calc(var(--fox) * 0.8)), transparent 70%),
+    radial-gradient(30% 22% at 68% 88%, rgba(110, 78, 28, calc(var(--fox) * 0.65)), transparent 72%),
+    radial-gradient(14% 10% at 34% 62%, rgba(126, 92, 34, calc(var(--fox) * 0.5)), transparent 70%),
+    /* Folds, not scratches: wide soft bands with gradual falloff. */
+    linear-gradient(101deg, transparent 0 27%, rgba(96, 80, 44, calc(var(--crease) * 0.16)) 31%, transparent 35%),
+    linear-gradient(84deg, transparent 0 63%, rgba(96, 80, 44, calc(var(--crease) * 0.12)) 67%, transparent 71%),
+    linear-gradient(178deg, transparent 0 50%, rgba(96, 80, 44, calc(var(--crease) * 0.1)) 54%, transparent 58%);
 }
 
-h1,
-h2,
-h3 {
-  margin: 0;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+h1, h2, h3, h4 { margin: 0; font-weight: 400; }
+
+a { color: inherit; }
+
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+/* Type roles, named the way a composing room would. */
+.hed {
+  font-family: var(--font-hed), Impact, "Haettenschweiler", sans-serif;
+  text-transform: uppercase;
+  line-height: 0.82;
+  letter-spacing: -0.015em;
 }
 
-button {
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: none;
-  cursor: pointer;
+.deck, .label {
+  font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
 }
 
-.mono {
+.label { font-size: 0.66rem; }
+
+.agate {
   font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
   font-variant-numeric: tabular-nums;
+  line-height: 1.45;
 }
+
+.rule { border-top: 1px solid var(--rule); }
+.rule-thick { border-top: 3px solid var(--rule); }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
