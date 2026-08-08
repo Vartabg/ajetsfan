@@ -1,0 +1,151 @@
+.card {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-1);
+  overflow: hidden;
+}
+
+.break {
+  --tone: var(--break);
+  --tone-soft: rgba(229, 72, 77, 0.16);
+}
+
+.miracle {
+  --tone: var(--miracle);
+  --tone-soft: rgba(53, 193, 132, 0.16);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.matchup {
+  font-size: 1.25rem;
+}
+
+.score {
+  margin-left: 0.6rem;
+  color: var(--ink-3);
+  font-size: 0.95rem;
+  letter-spacing: 0;
+}
+
+.sub {
+  margin: 0.3rem 0 0;
+  color: var(--ink-3);
+  font-size: 0.8rem;
+}
+
+.big {
+  text-align: right;
+  line-height: 1.1;
+}
+
+.big span {
+  display: block;
+  font-size: 2.1rem;
+  letter-spacing: -0.03em;
+  color: var(--tone);
+}
+
+.big small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--ink-3);
+  font-size: 0.72rem;
+}
+
+.plot {
+  padding: 0.5rem 0.6rem 0.2rem;
+  min-height: 190px;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.state {
+  margin: 0;
+  padding: 4rem 1rem;
+  text-align: center;
+  color: var(--ink-3);
+  font-size: 0.85rem;
+}
+
+.grid,
+.gridMid,
+.period {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.gridMid {
+  stroke: var(--line-2);
+  stroke-dasharray: 4 5;
+}
+
+.period {
+  stroke: var(--line);
+  stroke-dasharray: 2 6;
+}
+
+.axis {
+  fill: var(--ink-3);
+  font-size: 11px;
+  font-family: var(--font-mono), monospace;
+}
+
+.band {
+  fill: var(--tone-soft);
+  stroke: none;
+}
+
+.line {
+  stroke: var(--tone);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.dotSwing {
+  fill: var(--bg-1);
+  stroke: var(--tone);
+  stroke-width: 2.5;
+}
+
+.dotKey {
+  fill: var(--tone);
+}
+
+.play {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  padding: 0.85rem 1.25rem 1rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.83rem;
+}
+
+.clock {
+  color: var(--ink-2);
+  flex: none;
+}
+
+.desc {
+  color: var(--ink-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.wpa {
+  color: var(--tone);
+  flex: none;
+}

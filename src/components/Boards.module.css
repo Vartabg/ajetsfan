@@ -1,0 +1,189 @@
+.wrap {
+  margin-top: 4rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.toggle {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.tab {
+  padding: 0.45rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  color: var(--ink-3);
+  transition: color 0.15s, background 0.15s;
+}
+
+.tab:hover {
+  color: var(--ink-2);
+}
+
+.tabOn.heartbreak {
+  background: var(--break-dim);
+  color: #ffd9da;
+}
+
+.tabOn.miracle {
+  background: var(--miracle-dim);
+  color: #c6f2dd;
+}
+
+.eras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.era {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.85rem;
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.era:hover {
+  color: var(--ink-2);
+  border-color: var(--line-2);
+}
+
+.eraOn {
+  color: var(--ink);
+  border-color: var(--line-2);
+  background: var(--bg-1);
+}
+
+.explainer {
+  margin: 1.1rem 0 0;
+  max-width: 40rem;
+  color: var(--ink-3);
+  font-size: 0.9rem;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.75rem;
+}
+
+@media (min-width: 940px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    align-items: start;
+  }
+
+  .detail {
+    order: 2;
+    position: sticky;
+    top: 1.5rem;
+  }
+
+  .list {
+    order: 1;
+  }
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 34rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  background: var(--bg-1);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.row:hover {
+  background: var(--bg-2);
+}
+
+.rowOn {
+  border-color: var(--line-2);
+  background: var(--bg-2);
+}
+
+.rank {
+  color: var(--ink-3);
+  font-size: 0.8rem;
+  padding-top: 0.18rem;
+}
+
+.meta {
+  min-width: 0;
+}
+
+.matchup {
+  display: block;
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
+}
+
+.date {
+  margin-left: 0.5rem;
+  color: var(--ink-3);
+  font-size: 0.78rem;
+  letter-spacing: 0;
+}
+
+.play {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--ink-3);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clock {
+  color: var(--ink-2);
+  margin-right: 0.45rem;
+}
+
+.numbers {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.swing {
+  display: block;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+
+.score {
+  display: block;
+  color: var(--ink-3);
+  font-size: 0.78rem;
+}
