@@ -22,13 +22,15 @@ const PAD_T = 22;
 const PAD_B = 30;
 
 export default function SwingCurve({ game, board }: { game: Game; board: Board }) {
+  return <GameCurve key={game.id} game={game} board={board} />;
+}
+
+function GameCurve({ game, board }: { game: Game; board: Board }) {
   const [points, setPoints] = useState<Point[] | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     let live = true;
-    setPoints(null);
-    setError(false);
     fetch(`/data/curves/${game.id}.json`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((d: Point[]) => live && setPoints(d.filter((p) => typeof p.wp === "number")))

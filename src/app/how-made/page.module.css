@@ -1,0 +1,25 @@
+.main { width: min(960px, 100% - 2rem); margin: 0 auto; padding: 2rem 0 5rem; }
+.header { padding: 1rem 0 2rem; border-bottom: 3px double var(--ink); }
+.header h1 { font-size: clamp(3.5rem, 10vw, 7rem); margin: 1.5rem 0; }
+.lede { font-size: clamp(1.3rem, 3vw, 1.8rem); max-width: 38ch; }
+.main section { border-top: 1px solid var(--rule-soft); margin-top: 2.5rem; padding-top: 2rem; }
+.main h2 { font-size: clamp(1.65rem, 4vw, 2.5rem); line-height: 1.15; }
+.main p, .main li { max-width: 72ch; }
+.main a { text-underline-offset: 0.2em; }
+.pipeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 0; margin: 2rem 0; list-style: none; }
+.pipeline li { display: grid; gap: 0.4rem; border-left: 2px solid var(--ink); padding: 0.5rem 0.75rem; }
+.pipeline strong { font-family: var(--font-sans-narrow), sans-serif; }
+.control { display: grid; gap: 0.5rem; max-width: 30rem; font-weight: bold; }
+.control input { width: 100%; min-height: 44px; accent-color: var(--ink); }
+.sample { position: relative; isolation: isolate; margin: 1.5rem 0; padding: clamp(1.5rem, 5vw, 3rem); background: var(--paper); color: var(--ink); border: 1px solid var(--ink); }
+.sample[data-wear="0"] { --paper: #faf8f1; --fox: 0; --crease: 0; }
+.sample::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 10% 25%, rgba(126, 92, 34, var(--fox)), transparent 55%), linear-gradient(102deg, transparent 45%, rgba(96,80,44,var(--crease)) 49%, transparent 51%); opacity: 0.35; }
+.sampleTitle { font-size: clamp(2.25rem, 7vw, 5rem); margin: 1rem 0 !important; }
+.sample figcaption { min-height: 3em; margin-top: 1.5rem; font-weight: bold; }
+.small { font-size: 0.95rem; }
+.exceptions { padding-left: 1.2rem; }
+.exceptions li { margin: 1rem 0; }
+.exceptions span { display: block; }
+.exceptions code { overflow-wrap: anywhere; }
+@media (max-width: 640px) { .pipeline { grid-template-columns: 1fr 1fr; } }
+@media (forced-colors: active) { .sample::before { display: none; } .sample { background: Canvas; color: CanvasText; } }

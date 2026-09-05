@@ -29,6 +29,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${hed.variable} ${narrow.variable} ${serif.variable} ${mono.variable}`}
     >
       <body>
+        <a className="skip-link" href="#main">Skip to content</a>
         <Masthead streak={streak} wear={wear} />
         {children}
         <Colophon />
