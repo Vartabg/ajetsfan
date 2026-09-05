@@ -16,7 +16,7 @@ export default async function Morgue() {
   const miracle = rank(games, "miracle");
 
   return (
-    <main className={styles.main}>
+    <main id="main" className={styles.main}>
       <header className={styles.head}>
         <p className={`${styles.kicker} label`}>The archive · 1999 to 2025</p>
         <h1 className={`${styles.title} hed`}>The Morgue</h1>

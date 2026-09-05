@@ -25,7 +25,7 @@ export default async function BackPage() {
   const lost = lead.outcome === "loss";
 
   return (
-    <main className={styles.main}>
+    <main id="main" className={styles.main}>
       <article className={styles.lead}>
         <p className={`${styles.kicker} label`}>
           {lost ? "The worst night in the archive" : "The deepest hole in the archive"}

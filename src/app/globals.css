@@ -6,7 +6,7 @@
 :root {
   --ink: #16160f;
   --ink-2: #4a4940;
-  --ink-3: #7d7b70;
+  --ink-3: #555349;
   --rule: #16160f;
   --rule-soft: #b6b09c;
   --spot: #0b6b3a;
@@ -64,6 +64,9 @@ body::after {
 h1, h2, h3, h4 { margin: 0; font-weight: 400; }
 
 a { color: inherit; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid currentColor; outline-offset: 4px; }
+.skip-link { position: fixed; top: 0.5rem; left: 0.5rem; z-index: 100; padding: 0.75rem 1rem; background: var(--paper); border: 2px solid var(--ink); transform: translateY(-200%); }
+.skip-link:focus { transform: none; }
 
 button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
 
