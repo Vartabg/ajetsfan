@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Anton, Archivo_Narrow, Source_Serif_4, Geist_Mono } from "next/font/google";
 import { loadGames } from "@/lib/load-games";
 import { currentStreak, wearLevel } from "@/lib/paper";
@@ -33,6 +34,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <Masthead streak={streak} wear={wear} />
         {children}
         <Colophon />
+        <Analytics />
       </body>
     </html>
   );
