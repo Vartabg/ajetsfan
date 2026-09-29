@@ -2,6 +2,21 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { Game } from "./games";
+import type { CurrentSnapshot } from "./current";
+
+export async function loadCurrent(): Promise<CurrentSnapshot | null> {
+  try {
+    const raw = await readFile(path.join(process.cwd(), "public", "data", "current.json"), "utf8");
+    const snapshot = JSON.parse(raw) as CurrentSnapshot;
+    if (snapshot.schemaVersion !== 1 || !Array.isArray(snapshot.schedule)) {
+      throw new Error("Unsupported current-season snapshot");
+    }
+    return snapshot;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
+  }
+}
 
 export async function loadGames(): Promise<Game[]> {
   const raw = await readFile(

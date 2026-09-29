@@ -19,9 +19,9 @@ export default function PressChart({
   const T = 8;
   const B = 18;
 
-  // Downsample: a printed chart does not need one node per snap.
-  const step = Math.max(1, Math.floor(points.length / 90));
-  const pts = points.filter((_, i) => i % step === 0 || i === points.length - 1);
+  // A game has only a few hundred snaps. Keep them all so the line and marker
+  // cannot skip the second-half extreme used in the headline.
+  const pts = points;
 
   const x = (i: number) => L + (i / (pts.length - 1)) * (W - L - 4);
   const y = (wp: number) => T + (1 - wp) * (H - T - B);

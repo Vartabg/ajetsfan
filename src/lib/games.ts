@@ -5,6 +5,8 @@
 export type Outcome = "win" | "loss" | "tie";
 
 export type KeyPlay = {
+  /** Stable nflverse play identity; older archive snapshots use description matching. */
+  playId?: number;
   desc: string | null;
   wpa: number | null;
   qtr: number | null;

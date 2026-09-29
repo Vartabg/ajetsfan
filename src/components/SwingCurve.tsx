@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Board, Game } from "@/lib/games";
 import { clockLabel } from "@/lib/games";
+import { keyPlayIndex } from "@/lib/curve";
 import styles from "./SwingCurve.module.css";
 
 type Point = {
+  playId?: number;
   q: number;
   t: number | null;
   wp: number;
@@ -84,18 +86,12 @@ function GameCurve({ game, board }: { game: Game; board: Board }) {
       if (better) swingIdx = i;
     });
 
-    // The single play that moved it most, in the direction that decided the game.
-    let keyIdx = -1;
-    points.forEach((p, i) => {
-      if (p.q < 3 || p.d == null) return;
-      if (keyIdx === -1) keyIdx = i;
-      const cur = points[keyIdx].d ?? 0;
-      const better = board === "heartbreak" ? (p.d ?? 0) < cur : (p.d ?? 0) > cur;
-      if (better) keyIdx = i;
-    });
+    // Use the build's meaningful-play selection, including its unrounded WPA.
+    // Re-ranking rounded curve values can choose a no-play or a different tie.
+    const keyIdx = keyPlayIndex(points, game.keyPlay);
 
     return { x, y, line, band, marks, swingIdx, keyIdx };
-  }, [points, board]);
+  }, [points, board, game.keyPlay]);
 
   const tone = board === "heartbreak" ? styles.break : styles.miracle;
 

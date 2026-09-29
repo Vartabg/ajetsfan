@@ -1,0 +1,79 @@
+name: Refresh Jets data
+
+on:
+  workflow_dispatch:
+  schedule:
+    # UTC: daily checks include the Thursday correction pass. Extra checks
+    # follow Sunday afternoon and Sunday/Monday/Thursday night games.
+    - cron: '23 6,12,18 * * *'
+    - cron: '23 19-23 * * 0'
+    - cron: '23 0-5 * * 1,2,5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-jets-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    # Manual preview-branch runs must never publish to production.
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:data
+      - run: npm run data:refresh
+      - name: Detect snapshot changes
+        id: snapshot
+        run: |
+          git add -- public/data
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      # GITHUB_TOKEN pushes do not trigger the Verify workflow. Run all gates
+      # here before committing a snapshot, including its actual page rendering.
+      - if: steps.snapshot.outputs.changed == 'true'
+        run: npm run lint
+      - if: steps.snapshot.outputs.changed == 'true'
+        run: npm run build
+      - if: steps.snapshot.outputs.changed == 'true'
+        run: npx playwright install --with-deps chrome
+      - if: steps.snapshot.outputs.changed == 'true'
+        run: npm test
+      - name: Publish validated snapshot
+        if: steps.snapshot.outputs.changed == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'data: refresh Jets season snapshot'
+          # Refuse a non-fast-forward push if another change landed during the
+          # checks. The next run starts from the new default branch.
+          git push
+      - name: Request deployment through configured hook
+        if: steps.snapshot.outputs.changed == 'true' && env.VERCEL_DEPLOY_HOOK != ''
+        run: |
+          curl --fail --silent --show-error --retry 3 --max-time 60 \
+            --request POST "$VERCEL_DEPLOY_HOOK" --output /dev/null
+      - name: Report publishing status
+        if: steps.snapshot.outputs.changed == 'true'
+        run: |
+          echo 'Validated data committed to the default branch.' >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
+            echo 'No deploy hook configured. Verify the Vercel Git integration accepts github-actions bot commits, or configure VERCEL_DEPLOY_HOOK.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Deploy hook requested; check Vercel for deployment completion.' >> "$GITHUB_STEP_SUMMARY"
+          fi

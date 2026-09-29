@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/next";
 import { Anton, Archivo_Narrow, Source_Serif_4, Geist_Mono } from "next/font/google";
-import { loadGames } from "@/lib/load-games";
+import { loadGames, loadCurrent } from "@/lib/load-games";
+import { mergeResults } from "@/lib/current";
 import { currentStreak, wearLevel } from "@/lib/paper";
 import Masthead from "@/components/Masthead";
 import Colophon from "@/components/Colophon";
@@ -18,9 +20,9 @@ export const metadata: Metadata = {
     "A New York Jets tabloid that sets its own front page from the data, and yellows with the losing streak.",
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const games = await loadGames();
-  const streak = currentStreak(games);
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const [games, snapshot] = await Promise.all([loadGames(), loadCurrent()]);
+  const streak = currentStreak(mergeResults(games, snapshot));
   const wear = wearLevel(streak);
 
   return (
@@ -31,9 +33,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body>
         <a className="skip-link" href="#main">Skip to content</a>
-        <Masthead streak={streak} wear={wear} />
+        <Masthead streak={streak} wear={wear} checkedAt={snapshot?.checkedAt ?? null} />
         {children}
-        <Colophon />
+        <Colophon games={games} snapshot={snapshot} />
         <Analytics />
       </body>
     </html>

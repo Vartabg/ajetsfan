@@ -3,7 +3,10 @@ import path from "node:path";
 
 test("the case study explains the archive and lets a keyboard reader compare paper", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "How it is made" }).click();
+  const sections = page.getByRole("navigation", { name: "Site sections" });
+  await sections.getByRole("link", { name: "How it is made" }).click();
+  await expect(sections.getByRole("link", { name: "How it is made" })).toHaveAttribute("aria-current", "page");
+  await expect(sections.getByRole("link", { name: "The Back Page" })).not.toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(/How the\s*paper is made/);
   const control = page.getByRole("slider", { name: "Paper condition" });
   await control.focus();
