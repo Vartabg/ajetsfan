@@ -47,6 +47,6 @@ for (const width of [1280, 390, 320]) {
 test("a stale static edition warns the reader after the updater stops", async ({ page }) => {
   await page.clock.install({ time: new Date(Date.parse(snapshot.checkedAt) + 3 * 24 * 60 * 60_000) });
   await page.goto("/");
-  await expect(page.getByRole("status")).toContainText("Update overdue.");
-  await expect(page.getByRole("status")).toContainText("newer results may be missing");
+  await expect(page.getByRole("status", { name: "Results update status" })).toContainText("Update overdue.");
+  await expect(page.getByRole("status", { name: "Results update status" })).toContainText("newer results may be missing");
 });

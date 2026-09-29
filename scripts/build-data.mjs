@@ -18,6 +18,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { TEAM, SCHEDULE_SOURCE, pbpSource, parseLeagueSchedule, jetsSchedule, inferSeason, mergeAnalysis, currentManifest, readSnapshot, publishSnapshot, withDataLock, fetchText } from './data-refresh.mjs';
 import { extractAnalytics, retainAnalytics } from './season-analytics.mjs';
+import { refreshCoverage } from './coverage.mjs';
 
 const FIRST_SEASON = 1999;
 
@@ -251,7 +252,8 @@ export async function refreshData({
       }
       const current = currentManifest({ season, schedule, games: result.games, now, previous: previous.current, analysisChanged });
       const analytics = retainAnalytics(analyses.find((analysis) => analysis.analytics?.season === season)?.analytics ?? null, previous.analytics, now);
-      await publishSnapshot(out, { ...result, current, analytics });
+      const coverage = await refreshCoverage({ season, schedule: current.schedule, now, previous: previous.coverage, fetcher });
+      await publishSnapshot(out, { ...result, current, analytics, coverage });
       const finals = current.schedule.filter((g) => g.status === 'final').length;
       console.log(`${season}: ${finals} confirmed results; ${result.games.length} archived games; latest analyzed: ${current.latestAnalyzedGameId ?? 'pending'}`);
       return current;

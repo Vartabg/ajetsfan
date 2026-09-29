@@ -1,10 +1,11 @@
 # The Back Page — a Jets fan
 
-An independent Jets publication with a cinematic stadium cover, oversized sports typography, current results, league efficiency comparisons, and a searchable game archive. The page follows the latest confirmed result and carries a subtle paper tint based on the streak. The original full paper conditions remain available as an interactive specimen.
+An independent Jets publication with a cinematic stadium cover, oversized sports typography, official news headlines, searchable player profiles, current results, league efficiency comparisons, and a game archive. The page follows the latest confirmed result and carries a subtle paper tint based on the streak. The original full paper conditions remain available as an interactive specimen.
 
 ## Explore
 
-- `/`: the latest final and game analysis, next-opponent efficiency comparison, point-margin season chart, full schedule, and archive features.
+- `/`: the latest final and game analysis, official news, player leaders, next-opponent efficiency comparison, point-margin season chart, full schedule, and archive features.
+- `/team`: dated official headlines, passing/rushing/receiving leaders, and roster search by name, jersey, position, unit, and source status. Player selections and filters use shareable URLs, such as `/team?player=00-0033106#roster`.
 - `/morgue`: Heartbreak & Miracles rankings with season/opponent filters, search, sorting, shareable selected-game URLs, and keyboard/pointer play scrubbing. Example: `/morgue?game=2026_03_NYJ_DET&board=heartbreak`.
 - `/how-made`: the engineering case study, interactive paper comparison, source rules, and visible data exclusions.
 
@@ -27,7 +28,7 @@ npx playwright install chrome
 npm run test:a11y
 ```
 
-Browser checks use system Google Chrome and a production server. They verify the current front page, matchup numbers, full schedule, archive filters and shareable links, play scrubbing, case-study navigation, responsive reflow, and automated accessibility at 1280, 390, and 320px. Data tests cover parsing, season rollover, incomplete analysis, failed publication, and recovery. CI runs the same gates. Automated checks do not establish complete accessibility conformance.
+Browser checks use system Google Chrome and a production server. They verify the current front page, news links, roster filters and player profiles, matchup numbers, full schedule, archive filters and shareable links, play scrubbing, case-study navigation, responsive reflow, and automated accessibility at 1280, 390, and 320px. Data tests cover parsing, source URL validation, season rollover, incomplete analysis, independent feed failure, failed publication, and recovery. CI runs the same gates. Automated checks do not establish complete accessibility conformance.
 
 ## Data and decisions
 
@@ -44,6 +45,10 @@ Both commands require network access. The season is inferred from the official s
 
 `public/data/current.json` records the checked time, analysis update time, source URLs, and current-season fixtures/results. `games.json` and `curves/{game_id}.json` contain analyzed archive games. The refresher validates a complete staged directory before publishing it, keeps prior analysis while new analysis is pending, and restores the previous directory if publication fails. A process lock and recovery step handle overlapping runs and interrupted publication. Unexpected HTTP, schema, or validation failures exit nonzero and leave the last good snapshot intact.
 
+`public/data/coverage.json` contains independently checked news, roster, and weekly player-stat snapshots. Headlines and publication times come from the [official Jets RSS feed](https://www.newyorkjets.com/rss/news); bodies stay at the original articles. The latest NYJ regular-season roster week comes from [nflverse roster releases](https://github.com/nflverse/nflverse-data/releases/tag/rosters). Source membership labels do not establish injury status or game-day availability. Profiles use GSIS IDs with validated ESPN IDs as a fallback. Source entries missing both identifiers are counted visibly and await a searchable profile. Vetted source headshots fall back to initials when unavailable.
+
+Passing, rushing, and receiving totals use [nflverse player-stat releases](https://github.com/nflverse/nflverse-data/releases/tag/stats_player), restricted to matching schedule-confirmed Jets regular-season finals. Each game's passing completions, yards, and touchdowns must match its receiving totals. Leaders rank by yards. Recorded-game counts describe source statistics rows; defensive/special-teams production is not shown. Missing data remains missing. A failed coverage feed preserves its previous data and successful-check time with `retained` status, or publishes an `unavailable` empty state if no prior data exists. Other valid feeds and results can still update. Earlier-week roster regressions and lost player-game rows retain the previous feed. Source seasons remain visible after rollover, and player statistics must match the current edition season before they are displayed.
+
 The site uses a committed snapshot and static pages. Building the site does not fetch sports data. The visible edition date comes from the successful data check, rather than the current wall clock. A small reader-side clock displays an overdue warning when that check is more than 24 hours old, even if the deployed page has stopped updating.
 
 ## Scheduled publication
@@ -54,7 +59,7 @@ The workflow activates after this change reaches the default branch. It also sup
 
 Vercel's Git integration should deploy the resulting bot push, but verify that the first automatic commit actually produces a successful deployment. For an explicit deployment request, create a Vercel deploy hook for the default branch and save its URL as the GitHub Actions secret `VERCEL_DEPLOY_HOOK`. The workflow requests that hook only after a validated push. The hook URL is a secret; do not commit it. A hook response confirms a request, so check Vercel for build completion. If no hook is configured, the workflow summary calls out the need to verify Git deployment. GitHub's `GITHUB_TOKEN` push does not trigger the separate Verify workflow, which is why refresh runs its own gates.
 
-GitHub schedules can be delayed, and public-repository schedules may be disabled after prolonged inactivity. Check Actions if the visible checked time falls behind; a manual run restores the normal path. A successful check updates `checkedAt` even if football data is unchanged, so the publication timestamp remains honest. `analysisUpdatedAt` changes only when analysis changes.
+GitHub schedules can be delayed, and public-repository schedules may be disabled after prolonged inactivity. Check Actions if the visible checked time falls behind; a manual run restores the normal path. A successful check updates `checkedAt` even if football data is unchanged, so the publication timestamp remains honest. `analysisUpdatedAt` changes only when analysis changes. Coverage sources each retain their own `checkedAt`, `attemptedAt`, status, and source update metadata; building or deploying the site cannot advance those checks.
 
 Heartbreak ranks losses by peak second-half Jets win probability; Miracle ranks wins by the trough. Administrative rows with an empty or null possession team are excluded before reading probability. Kneels, spikes, and no-plays cannot supply the biggest turning point. Chart markers identify that same analyzed play. Games whose running scores do not reconcile with the recorded final are flagged and excluded from rankings, while retained for inspection. Current analysis must also agree with the schedule's final; a corrected score cannot reuse a stale curve.
 

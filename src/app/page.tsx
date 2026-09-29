@@ -10,10 +10,13 @@ import PressChart from "@/components/PressChart";
 import DataFreshness from "@/components/DataFreshness";
 import Matchup from "@/components/Matchup";
 import SeasonTrend from "@/components/SeasonTrend";
+import { loadCoverage } from "@/lib/load-coverage";
+import NewsDesk from "@/components/NewsDesk";
+import PlayerLeaders from "@/components/PlayerLeaders";
 import styles from "./page.module.css";
 
 export default async function BackPage() {
-  const [games, snapshot, rawAnalytics] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics()]);
+  const [games, snapshot, rawAnalytics, coverageFeed] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics(), loadCoverage()]);
   const analytics = rawAnalytics?.season === snapshot?.season ? rawAnalytics : null;
   const streak = currentStreak(mergeResults(games, snapshot));
   const lead = selectLead(games, snapshot);
@@ -69,6 +72,8 @@ export default async function BackPage() {
         <div><span>The analyzed archive</span><strong>{coverage.count}</strong><small>Games · {coverage.seasonLabel}</small></div>
       </section>
 
+      {coverageFeed ? <NewsDesk feed={coverageFeed.news} limit={3} compact /> : null}
+
       {result ? <article id="latest-game" className={styles.lead}>
         <div className={styles.sectionTop}><p className={styles.kicker}>{lead.kind === "archive" ? "From the archive · no current-season final in this edition" : `Latest final · Week ${result.week}${result.seasonType === "POST" ? " · playoffs" : ""}`}</p><span className={styles.sectionIndex}>01 / THE GAME</span></div>
         <div className={styles.leadGrid}>
@@ -90,6 +95,8 @@ export default async function BackPage() {
       </article> : null}
 
       {next && snapshot ? <Matchup game={next.game} overdue={next.overdue} analytics={analytics} /> : null}
+
+      {coverageFeed ? <PlayerLeaders stats={coverageFeed.stats} roster={coverageFeed.roster} editionSeason={snapshot?.season ?? coverageFeed.season} compact /> : null}
 
       {snapshot ? <section className={styles.season} aria-labelledby="season-heading">
         <div className={styles.sectionTop}><p className={styles.kicker}>The story so far</p><span className={styles.sectionIndex}>02 / THE SEASON</span></div>

@@ -235,19 +235,23 @@ export async function readSnapshot(out) {
   let games = [];
   let current = null;
   let analytics = null;
+  let coverage = null;
   try { games = JSON.parse(await readFile(path.join(out, 'games.json'), 'utf8')); }
   catch (error) { if (error.code !== 'ENOENT') throw error; }
   try { current = JSON.parse(await readFile(path.join(out, 'current.json'), 'utf8')); }
   catch (error) { if (error.code !== 'ENOENT') throw error; }
   try { analytics = JSON.parse(await readFile(path.join(out, 'analytics.json'), 'utf8')); }
   catch (error) { if (error.code !== 'ENOENT') throw error; }
+  try { coverage = JSON.parse(await readFile(path.join(out, 'coverage.json'), 'utf8')); }
+  catch (error) { if (error.code !== 'ENOENT') throw error; }
   if (!Array.isArray(games)) throw new Error('Archive is not a game array');
   if (analytics) validateAnalytics(analytics);
-  return { games, current, analytics };
+  if (coverage) (await import('./coverage.mjs')).validateCoverage(coverage);
+  return { games, current, analytics, coverage };
 }
 
 /** Stage all files, validate them, then promote the complete directory with rollback. */
-export async function publishSnapshot(out, { games, curves, current, analytics }, { beforePromote } = {}) {
+export async function publishSnapshot(out, { games, curves, current, analytics, coverage }, { beforePromote } = {}) {
   const stage = sibling(out, 'stage'), backup = sibling(out, 'backup');
   let movedOld = false;
   let promoted = false;
@@ -264,6 +268,10 @@ export async function publishSnapshot(out, { games, curves, current, analytics }
     if (analytics) {
       validateAnalytics(analytics);
       await writeFile(path.join(stage, 'analytics.json'), JSON.stringify(analytics));
+    }
+    if (coverage) {
+      (await import('./coverage.mjs')).validateCoverage(coverage);
+      await writeFile(path.join(stage, 'coverage.json'), JSON.stringify(coverage));
     }
     for (const [id, points] of curves) {
       if (!GAME_ID.test(id)) throw new Error(`Unsafe curve id: ${id}`);

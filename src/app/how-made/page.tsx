@@ -34,6 +34,15 @@ export default async function HowMade() {
 
       <PaperSample />
 
+      <section>
+        <h2>Follow the team, with each source in view</h2>
+        <p>The news desk carries headlines and original publication times from the <a href="https://www.newyorkjets.com/rss/news">official Jets news feed</a>. Each headline opens the original story. Publication time describes the article; the successful-check time describes when this edition fetched the feed.</p>
+        <p>The roster uses the latest regular-season week in the <a href="https://github.com/nflverse/nflverse-data/releases/tag/rosters">nflverse roster files</a>. Active, practice-squad, and reserve labels describe source roster membership. They do not establish injury status or availability for a game. Profiles are matched by GSIS identifiers, with validated ESPN identifiers as a fallback. Entries without either identifier are counted visibly as awaiting identifiers. Headshots come from the source and fall back to initials when unavailable.</p>
+        <p>Passing, rushing, and receiving totals come from <a href="https://github.com/nflverse/nflverse-data/releases/tag/stats_player">nflverse weekly player statistics</a>, restricted to Jets regular-season games confirmed final by the schedule. Each game&apos;s passing completions, yards, and touchdowns must reconcile with its receiving totals before publication; replacements cannot silently lose previously verified player-game rows. Yardage supplies the leader ordering. A player&apos;s recorded-game count includes games with a source statistics row, rather than all roster appearances. Defensive, special-teams, and preseason production are outside this display. Missing player statistics are described as missing, rather than presented as zero production.</p>
+        <p>News, roster, and player statistics have independent successful-check times and cutoffs. If one source fails validation or fetching, its previous valid data remains visible with a warning. Without a previous snapshot, that section is marked unavailable. Previous-season roster records keep their source-season label; they cannot supply statistics for the current edition. A reader-side clock marks source checks older than 24 hours as overdue.</p>
+        <Link href="/team">Explore the news desk and roster →</Link>
+      </section>
+
       <section id="efficiency">
         <h2>Team efficiency, with the sample in view</h2>
         <p><strong>Expected points added (EPA)</strong> measures how a play changes the offense&apos;s expected scoring position. EPA per play is the sum divided by the number of included plays. Higher offensive EPA is better; lower defensive EPA allowed is better. <strong>Success rate</strong> is the share of those plays with EPA above zero.</p>

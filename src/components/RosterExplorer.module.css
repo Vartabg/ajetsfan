@@ -1,0 +1,63 @@
+.explorer { margin-top: 1.75rem; }
+.unitTabs { display: flex; flex-wrap: wrap; gap: .6rem; }
+.unitTabs button { display: flex; align-items: center; gap: .65rem; padding: .7rem 1rem; border: 1px solid var(--rule-soft); border-radius: 999px; background: var(--paper); font: 700 .85rem/1.5 var(--font-sans), Arial, sans-serif; }
+.unitTabs button:hover { border-color: var(--spot); }
+.unitTabs button.unitOn { color: var(--forest); border-color: var(--accent); background: var(--accent); }
+.unitTabs span { font: .7rem/1.5 var(--font-mono), monospace; }
+.filters { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.2fr); gap: 1rem; padding: 1.3rem; margin-top: 1.3rem; background: var(--paper-2); border-radius: 14px; }
+.filters > div { min-width: 0; }
+.filters label { display: block; margin-bottom: .4rem; font-weight: 700; font-size: .78rem; color: var(--ink-2); }
+.filters input, .filters select { width: 100%; min-width: 0; min-height: 44px; padding: .65rem .75rem; background: var(--paper); color: var(--ink); border: 1px solid var(--rule-soft); border-radius: 7px; font: 1rem/1.4 var(--font-sans), Arial, sans-serif; }
+.results { display: flex; justify-content: space-between; align-items: center; gap: 1rem; min-height: 4.25rem; color: var(--ink-2); font-size: .82rem; }
+.results p { margin: 0; }
+.results strong { color: var(--ink); }
+.results button { padding: .5rem; font-weight: 700; color: var(--spot); text-decoration: underline; text-underline-offset: 3px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 1rem; list-style: none; padding: 0; margin: 0; }
+.playerCard { width: 100%; height: 100%; display: flex; flex-direction: column; text-align: left; border: 1px solid var(--rule-soft); border-radius: 14px; overflow: hidden; background: var(--paper); transition: border-color .15s, transform .15s; }
+.playerCard:hover { border-color: var(--spot); transform: translateY(-3px); }
+.selectedCard { border-color: var(--spot); box-shadow: inset 0 -4px 0 var(--spot); }
+.cardPhoto { position: relative; width: 100%; background: var(--paper-2); }
+.portrait { display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 1.2; overflow: hidden; background: color-mix(in srgb, var(--spot) 6%, var(--paper-2)); }
+.portrait img { width: 100%; height: 100%; object-fit: contain; object-position: center bottom; }
+.initials { font: 400 4.3rem/1 var(--font-hed), Impact, sans-serif; color: var(--spot); letter-spacing: -.03em; }
+.jersey { position: absolute; top: .75rem; left: .75rem; padding: .2rem .5rem; border-radius: 5px; background: var(--forest); color: var(--accent); font: 700 .8rem/1.5 var(--font-mono), monospace; }
+.cardText { display: flex; flex-direction: column; flex: 1; width: 100%; padding: 1rem; }
+.cardPosition { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--spot); font-weight: 700; }
+.cardText > strong { display: block; margin-top: .45rem; font: 700 1.2rem/1.2 var(--font-sans-narrow), Arial, sans-serif; overflow-wrap: anywhere; }
+.cardStatus { display: block; margin-top: .5rem; color: var(--ink-2); font-size: .72rem; }
+.cardLink { display: flex; justify-content: space-between; margin-top: auto; padding-top: 1rem; color: var(--spot); font-size: .73rem; font-weight: 700; }
+.profile { margin-bottom: 1.75rem; border: 1px solid var(--rule-soft); border-radius: 16px; overflow: hidden; background: var(--paper); }
+.profileTop { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .7rem; padding: .8rem 1.4rem; background: var(--forest); color: #fff; }
+.profileTop p { margin: 0; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; }
+.profileTop button { padding: .45rem 0; font-size: .75rem; font-weight: 700; }
+.profileTop button span { padding-left: .45rem; color: var(--accent); font-size: 1rem; }
+.profileGrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 2rem; padding: 1.5rem; }
+.profileIdentity { min-width: 0; }
+.profileIdentity > .portrait { width: 220px; max-width: 100%; border-radius: 12px; margin-bottom: 1rem; }
+.playerKicker { color: var(--spot); font: 700 .85rem/1.5 var(--font-mono), monospace; margin: 0 0 .5rem; }
+.profileIdentity h2 { font: 400 clamp(2rem, 4vw, 3.1rem)/1.1 var(--font-hed), Impact, sans-serif; text-transform: uppercase; scroll-margin-top: 1.5rem; overflow-wrap: anywhere; }
+.status { margin: .7rem 0 0; font-size: .8rem; color: var(--ink-2); }
+.profileInfo { min-width: 0; }
+.bio { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 0; }
+.bio dt { color: var(--ink-2); font-size: .73rem; }
+.bio dd { margin: .2rem 0 0; font-weight: 700; font-size: .9rem; overflow-wrap: anywhere; }
+.statBlock { margin-top: 1.5rem; padding: 1.15rem; background: var(--paper-2); border-radius: 12px; }
+.statBlock h3 { font-size: .9rem; font-weight: 700; }
+.statLines { margin: .75rem 0 0; }
+.statLines > div { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: .6rem; padding: .55rem 0; border-top: 1px solid var(--rule-soft); font-size: .8rem; }
+.statLines dt { color: var(--ink-2); }
+.statLines dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.statNote, .noStats { margin: .8rem 0 0; color: var(--ink-2); font-size: .75rem; line-height: 1.6; }
+.profileLinks { display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; align-items: center; padding: .85rem 1.5rem; border-top: 1px solid var(--rule-soft); color: var(--spot); font-size: .75rem; font-weight: 700; }
+.profileLinks a, .profileLinks button { padding: .45rem 0; text-underline-offset: 3px; }
+.profileLinks button { text-decoration: underline; }
+.profileLinks span[role="status"] { flex-basis: 100%; color: var(--ink-2); font-weight: 400; }
+.sourceNote { margin: 1.2rem 0 0; color: var(--ink-2); font-size: .75rem; line-height: 1.6; }
+.missing { margin: 0 0 1.3rem; padding: 1rem; background: var(--paper-2); border-radius: 8px; font-size: .85rem; }
+.empty { padding: 3rem 1.5rem; text-align: center; background: var(--paper-2); border-radius: 14px; }
+.empty h2 { font-size: 1.7rem; font-weight: 700; }
+.empty p { color: var(--ink-2); }
+.empty button { padding: .8rem 1rem; background: var(--spot); color: #fff; border-radius: 8px; font-size: .85rem; font-weight: 700; }
+@media (max-width: 800px) { .profileGrid { grid-template-columns: 1fr; gap: 1.4rem; } .profileIdentity { display: flex; align-items: center; gap: 1.5rem; } .profileIdentity > .portrait { width: 160px; flex: none; margin-bottom: 0; } }
+@media (max-width: 640px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 1rem; gap: .8rem; } .searchField { grid-column: 1 / -1; } .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; } .cardText { padding: .85rem; } .cardText > strong { font-size: 1.15rem; } .profileGrid { padding: 1rem; } .profileIdentity { display: block; } .profileIdentity > .portrait { margin-bottom: 1rem; } .profileTop { padding: .7rem 1rem; } .profileLinks { padding: .75rem 1rem; } .statBlock { padding: 1rem; } .statLines > div { grid-template-columns: 1fr; gap: .2rem; } .unitTabs { gap: .45rem; } .unitTabs button { padding: .6rem .8rem; font-size: .78rem; } }
+@media (max-width: 360px) { .grid { grid-template-columns: 1fr; } .filters { grid-template-columns: 1fr; } .searchField { grid-column: auto; } }

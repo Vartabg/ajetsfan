@@ -1,0 +1,37 @@
+.desk { margin-top: 2.8rem; padding: 2.5rem 0; border-top: 3px solid var(--rule); scroll-margin-top: 1.5rem; }
+.header { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 1rem 2rem; margin-bottom: 1.5rem; }
+.kicker { margin: 0 0 .55rem; color: var(--spot); font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .14em; }
+.header h2 { font-size: clamp(2.5rem, 4.5vw, 4rem); }
+.allNews { display: inline-flex; align-items: center; gap: 1rem; padding: .45rem 0; font-size: .78rem; font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--spot); }
+.allNews span { color: var(--spot); font-size: 1.2rem; }
+.stories { display: grid; grid-template-columns: 1fr; gap: 1.5rem; align-items: start; }
+.single { grid-template-columns: 1fr; }
+.lead { display: flex; flex-direction: column; align-items: start; min-height: 260px; padding: 2rem; color: #f8fcf6; background: var(--forest); border-top: 6px solid var(--accent); border-radius: 0 0 6px 6px; text-decoration: none; }
+.leadKicker { margin-bottom: 1.4rem; color: var(--accent); font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .14em; }
+.published { display: block; font-size: .65rem; line-height: 1.65; font-variant-numeric: tabular-nums; }
+.lead .published { color: #c1d4c7; }
+.lead h3 { max-width: 34ch; margin: .85rem 0 1.6rem; font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: clamp(1.75rem, 2.5vw, 2.5rem); font-weight: 700; line-height: 1.12; overflow-wrap: anywhere; }
+.read { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; margin-top: auto; padding-top: 1rem; border-top: 1px solid #ffffff36; color: var(--accent); font-size: .73rem; font-weight: 700; }
+.read > span[aria-hidden] { font-size: 1.25rem; }
+.headlines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.headlines li { min-width: 0; border-bottom: 1px solid var(--rule-soft); }
+.headline { position: relative; display: block; padding: 1rem 2rem 1rem 0; text-decoration: none; }
+.headline .published { color: var(--ink-2); }
+.headline h3 { margin: .4rem 0 0; font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: 1.25rem; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.headlineArrow { position: absolute; right: .2rem; top: 1.25rem; color: var(--spot); font-size: 1.2rem; }
+.lead:hover h3, .headline:hover h3 { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.lead:focus-visible { outline-color: var(--spot); }
+.headline:focus-visible, .allNews:focus-visible { outline-color: var(--spot); }
+.footer { margin-top: 1rem; }
+.empty { padding: 1.75rem; background: var(--paper-2); border-left: 5px solid var(--spot); }
+.empty p { margin: .4rem 0 .75rem; font-size: .85rem; color: var(--ink-2); }
+.empty .emptyTitle { margin: 0; color: var(--ink); font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: 1.6rem; font-weight: 700; }
+.empty a { display: inline-block; padding: .4rem 0; font-size: .78rem; font-weight: 700; text-underline-offset: 4px; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.compact .lead { min-height: 290px; }
+.compact .stories { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+.compact .single { grid-template-columns: 1fr; }
+.compact .headlines { height: 100%; grid-template-columns: 1fr; grid-auto-rows: 1fr; }
+.compact .headline { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+@media (max-width: 900px) { .stories { gap: 1.25rem; } .compact .stories { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .single, .compact .single { grid-template-columns: 1fr; } .lead { padding: 1.5rem; } }
+@media (max-width: 640px) { .desk { padding: 2rem 0; } .header { align-items: start; gap: .8rem; margin-bottom: 1.25rem; } .header h2 { font-size: 2.7rem; } .stories, .compact .stories { grid-template-columns: 1fr; gap: 1.25rem; } .lead, .compact .lead { min-height: 0; padding: 1.35rem; } .leadKicker { margin-bottom: .85rem; } .lead h3 { font-size: 1.8rem; margin-bottom: 1.4rem; } .headlines { grid-template-columns: 1fr; } .headline { padding-top: 1rem; padding-bottom: 1rem; } .compact .headlines { grid-auto-rows: auto; } .empty { padding: 1.25rem; } }

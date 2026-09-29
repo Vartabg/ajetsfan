@@ -20,6 +20,8 @@ export default function Colophon({ games, snapshot }: { games: Game[]; snapshot:
           nflverse
         </a>
         . {snapshot ? <>Results and schedule from <a href={snapshot.sources.schedule} target="_blank" rel="noreferrer">the schedule source</a>. </> : null}
+        <Link href="/team">News and team coverage</Link> uses official Jets headlines and nflverse roster and player statistics.
+        {" "}
         The analyzed archive holds {coverage.count} games across the {coverage.seasonLabel} seasons
         {coverage.lastDate ? `, through ${formatDate(coverage.lastDate)}` : ""}.
         {" "}{excluded} {excluded === 1 ? "record is" : "records are"} excluded from rankings by the score integrity check;

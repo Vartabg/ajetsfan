@@ -18,7 +18,7 @@ export default function DataFreshness({ checkedAt }: { checkedAt: string }) {
   if (!now || age < DAY) return null;
   const days = Math.floor(age / DAY);
   return (
-    <p role="status" style={{
+    <p role="status" aria-label="Results update status" style={{
       border: "1px solid var(--rule)", borderLeft: "4px solid var(--spot)",
       padding: "0.65rem 0.8rem", margin: "0.75rem 0", fontSize: "0.85rem",
     }}>
