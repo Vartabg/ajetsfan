@@ -5,6 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { parseCsv, parseSchedule, easternKickoff, inferSeason, mergeAnalysis, currentManifest, publishSnapshot, recoverPublication, withDataLock } from './data-refresh.mjs';
 import { refreshData, extractSeason } from './build-data.mjs';
+import { buildAnalytics } from './season-analytics.mjs';
+import { parseLeagueSchedule } from './data-refresh.mjs';
 
 const HEADER = 'game_id,season,game_type,week,gameday,gametime,away_team,away_score,home_team,home_score';
 const csv = (...rows) => [HEADER, ...rows].join('\n');
@@ -152,6 +154,25 @@ test('missing PBP publishes confirmed schedule with analysis pending and retains
   assert.equal(value.latestAnalyzedGameId, null);
   assert.equal(value.analysisUpdatedAt, '2026-01-05T12:00:00Z');
   assert.equal(await readFile(path.join(out, 'games.json'), 'utf8'), before);
+});
+
+test('the refresher retains published analytics byte-for-byte across missing and failed PBP', async (t) => {
+  const out = await sandbox(t);
+  const league = parseLeagueSchedule(csv(CURRENT));
+  const analytics = buildAnalytics({
+    season: 2026, schedule: league, states: [{ ...league[0], complete: true, runningHome: 20, runningAway: 10 }],
+    totals: [
+      { id: NEW_ID, team: 'NYJ', plays: 1, epa: 1, successes: 1, passPlays: 1, passEpa: 1, rushPlays: 0, rushEpa: 0 },
+      { id: NEW_ID, team: 'BUF', plays: 1, epa: -1, successes: 0, passPlays: 1, passEpa: -1, rushPlays: 0, rushEpa: 0 },
+    ], now, sources: { schedule: 'https://example.test/games.csv', pbp: 'https://example.test/pbp.parquet', methodology: 'https://example.test/definitions' },
+  });
+  await refreshData({ out, now, fetcher: fetchSchedule(), extract: async () => ({ ...analysis(), analytics }) });
+  const before = await readFile(path.join(out, 'analytics.json'), 'utf8');
+  const later = new Date('2026-09-16T12:00:00Z');
+  await refreshData({ out, now: later, fetcher: async (url) => url.endsWith('.parquet') ? new Response('', { status: 404 }) : new Response(csv(HISTORICAL, CURRENT, NEXT)) });
+  assert.equal(await readFile(path.join(out, 'analytics.json'), 'utf8'), before);
+  await assert.rejects(refreshData({ out, now: later, fetcher: async (url) => url.endsWith('.parquet') ? new Response('', { status: 503 }) : new Response(csv(HISTORICAL, CURRENT, NEXT)) }), /HTTP 503/);
+  assert.equal(await readFile(path.join(out, 'analytics.json'), 'utf8'), before);
 });
 
 test('upstream failures retain all prior bytes and do not falsely advance checkedAt', async (t) => {

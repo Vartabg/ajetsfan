@@ -1,4 +1,5 @@
 import styles from "./Colophon.module.css";
+import Link from "next/link";
 import type { Game } from "@/lib/games";
 import type { CurrentSnapshot } from "@/lib/current";
 import { archiveCoverage, formatDate } from "@/lib/current";
@@ -11,7 +12,8 @@ export default function Colophon({ games, snapshot }: { games: Game[]; snapshot:
   const coverage = archiveCoverage(games);
   const excluded = games.filter((game) => game.dataSuspect).length;
   return (
-    <footer className={`${styles.foot} agate`}>
+    <footer className={styles.foot}>
+      <div className={styles.top}><Link href="/" className={styles.brand}>The Back Page</Link><p className={styles.tagline}>For the faithful. Fueled by data.</p></div>
       <p>
         Play-by-play and win probability from{" "}
         <a href="https://github.com/nflverse/nflverse-data" target="_blank" rel="noreferrer">

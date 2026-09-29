@@ -16,7 +16,8 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { TEAM, SCHEDULE_SOURCE, pbpSource, parseSchedule, inferSeason, mergeAnalysis, currentManifest, readSnapshot, publishSnapshot, withDataLock, fetchText } from './data-refresh.mjs';
+import { TEAM, SCHEDULE_SOURCE, pbpSource, parseLeagueSchedule, jetsSchedule, inferSeason, mergeAnalysis, currentManifest, readSnapshot, publishSnapshot, withDataLock, fetchText } from './data-refresh.mjs';
+import { extractAnalytics, retainAnalytics } from './season-analytics.mjs';
 
 const FIRST_SEASON = 1999;
 
@@ -191,7 +192,8 @@ export async function refreshData({
   return withDataLock(out, async () => {
     const previous = await readSnapshot(out);
     if (!full && !previous.games.length) throw new Error('No historical snapshot; run with --full to initialize');
-    const schedule = parseSchedule(await fetchText(SCHEDULE_SOURCE, fetcher));
+    const leagueSchedule = parseLeagueSchedule(await fetchText(SCHEDULE_SOURCE, fetcher));
+    const schedule = jetsSchedule(leagueSchedule);
     const season = inferSeason(schedule, now);
     const archived = new Map(previous.games.map((game) => [game.id, game]));
     const lastArchivedSeason = Math.max(FIRST_SEASON, ...previous.games.map((game) => game.season));
@@ -209,7 +211,8 @@ export async function refreshData({
     try {
       for (const target of seasons) {
         // No completed games means there is nothing to analyze yet.
-        if (!schedule.some((g) => g.season === target && g.status === 'final')) continue;
+        const hasFinals = (target === season ? leagueSchedule : schedule).some((g) => g.season === target && g.status === 'final');
+        if (!hasFinals) continue;
         let analysis;
         if (extract) analysis = await extract(target);
         else {
@@ -227,6 +230,9 @@ export async function refreshData({
             const file = path.join(temp, `${target}.parquet`);
             await writeFile(file, Buffer.from(await response.arrayBuffer()));
             analysis = await extractSeason(db, target, file);
+            if (target === season) analysis.analytics = await extractAnalytics(db, season, file, leagueSchedule, now, {
+              schedule: SCHEDULE_SOURCE, pbp: pbpSource(season), methodology: 'https://nflfastr.com/reference/fast_scraper.html',
+            });
             await rm(file);
           }
         }
@@ -244,7 +250,8 @@ export async function refreshData({
         }
       }
       const current = currentManifest({ season, schedule, games: result.games, now, previous: previous.current, analysisChanged });
-      await publishSnapshot(out, { ...result, current });
+      const analytics = retainAnalytics(analyses.find((analysis) => analysis.analytics?.season === season)?.analytics ?? null, previous.analytics, now);
+      await publishSnapshot(out, { ...result, current, analytics });
       const finals = current.schedule.filter((g) => g.status === 'final').length;
       console.log(`${season}: ${finals} confirmed results; ${result.games.length} archived games; latest analyzed: ${current.latestAnalyzedGameId ?? 'pending'}`);
       return current;

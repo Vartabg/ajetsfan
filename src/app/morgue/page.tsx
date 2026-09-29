@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { rank } from "@/lib/games";
 import { loadGames } from "@/lib/load-games";
 import { archiveCoverage, formatDate } from "@/lib/current";
@@ -20,17 +21,11 @@ export default async function Morgue() {
   return (
     <main id="main" className={styles.main}>
       <header className={styles.head}>
-        <p className={`${styles.kicker} label`}>The analyzed archive · {coverage.seasonLabel}{coverage.lastDate ? ` · through ${formatDate(coverage.lastDate)}` : ""}</p>
-        <h1 className={`${styles.title} hed`}>The Morgue</h1>
-        <p className={styles.standfirst}>
-          A newspaper&apos;s own word for the room where it keeps everything that
-          already happened. {coverage.count} analyzed games; {heartbreak.length + miracle.length} qualify for the rankings, ordered by the
-          win probability they reached in the second half before it all went wrong.
-          Or right.
-        </p>
+        <div><p className={styles.kicker}>Jets archive / Game explorer</p><h1 className={`${styles.title} hed`}>The Morgue</h1><p className={styles.standfirst}>Every game has a turning point. Find the hope, the heartbreak, and the moments that brought it back.</p></div>
+        <div className={styles.coverage}><strong>{coverage.count}</strong><span>games analyzed · {coverage.seasonLabel}</span><small>{coverage.lastDate ? `Through ${formatDate(coverage.lastDate)} · ` : ""}{heartbreak.length + miracle.length} eligible for probability rankings</small></div>
       </header>
 
-      <Boards heartbreak={heartbreak} miracle={miracle} />
+      <Suspense fallback={<p className={styles.loading} role="status">Opening the game explorer…</p>}><Boards heartbreak={heartbreak} miracle={miracle} /></Suspense>
     </main>
   );
 }

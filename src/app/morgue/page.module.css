@@ -1,42 +1,11 @@
-.main {
-  position: relative;
-  z-index: 1;
-  width: var(--shell);
-  margin-inline: auto;
-  padding: 1.1rem 0 3rem;
-}
-
-.head {
-  max-width: 46rem;
-  border-bottom: 3px solid var(--rule);
-  padding-bottom: 0.9rem;
-}
-
-.kicker {
-  color: var(--spot);
-  font-weight: 700;
-  margin: 0 0 0.3rem;
-}
-
-.title {
-  font-size: clamp(3rem, 11vw, 6.5rem);
-  margin: 0;
-}
-
-.standfirst {
-  margin: 0.8rem 0 0;
-  font-size: 1rem;
-  line-height: 1.5;
-  max-width: 40rem;
-}
-
-.crossref {
-  margin: 0.5rem 0 0;
-  font-family: var(--font-sans-narrow), sans-serif;
-  font-size: 0.76rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--ink-2);
-}
-
-.crossref a { color: var(--spot); font-weight: 700; }
+.main { position: relative; z-index: 1; width: var(--shell); margin-inline: auto; padding: 2.5rem 0 4rem; }
+.head { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 2rem; align-items: end; padding-bottom: 2rem; border-bottom: 1px solid var(--rule-soft); }
+.kicker { color: var(--spot); font: 700 .75rem/1.5 var(--font-sans-narrow), sans-serif; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 .9rem; }
+.title { font-size: clamp(3.5rem, 8.5vw, 7rem); line-height: 1; margin: 0; }
+.standfirst { margin: 1rem 0 0; font: 1.15rem/1.5 var(--font-sans-narrow), sans-serif; color: var(--ink-2); max-width: 34rem; }
+.coverage { display: flex; flex-direction: column; gap: .4rem; align-items: flex-end; text-align: right; }
+.coverage strong { color: var(--spot); font: 400 clamp(3.5rem, 7vw, 5.5rem)/1 var(--font-hed), Impact, sans-serif; }
+.coverage > span { font: 700 .95rem/1.5 var(--font-sans-narrow), sans-serif; }
+.coverage small { color: var(--ink-2); font: .75rem/1.5 var(--font-sans-narrow), sans-serif; }
+.loading { padding: 3rem 0; color: var(--ink-2); }
+@media (max-width: 640px) { .main { padding-top: 1.5rem; } .head { grid-template-columns: 1fr; gap: 1.3rem; } .coverage { flex-direction: row; align-items: baseline; justify-content: flex-start; flex-wrap: wrap; text-align: left; gap: .4rem .7rem; } .coverage strong { font-size: 2.8rem; } .coverage small { flex-basis: 100%; } .standfirst { font-size: 1rem; } }

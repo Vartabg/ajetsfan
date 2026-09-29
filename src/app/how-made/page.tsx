@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { loadGames, loadCurrent } from "@/lib/load-games";
+import { loadGames, loadCurrent, loadAnalytics } from "@/lib/load-games";
 import { archiveCoverage, formatCheckedAt, formatDate } from "@/lib/current";
 import { rank } from "@/lib/games";
 import PaperSample from "./PaperSample";
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HowMade() {
-  const [games, snapshot] = await Promise.all([loadGames(), loadCurrent()]);
+  const [games, snapshot, analytics] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics()]);
   const excluded = games.filter((game) => game.dataSuspect);
   const eligible = rank(games, "heartbreak").length + rank(games, "miracle").length;
   const coverage = archiveCoverage(games);
@@ -21,7 +21,7 @@ export default async function HowMade() {
       <header className={styles.header}>
         <p className="label">Inside the composing room / Engineering case study</p>
         <h1 className="hed">How the<br />paper is made</h1>
-        <p className={styles.lede}>The score chooses the story. The streak ages the paper. Every effect starts with a fact in the archive.</p>
+        <p className={styles.lede}>Every game has a story. These are the sources, calculations, and checks behind the numbers.</p>
         <p>Built by <a href="https://garovartabedian.com/work">Garo Vartabedian</a>. An independent fan project with its workings left open to inspection.</p>
       </header>
 
@@ -33,6 +33,15 @@ export default async function HowMade() {
       </ol>
 
       <PaperSample />
+
+      <section id="efficiency">
+        <h2>Team efficiency, with the sample in view</h2>
+        <p><strong>Expected points added (EPA)</strong> measures how a play changes the offense&apos;s expected scoring position. EPA per play is the sum divided by the number of included plays. Higher offensive EPA is better; lower defensive EPA allowed is better. <strong>Success rate</strong> is the share of those plays with EPA above zero.</p>
+        <p>The sample includes current-season regular-season games confirmed final by the schedule, with completed, score-reconciled play-by-play. Included plays have a valid offense and defense, down 1–4, a run or pass play type, and finite EPA. No-plays, kneels, spikes, and two-point attempts are excluded. These are pooled play rates, rather than averages of game averages.</p>
+        <p><strong>Dropbacks</strong> include passes, sacks, and quarterback scrambles marked as dropbacks in the source. The rushing split uses the remaining designed runs. Empty samples show a dash. League ranks compare teams with analyzed games and give tied values the same rank; the next rank skips the tied places.</p>
+        {analytics?.throughDate ? <p>The efficiency snapshot includes {analytics.analyzedGameIds.length} completed games and {analytics.teams.length} teams through Week {analytics.throughWeek}, {formatDate(analytics.throughDate)}. {analytics.pendingGameIds.length} confirmed league finals await usable analysis. Last analysis update: {analytics.analysisUpdatedAt ? formatCheckedAt(analytics.analysisUpdatedAt) : "unavailable"}.</p> : <p>No current-season efficiency snapshot is available in this edition.</p>}
+        <p>Early-season samples are small. The comparison describes recorded performance and does not predict who will win the next game. <a href="https://nflfastr.com/articles/beginners_guide.html">Read the nflfastR guide to EPA and win probability</a>.</p>
+      </section>
 
       <section>
         <h2>The headline is a calculation</h2>
@@ -60,7 +69,7 @@ export default async function HowMade() {
 
       <section>
         <h2>A small system with a visible chain of decisions</h2>
-        <p>The results and schedule are checked separately from the play-by-play analysis. DuckDB reads the source Parquet files during data preparation and writes static JSON. Next.js prints the edition from that checked data. Small React controls handle comparison and archive interaction; CSS carries the paper, typography, and print texture.</p>
+        <p>The results and schedule are checked separately from the play-by-play analysis. DuckDB reads the source Parquet files during data preparation and writes static JSON. Next.js prints the edition from that checked data. Small React controls handle archive filters and play-by-play exploration. The stadium cover is an original generated illustration, rather than a photograph of a particular game or player.</p>
         {snapshot ? <p>Results last checked <time dateTime={snapshot.checkedAt}>{formatCheckedAt(snapshot.checkedAt)}</time>. Analysis {snapshot.analysisUpdatedAt ? <>last updated <time dateTime={snapshot.analysisUpdatedAt}>{formatCheckedAt(snapshot.analysisUpdatedAt)}</time></> : "has no published update time"}. <a href={snapshot.sources.schedule}>Inspect the results and schedule source</a>.</p> : null}
         <p>There is no runtime language-model call deciding the headline. The source data, rules, and output can be inspected independently.</p>
         <ul>

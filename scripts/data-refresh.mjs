@@ -1,5 +1,6 @@
 import { cp, mkdir, readFile, rename, rm, writeFile, open } from 'node:fs/promises';
 import path from 'node:path';
+import { validateAnalytics } from './season-analytics.mjs';
 
 export const SCHEDULE_SOURCE = 'https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv';
 export const pbpSource = (season) => `https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_${season}.parquet`;
@@ -75,14 +76,13 @@ export function easternKickoff(date, time) {
   throw new Error(`Unresolvable Eastern kickoff: ${wanted}`);
 }
 
-export function parseSchedule(csv) {
+export function parseLeagueSchedule(csv) {
   const rows = parseCsv(csv);
   const required = ['game_id', 'season', 'game_type', 'week', 'gameday', 'gametime', 'away_team', 'away_score', 'home_team', 'home_score'];
   for (const key of required) if (!(key in rows[0])) throw new Error(`Missing schedule column: ${key}`);
   const ids = new Set();
   const games = [];
   for (const row of rows) {
-    if (row.home_team !== TEAM && row.away_team !== TEAM) continue;
     if (!['REG', 'WC', 'DIV', 'CON', 'SB'].includes(row.game_type)) continue;
     const season = integer(row.season, 'season', { min: 1900 });
     if (season < 1999) continue;
@@ -95,23 +95,36 @@ export function parseSchedule(csv) {
       throw new Error(`Schedule identity mismatch: ${id}`);
     }
     const date = validDate(row.gameday);
-    const atHome = row.home_team === TEAM;
     const homeScore = integer(row.home_score, 'home score', { nullable: true });
     const awayScore = integer(row.away_score, 'away score', { nullable: true });
     if ((homeScore === null) !== (awayScore === null)) throw new Error(`Incomplete final score: ${id}`);
-    const jetsScore = atHome ? homeScore : awayScore;
-    const oppScore = atHome ? awayScore : homeScore;
     games.push({
       id, season, week, seasonType: row.game_type === 'REG' ? 'REG' : 'POST', date,
-      kickoff: easternKickoff(date, row.gametime), opponent: atHome ? away : home,
-      opponentDisplay: atHome ? away : home, atHome, jetsScore, oppScore,
-      outcome: jetsScore === null ? null : jetsScore > oppScore ? 'win' : jetsScore < oppScore ? 'loss' : 'tie',
-      status: jetsScore === null ? 'scheduled' : 'final',
+      kickoff: easternKickoff(date, row.gametime), homeTeam: home, awayTeam: away, homeScore, awayScore,
+      status: homeScore === null ? 'scheduled' : 'final',
     });
   }
-  if (!games.length) throw new Error('Schedule contains no Jets games');
+  if (!games.length) throw new Error('Schedule contains no games');
   return games.sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
 }
+
+export function jetsSchedule(league) {
+  const games = league.filter((game) => game.homeTeam === TEAM || game.awayTeam === TEAM).map((game) => {
+    const atHome = game.homeTeam === TEAM;
+    const jetsScore = atHome ? game.homeScore : game.awayScore;
+    const oppScore = atHome ? game.awayScore : game.homeScore;
+    const opponent = atHome ? game.awayTeam : game.homeTeam;
+    return {
+      id: game.id, season: game.season, week: game.week, seasonType: game.seasonType, date: game.date,
+      kickoff: game.kickoff, opponent, opponentDisplay: opponent, atHome, jetsScore, oppScore,
+      outcome: jetsScore === null ? null : jetsScore > oppScore ? 'win' : jetsScore < oppScore ? 'loss' : 'tie', status: game.status,
+    };
+  });
+  if (!games.length) throw new Error('Schedule contains no Jets games');
+  return games;
+}
+
+export const parseSchedule = (csv) => jetsSchedule(parseLeagueSchedule(csv));
 
 /** January/February belong to the prior NFL season. Spring waits for a published schedule. */
 export function inferSeason(schedule, now = new Date()) {
@@ -221,16 +234,20 @@ export async function withDataLock(out, operation) {
 export async function readSnapshot(out) {
   let games = [];
   let current = null;
+  let analytics = null;
   try { games = JSON.parse(await readFile(path.join(out, 'games.json'), 'utf8')); }
   catch (error) { if (error.code !== 'ENOENT') throw error; }
   try { current = JSON.parse(await readFile(path.join(out, 'current.json'), 'utf8')); }
   catch (error) { if (error.code !== 'ENOENT') throw error; }
+  try { analytics = JSON.parse(await readFile(path.join(out, 'analytics.json'), 'utf8')); }
+  catch (error) { if (error.code !== 'ENOENT') throw error; }
   if (!Array.isArray(games)) throw new Error('Archive is not a game array');
-  return { games, current };
+  if (analytics) validateAnalytics(analytics);
+  return { games, current, analytics };
 }
 
 /** Stage all files, validate them, then promote the complete directory with rollback. */
-export async function publishSnapshot(out, { games, curves, current }, { beforePromote } = {}) {
+export async function publishSnapshot(out, { games, curves, current, analytics }, { beforePromote } = {}) {
   const stage = sibling(out, 'stage'), backup = sibling(out, 'backup');
   let movedOld = false;
   let promoted = false;
@@ -244,6 +261,10 @@ export async function publishSnapshot(out, { games, curves, current }, { beforeP
     await mkdir(path.join(stage, 'curves'), { recursive: true });
     await writeFile(path.join(stage, 'games.json'), JSON.stringify(games));
     await writeFile(path.join(stage, 'current.json'), JSON.stringify(current));
+    if (analytics) {
+      validateAnalytics(analytics);
+      await writeFile(path.join(stage, 'analytics.json'), JSON.stringify(analytics));
+    }
     for (const [id, points] of curves) {
       if (!GAME_ID.test(id)) throw new Error(`Unsafe curve id: ${id}`);
       await writeFile(path.join(stage, 'curves', `${id}.json`), JSON.stringify(points));

@@ -13,6 +13,10 @@
 .control input { width: 100%; min-height: 44px; accent-color: var(--ink); }
 .sample { position: relative; isolation: isolate; margin: 1.5rem 0; padding: clamp(1.5rem, 5vw, 3rem); background: var(--paper); color: var(--ink); border: 1px solid var(--ink); }
 .sample[data-wear="0"] { --paper: #faf8f1; --fox: 0; --crease: 0; }
+.sample[data-wear="1"] { --paper: #f6f2e5; --fox: .12; --crease: .1; }
+.sample[data-wear="2"] { --paper: #f0e9d5; --fox: .28; --crease: .22; }
+.sample[data-wear="3"] { --paper: #e9dcc0; --fox: .46; --crease: .38; }
+.sample[data-wear="4"] { --paper: #ded0a8; --fox: .66; --crease: .58; }
 .sample::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 10% 25%, rgba(126, 92, 34, var(--fox)), transparent 55%), linear-gradient(102deg, transparent 45%, rgba(96,80,44,var(--crease)) 49%, transparent 51%); opacity: 0.35; }
 .sampleTitle { font-size: clamp(2.25rem, 7vw, 5rem); margin: 1rem 0 !important; }
 .sample figcaption { min-height: 3em; margin-top: 1.5rem; font-weight: bold; }

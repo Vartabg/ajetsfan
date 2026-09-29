@@ -1,21 +1,7 @@
-.foot {
-  position: relative;
-  z-index: 1;
-  width: var(--shell);
-  margin: 2.25rem auto 0;
-  padding: 0.55rem 0 2rem;
-  border-top: 1px solid var(--rule);
-  color: var(--ink-3);
-}
-
-.foot p {
-  margin: 0;
-  max-width: 62rem;
-  line-height: 1.5;
-}
-
-.foot a {
-  color: var(--spot);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
-}
+.foot { background: var(--forest); color: #d0e0d5; margin-top: 2rem; padding: 2.5rem max(1.5rem, calc((100% - 1240px) / 2)); }
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1.5rem; border-bottom: 1px solid #ffffff26; margin-bottom: 1.2rem; }
+.brand { color: var(--accent); font: 400 2rem/1.2 var(--font-hed), sans-serif; text-transform: uppercase; text-decoration: none; }
+.tagline { font: 700 .75rem/1.5 var(--font-sans), sans-serif; margin: 0; }
+.foot > p { font: .68rem/1.8 var(--font-sans), sans-serif; max-width: 110ch; margin: 0; }
+.foot > p a { color: #e6f3d5; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+@media (max-width: 640px) { .foot { padding: 2rem 1rem; } .brand { font-size: 1.7rem; } }

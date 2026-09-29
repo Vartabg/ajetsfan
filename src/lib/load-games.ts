@@ -3,6 +3,21 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { Game } from "./games";
 import type { CurrentSnapshot } from "./current";
+import type { SeasonAnalytics } from "./analytics";
+
+export async function loadAnalytics(): Promise<SeasonAnalytics | null> {
+  try {
+    const raw = await readFile(path.join(process.cwd(), "public", "data", "analytics.json"), "utf8");
+    const snapshot = JSON.parse(raw) as SeasonAnalytics;
+    if (snapshot.schemaVersion !== 1 || !Array.isArray(snapshot.teams) || !Array.isArray(snapshot.games)) {
+      throw new Error("Unsupported analytics snapshot");
+    }
+    return snapshot;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
+  }
+}
 
 export async function loadCurrent(): Promise<CurrentSnapshot | null> {
   try {
