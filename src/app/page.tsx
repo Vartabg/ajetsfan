@@ -60,7 +60,7 @@ export default async function BackPage() {
       <article id="latest-game" className={styles.edition}>
         <div className={styles.cover}>
           <div className={styles.editionLine}><p>{lead.kind === "archive" ? "From the archive · no current-season final in this edition" : result ? `Latest final · Week ${result.week}${result.seasonType === "POST" ? " · playoffs" : ""}` : "The next chapter"}</p>{result ? <span className={styles.mobileFinal}>NYJ {result.jetsScore} <span aria-hidden="true">—</span> {result.opponentDisplay} {result.oppScore}</span> : null}<span className={styles.readerNote}>For those of us still watching</span></div>
-          <div className={`${styles.coverBody} ${!gamePhoto ? styles.scoreOnly : ""}`}>
+          <div className={`${styles.coverBody} ${!result ? styles.copyOnly : !gamePhoto ? styles.scoreOnly : ""}`}>
             <div className={styles.coverCopy}>
               <h1 className="hed">{headline}</h1>
               <p>{!result ? "The jersey is ready. The optimism is questionable. We’ll be here when the football starts." : tied ? "All that football, and we’re still waiting for an answer. The final counts. The feeling is harder to explain." : lost ? `${margin === 1 ? "One point" : `${margin} points`} short. Plenty to replay. That’s the deal when you love this team: you take it personally, then show up again.` : "Keep the jersey on. Let the group chat have its moment. Some Sundays remind you why you put yourself through the other ones."}</p>
@@ -71,7 +71,7 @@ export default async function BackPage() {
               <span className={styles.finalLabel}>Final{analysis?.wentToOt ? " / OT" : ""}</span>
               <div className={styles.scoreRow}><b>NYJ</b><strong>{result.jetsScore}</strong></div>
               <div className={styles.scoreRow}><b>{result.opponentDisplay}</b><strong>{result.oppScore}</strong></div>
-              <p>Jets {result.jetsScore}, {result.opponentDisplay} {result.oppScore}</p>
+              <p className="sr-only">Jets {result.jetsScore}, {result.opponentDisplay} {result.oppScore}</p>
               <time dateTime={result.date}>{formatDate(result.date)}</time>
               <small>{result.atHome ? "At home" : "On the road"}</small>
             </div> : null}</div>
@@ -103,7 +103,7 @@ export default async function BackPage() {
         <details className={styles.schedule}><summary className="disclosure"><span className={styles.summaryCopy}><span className="when-closed">See the full {snapshot.season} schedule</span><span className="when-open">Hide the {snapshot.season} schedule</span><small>{snapshot.schedule.filter((game) => game.seasonType === "REG").length} games</small></span></summary><ol>{snapshot.schedule.filter((game) => game.seasonType === "REG").map((game) => <li key={game.id}><span>W{game.week}</span><time dateTime={game.date}>{formatDate(game.date)}</time><strong>{game.atHome ? "vs" : "at"} {game.opponentDisplay}</strong><span>{game.status === "final" ? `${game.outcome === "win" ? "W" : game.outcome === "loss" ? "L" : "T"} ${game.jetsScore}–${game.oppScore}` : game.kickoff ? formatCheckedAt(game.kickoff) : "Time TBD"}</span></li>)}</ol></details>
       </section> : null}
       <section className={styles.morgue} aria-labelledby="morgue-heading">
-        <div className={styles.morgueHeading}><div><p className={styles.kicker}>The Morgue · visiting hours are always open</p><h2 id="morgue-heading" className="hed">You remember these.<br /><span>Unfortunately.</span></h2><p>The losses we still talk about. The wins that briefly cured us.</p></div><Link href="/morgue" className={styles.morgueDoor}>Enter<br />The Morgue <span aria-hidden="true">↗</span></Link></div>
+        <div className={styles.morgueHeading}><div><p className={styles.kicker}>The Morgue · visiting hours are always open</p><h2 id="morgue-heading" className="hed">You remember these.<br /><span>Unfortunately.</span></h2><p>The losses we still talk about. The wins that briefly cured us.</p></div><Link href="/morgue" className={styles.morgueDoor}>Enter <br />The Morgue <span aria-hidden="true">↗</span></Link></div>
         <div className={styles.obituaries}>{stories.map(({ game, board, title, label, closer }) => <Link key={game.id} className={`${styles.obituary} ${board === "miracle" ? styles.signOfLife : ""}`} href={gameHref(game.id, board)}>
           <p className={styles.obitLabel}>{label}</p><h3 className="hed">{title}</h3><p className={styles.obitScore}>NYJ {game.jetsScore} <span>—</span> {game.opponentDisplay} {game.oppScore}{game.wentToOt ? " / OT" : ""}</p><small>{formatDate(game.date)} · Week {game.week}</small><p className={styles.obitFoot}><span>{closer}</span><span aria-hidden="true">↗</span></p>
         </Link>)}</div>
