@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { rank, clockLabel, pct } from "@/lib/games";
 import { loadGames, loadCurve, loadCurrent, loadAnalytics } from "@/lib/load-games";
@@ -8,7 +7,8 @@ import { epaLabel } from "@/lib/analytics";
 import { leaders } from "@/lib/coverage";
 import { playerHref } from "@/lib/roster";
 import PressChart from "@/components/PressChart";
-import PlayerPortrait from "@/components/PlayerPortrait";
+import EditorialPhoto from "@/components/EditorialPhoto";
+import { gameEditorialPhoto, playerActionPhoto } from "@/lib/editorial-photos";
 import DataFreshness from "@/components/DataFreshness";
 import FeedStatus from "@/components/FeedStatus";
 import Matchup from "@/components/Matchup";
@@ -23,6 +23,7 @@ export default async function BackPage() {
   const lead = selectLead(games, snapshot);
   const result = lead.result;
   const analysis = lead.analysisStatus === "ready" ? lead.analysis : null;
+  const gamePhoto = result ? gameEditorialPhoto(result.id) : null;
   const curve = analysis ? await loadCurve(analysis.id) : [];
   const summary = currentSeasonSummary(snapshot);
   const next = nextScheduledGame(snapshot);
@@ -43,6 +44,7 @@ export default async function BackPage() {
   const spotlight = coverageFeed && coverageFeed.stats.status !== "unavailable" && coverageFeed.stats.season === snapshot?.season
     ? leaders(coverageFeed.stats, "receiving", 1)[0] : null;
   const spotlightRoster = spotlight && coverageFeed?.roster.status !== "unavailable" && coverageFeed?.roster.season === snapshot?.season ? coverageFeed?.roster.players.find((player) => player.id === spotlight.id) : null;
+  const spotlightPhoto = spotlight ? playerActionPhoto(spotlight.id, snapshot?.season ?? 0) : null;
   const sourcePlay = analysis?.keyPlay.desc?.replace(/^\([^)]*\)\s*/, "").replace(/\b\d{1,2}-(?=[A-Z])/g, "");
   const touchdown = sourcePlay?.match(/\b([A-Z]\.[A-Za-z’'\-]+) pass\b.*?\bto ([A-Z]\.[A-Za-z’'\-]+) for (\d+) yards, TOUCHDOWN/);
   const playStory = touchdown ? `${touchdown[1].split(".")[1]} found ${touchdown[2].split(".")[1]} for a touchdown from ${touchdown[3]} yards out.` : sourcePlay;
@@ -56,15 +58,14 @@ export default async function BackPage() {
       {snapshot ? <DataFreshness checkedAt={snapshot.checkedAt} /> : null}
       <article id="latest-game" className={styles.edition}>
         <div className={styles.cover}>
-          <Image src="/images/stadium-hero.png" alt="" fill sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1288px) calc(100vw - 48px), 1240px" preload className={styles.coverImage} />
-          <div className={styles.coverShade} />
           <div className={styles.editionLine}><p>{lead.kind === "archive" ? "From the archive · no current-season final in this edition" : result ? `Latest final · Week ${result.week}${result.seasonType === "POST" ? " · playoffs" : ""}` : "The next chapter"}</p><span>For those of us still watching</span></div>
-          <div className={styles.coverBody}>
+          <div className={`${styles.coverBody} ${!gamePhoto ? styles.scoreOnly : ""}`}>
             <div className={styles.coverCopy}>
               <h1 className="hed">{headline}</h1>
               <p>{!result ? "The jersey is ready. The optimism is questionable. We’ll be here when the football starts." : tied ? "All that football, and we’re still waiting for an answer. The final counts. The feeling is harder to explain." : lost ? `${margin === 1 ? "One point" : `${margin} points`} short. Plenty to replay. That’s the deal when you love this team: you take it personally, then show up again.` : "Keep the jersey on. Let the group chat have its moment. Some Sundays remind you why you put yourself through the other ones."}</p>
               {result ? <a href="#postgame" className={styles.coverLink}>{lost ? "How it got away" : "Relive the afternoon"} <span aria-hidden="true">↓</span></a> : <Link href="/team" className={styles.coverLink}>Meet this year’s Jets <span aria-hidden="true">↗</span></Link>}
             </div>
+            <div className={styles.coverVisual}>{gamePhoto ? <EditorialPhoto photo={gamePhoto} sizes="(max-width: 640px) calc(100vw - 70px), (max-width: 1288px) 45vw, 550px" eager /> : null}
             {result ? <div className={styles.scoreboard} aria-label={`Final score: Jets ${result.jetsScore}, ${result.opponentDisplay} ${result.oppScore}`}>
               <span className={styles.finalLabel}>Final{analysis?.wentToOt ? " / OT" : ""}</span>
               <div className={styles.scoreRow}><b>NYJ</b><strong>{result.jetsScore}</strong></div>
@@ -72,9 +73,8 @@ export default async function BackPage() {
               <p>Jets {result.jetsScore}, {result.opponentDisplay} {result.oppScore}</p>
               <time dateTime={result.date}>{formatDate(result.date)}</time>
               <small>{result.atHome ? "At home" : "On the road"}</small>
-            </div> : null}
+            </div> : null}</div>
           </div>
-          <span className={styles.imageCredit}>Stadium illustration</span>
         </div>
         {result ? <div id="postgame" className={styles.postgame}>
           <div className={styles.playHeading}><span className={styles.kicker}>After the whistle</span><h2 className="hed">{lost ? "The play that hurt." : tied ? "The afternoon, on tape." : "The play that mattered."}</h2></div>
@@ -108,7 +108,7 @@ export default async function BackPage() {
         </Link>)}</div>
       </section>
       <div className={styles.touchline}>
-        {spotlight ? <section className={styles.player} aria-labelledby="player-heading"><span className={styles.kicker}>Someone to shout for</span><div className={styles.playerPhoto}><PlayerPortrait src={spotlightRoster?.headshot ?? spotlight.headshot} name={spotlight.name} sizes="(max-width: 640px) 220px, 300px" />{spotlightRoster?.jersey ? <span aria-hidden="true">{spotlightRoster.jersey}</span> : null}</div><h2 id="player-heading" className="hed">{spotlight.name}</h2><p>{spotlight.receiving.receptions} catches. {spotlight.receiving.yards.toLocaleString("en-US")} yards. {spotlight.receiving.touchdowns} receiving TD.</p><small>{coverageFeed!.stats.season} receiving leader by yards · {spotlight.games} recorded games{coverageFeed!.stats.throughWeek != null ? ` · through Week ${coverageFeed!.stats.throughWeek}` : ""}</small><Link className={styles.underlined} href={spotlightRoster ? playerHref(spotlight.id) : "/team#season-leaders"}>Meet the man in the jersey <span aria-hidden="true">↗</span></Link><FeedStatus feed={coverageFeed!.stats} label="Player statistics" /></section> : null}
+        {spotlight ? <section className={styles.player} aria-labelledby="player-heading"><span className={styles.kicker}>Someone to shout for</span>{spotlightPhoto ? <EditorialPhoto photo={spotlightPhoto} sizes="(max-width: 640px) calc(100vw - 32px), 300px" className={styles.spotlightPhoto} /> : <p className={styles.jerseyNumber}>{spotlightRoster?.jersey ? `No. ${spotlightRoster.jersey}` : spotlight.position}</p>}<h2 id="player-heading" className="hed">{spotlight.name}</h2><p>{spotlight.receiving.receptions} catches. {spotlight.receiving.yards.toLocaleString("en-US")} yards. {spotlight.receiving.touchdowns} receiving TD.</p><small>{coverageFeed!.stats.season} receiving leader by yards · {spotlight.games} recorded games{coverageFeed!.stats.throughWeek != null ? ` · through Week ${coverageFeed!.stats.throughWeek}` : ""}</small><Link className={styles.underlined} href={spotlightRoster ? playerHref(spotlight.id) : "/team#season-leaders"}>Meet the man in the jersey <span aria-hidden="true">↗</span></Link><FeedStatus feed={coverageFeed!.stats} label="Player statistics" /></section> : null}
         {coverageFeed ? <NewsDesk feed={coverageFeed.news} limit={3} compact /> : null}
       </div>
       {snapshot ? <details className={styles.filmRoom}><summary><span>Open the film room</span><small>Matchup, team efficiency &amp; the season in margins</small></summary><div>{next ? <Matchup game={next.game} overdue={next.overdue} analytics={analytics} /> : null}<SeasonTrend games={summary.finals} /></div></details> : null}

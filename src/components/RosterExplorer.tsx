@@ -21,7 +21,7 @@ function Portrait({ player, detailed = false }: { player: RosterPlayer; detailed
   const [failed, setFailed] = useState(false);
   const alt = detailed ? `${player.name} headshot` : "";
   return <div className={styles.portrait}>{player.headshot && !failed
-    ? <Image src={player.headshot} width={300} height={300} sizes={detailed ? "(max-width: 640px) 160px, 220px" : "(max-width: 360px) 250px, (max-width: 640px) 160px, 220px"} alt={alt} loading="lazy" onError={() => setFailed(true)} />
+    ? <Image src={player.headshot} width={300} height={300} sizes={detailed ? "(max-width: 640px) 128px, 160px" : "(max-width: 360px) 48px, (max-width: 640px) 56px, 64px"} alt={alt} loading="lazy" onError={() => setFailed(true)} />
     : <span className={styles.initials} role={detailed ? "img" : undefined} aria-label={detailed ? `${player.name} initials` : undefined} aria-hidden={detailed ? undefined : true}>{playerInitials(player.name)}</span>}</div>;
 }
 

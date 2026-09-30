@@ -5,13 +5,12 @@
 .heading > p { font-size: .72rem; color: var(--ink-2); margin: 0; }
 .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
 .card { min-width: 0; padding-right: 1.5rem; border-right: 1px solid var(--rule); }
-.card:last-child { padding-right: 0; border-right: 0; }
+.card:last-child { border-right: 0; }
 .cardTop { display: flex; justify-content: space-between; align-items: center; padding: .55rem 0; border-top: 1px solid var(--rule); color: var(--spot); }
 .cardTop > span { font-size: .67rem; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; }
 .cardTop > b { font-size: .7rem; font-variant-numeric: tabular-nums; }
-.feature { border-bottom: 3px solid var(--spot); background: var(--paper-2); }
-.portrait { height: 235px; }
-.portrait > div { background: transparent; }
+.actionPhoto { border-bottom: 1px solid var(--rule-soft); }
+.jerseyFallback { display: flex; align-items: center; justify-content: center; min-height: 180px; border-block: 1px solid var(--rule-soft); color: var(--spot); font: 400 7rem/1 var(--font-hed), Impact, sans-serif; }
 .production { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .5rem; }
 .yards { color: var(--spot); font: 400 2.35rem/1.1 var(--font-hed), sans-serif; font-variant-numeric: tabular-nums; }
 .unit { font-size: .72rem; color: var(--ink-2); }
@@ -31,5 +30,5 @@
 .meta > p { font-size: .67rem; color: var(--ink-2); margin: .3rem 0; }
 .meta a { text-underline-offset: 4px; color: var(--spot); }
 .more { display: inline-block; font-size: .75rem; font-weight: 800; margin-top: .8rem; }
-@media (max-width: 900px) { .cards { gap: 1rem; } .card { padding-right: 1rem; } .portrait { height: 195px; } .player h3 { font-size: 1.5rem; } .yards { font-size: 2.1rem; } }
-@media (max-width: 640px) { .cards { grid-template-columns: 1fr; gap: 1.8rem; } .card { padding-right: 0; border-right: 0; } .portrait { height: 250px; } .player h3 { font-size: 2rem; } .yards { font-size: 2.8rem; } .heading > p { font-size: .68rem; } .heading h2 { font-size: clamp(2.6rem, 11vw, 3.8rem); } }
+@media (max-width: 900px) { .cards { gap: 1rem; } .card { padding-right: 1rem; } .player h3 { font-size: 1.5rem; } .yards { font-size: 2.1rem; } }
+@media (max-width: 640px) { .cards { grid-template-columns: 1fr; gap: 1.8rem; } .card { padding-right: 0; border-right: 0; } .player h3 { font-size: 2rem; } .yards { font-size: 2.8rem; } .heading > p { font-size: .68rem; } .heading h2 { font-size: clamp(2.6rem, 11vw, 3.8rem); } }

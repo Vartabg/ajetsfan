@@ -1,12 +1,19 @@
 .main { width: var(--shell); margin: 1.2rem auto 0; }
 .edition { border-bottom: 2px solid var(--rule); }
 .cover { position: relative; isolation: isolate; background: var(--forest); color: white; overflow: hidden; padding: 1.5rem 2.5rem 2.7rem; }
-.coverImage { z-index: -2; object-fit: cover; object-position: 50% 60%; opacity: .28; }
-.coverShade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(100deg, #062c21f5 0%, #062c21c9 65%, #062c2170); }
 .editionLine { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #ffffff55; font: 700 .7rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .09em; }
 .editionLine p { margin: 0; }
 .editionLine span { color: var(--accent); }
-.coverBody { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 3rem; align-items: center; padding-top: 2rem; }
+.coverBody { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 2.5rem; align-items: center; padding-top: 2rem; }
+.scoreOnly { grid-template-columns: minmax(0, 1fr) 240px; }
+.coverVisual { min-width: 0; }
+.coverVisual figcaption { color: #d7e2d2; }
+.coverVisual figcaption a { color: #d7e2d2; }
+.coverVisual:has(figure) .scoreboard { display: grid; grid-template-columns: 1fr 1fr; gap: .2rem 1.5rem; padding: .75rem 0; }
+.coverVisual:has(figure) .finalLabel, .coverVisual:has(figure) .scoreboard p, .coverVisual:has(figure) .scoreboard time, .coverVisual:has(figure) .scoreboard small { grid-column: 1 / -1; }
+.coverVisual:has(figure) .scoreRow + .scoreRow { border-top: 0; }
+.coverVisual:has(figure) .scoreRow strong { font-size: 3.6rem; }
+.coverVisual:has(figure) .scoreRow b { font-size: 2rem; }
 .coverCopy h1 { max-width: 12ch; font-size: clamp(3.2rem, 6.6vw, 5.7rem); line-height: 1.03; text-wrap: balance; }
 .coverCopy > p { font: 1.05rem/1.75 var(--font-serif), Georgia, serif; max-width: 49ch; margin: 1.5rem 0; color: #e5eee2; }
 .coverLink { display: inline-flex; align-items: center; gap: 2rem; color: var(--forest); background: var(--accent); padding: .7rem 1rem; font-weight: 800; text-decoration: none; }
@@ -19,7 +26,6 @@
 .scoreRow strong { font: 400 5.5rem/1 var(--font-hed), sans-serif; }
 .scoreboard p { margin: .75rem 0 .15rem; font-size: .82rem; font-weight: 700; }
 .scoreboard time, .scoreboard small { display: block; color: #d7e2d2; font-size: .72rem; }
-.imageCredit { position: absolute; right: .7rem; bottom: .3rem; font-size: .55rem; color: #c7d8c4; }
 .postgame { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2.5rem; padding: 2.2rem 0 1.8rem; }
 .kicker { display: block; color: var(--spot); font: 800 .68rem/1.6 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 .6rem; }
 .playHeading h2 { font-size: clamp(2rem, 3vw, 2.9rem); max-width: 12ch; line-height: 1.04; }
@@ -85,9 +91,9 @@
 .touchline > section[id="around-jets"] { margin-top: 0; padding-top: 0; border-top: 0; }
 .touchline > :only-child { grid-column: 1 / -1; }
 .player { padding-right: 2rem; border-right: 1px solid var(--rule-soft); }
-.playerPhoto { position: relative; height: 230px; margin-top: 1rem; background: linear-gradient(0deg, #dbe5d3, transparent); overflow: hidden; }
-.playerPhoto > div { width: 100%; height: 100%; }
-.playerPhoto > span { position: absolute; bottom: .5rem; right: .8rem; font: 400 5rem/1 var(--font-hed), sans-serif; color: var(--forest); opacity: .25; }
+.spotlightPhoto { margin-top: 1rem; }
+.spotlightPhoto > div { aspect-ratio: 3 / 4; }
+.jerseyNumber { color: var(--spot); font: 400 5rem/1 var(--font-hed), sans-serif; }
 .player h2 { font-size: 2.4rem; margin-top: 1.2rem; }
 .player > p { font: .95rem/1.65 var(--font-serif), Georgia, serif; margin: .75rem 0; }
 .player > small { display: block; font-size: .65rem; color: var(--ink-2); margin-bottom: 1.1rem; }
@@ -97,5 +103,5 @@
 .filmRoom > summary small { display: block; font-size: .72rem; color: var(--ink-2); padding-left: 1.3rem; }
 .filmRoom > div { padding-bottom: 1rem; }
 .freshness { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; color: var(--ink-2); font-size: .62rem; padding: 1rem 0; }
-@media (max-width: 900px) { .cover { padding: 1.3rem 1.7rem 2rem; } .coverBody { grid-template-columns: minmax(0, 1fr) 190px; gap: 2rem; } .coverCopy h1 { font-size: clamp(3rem, 7vw, 4.6rem); } .scoreRow strong { font-size: 4.7rem; } .editionLine span { display: none; } .sundays { gap: 1.5rem; } .touchline { grid-template-columns: 260px minmax(0, 1fr); gap: 1.5rem; } .player { padding-right: 1.5rem; } }
-@media (max-width: 640px) { .main { margin-top: .85rem; } .cover { padding: 1rem 1.2rem 1.6rem; } .coverBody { grid-template-columns: 1fr; gap: 1.8rem; padding-top: 1.4rem; } .coverCopy h1 { font-size: clamp(2.7rem, 12vw, 4.2rem); max-width: 13ch; } .coverCopy > p { font-size: .95rem; margin: 1.2rem 0; } .scoreboard { display: grid; grid-template-columns: 1fr 1fr; gap: .15rem 1.5rem; padding-top: .75rem; padding-bottom: .8rem; } .finalLabel { grid-column: 1 / -1; } .scoreRow { gap: .5rem; } .scoreRow + .scoreRow { border: 0; } .scoreRow b { font-size: 1.9rem; } .scoreRow strong { font-size: 3.5rem; } .scoreboard p { grid-column: 1 / -1; } .scoreboard time, .scoreboard small { grid-column: 1 / -1; } .postgame { grid-template-columns: 1fr; gap: 1rem; padding: 1.6rem 0; } .playHeading h2 { max-width: none; font-size: 2.3rem; } .playDescription { font-size: 1rem; } .tape summary span { display: block; margin-left: 1.1rem; } .seasonLine { align-items: start; } .seasonLine h2 { font-size: 1.8rem; line-height: 1.15; } .seasonLine > p { display: block; text-align: right; } .seasonLine strong { font-size: 2.6rem; } .seasonLine p span { display: block; font-size: .6rem; } .sundays { grid-template-columns: 1fr; gap: 1.5rem; } .recent li { grid-template-columns: 1.6rem 3rem 1fr auto; gap: .5rem; } .recent li strong { font-size: 1rem; } .nextSunday { padding-left: 1rem; } .schedule li { grid-template-columns: 1.6rem 1fr 1fr; gap: .4rem; } .schedule li > span:last-child { grid-column: 2 / -1; } .morgue { padding-top: 2rem; } .morgueHeading { display: block; } .morgueHeading h2 { font-size: clamp(2.4rem, 10vw, 3.4rem); } .morgueDoor { display: inline-block; font-size: 1.2rem; padding: .7rem 1rem; min-width: 0; } .morgueDoor br { display: none; } .morgueDoor span { margin-top: 0; } .obituaries { grid-template-columns: 1fr; gap: 1rem; } .obituary { padding: 1.2rem 1.2rem 0; } .obituary h3 { min-height: 0; font-size: 2.3rem; } .touchline { grid-template-columns: 1fr; gap: 2rem; } .player { border-right: 0; border-bottom: 1px solid var(--rule-soft); padding: 0 0 1.5rem; } .playerPhoto { max-width: 260px; height: 230px; } .filmRoom > summary small { max-width: 34ch; } }
+@media (max-width: 900px) { .cover { padding: 1.3rem 1.7rem 2rem; } .coverBody { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; } .scoreOnly { grid-template-columns: minmax(0, 1fr) 190px; } .coverCopy h1 { font-size: clamp(3rem, 7vw, 4.6rem); } .scoreRow strong { font-size: 4.7rem; } .editionLine span { display: none; } .sundays { gap: 1.5rem; } .touchline { grid-template-columns: 260px minmax(0, 1fr); gap: 1.5rem; } .player { padding-right: 1.5rem; } }
+@media (max-width: 640px) { .main { margin-top: .85rem; } .cover { padding: 1rem 1.2rem 1.6rem; } .coverBody { grid-template-columns: 1fr; gap: 1.8rem; padding-top: 1.4rem; } .coverCopy h1 { font-size: clamp(2.7rem, 12vw, 4.2rem); max-width: 13ch; } .coverCopy > p { font-size: .95rem; margin: 1.2rem 0; } .scoreboard { display: grid; grid-template-columns: 1fr 1fr; gap: .15rem 1.5rem; padding-top: .75rem; padding-bottom: .8rem; } .finalLabel { grid-column: 1 / -1; } .scoreRow { gap: .5rem; } .scoreRow + .scoreRow { border: 0; } .scoreRow b { font-size: 1.9rem; } .scoreRow strong { font-size: 3.5rem; } .scoreboard p { grid-column: 1 / -1; } .scoreboard time, .scoreboard small { grid-column: 1 / -1; } .postgame { grid-template-columns: 1fr; gap: 1rem; padding: 1.6rem 0; } .playHeading h2 { max-width: none; font-size: 2.3rem; } .playDescription { font-size: 1rem; } .tape summary span { display: block; margin-left: 1.1rem; } .seasonLine { align-items: start; } .seasonLine h2 { font-size: 1.8rem; line-height: 1.15; } .seasonLine > p { display: block; text-align: right; } .seasonLine strong { font-size: 2.6rem; } .seasonLine p span { display: block; font-size: .6rem; } .sundays { grid-template-columns: 1fr; gap: 1.5rem; } .recent li { grid-template-columns: 1.6rem 3rem 1fr auto; gap: .5rem; } .recent li strong { font-size: 1rem; } .nextSunday { padding-left: 1rem; } .schedule li { grid-template-columns: 1.6rem 1fr 1fr; gap: .4rem; } .schedule li > span:last-child { grid-column: 2 / -1; } .morgue { padding-top: 2rem; } .morgueHeading { display: block; } .morgueHeading h2 { font-size: clamp(2.4rem, 10vw, 3.4rem); } .morgueDoor { display: inline-block; font-size: 1.2rem; padding: .7rem 1rem; min-width: 0; } .morgueDoor br { display: none; } .morgueDoor span { margin-top: 0; } .obituaries { grid-template-columns: 1fr; gap: 1rem; } .obituary { padding: 1.2rem 1.2rem 0; } .obituary h3 { min-height: 0; font-size: 2.3rem; } .touchline { grid-template-columns: 1fr; gap: 2rem; } .player { border-right: 0; border-bottom: 1px solid var(--rule-soft); padding: 0 0 1.5rem; }  .filmRoom > summary small { max-width: 34ch; } }

@@ -4,10 +4,11 @@ import { Suspense } from "react";
 import { leaders } from "@/lib/coverage";
 import { loadCoverage } from "@/lib/load-coverage";
 import { loadCurrent } from "@/lib/load-games";
+import { teamEditorialPhoto } from "@/lib/editorial-photos";
+import EditorialPhoto from "@/components/EditorialPhoto";
 import NewsDesk from "@/components/NewsDesk";
 import PlayerLeaders from "@/components/PlayerLeaders";
 import RosterExplorer from "@/components/RosterExplorer";
-import PlayerPortrait from "@/components/PlayerPortrait";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default async function TeamPage() {
   const [coverage, current] = await Promise.all([loadCoverage(), loadCurrent()]);
   const season = current?.season ?? coverage?.season;
+  const coverPhoto = season != null ? teamEditorialPhoto(season) : null;
   const active = coverage?.roster.players.filter((player) => player.status === "ACT").length ?? 0;
   const rosterAvailable = !!coverage && coverage.roster.status !== "unavailable";
   const currentRoster = rosterAvailable && coverage.roster.season === season;
@@ -29,13 +31,19 @@ export default async function TeamPage() {
   return <main id="main" className={styles.main}>
     <header className={styles.hero}>
       <p className={styles.kicker}>Meet the green &amp; white</p>
-      <div className={`${styles.heroGrid} ${featured.length ? "" : styles.solo}`}>
+      <div className={`${styles.heroGrid} ${coverPhoto || featured.length ? "" : styles.solo}`}>
         <div className={styles.intro}>
           <h1 className="hed">The names<br />on our<br /><span>jerseys.</span></h1>
           <p>Some Sundays we believe. Some Sundays we yell at the TV. These are our guys.</p>
           <nav aria-label="Team coverage sections"><a href="#season-leaders">Who&apos;s carrying it <span aria-hidden="true">↓</span></a><a href="#roster">Find your guy <span aria-hidden="true">↓</span></a><a href="#news">From Florham Park <span aria-hidden="true">↓</span></a></nav>
         </div>
-        {featured.length ? <div className={styles.lineup}><p className={styles.lineupKicker}>The guys we yell for.</p><div className={styles.lineupPlayers}>{featured.map((player) => <Link className={styles.featuredPlayer} href={`/team?${new URLSearchParams({ player: player.id })}#roster`} key={player.id}><div className={styles.heroPortrait}>{player.jersey !== null ? <span className={styles.jersey} aria-hidden="true">{player.jersey}</span> : null}<PlayerPortrait src={player.headshot} name={player.name} sizes="(max-width: 640px) 30vw, 180px" /></div><strong>{player.name}</strong><span>{player.position}{player.jersey !== null ? ` · No. ${player.jersey}` : ""}</span></Link>)}</div></div> : null}
+        {coverPhoto || featured.length ? <div className={styles.lineup}>
+          {coverPhoto ? <EditorialPhoto photo={coverPhoto} eager className={styles.coverPhoto} sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1288px) calc(58.33vw - 3.2rem), 700px" /> : null}
+          {featured.length ? <div className={styles.lineupNames}><p className={styles.lineupKicker}>The guys we yell for.</p><div className={styles.lineupPlayers}>{featured.map((player) => <Link className={styles.featuredPlayer} href={`/team?${new URLSearchParams({ player: player.id })}#roster`} key={player.id}>
+            {player.jersey !== null ? <span className={styles.jersey} aria-hidden="true">{player.jersey}</span> : null}
+            <span className={styles.featuredName}><strong>{player.name}</strong><span>{player.position}{player.jersey !== null ? ` · No. ${player.jersey}` : ""}</span></span>
+          </Link>)}</div></div> : null}
+        </div> : null}
       </div>
       {coverage ? <p className={styles.edition}><b>{season} edition</b><span>{rosterAvailable ? `${coverage.roster.season} roster: ${coverage.roster.players.length + (coverage.roster.excludedPlayers ?? 0)} source entries · ${coverage.roster.players.length} searchable profiles · ${active} active-roster profiles` : "Roster profiles unavailable"}</span><span>{coverage.stats.status !== "unavailable" && coverage.stats.season === season ? `Player stats from ${coverage.stats.analyzedGameIds.length} completed regular-season games` : "Current-season player stats pending"}</span></p> : null}
     </header>

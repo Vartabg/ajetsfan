@@ -1,5 +1,7 @@
 # Stadium hero image
 
+Retired from the product on September 29, 2026. The game cover now uses credited, fixture-specific photography from official Jets coverage. This document records the original generated asset's provenance.
+
 This is a generated conceptual sports editorial image of an anonymous football player. It does not depict an identified athlete or document a real game.
 
 - Generation mode: built-in `image_gen.imagegen`; one new image, no reference images, opaque background.
