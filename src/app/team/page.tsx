@@ -37,7 +37,7 @@ export default async function TeamPage() {
           <h1 className="hed">The names<br />on our<br /><span>jerseys.</span></h1>
           <p>Some Sundays we believe. Some Sundays we yell at the TV. These are our guys.</p>
           <span className={styles.loyaltyStamp} aria-hidden="true">For better.<br />For worse.</span>
-          {coverage ? <nav aria-label="Team coverage sections"><a href="#season-leaders">Season leaders <span aria-hidden="true">↓</span></a><a href="#roster">Players &amp; roster <span aria-hidden="true">↓</span></a><a href="#news">Team news <span aria-hidden="true">↓</span></a></nav> : null}
+          {coverage ? <nav aria-label="Team coverage sections"><Link href="#season-leaders">Season leaders <span aria-hidden="true">↓</span></Link><Link href="#roster">Players &amp; roster <span aria-hidden="true">↓</span></Link><Link href="#news">Team news <span aria-hidden="true">↓</span></Link></nav> : null}
         </div>
         {coverPhoto ? <div className={styles.lineup}>
           <EditorialPhoto photo={coverPhoto} eager className={styles.coverPhoto} sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1288px) calc(58.33vw - 3.2rem), 700px" />

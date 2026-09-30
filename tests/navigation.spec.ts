@@ -84,6 +84,37 @@ test("site navigation updates the current section after route changes and browse
   await expectCurrentSection(page, "/");
 });
 
+test("switching sections from a scrolled page reveals the new heading and browser back retains the section being read", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.waitForLoadState("networkidle");
+  await page.evaluate(() => document.fonts.ready);
+  const navigation = page.getByRole("navigation", { name: "Site sections" });
+  await page.getByRole("navigation", { name: "In this edition" }).locator('a[href="#season"]').click();
+  const seasonHeading = page.locator("#season > div:first-child");
+  await expectBelowNavigation(page, seasonHeading);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
+  const homeUrl = page.url();
+  await navigation.locator('a[href="/team"]').click();
+  await expect(page).toHaveURL(/\/team$/);
+  await expectCurrentSection(page, "/team");
+  await expect(page.getByRole("heading", { level: 1 })).toBeInViewport({ ratio: 1 });
+  const newsHeading = page.locator("#news-desk-heading");
+  await newsHeading.evaluate((heading) => heading.scrollIntoView({ block: "start", behavior: "instant" }));
+  await expectBelowNavigation(page, newsHeading);
+  await navigation.locator('a[href="/morgue"]').click();
+  await expect(page).toHaveURL(/\/morgue$/);
+  await expectCurrentSection(page, "/morgue");
+  await expect(page.getByRole("heading", { level: 1 })).toBeInViewport({ ratio: 1 });
+  await page.goBack();
+  await expect(page).toHaveURL(/\/team$/);
+  await expectCurrentSection(page, "/team");
+  await expect(newsHeading).toBeInViewport({ ratio: 1 });
+  await page.goBack();
+  await expect(page).toHaveURL(homeUrl);
+  await expectCurrentSection(page, "/");
+  await expect(seasonHeading).toBeInViewport({ ratio: 1 });
+});
+
 test("front-page shortcuts land on the complete season header, news, and roster below the sticky navigation", async ({ page }) => {
   for (const destination of [
     { href: "#season", target: "#season > div:first-child", pathname: "/" },

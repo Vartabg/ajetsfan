@@ -1,22 +1,22 @@
 .head { position: relative; z-index: 3; width: var(--shell); margin-inline: auto; padding-top: .5rem; }
 .folio { display: flex; flex-wrap: wrap; gap: .25rem 1rem; justify-content: space-between; padding: .5rem 0; color: var(--ink-2); font: 700 .65rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .1em; border-bottom: 1px solid var(--rule-soft); }
 .brandRow { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.25rem 0; }
-.brand { display: inline-flex; align-items: center; gap: 1rem; text-decoration: none; color: var(--forest); }
+.brand { display: inline-flex; align-items: center; gap: 1rem; min-width: 0; text-decoration: none; color: var(--forest); }
 .crest { display: block; width: 72px; height: 64px; flex-shrink: 0; transform: rotate(-8deg); }
-.wordmark { display: grid; gap: .35rem; }
+.wordmark { display: grid; gap: .35rem; min-width: 0; }
 .brandNote { font: 700 .6rem/1.4 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .18em; color: var(--ink-2); }
 .brandName { font-size: clamp(2.2rem, 4.3vw, 3.8rem); line-height: 1.05; letter-spacing: -.025em; }
 .tagline { margin: 0; text-align: right; color: var(--spot); font: italic 400 1.15rem/1.4 var(--font-serif), Georgia, serif; }
 .tagline br { display: block; }
 .mobileWear { display: none; }
 .navigation { position: sticky; top: 0; z-index: 40; background: var(--paper); border-top: 2px solid var(--rule); border-bottom: 1px solid var(--rule-soft); box-shadow: 0 3px 10px #062c2108; }
-.sections { width: var(--shell); margin-inline: auto; display: flex; align-items: center; gap: 0; padding: .2rem 0; }
-.sections .section { position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; gap: .65rem; padding: .6rem 1.25rem; border-right: 1px solid var(--rule-soft); font-size: .76rem; font-weight: 700; letter-spacing: .045em; text-decoration: none; text-align: center; white-space: nowrap; border-radius: 0; transition: background .15s, color .15s; }
+.sections { width: var(--shell); margin-inline: auto; display: flex; align-items: stretch; gap: 0; padding: .2rem 0; }
+.sections .section { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 0; min-height: 44px; gap: .65rem; padding: .6rem 1.25rem; border-right: 1px solid var(--rule-soft); font-size: .76rem; font-weight: 700; letter-spacing: .045em; text-decoration: none; text-align: center; text-wrap: balance; overflow-wrap: anywhere; border-radius: 0; transition: background .15s, color .15s; }
 .section[aria-current="page"] { background: transparent; color: var(--spot); }
 .chapter { color: var(--ink-3); font: italic 400 .8rem/1 var(--font-serif), Georgia, serif; }
 .section[aria-current="page"]::after { content: ''; position: absolute; bottom: -.2rem; left: .9rem; right: .9rem; height: 3px; background: var(--spot); }
 .section:hover:not([aria-current="page"]) { background: var(--paper-2); }
 .section:focus-visible { outline-color: var(--spot); outline-offset: 2px; }
-.wear { margin-left: auto; padding: .4rem 0 .4rem 1rem; color: var(--spot); font: 700 .75rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .05em; }
+.wear { align-self: center; margin-left: auto; padding: .4rem 0 .4rem 1rem; color: var(--spot); font: 700 .75rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .05em; }
 .wear::before { content: ''; display: inline-block; width: .45rem; height: .45rem; margin-right: .45rem; border-radius: 50%; background: var(--spot); }
 @media (max-width: 640px) { .folio { display: grid; grid-template-columns: 1fr auto; font-size: .6rem; letter-spacing: .04em; } .domain { display: none; } .checkTime { grid-column: 1 / -1; } .mobileWear { display: block; color: var(--spot); } .brandRow { padding: .8rem 0; } .brand { gap: .55rem; } .crest { width: 44px; height: 40px; } .brandNote { font-size: .5rem; letter-spacing: .08em; } .brandName { font-size: clamp(1.65rem, 7vw, 2.6rem); } .wordmark { gap: .2rem; } .chapter { display: none; } .tagline, .wear { display: none; } .sections { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .15rem; } .sections .section { font-size: .67rem; padding: .5rem .2rem; letter-spacing: .02em; border-right: 0; } }

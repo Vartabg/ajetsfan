@@ -2,13 +2,69 @@ import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { Game } from "../src/lib/games";
-import { gameHref } from "../src/lib/explorer";
+import { archiveFilters, filterArchive, gameHref } from "../src/lib/explorer";
 import { keyPlayIndex } from "../src/lib/curve";
 
 const games = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/games.json"), "utf8")) as Game[];
+const current = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/current.json"), "utf8")) as { latestAnalyzedGameId: string | null };
 const gb = games.find((game) => game.id === "2018_16_GB_NYJ")!;
 const mia = games.find((game) => game.id === "2017_07_NYJ_MIA")!;
 const points = JSON.parse(readFileSync(path.join(process.cwd(), `public/data/curves/${gb.id}.json`), "utf8")) as { playId?: number; q: number; t: number | null; wp: number; desc: string | null }[];
+
+test("keyboard pagination moves into the revealed games and announces the displayed count without changing the URL", async ({ page }) => {
+  const ranked = filterArchive(games, "heartbreak", archiveFilters(new URLSearchParams()));
+  test.skip(ranked.length <= 48, "This archive has fewer than two full result batches.");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/morgue");
+  const originalUrl = page.url();
+  const list = page.getByRole("list", { name: "Matching games", exact: true });
+  await expect(list.locator("li")).toHaveCount(24);
+  const summary = page.locator("#archive-results");
+  await expect(summary).toContainText("24 shown.");
+  await expect(summary).toHaveAttribute("aria-live", "polite");
+  await expect(summary).toHaveAttribute("aria-atomic", "true");
+  const more = page.getByRole("button", { name: "Show 24 more games", exact: true });
+  await more.focus();
+  await more.press("Enter");
+  await expect(list.locator("li")).toHaveCount(48);
+  const firstAdded = page.locator(`#archive-game-${ranked[24].id}`);
+  await expect(firstAdded).toBeFocused();
+  await expect(firstAdded).toBeInViewport();
+  await expect(summary).toContainText("48 shown.");
+  await page.keyboard.press("Tab");
+  await expect(page.locator(`#archive-game-${ranked[25].id}`)).toBeFocused();
+  await expect(page).toHaveURL(originalUrl);
+});
+
+for (const query of ["", "sort=oldest&q=NYJ"]) {
+  test(`returning from a game beyond the first result batch reveals and focuses its row${query ? " while retaining search and sorting" : ""}`, async ({ page }) => {
+    const params = new URLSearchParams(query);
+    const latest = games.find((game) => game.id === current.latestAnalyzedGameId);
+    const board = latest?.outcome === "win" ? "miracle" : "heartbreak";
+    const ranked = filterArchive(games, board, archiveFilters(params));
+    const selected = latest && ranked.findIndex((game) => game.id === latest.id) >= 24 ? latest : ranked[24];
+    test.skip(!selected, "This archive selection fits in the first result batch.");
+    if (!selected) return;
+    params.set("game", selected.id);
+    params.set("board", board);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(`/morgue?${params}`);
+    const originalUrl = page.url();
+    const row = page.locator(`#archive-game-${selected.id}`);
+    await expect(row).toHaveCount(0);
+    await page.getByRole("button", { name: "Back to results", exact: true }).click();
+    await expect(row).toBeFocused();
+    await expect(row).toBeInViewport();
+    await expect(row).toHaveAttribute("aria-pressed", "true");
+    await expect(row).toContainText("Open now");
+    const shown = Math.min(ranked.length, Math.ceil((ranked.findIndex((game) => game.id === selected.id) + 1) / 24) * 24);
+    await expect(page.getByRole("list", { name: "Matching games", exact: true }).locator("li")).toHaveCount(shown);
+    await expect(page.locator("#archive-results")).toContainText(`${shown} shown.`);
+    await expect(page.getByLabel("Search games", { exact: true })).toHaveValue(params.get("q") ?? "");
+    await expect(page.getByRole("combobox", { name: "Sort by", exact: true })).toHaveValue(params.get("sort") ?? "swing");
+    await expect(page).toHaveURL(originalUrl);
+  });
+}
 
 test("find-game and return-to-results controls preserve the URL and restore useful focus", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });

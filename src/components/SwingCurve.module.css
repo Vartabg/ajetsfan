@@ -1,5 +1,5 @@
 .card { margin: 0; border: 1px solid var(--rule-soft); border-top: 4px double var(--spot); background: var(--paper); }
-.head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2rem; align-items: center; padding: 1.75rem 1.5rem; border-bottom: 1px solid var(--rule-soft); background: #f0eadf; color: var(--ink); }
+.head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2rem; align-items: center; padding: 1.75rem 1.5rem; border-bottom: 1px solid var(--rule-soft); background: #f0eadf; color: var(--ink); container: case-header / inline-size; }
 .identity { min-width: 0; }
 .eyebrow { margin: 0 0 .7rem; color: var(--spot); font: .72rem/1.5 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; }
 .matchup { font: 700 clamp(1.9rem, 3.3vw, 2.9rem)/1.12 var(--font-serif), Georgia, serif; letter-spacing: -.035em; scroll-margin-top: 1.5rem; }
@@ -38,6 +38,7 @@
 .legendKey { background: var(--ink); }
 .state { margin: 0; padding: 4rem 1rem; text-align: center; color: var(--ink-2); font-size: .85rem; }
 .state button { min-height: 44px; padding: .65rem 1rem; border-radius: var(--radius); color: var(--spot); border: 1px solid var(--spot); font-weight: 700; }
+.state button[aria-disabled="true"] { cursor: progress; color: var(--ink-2); border-color: var(--rule-soft); }
 .scrubber { min-width: 0; padding: 1.5rem; border-left: 1px solid var(--rule-soft); }
 .scrubberHead { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: space-between; font-size: .83rem; font-weight: 800; }
 .scrubberHead > span { color: var(--ink-2); font-size: .74rem; font-weight: 400; }
@@ -65,3 +66,9 @@
 .keyNote small { font-size: .72rem; }
 @media (max-width: 900px) { .head { gap: 1.5rem; } .scoreboard { gap: .85rem; } .scoreboard strong { font-size: 3.3rem; } .tape { grid-template-columns: 1fr; } .scrubber { border-left: 0; border-top: 1px solid var(--rule-soft); } }
 @media (max-width: 640px) { .head { grid-template-columns: 1fr; padding: 1.3rem 1rem; gap: 1.15rem; } .matchup { font-size: 2.3rem; } .sub { margin-top: .8rem; } .epitaph { font-size: 1.1rem; } .scoreboard { justify-content: center; gap: 1.4rem; } .scoreboard strong { font-size: 3.5rem; } .scoreBlock { padding: 1rem 0 0; border-left: 0; border-top: 1px solid var(--rule-soft); } .context { padding: .75rem 1rem; font-size: .73rem; } .plot { padding: 1.2rem .8rem 1rem; } .plotTitle { padding-left: .2rem; font-size: 1.6rem; } .plotSub { padding-left: .2rem; font-size: .73rem; } .scrubber { padding: 1.2rem 1rem; } .keyNote { padding: .85rem 1rem; } }
+@container case-header (max-width: 12em) {
+  .scoreboard { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+  .scoreboard > div { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .25rem .5rem; text-align: left; }
+  .scoreboard > div > span { max-width: 100%; overflow-wrap: anywhere; }
+  .scoreDash { display: none; }
+}

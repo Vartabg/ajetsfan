@@ -6,8 +6,8 @@
 .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.75rem; }
 .card { min-width: 0; padding-right: 1.75rem; border-right: 1px solid var(--rule-soft); }
 .card:last-child { border-right: 0; }
-.cardTop { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .7rem 1rem; margin-bottom: .75rem; background: var(--forest); color: var(--paper); }
-.cardTop > span { font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: .84rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; }
+.cardTop { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem; padding: .7rem 1rem; margin-bottom: .75rem; background: var(--forest); color: var(--paper); }
+.cardTop > span { min-width: 0; max-width: 100%; font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: .84rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; overflow-wrap: anywhere; }
 .cardTop > b { display: flex; align-items: baseline; gap: .25rem; font-size: .72rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .shirtLabel { font: .7rem/1 var(--font-mono), monospace; }
 .shirtNumber { font: 400 2.65rem/.9 var(--font-hed), Impact, sans-serif; }
@@ -17,7 +17,7 @@
 .yards { color: var(--ink); font: 400 3rem/1.1 var(--font-hed), sans-serif; font-variant-numeric: tabular-nums; }
 .unit { font-size: .76rem; color: var(--ink-2); }
 .player { padding: 1rem 0 .8rem; }
-.player h3 { font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: clamp(1.55rem, 2.2vw, 2rem); font-weight: 700; line-height: 1.1; }
+.player h3 { font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: clamp(1.55rem, 2.2vw, 2rem); font-weight: 700; line-height: 1.1; overflow-wrap: anywhere; }
 .player a { text-decoration: none; color: var(--ink); display: flex; align-items: center; justify-content: space-between; gap: .5rem; min-height: 44px; }
 .player a:hover { color: var(--spot); text-decoration: underline; text-underline-offset: 3px; }
 .player a > span { color: var(--spot); font-size: 1rem; font-weight: 400; }

@@ -58,7 +58,7 @@ export default async function BackPage() {
   return (
     <main id="main" className={styles.main}>
       {snapshot ? <DataFreshness checkedAt={snapshot.checkedAt} /> : null}
-      <nav className={styles.editionNav} aria-label="In this edition"><span>Go straight to</span>{next ? <a href="#sunday-briefing">Sunday briefing <span aria-hidden="true">↓</span></a> : null}{snapshot ? <a href="#season" aria-label="Season and schedule">This season <span aria-hidden="true">↓</span></a> : null}<Link href="/team#news">Jets news <span aria-hidden="true">↗</span></Link><Link href="/team#roster">The roster <span aria-hidden="true">↗</span></Link></nav>
+      <nav className={styles.editionNav} aria-label="In this edition"><span>Go straight to</span>{next ? <Link href="#sunday-briefing">Sunday briefing <span aria-hidden="true">↓</span></Link> : null}{snapshot ? <Link href="#season" aria-label="Season and schedule">This season <span aria-hidden="true">↓</span></Link> : null}<Link href="/team#news">Jets news <span aria-hidden="true">↗</span></Link><Link href="/team#roster">The roster <span aria-hidden="true">↗</span></Link></nav>
       <article id="latest-game" className={styles.edition}>
         <div className={styles.cover}>
           <div className={styles.editionLine}><p>{lead.kind === "archive" ? "From the archive · no current-season final in this edition" : result ? `Latest final · Week ${result.week}${result.seasonType === "POST" ? " · playoffs" : ""}` : "The next chapter"}</p>{result ? <span className={styles.mobileFinal}>NYJ {result.jetsScore} <span aria-hidden="true">—</span> {result.opponentDisplay} {result.oppScore}</span> : null}<span className={styles.readerNote}>For those of us still watching</span></div>
@@ -67,9 +67,9 @@ export default async function BackPage() {
               <span className={styles.voiceLabel}>Fan reaction</span>
               <h1 className="hed">{headlinePivot ? <><span>{headlinePivot}</span><em>{headline.slice(headlinePivot.length)}</em></> : headline}</h1>
               <p>{!result ? "The jersey is ready. The optimism is questionable. We’ll be here when the football starts." : tied ? "All that football, and we’re still waiting for an answer. The final counts. The feeling is harder to explain." : lost ? `${margin === 1 ? "One point" : `${margin} points`} short. Plenty to replay. That’s the deal when you love this team: you take it personally, then show up again.` : "Keep the jersey on. Let the group chat have its moment. Some Sundays remind you why you put yourself through the other ones."}</p>
-              {result ? <a href="#postgame" className={styles.coverLink}>{lost ? "How it got away" : "Relive the afternoon"} <span aria-hidden="true">↓</span></a> : <Link href="/team" className={styles.coverLink}>Meet this year’s Jets <span aria-hidden="true">↗</span></Link>}
+              {result ? <Link href="#postgame" className={styles.coverLink}>{lost ? "How it got away" : "Relive the afternoon"} <span aria-hidden="true">↓</span></Link> : <Link href="/team" className={styles.coverLink}>Meet this year’s Jets <span aria-hidden="true">↗</span></Link>}
             </div>
-            <div className={styles.coverVisual}>{gamePhoto ? <EditorialPhoto photo={gamePhoto} sizes="(max-width: 640px) calc(100vw - 70px), (max-width: 1288px) 45vw, 550px" eager /> : null}
+            <div className={styles.coverVisual}>{gamePhoto ? <EditorialPhoto photo={gamePhoto} sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 900px) calc(55vw - 2.6125rem), (max-width: 1288px) calc(55vw - 3.3rem), 656px" eager /> : null}
             {result ? <div className={styles.scoreboard} aria-label={`Final score: Jets ${result.jetsScore}, ${result.opponentDisplay} ${result.oppScore}`}>
               <span className={styles.finalLabel}>Final{analysis?.wentToOt ? " / OT" : ""}</span>
               <div className={styles.scoreRow}><b>NYJ</b><strong>{result.jetsScore}</strong></div>

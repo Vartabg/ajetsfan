@@ -1,19 +1,12 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useMinuteClock } from "@/lib/use-minute-clock";
 import type { MatchdayReport } from "@/lib/matchday-report";
 import { formatCheckedAt, formatDate } from "@/lib/current";
 import styles from "./MatchdayDesk.module.css";
 
-const subscribe = (notify: () => void) => {
-  const timer = window.setInterval(notify, 60_000);
-  return () => window.clearInterval(timer);
-};
-const currentMinute = () => Math.floor(Date.now() / 60_000) * 60_000;
-const serverMinute = () => 0;
-
 export default function MatchdayDesk({ report }: { report: MatchdayReport | null }) {
-  const now = useSyncExternalStore(subscribe, currentMinute, serverMinute);
+  const now = useMinuteClock();
   const expired = !!report && !!now && now >= Date.parse(report.expiresAt);
   const current = expired ? null : report;
   const old = !!current && !!now && now - Date.parse(current.reviewedAt) >= 24 * 60 * 60_000;

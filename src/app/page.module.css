@@ -15,7 +15,8 @@
 .scoreOnly { grid-template-columns: minmax(0, 1fr) 240px; }
 .copyOnly { grid-template-columns: 1fr; }
 .copyOnly .coverVisual { display: none; }
-.coverVisual { min-width: 0; }
+.coverCopy { min-width: 0; }
+.coverVisual { min-width: 0; container: cover-score / inline-size; }
 .coverVisual figure > div { aspect-ratio: 3 / 2; outline: 1px solid var(--rule-soft); outline-offset: 5px; }
 .coverVisual:has(figure) .scoreboard { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: .35rem 1.5rem; padding: 1rem; }
 .coverVisual:has(figure) .finalLabel { grid-column: 1; grid-row: 1; }
@@ -25,7 +26,7 @@
 .coverVisual:has(figure) .scoreRow b { font: 800 1.15rem/1.2 var(--font-sans-narrow), sans-serif; }
 .coverVisual:has(figure) .scoreboard time { grid-column: 2; }
 .coverVisual:has(figure) .scoreboard small { grid-column: 3; padding-left: 1.5rem; }
-.coverCopy h1 { max-width: 13ch; font-size: clamp(3.1rem, 5.15vw, 4.6rem); line-height: 1.06; text-wrap: balance; }
+.coverCopy h1 { max-width: 13ch; font-size: clamp(3.1rem, 5.15vw, 4.6rem); line-height: 1.06; text-wrap: balance; overflow-wrap: anywhere; }
 .coverCopy h1 > span { display: block; }
 .voiceLabel { display: inline-block; margin-bottom: .75rem; color: var(--stamp); font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
 .coverCopy h1 em { display: block; margin-top: .1em; font: italic 500 .84em/1.03 var(--font-serif), Georgia, serif; letter-spacing: -.05em; text-transform: none; }
@@ -64,14 +65,16 @@
 .tapeBody > small { font-size: .7rem; }
 .sourcePlay { max-width: 80ch; font-size: .75rem; color: var(--ink-2); }
 .season { padding: 2.6rem 0; border-bottom: 1px solid var(--rule); }
-.seasonLine { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1.3rem; border-bottom: 1px solid var(--rule-soft); }
+.seasonLine { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1.3rem; border-bottom: 1px solid var(--rule-soft); }
+.seasonLine > div { min-width: 0; }
 .seasonLine h2 { font-size: clamp(1.8rem, 3vw, 2.8rem); }
-.seasonLine > p { display: flex; gap: 1rem; align-items: center; margin: 0; }
-.seasonLine strong { font: 400 3.5rem/1 var(--font-hed), sans-serif; }
+.seasonLine > p { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; min-width: 0; max-width: 100%; margin: 0; }
+.seasonLine strong { font: 400 3.5rem/1 var(--font-hed), sans-serif; white-space: nowrap; }
 .seasonLine p span { color: var(--ink-2); max-width: 18ch; font-size: .72rem; }
 .sundays { display: grid; grid-template-columns: 1.3fr 1fr; gap: 3rem; margin: 1.3rem 0; }
 .recent h3 { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .75rem; }
 .recent ol { list-style: none; margin: 0; padding: 0; }
+.recent { min-width: 0; container: recent-results / inline-size; }
 .recent li { display: grid; grid-template-columns: 1.8rem 4rem 1fr auto; align-items: center; gap: .7rem; border-bottom: 1px solid var(--rule-soft); padding: .7rem 0; }
 .resultLetter { display: grid; place-items: center; background: var(--ink); color: white; font-size: .72rem; font-weight: 800; width: 1.6rem; height: 1.6rem; }
 .win { background: var(--spot); }
@@ -93,15 +96,15 @@
 .morgue { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.4fr); gap: 2.5rem; padding: 2.6rem; margin: 1rem 0 0; color: var(--paper); background: var(--forest); }
 .morgueHeading { min-width: 0; }
 .morgueHeading .kicker { color: #c8d5bd; max-width: 29ch; }
-.morgueHeading h2 { font: italic 500 clamp(2.4rem, 3.4vw, 3.25rem)/1.02 var(--font-serif), Georgia, serif; text-transform: none; letter-spacing: -.045em; }
+.morgueHeading h2 { font: italic 500 clamp(2.4rem, 3.4vw, 3.25rem)/1.02 var(--font-serif), Georgia, serif; text-transform: none; letter-spacing: -.045em; overflow-wrap: anywhere; }
 .morgueHeading h2 span { color: var(--accent); }
 .morgueHeading p:last-child { font: .95rem/1.7 var(--font-serif), Georgia, serif; color: #dbe0ce; max-width: 32ch; }
 .morgueDoor { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; padding: .5rem 0; color: var(--paper); font: 800 .8rem/1.5 var(--font-sans), sans-serif; text-decoration: underline; text-underline-offset: 5px; }
 .morgueDoor br { display: none; }
 .morgueDoor span { margin-left: 1rem; }
 .morgueDoor:hover { color: var(--accent); }
-.obituaries { display: grid; grid-template-columns: 1fr 1fr; align-content: center; gap: 1.25rem; min-width: 0; }
-.obituary { display: block; color: var(--ink); background: var(--paper); border: 1px solid var(--paper); padding: 1.5rem 1.5rem 0; text-decoration: none; transition: background-color .15s, border-color .15s; }
+.obituaries { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: center; gap: 1.25rem; min-width: 0; }
+.obituary { display: block; min-width: 0; color: var(--ink); background: var(--paper); border: 1px solid var(--paper); padding: 1.5rem 1.5rem 0; text-decoration: none; overflow-wrap: anywhere; transition: background-color .15s, border-color .15s; }
 .obituary:hover { background: #eee7d8; border-color: #eee7d8; }
 .obituary:focus-visible { outline-color: var(--paper); }
 .signOfLife { background: #e8efdf; border-color: #e8efdf; }
@@ -112,15 +115,15 @@
 .obitScore { margin: 1.1rem 0 .15rem; font: 700 1.35rem/1.5 var(--font-sans-narrow), sans-serif; }
 .obitScore span { margin-inline: .3rem; }
 .obituary > small { color: var(--ink-2); font-size: .72rem; }
-.obitFoot { display: flex; justify-content: space-between; align-items: center; margin: 1.2rem 0 0; padding: .85rem 0; border-top: 1px dashed #a9b09e; font-size: .72rem; font-weight: 800; }
+.obitFoot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .4em; margin: 1.2rem 0 0; padding: .85rem 0; border-top: 1px dashed #a9b09e; font-size: .72rem; font-weight: 800; }
 .touchline { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 2.5rem; padding: 2.6rem 0; align-items: start; }
 .touchline > section[id="around-jets"] { margin-top: 0; padding-top: 0; border-top: 0; }
 .touchline > :only-child { grid-column: 1 / -1; }
-.player { padding-right: 2rem; border-right: 1px solid var(--rule-soft); }
+.player { min-width: 0; padding-right: 2rem; border-right: 1px solid var(--rule-soft); }
 .spotlightPhoto { margin-top: 1rem; }
 .spotlightPhoto > div { aspect-ratio: 3 / 4; }
 .jerseyNumber { color: var(--spot); font: 400 5rem/1 var(--font-hed), sans-serif; }
-.player h2 { font-size: 2.6rem; margin-top: 1.2rem; }
+.player h2 { font-size: 2.6rem; margin-top: 1.2rem; overflow-wrap: anywhere; }
 .player > p { font: .95rem/1.65 var(--font-serif), Georgia, serif; margin: .75rem 0; }
 .player > small { display: block; font-size: .72rem; color: var(--ink-2); margin-bottom: 1.1rem; }
 .filmRoom { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule-soft); }
@@ -137,7 +140,7 @@
   .coverVisual:has(figure) .scoreRow + .scoreRow, .coverVisual:has(figure) .scoreboard small { padding-left: .75rem; }
   .coverVisual:has(figure) .scoreRow strong { font-size: 2.3rem; }
   .sundays { gap: 1.5rem; }
-  .morgue { grid-template-columns: 1fr; padding: 2rem; gap: 1.5rem; }
+  .morgue { grid-template-columns: minmax(0, 1fr); padding: 2rem; gap: 1.5rem; }
   .morgueHeading h2 { max-width: 20ch; }
   .touchline { grid-template-columns: 260px minmax(0, 1fr); gap: 1.75rem; }
   .player { padding-right: 1.5rem; }
@@ -150,7 +153,7 @@
   .editionLine { align-items: center; gap: .3rem .75rem; flex-wrap: wrap; padding: .65rem 0; font-size: .68rem; letter-spacing: .03em; }
   .editionLine .readerNote { display: none; }
   .editionLine .mobileFinal { display: inline; margin-left: auto; font-size: .72rem; letter-spacing: 0; }
-  .coverBody { grid-template-columns: 1fr; gap: 1.6rem; padding: 1.6rem 0 1.25rem; }
+  .coverBody { grid-template-columns: minmax(0, 1fr); gap: 1.6rem; padding: 1.6rem 0 1.25rem; }
   .coverCopy h1 { font-size: clamp(2.65rem, 11vw, 4rem); max-width: 14ch; }
   .coverCopy h1 > span { display: block; }
 .coverCopy h1 em { display: block; margin-top: .1em; font: italic 500 .84em/1.03 var(--font-serif), Georgia, serif; letter-spacing: -.05em; text-transform: none; }
@@ -186,10 +189,25 @@
   .morgueDoor { display: inline-flex; align-items: center; gap: .4rem; font: 800 .82rem/1.5 var(--font-sans), sans-serif; text-transform: none; padding: .7rem 1rem; min-width: 0; }
   .morgueDoor br { display: none; }
   .morgueDoor span { margin: 0 0 0 1rem; }
-  .obituaries { grid-template-columns: 1fr; gap: 1rem; }
+  .obituaries { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
   .obituary { padding: 1.2rem 1.2rem 0; }
   .obituary h3 { min-height: 0; font-size: 2.1rem; }
-  .touchline { grid-template-columns: 1fr; gap: 2rem; }
+  .touchline { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
   .player { border-right: 0; border-bottom: 1px solid var(--rule-soft); padding: 0 0 1.5rem; }
   .filmRoom > summary small { max-width: 34ch; }
+}
+@container cover-score (max-width: 14em) {
+  .coverVisual:has(figure) .scoreboard { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; padding: .75rem; }
+  .coverVisual:has(figure) .finalLabel { grid-column: 1 / -1; grid-row: auto; justify-self: start; }
+  .coverVisual:has(figure) .scoreRow { grid-row: auto; flex-wrap: wrap; gap: .2em .5em; }
+  .coverVisual:has(figure) .scoreRow + .scoreRow, .coverVisual:has(figure) .scoreboard small { padding-left: .5rem; }
+  .coverVisual:has(figure) .scoreboard time { grid-column: 1; }
+  .coverVisual:has(figure) .scoreboard small { grid-column: 2; }
+}
+@container recent-results (max-width: 14em) {
+  .recent li { grid-template-columns: 1.6rem minmax(0, 1fr) auto; gap: .3rem .5rem; }
+  .recent li > .resultLetter { grid-column: 1; grid-row: 1 / 3; }
+  .recent li > small { grid-column: 2; grid-row: 1; }
+  .recent li > strong { grid-column: 2; grid-row: 2; }
+  .recent li > a, .recent li > small:last-child { grid-column: 3; grid-row: 1 / 3; }
 }

@@ -3,7 +3,7 @@
 .matchup::after { content: ''; position: absolute; left: 1.2rem; right: 1.2rem; top: .55rem; height: .6rem; border-left: 1px solid #f7f4eb70; border-right: 1px solid #f7f4eb70; pointer-events: none; }
 .kicker { margin: 0 0 1rem; color: var(--tape, #ede2bb); font: 800 .74rem/1.5 var(--font-sans-narrow), sans-serif; text-transform: uppercase; letter-spacing: .12em; }
 .intro { min-width: 0; }
-.intro h2 { font-size: clamp(2.6rem, 4vw, 3.8rem); line-height: 1.02; }
+.intro h2 { font-size: clamp(2.6rem, 4vw, 3.8rem); line-height: 1.02; overflow-wrap: anywhere; }
 .intro h2 span { color: #f7f4eb; }
 .intro > p:not(.kicker) { margin: 1.3rem 0 0; font: 600 1rem/1.7 var(--font-sans-narrow), sans-serif; }
 .intro .kickoff { color: #d1dbd0; font-size: .8rem; }

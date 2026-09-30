@@ -1,19 +1,13 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useMinuteClock } from "@/lib/use-minute-clock";
 
 const MINUTE = 60_000;
 const DAY = 24 * 60 * MINUTE;
-const currentMinute = () => Math.floor(Date.now() / MINUTE) * MINUTE;
-const serverMinute = () => 0;
-const subscribe = (notify: () => void) => {
-  const interval = window.setInterval(notify, MINUTE);
-  return () => window.clearInterval(interval);
-};
 
 /** The static edition still warns readers if its scheduled updater has stopped. */
 export default function DataFreshness({ checkedAt }: { checkedAt: string }) {
-  const now = useSyncExternalStore(subscribe, currentMinute, serverMinute);
+  const now = useMinuteClock();
   const age = now - Date.parse(checkedAt);
   if (!now || age < DAY) return null;
   const days = Math.floor(age / DAY);

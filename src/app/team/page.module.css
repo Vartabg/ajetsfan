@@ -5,7 +5,8 @@
 .kicker { color: var(--spot); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 .75rem; }
 .heroGrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; padding: 1.75rem 0 2rem; }
 .solo { grid-template-columns: 1fr; }
-.hero h1 { font-size: clamp(3.5rem, 5.6vw, 5.1rem); line-height: .96; }
+.hero h1 { font-size: clamp(3.5rem, 5.6vw, 5.1rem); line-height: .96; overflow-wrap: anywhere; }
+.intro { min-width: 0; }
 .hero h1 span { color: var(--spot); }
 .intro > p { max-width: 35ch; margin: 1.2rem 0; color: var(--ink-2); font-size: 1rem; line-height: 1.7; }
 .intro > .kicker { margin: 0 0 .75rem; color: var(--spot); font-size: .72rem; line-height: 1.5; }

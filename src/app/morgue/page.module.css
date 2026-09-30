@@ -4,12 +4,14 @@
 .kicker { margin: 0; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .folio > span { color: #d3c7b1; font: .7rem/1.5 var(--font-mono), monospace; text-transform: uppercase; letter-spacing: .04em; }
 .intro { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, .75fr); gap: 3rem; align-items: end; padding: 1.75rem 0 2rem; }
-.title { font: 400 clamp(4.6rem, 8.5vw, 7.6rem)/.95 var(--font-serif), Georgia, serif; letter-spacing: -.055em; }
+.title { font: 400 clamp(4.6rem, 8.5vw, 7.6rem)/.95 var(--font-serif), Georgia, serif; letter-spacing: -.055em; overflow-wrap: anywhere; }
+.intro > div { min-width: 0; }
 .article { display: block; margin-bottom: .3rem; font-size: .31em; line-height: 1; font-style: italic; letter-spacing: -.02em; }
 .period { color: #dcb19a; }
 .epitaph { margin: 1rem 0 0; font: italic 400 clamp(1.2rem, 1.8vw, 1.65rem)/1.35 var(--font-serif), Georgia, serif; color: #e1d9c8; }
 .notice { min-width: 0; padding-left: 1.5rem; border-left: 1px solid #f7f4eb40; }
-.seal { display: inline-flex; flex-direction: column; align-items: center; gap: .3rem; padding: .5rem .9rem; border: 3px double #dcb19a; color: #dcb19a; transform: rotate(-3deg); }
+.seal { display: inline-flex; flex-direction: column; align-items: center; gap: .3rem; max-width: calc(100% - .5rem); padding: .5rem .9rem; border: 3px double #dcb19a; color: #dcb19a; overflow-wrap: anywhere; transform: rotate(-3deg); }
+.seal > * { max-width: 100%; }
 .seal > span { font: .65rem/1.3 var(--font-mono), monospace; text-transform: uppercase; letter-spacing: .09em; }
 .seal > strong { font: 700 1.25rem/1.1 var(--font-sans-narrow), Arial, sans-serif; text-transform: uppercase; letter-spacing: .05em; }
 .standfirst { max-width: 33ch; margin: 1.5rem 0 0; font-size: .94rem; line-height: 1.7; color: #e1d9c8; }

@@ -19,8 +19,10 @@ export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; mi
   const resultsSummary = useRef<HTMLParagraphElement>(null);
   const copyRequest = useRef(0);
   const focusGameId = useRef<string | null>(null);
+  const focusResult = useRef<{ gameId: string; query: string; block: ScrollLogicalPosition } | null>(null);
   const games = useMemo(() => [...heartbreak, ...miracle], [heartbreak, miracle]);
-  const queryParams = new URLSearchParams(params.toString());
+  const queryKey = params.toString();
+  const queryParams = new URLSearchParams(queryKey);
   const board = archiveBoard(queryParams, games);
   const filters = archiveFilters(queryParams);
   const list = filterArchive(games, board, filters);
@@ -39,7 +41,23 @@ export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; mi
     }
   }, [selected?.id]);
 
+  useEffect(() => {
+    const pending = focusResult.current;
+    if (!pending) return;
+    if (pending.query !== queryKey) {
+      focusResult.current = null;
+      return;
+    }
+    const row = document.getElementById(`archive-game-${pending.gameId}`);
+    if (row) {
+      focusResult.current = null;
+      row.focus({ preventScroll: true });
+      row.scrollIntoView({ block: pending.block, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    }
+  }, [visibleCount, queryKey]);
+
   function update(changes: Record<string, string | null>, replace = false) {
+    focusResult.current = null;
     const next = new URLSearchParams(params.toString());
     next.set("board", board);
     for (const [key, value] of Object.entries(changes)) {
@@ -88,7 +106,17 @@ export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; mi
   function backToResults() {
     const row = selected ? document.getElementById(`archive-game-${selected.id}`) : null;
     if (row) moveTo(row, "center");
-    else moveTo(resultsSummary.current);
+    else if (selected) {
+      const index = list.findIndex((game) => game.id === selected.id);
+      focusResult.current = { gameId: selected.id, query: queryKey, block: "center" };
+      setVisibleCount((count) => Math.max(count, Math.min(list.length, Math.ceil((index + 1) / 24) * 24)));
+    } else moveTo(resultsSummary.current);
+  }
+
+  function showMore(keyboard: boolean) {
+    const firstAdded = list[visibleCount];
+    focusResult.current = keyboard && firstAdded ? { gameId: firstAdded.id, query: queryKey, block: "start" } : null;
+    setVisibleCount((count) => Math.min(list.length, count + 24));
   }
 
   function clearSearch() {
@@ -133,13 +161,13 @@ export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; mi
         <label>Sort by<select value={filters.sort} onChange={(event) => update({ sort: event.target.value })}><option value="swing">Most extreme</option><option value="recent">Newest first</option><option value="oldest">Oldest first</option></select></label>
       </div>
 
-      <div className={styles.resultsBar}><p id="archive-results" ref={resultsSummary} tabIndex={-1} aria-live="polite"><strong>{list.length}</strong> {list.length === 1 ? "game" : "games"} found</p>{activeFilters ? <button type="button" className={styles.reset} onClick={reset}>Reset filters</button> : null}</div>
+      <div className={styles.resultsBar}><p id="archive-results" ref={resultsSummary} tabIndex={-1} aria-live="polite" aria-atomic="true"><strong>{list.length}</strong> {list.length === 1 ? "game" : "games"} found · {Math.min(visibleCount, list.length)} shown.</p>{activeFilters ? <button type="button" className={styles.reset} onClick={reset}>Reset filters</button> : null}</div>
       {!selected ? <div className={styles.empty}><h2>No games match.</h2><p>Try another season, opponent or search term.</p><button type="button" onClick={reset}>Reset filters</button></div> : (
           <div className={styles.gameList}>
             <ol className={styles.list} aria-label="Matching games">
               {list.slice(0, visibleCount).map((game, index) => <li key={game.id}><button id={`archive-game-${game.id}`} type="button" className={`${styles.row} ${game.id === selected.id ? styles.rowOn : ""}`} aria-pressed={game.id === selected.id} aria-label={`Select ${game.date} ${game.atHome ? "vs" : "at"} ${game.opponentDisplay}, Jets ${game.jetsScore}–${game.oppScore}, ${pct(game.swing)}`} onClick={() => selectGame(game)}><span className={styles.rank}>{String(index + 1).padStart(2, "0")}</span><span className={styles.meta}><span className={styles.date}><time dateTime={game.date}>{formatDate(game.date)}</time> · Wk {game.week}{game.wentToOt ? " · OT" : ""}{game.seasonType !== "REG" ? " · playoffs" : ""}</span><strong className={styles.matchup}>Jets {game.atHome ? "vs" : "at"} {game.opponentDisplay}</strong><span className={styles.score}>Final: Jets {game.jetsScore} · {game.opponentDisplay} {game.oppScore}</span></span><span className={styles.numbers}><strong>{pct(game.swing)}</strong><small>{board === "heartbreak" ? "peak 2nd-half chance" : "lowest 2nd-half chance"}</small><span className={styles.openGame}>{game.id === selected.id ? "Open now" : "Open game"} <span aria-hidden="true">{game.id === selected.id ? "↑" : "↗"}</span></span></span></button></li>)}
             </ol>
-            {list.length > visibleCount ? <button className={styles.more} type="button" onClick={() => setVisibleCount((count) => count + 24)}>Show {Math.min(24, list.length - visibleCount)} more games <span aria-hidden="true">↓</span></button> : null}
+            {list.length > visibleCount ? <button className={styles.more} type="button" onClick={(event) => showMore(event.detail === 0)}>Show {Math.min(24, list.length - visibleCount)} more games <span aria-hidden="true">↓</span></button> : null}
           </div>
       )}
     </section>
