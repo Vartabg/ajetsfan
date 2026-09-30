@@ -1,0 +1,9 @@
+.main { width: var(--shell); display: grid; grid-template-columns: .85fr 1.2fr; align-items: center; gap: 3rem; margin: 2rem auto 4rem; padding-block: 3rem; border-block: 1px solid var(--rule); }
+.number { color: var(--spot); font: 400 clamp(7rem, 21vw, 18rem)/1 var(--font-hed), Impact, sans-serif; letter-spacing: -.05em; }
+.copy { min-width: 0; }
+.kicker { color: var(--stamp); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.copy h1 { font: italic 500 clamp(2.6rem, 5vw, 4.5rem)/1.1 var(--font-serif), Georgia, serif; letter-spacing: -.04em; }
+.copy > p:not(.kicker) { color: var(--ink-2); max-width: 38ch; }
+.copy nav { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; margin-top: 1.4rem; }
+.copy a { display: inline-flex; align-items: center; gap: .75rem; min-height: 44px; font-size: .8rem; font-weight: 800; color: var(--spot); text-underline-offset: 5px; }
+@media (max-width: 640px) { .main { grid-template-columns: 1fr; gap: 1rem; padding-block: 2rem; } .number { font-size: 7rem; } }

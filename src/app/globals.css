@@ -3,21 +3,23 @@
   --ink-2: #4b5b53;
   --ink-3: #536159;
   --rule: #16251d;
-  --rule-soft: #d5ddd6;
+  --rule-soft: #d8d8cc;
   --spot: #006341;
   --spot-bright: #087a4d;
   --accent: #d2f66b;
   --forest: #062c21;
-  --paper: #fbfcf8;
-  --paper-2: #eff3ec;
-  --radius: 6px;
+  --paper: #f8f5ed;
+  --paper-2: #eeeee3;
+  --radius: 2px;
+  --stamp: #8b3e32;
+  --tape: #ede2bb;
   --shell: min(1240px, 100% - 3rem);
 }
 /* A subtle stock tint still follows the streak; the specimen shows the full range. */
-[data-wear="1"] { --paper: #fafbf7; --paper-2: #eef2eb; }
-[data-wear="2"] { --paper: #f9faf5; --paper-2: #edf1e9; }
-[data-wear="3"] { --paper: #f8f9f2; --paper-2: #ecf0e6; }
-[data-wear="4"] { --paper: #f7f8ee; --paper-2: #ebefe2; }
+[data-wear="1"] { --paper: #f7f4eb; --paper-2: #eeeddf; }
+[data-wear="2"] { --paper: #f5f1e6; --paper-2: #ece9da; }
+[data-wear="3"] { --paper: #f2eddf; --paper-2: #e9e3d1; }
+[data-wear="4"] { --paper: #efe8d6; --paper-2: #e5ddc5; }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 html { scroll-behavior: smooth; scroll-padding-top: 5rem; }

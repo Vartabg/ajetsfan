@@ -12,11 +12,11 @@ const SECTIONS = [
 
 export default function SectionLinks() {
   const pathname = usePathname();
-  return SECTIONS.map((section) => (
+  return SECTIONS.map((section, index) => (
     <Link key={section.href} href={section.href}
       className={`${styles.section} label`}
       aria-current={pathname === section.href ? "page" : undefined}>
-      {section.label}
+      <span className={styles.chapter} aria-hidden="true">0{index + 1}</span>{section.label}
     </Link>
   ));
 }

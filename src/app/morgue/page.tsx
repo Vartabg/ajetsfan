@@ -21,10 +21,20 @@ export default async function Morgue() {
   return (
     <main id="main" className={styles.main}>
       <header className={styles.head}>
-        <p className={styles.kicker}>For the fans who keep showing up</p>
-        <h1 className={`${styles.title} hed`}>The Morgue<span aria-hidden="true">.</span></h1>
-        <p className={styles.epitaph}>Sunday optimism. Gone too soon.</p>
-        <p className={styles.standfirst}>A shrine to lost leads, improbable wins, and the Sundays we swore we&apos;d stop caring. See you next week.</p>
+        <div className={styles.folio}>
+          <p className={styles.kicker}>For the fans who keep showing up</p>
+          <span aria-hidden="true">Department of lost Sundays</span>
+        </div>
+        <div className={styles.intro}>
+          <div>
+            <h1 className={styles.title}><span className={styles.article}>The</span> Morgue<span className={styles.period} aria-hidden="true">.</span></h1>
+            <p className={styles.epitaph}>Sunday optimism. Gone too soon.</p>
+          </div>
+          <div className={styles.notice}>
+            <div className={styles.seal} aria-hidden="true"><span>Fan services</span><strong>No refunds</strong><span>See you next week</span></div>
+            <p className={styles.standfirst}>A shrine to lost leads, improbable wins, and the Sundays we swore we&apos;d stop caring. See you next week.</p>
+          </div>
+        </div>
         <div className={styles.coverage}><span>{coverage.count} analyzed games · {coverage.seasonLabel}</span><span>{coverage.lastDate ? <>Through <time dateTime={coverage.lastDate}>{formatDate(coverage.lastDate)}</time></> : "No analyzed games yet"}</span></div>
       </header>
 

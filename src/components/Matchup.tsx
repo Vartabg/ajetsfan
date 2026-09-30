@@ -20,7 +20,7 @@ export default function Matchup({ game, overdue, analytics }: { game: ScheduledG
     <section className={styles.matchup} aria-labelledby="matchup-heading">
       <div className={styles.intro}>
         <p className={styles.kicker}>{overdue ? "Awaiting final" : "Up next"} · Week {game.week}</p>
-        <h2 id="matchup-heading" className="hed">Know the<br /><span>matchup.</span></h2>
+        <h2 id="matchup-heading" className="hed">Know the <br /><span>matchup.</span></h2>
         <p>Jets {game.atHome ? "vs" : "at"} {game.opponentDisplay}<br /><time dateTime={game.date}>{formatDate(game.date)}</time></p>
         <p className={styles.kickoff}>{game.kickoff ? formatCheckedAt(game.kickoff) : "Kickoff time to be confirmed"}</p>
         {overdue ? <p className={styles.kickoff}>Kickoff has passed as of the results check. A final has not been confirmed.</p> : null}

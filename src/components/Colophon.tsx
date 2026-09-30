@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Game } from "@/lib/games";
 import type { CurrentSnapshot } from "@/lib/current";
 import { archiveCoverage, formatDate } from "@/lib/current";
+import FanMark from "./FanMark";
 
 /**
  * The one-line colophon a newspaper carries at the foot of the page. Sources and
@@ -13,7 +14,7 @@ export default function Colophon({ games, snapshot }: { games: Game[]; snapshot:
   const excluded = games.filter((game) => game.dataSuspect).length;
   return (
     <footer className={styles.foot}>
-      <div className={styles.top}><Link href="/" className={styles.brand}>The Back Page</Link><p className={styles.tagline}>We’re watching anyway.</p></div>
+      <div className={styles.top}><Link href="/" className={styles.brand} aria-label="The Back Page"><FanMark className={styles.crest} /><span>The Back Page</span></Link><p className={styles.tagline}>We’re watching<br />anyway.</p></div>
       <div className={styles.bottom}><p>An independent Jets fan project. See you next Sunday.</p><div className={styles.links}><Link href="/how-made">How it is made</Link><a href="#top">Back to top <span aria-hidden="true">↑</span></a></div></div>
       <details className={styles.sources}><summary className="disclosure"><span className="when-closed">Sources &amp; the small print</span><span className="when-open">Hide sources &amp; the small print</span></summary><p>
         Play-by-play and win probability from{" "}

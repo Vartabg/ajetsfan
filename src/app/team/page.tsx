@@ -30,21 +30,23 @@ export default async function TeamPage() {
   }).filter((player, index, players) => players.findIndex((entry) => entry.id === player.id) === index) : [];
   return <main id="main" className={styles.main}>
     <header className={styles.hero}>
-      <p className={styles.kicker}>Meet the green &amp; white</p>
-      <div className={`${styles.heroGrid} ${coverPhoto || featured.length ? "" : styles.solo}`}>
+      <div className={styles.programmeFolio}><b>Team sheet</b>{" "}<span>{season ? `${season} · ` : ""}The player programme</span></div>
+      <div className={`${styles.heroGrid} ${coverPhoto ? "" : styles.solo}`}>
         <div className={styles.intro}>
+          <p className={styles.kicker}>Meet the green &amp; white</p>
           <h1 className="hed">The names<br />on our<br /><span>jerseys.</span></h1>
           <p>Some Sundays we believe. Some Sundays we yell at the TV. These are our guys.</p>
+          <span className={styles.loyaltyStamp} aria-hidden="true">For better.<br />For worse.</span>
           {coverage ? <nav aria-label="Team coverage sections"><a href="#season-leaders">Season leaders <span aria-hidden="true">↓</span></a><a href="#roster">Players &amp; roster <span aria-hidden="true">↓</span></a><a href="#news">Team news <span aria-hidden="true">↓</span></a></nav> : null}
         </div>
-        {coverPhoto || featured.length ? <div className={styles.lineup}>
-          {coverPhoto ? <EditorialPhoto photo={coverPhoto} eager className={styles.coverPhoto} sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1288px) calc(58.33vw - 3.2rem), 700px" /> : null}
-          {featured.length ? <div className={styles.lineupNames}><p className={styles.lineupKicker}>The guys we yell for.</p><div className={styles.lineupPlayers}>{featured.map((player) => <Link className={styles.featuredPlayer} href={`/team?${new URLSearchParams({ player: player.id })}#roster`} key={player.id}>
+        {coverPhoto ? <div className={styles.lineup}>
+          <EditorialPhoto photo={coverPhoto} eager className={styles.coverPhoto} sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1288px) calc(58.33vw - 3.2rem), 700px" />
+        </div> : null}
+      </div>
+      {featured.length ? <div className={styles.lineupNames}><p className={styles.lineupKicker}>The guys we yell for.</p><div className={styles.lineupPlayers}>{featured.map((player) => <Link className={styles.featuredPlayer} href={`/team?${new URLSearchParams({ player: player.id })}#roster`} key={player.id}>
             {player.jersey !== null ? <span className={styles.jersey} aria-hidden="true">{player.jersey}</span> : null}
             <span className={styles.featuredName}><strong>{player.name}</strong><span>{player.position}{player.jersey !== null ? ` · No. ${player.jersey}` : ""}</span><span className={styles.profileCue}>View profile <span aria-hidden="true">↗</span></span></span>
           </Link>)}</div></div> : null}
-        </div> : null}
-      </div>
       {coverage ? <p className={styles.edition}><b>{season} edition</b><span>{rosterAvailable ? `${coverage.roster.season} roster: ${coverage.roster.players.length + (coverage.roster.excludedPlayers ?? 0)} source entries · ${coverage.roster.players.length} searchable profiles · ${active} active-roster profiles` : "Roster profiles unavailable"}</span><span>{coverage.stats.status !== "unavailable" && coverage.stats.season === season ? `Player stats from ${coverage.stats.analyzedGameIds.length} completed regular-season games` : "Current-season player stats pending"}</span></p> : null}
     </header>
     {coverage ? <>

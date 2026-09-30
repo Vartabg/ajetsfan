@@ -4,6 +4,7 @@ import { WEAR_NOTE } from "@/lib/paper";
 import { formatCheckedAt, formatDate } from "@/lib/current";
 import styles from "./Masthead.module.css";
 import SectionLinks from "./SectionLinks";
+import FanMark from "./FanMark";
 
 export default function Masthead({ streak, wear, checkedAt }: { streak: Streak | null; wear: number; checkedAt: string | null }) {
   const streakLabel = streak ? `${streak.count} straight ${streak.type === "loss" ? streak.count === 1 ? "loss" : "losses" : streak.type === "win" ? streak.count === 1 ? "win" : "wins" : streak.count === 1 ? "tie" : "ties"}` : "Awaiting a result";
@@ -16,7 +17,7 @@ export default function Masthead({ streak, wear, checkedAt }: { streak: Streak |
       </div>
 
       <div className={styles.brandRow}>
-        <Link href="/" className={`${styles.brand} hed`}>The Back Page</Link>
+        <Link href="/" className={styles.brand} aria-label="The Back Page"><FanMark className={styles.crest} /><span className={styles.wordmark}><span className={styles.brandNote} aria-hidden="true">An independent Jets publication</span><span className={`${styles.brandName} hed`}>The Back Page</span></span></Link>
         <p className={styles.tagline}>Hope. Regret.{" "}<br />Jets football.</p>
       </div>
 

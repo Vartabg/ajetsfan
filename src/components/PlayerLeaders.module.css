@@ -1,4 +1,4 @@
-.section { margin: 3.5rem 0; padding-top: 1.5rem; border-top: 2px solid var(--rule); scroll-margin-top: 1.5rem; }
+.section { margin: 3.5rem 0; padding-top: 1.5rem; border-top: 4px double var(--rule); scroll-margin-top: 1.5rem; }
 .heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem 1.5rem; align-items: end; margin-bottom: 1.75rem; }
 .kicker { color: var(--spot); font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 .75rem; }
 .heading h2 { font-size: clamp(2.6rem, 3.6vw, 3.3rem); line-height: 1; }
@@ -6,13 +6,15 @@
 .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.75rem; }
 .card { min-width: 0; padding-right: 1.75rem; border-right: 1px solid var(--rule-soft); }
 .card:last-child { border-right: 0; }
-.cardTop { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .7rem 0; border-top: 1px solid var(--rule); color: var(--spot); }
-.cardTop > span { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
-.cardTop > b { font-size: .72rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cardTop { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .7rem 1rem; margin-bottom: .75rem; background: var(--forest); color: var(--paper); }
+.cardTop > span { font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: .84rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; }
+.cardTop > b { display: flex; align-items: baseline; gap: .25rem; font-size: .72rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.shirtLabel { font: .7rem/1 var(--font-mono), monospace; }
+.shirtNumber { font: 400 2.65rem/.9 var(--font-hed), Impact, sans-serif; }
 .actionPhoto { border-bottom: 1px solid var(--rule-soft); }
 .jerseyFallback { display: flex; align-items: center; justify-content: center; min-height: 180px; border-block: 1px solid var(--rule-soft); color: var(--spot); font: 400 7rem/1 var(--font-hed), Impact, sans-serif; }
-.production { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .5rem; }
-.yards { color: var(--ink); font: 400 2.4rem/1.1 var(--font-hed), sans-serif; font-variant-numeric: tabular-nums; }
+.production { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .6rem; padding-top: .75rem; border-top: 1px solid var(--rule); }
+.yards { color: var(--ink); font: 400 3rem/1.1 var(--font-hed), sans-serif; font-variant-numeric: tabular-nums; }
 .unit { font-size: .76rem; color: var(--ink-2); }
 .player { padding: 1rem 0 .8rem; }
 .player h3 { font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: clamp(1.55rem, 2.2vw, 2rem); font-weight: 700; line-height: 1.1; }
@@ -23,7 +25,7 @@
 .statLine { display: flex; flex-wrap: wrap; gap: .4rem 1rem; padding: .7rem 0 1rem; font-size: .76rem; color: var(--ink-2); }
 .statLine b { color: var(--spot); }
 .runners { list-style: none; margin: 0; padding: .65rem 0 .8rem; border-top: 1px solid var(--rule-soft); }
-.runners li { display: flex; justify-content: space-between; gap: .75rem; font-size: .74rem; padding: .45rem 0; }
+.runners li { display: flex; justify-content: space-between; gap: .75rem; font-size: .74rem; padding: .45rem 0; border-bottom: 1px dotted var(--rule-soft); }
 .runners strong { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--spot); }
 .pending { padding: 1rem 0; font-size: .8rem; color: var(--ink-2); }
 .meta { position: relative; margin-top: .4rem; padding-top: .8rem; border-top: 1px solid var(--rule-soft); }

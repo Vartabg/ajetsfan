@@ -20,7 +20,7 @@ export default function NewsDesk({ feed, limit = 8, compact = false }: {
     <section id={compact ? "around-jets" : "news"} className={`${styles.desk} ${compact ? styles.compact : ""}`} aria-labelledby={headingId}>
       <div className={styles.header}>
         <div>
-          <p className={styles.kicker}>Official Jets coverage</p>
+          <p className={styles.kicker}><span className={styles.wireLabel}>The team wire</span>{" "}<span>Official Jets coverage</span></p>
           <h2 id={headingId} className="hed">Meanwhile, in<br className={styles.headingBreak} /> Florham Park.</h2>
         </div>
         {compact ? <Link className={styles.allNews} href="/team#news">All team news <span aria-hidden="true">→</span></Link> : null}
@@ -29,16 +29,17 @@ export default function NewsDesk({ feed, limit = 8, compact = false }: {
       {lead ? (
         <div className={`${styles.stories} ${headlines.length ? "" : styles.single}`}>
           <a className={styles.lead} href={lead.url} target="_blank" rel="noopener noreferrer">
-            <span className={styles.leadKicker}>From the team wire</span>
+            <span className={styles.leadKicker}><span className={styles.leadIndex} aria-hidden="true">01 / </span>From the team wire</span>
             <time className={styles.published} dateTime={lead.publishedAt}>Published {formatCheckedAt(lead.publishedAt)}</time>
             <h3>{lead.title}</h3>
             <span className={styles.read}>Read on newyorkjets.com <span aria-hidden="true">↗</span><span className={styles.srOnly}> (opens in a new tab)</span></span>
           </a>
           {headlines.length ? (
             <ul className={styles.headlines} aria-label="More official Jets headlines">
-              {headlines.map((item) => (
+              {headlines.map((item, index) => (
                 <li key={item.id}>
                   <a className={styles.headline} href={item.url} target="_blank" rel="noopener noreferrer">
+                    <span className={styles.headlineIndex} aria-hidden="true">{String(index + 2).padStart(2, "0")}</span>
                     <time className={styles.published} dateTime={item.publishedAt}>Published {formatCheckedAt(item.publishedAt)}</time>
                     <h3>{item.title}</h3>
                     <span className={styles.headlineArrow} aria-hidden="true">↗</span>

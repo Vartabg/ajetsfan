@@ -110,10 +110,10 @@ export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; mi
   }
 
   return (
-    <section className={styles.wrap} aria-label="Game explorer">
+    <section className={styles.wrap} data-board={board} aria-label="Game explorer">
       <div className={styles.controls}>
         <div className={styles.toggle} role="group" aria-label="Probability ranking">
-          {(["heartbreak", "miracle"] as const).map((value) => <button type="button" key={value} aria-pressed={board === value} className={`${styles.tab} ${board === value ? styles.tabOn : ""}`} onClick={() => update({ board: value, game: null })}><span className={styles.chapterTitle}>{value === "heartbreak" ? "Heartbreak" : "Miracles"}</span><span className={styles.chapterLine}>{value === "heartbreak" ? "Please stop the tape." : "The games that keep us coming back."}</span><span className={styles.chapterCount}>{value === "heartbreak" ? `${heartbreak.length} losses` : `${miracle.length} wins`} <span aria-hidden="true">{board === value ? "✓" : "→"}</span></span></button>)}
+          {(["heartbreak", "miracle"] as const).map((value) => <button type="button" key={value} aria-pressed={board === value} className={`${styles.tab} ${board === value ? styles.tabOn : ""}`} onClick={() => update({ board: value, game: null })}><span className={styles.chapterIndex} aria-hidden="true">{value === "heartbreak" ? "I" : "II"}</span><span className={styles.chapterTitle}>{value === "heartbreak" ? "Heartbreak" : "Miracles"}</span><span className={styles.chapterLine}>{value === "heartbreak" ? "Please stop the tape." : "The games that keep us coming back."}</span><span className={styles.chapterCount}>{value === "heartbreak" ? `${heartbreak.length} losses` : `${miracle.length} wins`} <span aria-hidden="true">{board === value ? "✓" : "→"}</span></span></button>)}
         </div>
         <p className={styles.explainer}>{board === "heartbreak" ? "Losses ordered by the highest chance the Jets had to win in the second half." : "Wins ordered by the lowest chance the Jets had to win in the second half."} <a href="/how-made">How the order works</a></p>
         <div className={styles.archiveNav}><button type="button" onClick={findGame} aria-controls="archive-filters">Find a game <span aria-hidden="true">↓</span></button><span>Season, opponent or the play you remember.</span></div>
