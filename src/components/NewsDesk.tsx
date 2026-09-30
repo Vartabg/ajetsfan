@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CoverageSnapshot } from "@/lib/coverage";
 import { formatCheckedAt } from "@/lib/current";
+import { newsCategory } from "@/lib/news-category";
 import FeedStatus from "./FeedStatus";
 import styles from "./NewsDesk.module.css";
 
@@ -30,7 +31,7 @@ export default function NewsDesk({ feed, limit = 8, compact = false }: {
         <div className={`${styles.stories} ${headlines.length ? "" : styles.single}`}>
           <a className={styles.lead} href={lead.url} target="_blank" rel="noopener noreferrer">
             <span className={styles.leadKicker}><span className={styles.leadIndex} aria-hidden="true">01 / </span>From the team wire</span>
-            <time className={styles.published} dateTime={lead.publishedAt}>Published {formatCheckedAt(lead.publishedAt)}</time>
+            <div className={styles.storyMeta}><span className={styles.category}>{newsCategory(lead.title)}</span><time className={styles.published} dateTime={lead.publishedAt}>Published {formatCheckedAt(lead.publishedAt)}</time></div>
             <h3>{lead.title}</h3>
             <span className={styles.read}>Read on newyorkjets.com <span aria-hidden="true">↗</span><span className={styles.srOnly}> (opens in a new tab)</span></span>
           </a>
@@ -40,7 +41,7 @@ export default function NewsDesk({ feed, limit = 8, compact = false }: {
                 <li key={item.id}>
                   <a className={styles.headline} href={item.url} target="_blank" rel="noopener noreferrer">
                     <span className={styles.headlineIndex} aria-hidden="true">{String(index + 2).padStart(2, "0")}</span>
-                    <time className={styles.published} dateTime={item.publishedAt}>Published {formatCheckedAt(item.publishedAt)}</time>
+                    <div className={styles.storyMeta}><span className={styles.category}>{newsCategory(item.title)}</span><time className={styles.published} dateTime={item.publishedAt}>Published {formatCheckedAt(item.publishedAt)}</time></div>
                     <h3>{item.title}</h3>
                     <span className={styles.headlineArrow} aria-hidden="true">↗</span>
                     <span className={styles.srOnly}>Read on newyorkjets.com (opens in a new tab)</span>

@@ -15,7 +15,7 @@ test("official headlines keep their publication dates and source links across bo
       const link = section.getByRole("link", { name: item.title, exact: false });
       await expect(link).toHaveAttribute("href", item.url);
       await expect(link).toHaveAttribute("target", "_blank");
-      await expect(section.locator(`time[datetime="${item.publishedAt}"]`)).toBeVisible();
+      await expect(link.locator(`time[datetime="${item.publishedAt}"]`)).toBeVisible();
     }
     if (coverage.news.checkedAt) await expect(section.locator(`time[datetime="${coverage.news.checkedAt}"]`)).toBeVisible();
   }

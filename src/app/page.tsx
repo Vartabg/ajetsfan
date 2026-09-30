@@ -15,6 +15,7 @@ import Matchup from "@/components/Matchup";
 import SeasonTrend from "@/components/SeasonTrend";
 import { loadCoverage } from "@/lib/load-coverage";
 import NewsDesk from "@/components/NewsDesk";
+import SundayBriefing from "@/components/SundayBriefing";
 import styles from "./page.module.css";
 
 export default async function BackPage() {
@@ -57,12 +58,13 @@ export default async function BackPage() {
   return (
     <main id="main" className={styles.main}>
       {snapshot ? <DataFreshness checkedAt={snapshot.checkedAt} /> : null}
-      <nav className={styles.editionNav} aria-label="In this edition"><span>Go straight to</span>{snapshot ? <a href="#season" aria-label="Season and schedule">This season <span aria-hidden="true">↓</span></a> : null}<Link href="/team#news">Jets news <span aria-hidden="true">↗</span></Link><Link href="/team#roster">The roster <span aria-hidden="true">↗</span></Link></nav>
+      <nav className={styles.editionNav} aria-label="In this edition"><span>Go straight to</span>{next ? <a href="#sunday-briefing">Sunday briefing <span aria-hidden="true">↓</span></a> : null}{snapshot ? <a href="#season" aria-label="Season and schedule">This season <span aria-hidden="true">↓</span></a> : null}<Link href="/team#news">Jets news <span aria-hidden="true">↗</span></Link><Link href="/team#roster">The roster <span aria-hidden="true">↗</span></Link></nav>
       <article id="latest-game" className={styles.edition}>
         <div className={styles.cover}>
           <div className={styles.editionLine}><p>{lead.kind === "archive" ? "From the archive · no current-season final in this edition" : result ? `Latest final · Week ${result.week}${result.seasonType === "POST" ? " · playoffs" : ""}` : "The next chapter"}</p>{result ? <span className={styles.mobileFinal}>NYJ {result.jetsScore} <span aria-hidden="true">—</span> {result.opponentDisplay} {result.oppScore}</span> : null}<span className={styles.readerNote}>For those of us still watching</span></div>
           <div className={`${styles.coverBody} ${!result ? styles.copyOnly : !gamePhoto ? styles.scoreOnly : ""}`}>
             <div className={styles.coverCopy}>
+              <span className={styles.voiceLabel}>Fan reaction</span>
               <h1 className="hed">{headlinePivot ? <><span>{headlinePivot}</span><em>{headline.slice(headlinePivot.length)}</em></> : headline}</h1>
               <p>{!result ? "The jersey is ready. The optimism is questionable. We’ll be here when the football starts." : tied ? "All that football, and we’re still waiting for an answer. The final counts. The feeling is harder to explain." : lost ? `${margin === 1 ? "One point" : `${margin} points`} short. Plenty to replay. That’s the deal when you love this team: you take it personally, then show up again.` : "Keep the jersey on. Let the group chat have its moment. Some Sundays remind you why you put yourself through the other ones."}</p>
               {result ? <a href="#postgame" className={styles.coverLink}>{lost ? "How it got away" : "Relive the afternoon"} <span aria-hidden="true">↓</span></a> : <Link href="/team" className={styles.coverLink}>Meet this year’s Jets <span aria-hidden="true">↗</span></Link>}
@@ -101,6 +103,7 @@ export default async function BackPage() {
           })}</ol> : <p>No regular-season final in this edition.</p>}</div>
           <div className={styles.nextSunday}><span className={styles.ticketMark} aria-hidden="true">Same seat. Same hope.</span><span className={styles.kicker}>And yes, we’re watching again</span>{next ? <><h3 className="hed">Jets {next.game.atHome ? "vs" : "at"} {next.game.opponentDisplay}</h3><p>Week {next.game.week} · <time dateTime={next.game.date}>{formatDate(next.game.date)}</time></p><p className={styles.kickoff}>{next.game.kickoff ? formatCheckedAt(next.game.kickoff) : "Kickoff time to be confirmed"}</p>{next.overdue ? <p>Kickoff has passed as of the results check; a final is not confirmed.</p> : null}</> : <><h3 className="hed">Waiting on the next fixture.</h3><p>No remaining fixture listed in this edition.</p></>}</div>
         </div>
+        {next ? <SundayBriefing game={next.game} overdue={next.overdue} snapshot={snapshot} analytics={analytics} /> : null}
         <details className={styles.schedule}><summary className="disclosure"><span className={styles.summaryCopy}><span className="when-closed">See the full {snapshot.season} schedule</span><span className="when-open">Hide the {snapshot.season} schedule</span><small>{snapshot.schedule.filter((game) => game.seasonType === "REG").length} games</small></span></summary><ol>{snapshot.schedule.filter((game) => game.seasonType === "REG").map((game) => <li key={game.id}><span>W{game.week}</span><time dateTime={game.date}>{formatDate(game.date)}</time><strong>{game.atHome ? "vs" : "at"} {game.opponentDisplay}</strong><span>{game.status === "final" ? `${game.outcome === "win" ? "W" : game.outcome === "loss" ? "L" : "T"} ${game.jetsScore}–${game.oppScore}` : game.kickoff ? formatCheckedAt(game.kickoff) : "Time TBD"}</span></li>)}</ol></details>
       </section> : null}
       <section className={styles.morgue} aria-labelledby="morgue-heading">
@@ -113,7 +116,7 @@ export default async function BackPage() {
         {spotlight ? <section className={styles.player} aria-labelledby="player-heading"><span className={styles.kicker}>Someone to shout for</span>{spotlightPhoto ? <EditorialPhoto photo={spotlightPhoto} sizes="(max-width: 640px) calc(100vw - 32px), 300px" className={styles.spotlightPhoto} /> : <p className={styles.jerseyNumber}>{spotlightRoster?.jersey ? `No. ${spotlightRoster.jersey}` : spotlight.position}</p>}<h2 id="player-heading" className="hed">{spotlight.name}</h2><p>{spotlight.receiving.receptions} catches. {spotlight.receiving.yards.toLocaleString("en-US")} yards. {spotlight.receiving.touchdowns} receiving TD.</p><small>{coverageFeed!.stats.season} receiving leader by yards · {spotlight.games} recorded games{coverageFeed!.stats.throughWeek != null ? ` · through Week ${coverageFeed!.stats.throughWeek}` : ""}</small><Link className={styles.underlined} href={spotlightRoster ? playerHref(spotlight.id) : "/team#season-leaders"}>Meet the man in the jersey <span aria-hidden="true">↗</span></Link><FeedStatus feed={coverageFeed!.stats} label="Player statistics" /></section> : null}
         {coverageFeed ? <NewsDesk feed={coverageFeed.news} limit={3} compact /> : null}
       </div>
-      {snapshot ? <details className={styles.filmRoom}><summary className="disclosure"><span><span className="when-closed">Open the film room</span><span className="when-open">Close the film room</span><small>Matchup, team efficiency &amp; the season in margins</small></span></summary><div>{next ? <Matchup game={next.game} overdue={next.overdue} analytics={analytics} /> : null}<SeasonTrend games={summary.finals} /></div></details> : null}
+      {snapshot ? <details className={styles.filmRoom}><summary className="disclosure"><span><span className="when-closed">Open the film room</span><span className="when-open">Close the film room</span><small>Data analysis · Matchup, team efficiency &amp; the season in margins</small></span></summary><div>{next ? <Matchup game={next.game} overdue={next.overdue} analytics={analytics} /> : null}<SeasonTrend games={summary.finals} /></div></details> : null}
       <section className={styles.freshness} aria-label="Data freshness"><span>{snapshot ? `${snapshot.season} edition` : "The analyzed archive"}</span><span>{snapshot ? <>Results checked <time dateTime={snapshot.checkedAt}>{formatCheckedAt(snapshot.checkedAt)}</time></> : "Current-season results unavailable in this edition."}</span><Link href="/how-made">Sources &amp; how it works</Link></section>
     </main>
   );

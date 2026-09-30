@@ -27,6 +27,7 @@
 .coverVisual:has(figure) .scoreboard small { grid-column: 3; padding-left: 1.5rem; }
 .coverCopy h1 { max-width: 13ch; font-size: clamp(3.1rem, 5.15vw, 4.6rem); line-height: 1.06; text-wrap: balance; }
 .coverCopy h1 > span { display: block; }
+.voiceLabel { display: inline-block; margin-bottom: .75rem; color: var(--stamp); font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
 .coverCopy h1 em { display: block; margin-top: .1em; font: italic 500 .84em/1.03 var(--font-serif), Georgia, serif; letter-spacing: -.05em; text-transform: none; }
 .coverCopy > p { font: 1.05rem/1.75 var(--font-serif), Georgia, serif; max-width: 42ch; margin: 1.4rem 0; color: var(--ink-2); }
 .coverLink { display: inline-flex; align-items: center; justify-content: space-between; gap: 2rem; min-height: 48px; color: white; background: var(--spot); border-radius: var(--radius); padding: .7rem 1.1rem; font-size: .83rem; font-weight: 800; text-decoration: none; transition: background .15s, color .15s; }
