@@ -49,7 +49,7 @@
 .gameList { min-width: 0; }
 .list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2rem; border-top: 1px solid var(--rule); }
 .list li { min-width: 0; container: archive-row / inline-size; }
-.row { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr) auto; gap: .9rem; width: 100%; height: 100%; text-align: left; padding: 1.25rem .9rem; background: transparent; border-bottom: 1px solid var(--rule-soft); transition: background-color .15s ease; }
+.row { display: grid; grid-template-columns: minmax(1.4rem, max-content) minmax(0, 1fr) auto; gap: .9rem; width: 100%; height: 100%; text-align: left; padding: 1.25rem .9rem; background: transparent; border-bottom: 1px solid var(--rule-soft); transition: background-color .15s ease; }
 .row:hover { background: var(--paper-2); }
 .rowOn { background: var(--paper-2); box-shadow: inset 3px 0 0 var(--spot); }
 .rank { padding-top: .1rem; color: var(--spot); font: italic 400 1.1rem/1.4 var(--font-serif), Georgia, serif; }
@@ -69,10 +69,10 @@
 .empty p { color: var(--ink-2); }
 .empty button { min-height: 44px; padding: .75rem 1.1rem; border-radius: var(--radius); color: #fff; background: var(--spot); font-weight: 700; }
 @media (max-width: 900px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .list { grid-template-columns: 1fr; } }
-@media (max-width: 640px) { .toggle { gap: 1rem; } .tab { padding: 1rem 1.4rem 1rem .1rem; } .chapterTitle { font-size: 1.65rem; } .chapterIndex { right: .1rem; top: 1rem; font-size: 1.2rem; } .chapterLine { font-size: .9rem; min-height: 2.6rem; } .chapterCount { margin-top: .8rem; } .archiveHead { margin-top: 1.5rem; } .filters { gap: .85rem; } .search { grid-column: 1 / -1; grid-row: 2; } .filters > label:last-child { grid-column: 1 / -1; } .share .backToResults { margin-left: 0; } .row { gap: .6rem; padding: 1.05rem .6rem; grid-template-columns: 1.2rem minmax(0, 1fr) 6.1rem; } .numbers { padding-left: .6rem; } .matchup { font-size: 1.15rem; } .date, .score { font-size: .7rem; } .explainer { font-size: .73rem; } }
-@media (max-width: 360px) { .chapterTitle { font-size: 1.45rem; } .chapterLine { font-size: .85rem; } .row { grid-template-columns: 1rem minmax(0, 1fr) 5.4rem; gap: .4rem; padding-inline: .5rem; } }
+@media (max-width: 640px) { .toggle { gap: 1rem; } .tab { padding: 1rem 1.4rem 1rem .1rem; } .chapterTitle { font-size: 1.65rem; } .chapterIndex { right: .1rem; top: 1rem; font-size: 1.2rem; } .chapterLine { font-size: .9rem; min-height: 2.6rem; } .chapterCount { margin-top: .8rem; } .archiveHead { margin-top: 1.5rem; } .filters { gap: .85rem; } .search { grid-column: 1 / -1; grid-row: 2; } .filters > label:last-child { grid-column: 1 / -1; } .share .backToResults { margin-left: 0; } .row { gap: .6rem; padding: 1.05rem .6rem; grid-template-columns: minmax(1.2rem, max-content) minmax(0, 1fr) 6.1rem; } .numbers { padding-left: .6rem; } .matchup { font-size: 1.15rem; } .date, .score { font-size: .7rem; } .explainer { font-size: .73rem; } }
+@media (max-width: 360px) { .chapterTitle { font-size: 1.45rem; } .chapterLine { font-size: .85rem; } .row { grid-template-columns: minmax(1rem, max-content) minmax(0, 1fr) 5.4rem; gap: .4rem; padding-inline: .5rem; } }
 @container archive-row (max-width: 15em) {
-  .row { grid-template-columns: 1.25em minmax(0, 1fr); gap: .5em; padding: 1em .5em; }
+  .row { grid-template-columns: minmax(1.25em, max-content) minmax(0, 1fr); gap: .5em; padding: 1em .5em; }
   .meta { overflow-wrap: anywhere; }
   .numbers { grid-column: 2; flex-direction: row; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .4em .75em; max-width: none; padding: .65em 0 0; border-left: 0; border-top: 1px solid var(--rule-soft); text-align: left; }
   .openGame { flex-basis: 100%; justify-content: flex-start; white-space: normal; }

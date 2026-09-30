@@ -1,7 +1,12 @@
 import { test, expect, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import type { Game } from "../src/lib/games";
+import { archiveFilters, filterArchive, gameHref } from "../src/lib/explorer";
 
 const imageFixture = '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>';
 const routes = ["/", "/team", "/morgue", "/how-made"];
+const games = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/games.json"), "utf8")) as Game[];
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -50,6 +55,28 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
   }));
   expect.soft(geometry.documentWidth, `${route}: no page-wide horizontal overflow (${geometry.outside.join(", ")})`).toBeLessThanOrEqual(geometry.viewportWidth);
 }
+
+test("three-digit archive positions leave space before the date on narrow phones and with enlarged text", async ({ page }) => {
+  const selected = filterArchive(games, "heartbreak", archiveFilters(new URLSearchParams()))[124];
+  test.skip(!selected, "This archive has fewer than 125 ranked losses.");
+  if (!selected) return;
+  for (const view of [{ width: 320, enlarged: false }, { width: 390, enlarged: false }, { width: 320, enlarged: true }]) {
+    await page.setViewportSize({ width: view.width, height: 1000 });
+    await page.goto(gameHref(selected.id, "heartbreak"));
+    if (view.enlarged) await enlargeText(page);
+    await page.evaluate(() => document.fonts.ready);
+    await page.getByRole("button", { name: "Back to results", exact: true }).click();
+    const row = page.locator(`#archive-game-${selected.id}`);
+    await expect(row).toBeFocused();
+    const gap = await row.evaluate((element) => {
+      const range = document.createRange();
+      range.selectNodeContents(element.firstElementChild!);
+      return element.querySelector("time")!.getBoundingClientRect().left - range.getBoundingClientRect().right;
+    });
+    expect(gap, `Rank/date spacing at ${view.width}px${view.enlarged ? " with 200% text" : ""}`).toBeGreaterThanOrEqual(4);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+});
 
 for (const width of [641, 768, 900]) {
   test(`all public routes reflow through the tablet transition at ${width}px`, async ({ page }) => {
