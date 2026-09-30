@@ -64,6 +64,21 @@ test("sorting and selecting a game update the shareable URL", async ({ page }) =
   await expect(page).toHaveURL(/sort=recent/);
 });
 
+test("opening a game focuses its case file while filtering keeps focus in the controls", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto(gameHref(gb.id, "heartbreak"));
+  const row = page.getByRole("button", { name: /^Select 2017-10-22 / });
+  await row.focus();
+  await row.press("Enter");
+  await expect(page).toHaveURL(/game=2017_07_NYJ_MIA/);
+  await expect(page.locator("#game-case-heading")).toBeFocused();
+  const search = page.getByLabel("Search games", { exact: true });
+  await search.fill("GB");
+  await expect(search).toBeFocused();
+  await expect(page).not.toHaveURL(/game=2017_07_NYJ_MIA/);
+  await expect(page.getByRole("figure", { name: `Game analysis: ${gb.date} ${gb.opponentDisplay}` })).toBeVisible();
+});
+
 test("matching filters and sorting preserve a selected game while excluding filters choose a valid fallback", async ({ page }) => {
   const det = games.find((game) => game.id === "2026_03_NYJ_DET")!;
   const greenBay = games.find((game) => game.id === "2026_02_GB_NYJ")!;

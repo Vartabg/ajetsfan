@@ -43,4 +43,9 @@ test("each coverage source warns independently when a static edition is overdue"
   for (const label of ["Official Jets news", "Player statistics", "Roster"]) {
     await expect(page.getByRole("status", { name: `${label} update status`, exact: true })).toBeVisible();
   }
+  await page.goto("/");
+  await expect(page.getByRole("status", { name: "Official Jets news update status", exact: true })).toBeVisible();
+  if (coverage.stats.status !== "unavailable" && leaders(coverage.stats, "receiving", 1).length) {
+    await expect(page.getByRole("status", { name: "Player statistics update status", exact: true })).toBeVisible();
+  }
 });

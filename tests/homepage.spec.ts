@@ -44,6 +44,18 @@ for (const width of [1280, 390, 320]) {
   });
 }
 
+test("the front page keeps deeper analysis available through keyboard disclosures", async ({ page }) => {
+  await page.goto("/");
+  const film = page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "Open the film room" }) });
+  await expect(film).not.toHaveAttribute("open", "");
+  await film.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  await expect(film).toHaveAttribute("open", "");
+  await expect(film.getByText("The season in margins.", { exact: true })).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(film).not.toHaveAttribute("open", "");
+});
+
 test("a stale static edition warns the reader after the updater stops", async ({ page }) => {
   await page.clock.install({ time: new Date(Date.parse(snapshot.checkedAt) + 3 * 24 * 60 * 60_000) });
   await page.goto("/");

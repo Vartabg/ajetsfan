@@ -9,7 +9,7 @@ import styles from "./page.module.css";
 export const metadata: Metadata = {
   title: "The Morgue — a Jets fan",
   description:
-    "The analyzed Jets archive, ranked by the second-half win probability they reached before it all went wrong. Or right.",
+    "A shrine to lost leads, improbable Jets wins, and the games we still can't leave alone. Explore the scores, turning points, and play-by-play.",
 };
 
 export default async function Morgue() {
@@ -21,11 +21,15 @@ export default async function Morgue() {
   return (
     <main id="main" className={styles.main}>
       <header className={styles.head}>
-        <div><p className={styles.kicker}>Jets archive / Game explorer</p><h1 className={`${styles.title} hed`}>The Morgue</h1><p className={styles.standfirst}>Every game has a turning point. Find the hope, the heartbreak, and the moments that brought it back.</p></div>
-        <div className={styles.coverage}><strong>{coverage.count}</strong><span>games analyzed · {coverage.seasonLabel}</span><small>{coverage.lastDate ? `Through ${formatDate(coverage.lastDate)} · ` : ""}{heartbreak.length + miracle.length} eligible for probability rankings</small></div>
+        <p className={styles.kicker}>For the fans who keep showing up</p>
+        <h1 className={`${styles.title} hed`}>The Morgue<span aria-hidden="true">.</span></h1>
+        <p className={styles.epitaph}>Sunday optimism. Gone too soon.</p>
+        <p className={styles.standfirst}>A shrine to lost leads, improbable wins, and the Sundays we swore we&apos;d stop caring. See you next week.</p>
+        <div className={styles.coverage}><span>{coverage.count} analyzed games · {coverage.seasonLabel}</span><span>{coverage.lastDate ? <>Through <time dateTime={coverage.lastDate}>{formatDate(coverage.lastDate)}</time></> : "No analyzed games yet"}</span></div>
       </header>
 
-      <Suspense fallback={<p className={styles.loading} role="status">Opening the game explorer…</p>}><Boards heartbreak={heartbreak} miracle={miracle} /></Suspense>
+      <Suspense fallback={<p className={styles.loading} role="status">Finding the tape…</p>}><Boards heartbreak={heartbreak} miracle={miracle} /></Suspense>
+      <p className={styles.sourceNote}>The scores are real. So are the reasons we remember them. {heartbreak.length + miracle.length} wins and losses qualify for these rankings. Win probability comes from nflverse; <a href="/how-made">the method and integrity checks are here</a>.</p>
     </main>
   );
 }

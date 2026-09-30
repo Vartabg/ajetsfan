@@ -21,7 +21,7 @@ export default function NewsDesk({ feed, limit = 8, compact = false }: {
       <div className={styles.header}>
         <div>
           <p className={styles.kicker}>Official Jets coverage</p>
-          <h2 id={headingId} className="hed">{compact ? "Around the Jets." : "The news desk."}</h2>
+          <h2 id={headingId} className="hed">Meanwhile, in<br className={styles.headingBreak} /> Florham Park.</h2>
         </div>
         {compact ? <Link className={styles.allNews} href="/team#news">All team news <span aria-hidden="true">→</span></Link> : null}
       </div>
@@ -29,7 +29,7 @@ export default function NewsDesk({ feed, limit = 8, compact = false }: {
       {lead ? (
         <div className={`${styles.stories} ${headlines.length ? "" : styles.single}`}>
           <a className={styles.lead} href={lead.url} target="_blank" rel="noopener noreferrer">
-            <span className={styles.leadKicker}>Latest from the team</span>
+            <span className={styles.leadKicker}>From the team wire</span>
             <time className={styles.published} dateTime={lead.publishedAt}>Published {formatCheckedAt(lead.publishedAt)}</time>
             <h3>{lead.title}</h3>
             <span className={styles.read}>Read on newyorkjets.com <span aria-hidden="true">↗</span><span className={styles.srOnly}> (opens in a new tab)</span></span>

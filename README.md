@@ -1,10 +1,10 @@
 # The Back Page — a Jets fan
 
-An independent Jets publication with a cinematic stadium cover, oversized sports typography, official news headlines, searchable player profiles, current results, league efficiency comparisons, and a game archive. The page follows the latest confirmed result and carries a subtle paper tint based on the streak. The original full paper conditions remain available as an interactive specimen.
+An independent Jets fan publication about the Sunday experience: the final score, the play that mattered, the players in our jerseys, and the hope that brings us back. The Morgue mixes football obituaries, gallows humor, and improbable wins. Official news and verified football numbers support the stories; deeper analysis opens in the film room. A subtle paper tint follows the streak, with the full paper conditions available as an interactive specimen.
 
 ## Explore
 
-- `/`: the latest final and game analysis, official news, player leaders, next-opponent efficiency comparison, point-margin season chart, full schedule, and archive features.
+- `/`: a latest-game cover and turning play, recent Sundays and the next fixture, Morgue features, a player spotlight, official news, and optional game tape/film-room analysis and full schedule.
 - `/team`: dated official headlines, passing/rushing/receiving leaders, and roster search by name, jersey, position, unit, and source status. Player selections and filters use shareable URLs, such as `/team?player=00-0033106#roster`.
 - `/morgue`: Heartbreak & Miracles rankings with season/opponent filters, search, sorting, shareable selected-game URLs, and keyboard/pointer play scrubbing. Example: `/morgue?game=2026_03_NYJ_DET&board=heartbreak`.
 - `/how-made`: the engineering case study, interactive paper comparison, source rules, and visible data exclusions.

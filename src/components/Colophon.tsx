@@ -13,8 +13,9 @@ export default function Colophon({ games, snapshot }: { games: Game[]; snapshot:
   const excluded = games.filter((game) => game.dataSuspect).length;
   return (
     <footer className={styles.foot}>
-      <div className={styles.top}><Link href="/" className={styles.brand}>The Back Page</Link><p className={styles.tagline}>For the faithful. Fueled by data.</p></div>
-      <p>
+      <div className={styles.top}><Link href="/" className={styles.brand}>The Back Page</Link><p className={styles.tagline}>We’re watching anyway.</p></div>
+      <div className={styles.bottom}><p>An independent Jets fan project. See you next Sunday.</p><Link href="/how-made">How it is made</Link></div>
+      <details className={styles.sources}><summary>Sources &amp; the small print</summary><p>
         Play-by-play and win probability from{" "}
         <a href="https://github.com/nflverse/nflverse-data" target="_blank" rel="noreferrer">
           nflverse
@@ -25,10 +26,10 @@ export default function Colophon({ games, snapshot }: { games: Game[]; snapshot:
         The analyzed archive holds {coverage.count} games across the {coverage.seasonLabel} seasons
         {coverage.lastDate ? `, through ${formatDate(coverage.lastDate)}` : ""}.
         {" "}{excluded} {excluded === 1 ? "record is" : "records are"} excluded from rankings by the score integrity check;
-        details are in <a href="/how-made">How it is made</a>.
+        details are in the methodology.
         {" "}An independent fan project, not affiliated with
         the New York Jets or the NFL.
-      </p>
+      </p></details>
     </footer>
   );
 }

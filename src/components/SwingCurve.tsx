@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent, type Ref } from "react";
 import type { Board, Game } from "@/lib/games";
 import { clockLabel, pct } from "@/lib/games";
 import { formatDate } from "@/lib/current";
 import { keyPlayIndex } from "@/lib/curve";
+import { morgueEpitaph } from "@/lib/morgue";
 import styles from "./SwingCurve.module.css";
 
 type Point = { playId?: number; q: number; t: number | null; wp: number; d: number | null; desc: string | null; type: string | null };
@@ -14,11 +15,11 @@ const R = 16;
 const T = 18;
 const B = 46;
 
-export default function SwingCurve({ game, board }: { game: Game; board: Board }) {
-  return <GameCurve key={`${game.id}-${board}`} game={game} board={board} />;
+export default function SwingCurve({ game, board, headingRef }: { game: Game; board: Board; headingRef?: Ref<HTMLHeadingElement> }) {
+  return <GameCurve key={`${game.id}-${board}`} game={game} board={board} headingRef={headingRef} />;
 }
 
-function GameCurve({ game, board }: { game: Game; board: Board }) {
+function GameCurve({ game, board, headingRef }: { game: Game; board: Board; headingRef?: Ref<HTMLHeadingElement> }) {
   const canvas = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(600);
   const [points, setPoints] = useState<Point[] | null>(null);
@@ -75,12 +76,18 @@ function GameCurve({ game, board }: { game: Game; board: Board }) {
   return (
     <figure className={styles.card} aria-label={`Game analysis: ${game.date} ${game.opponentDisplay}`}>
       <figcaption className={styles.head}>
-        <div><p className={styles.eyebrow}>{board === "heartbreak" ? "Heartbreak" : "Miracle"} · {game.season} season</p><h2 className={styles.matchup}>Jets {game.atHome ? "vs" : "at"} {game.opponentDisplay}</h2><p className={styles.final}>Final: Jets {game.jetsScore}, {game.opponentDisplay} {game.oppScore}{game.wentToOt ? " · OT" : ""}</p><p className={styles.sub}>{formatDate(game.date)} · Week {game.week}{game.seasonType !== "REG" ? " · playoffs" : ""}</p></div>
-        <div className={styles.big}><span>{pct(game.swing)}</span><small>{board === "heartbreak" ? "Peak second-half chance" : "Lowest second-half chance"}</small></div>
+        <div className={styles.identity}><p className={styles.eyebrow}>{board === "heartbreak" ? "Heartbreak" : "Miracle"} · {game.season} season</p><h2 id="game-case-heading" ref={headingRef} tabIndex={-1} className={styles.matchup}>Jets {game.atHome ? "vs" : "at"} {game.opponentDisplay}</h2><p className={styles.epitaph}>{morgueEpitaph(game)}</p><p className={styles.sub}><time dateTime={game.date}>{formatDate(game.date)}</time> · Week {game.week}{game.seasonType !== "REG" ? " · playoffs" : ""}</p></div>
+        <div className={styles.scoreBlock}>
+          <div className={styles.scoreboard}><div><span>Jets</span><strong>{game.jetsScore}</strong></div><span className={styles.scoreDash} aria-hidden="true">–</span><div><span>{game.opponentDisplay}</span><strong>{game.oppScore}</strong></div></div>
+          <p className={styles.final}>Final · {game.outcome === "win" ? "Jets win" : game.outcome === "loss" ? "Jets loss" : "Tie"}{game.wentToOt ? " · OT" : ""}</p>
+        </div>
       </figcaption>
 
+      <div className={styles.context}><strong>{pct(game.swing)}</strong><span>{board === "heartbreak" ? "Peak" : "Lowest"} Jets win probability in the second half, according to the model.</span></div>
+
+      <div className={styles.tape}>
       <div className={styles.plot}>
-        <p className={styles.plotTitle}>Jets win probability <span>Before each recorded play</span></p>
+        <h3 className={styles.plotTitle}>Where it turned.</h3><p className={styles.plotSub}>Jets win probability before each recorded play.</p>
         <div ref={canvas} className={styles.canvas}>
           {error ? <div className={styles.state}><p>Couldn&apos;t load this game&apos;s probability curve.</p><button type="button" onClick={() => setRetry((value) => value + 1)}>Retry curve</button></div> : points === null ? <p className={styles.state} role="status">Loading game curve…</p> : !geo ? <p className={styles.state}>No usable curve is published for this game.</p> : (
             <svg viewBox={`0 0 ${width} ${H}`} className={styles.svg} role="img" aria-label={`Jets win probability across ${points.length} recorded plays. ${board === "heartbreak" ? "Second-half peak" : "Second-half low"}: ${pct(game.swing)}. Use the play sequence slider below to inspect each play.`} onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); choosePlay(event); }} onPointerMove={(event) => { if (event.buttons & 1) choosePlay(event); }}>
@@ -94,7 +101,7 @@ function GameCurve({ game, board }: { game: Game; board: Board }) {
             </svg>
           )}
         </div>
-        {geo ? <div className={styles.legend}><span><i className={styles.legendPeak} />{board === "heartbreak" ? "Second-half peak" : "Second-half low"}</span><span><i className={styles.legendKey} />Published key play</span></div> : null}
+        {geo ? <div className={styles.legend}><span><i className={styles.legendPeak} />{board === "heartbreak" ? "Second-half peak" : "Second-half low"}</span><span><i className={styles.legendKey} />Key play</span></div> : null}
       </div>
 
       {geo && points && selected ? <div className={styles.scrubber}>
@@ -103,8 +110,9 @@ function GameCurve({ game, board }: { game: Game; board: Board }) {
         <div className={styles.jump}>{geo.keyIndex >= 0 ? <button type="button" onClick={() => setSelectedIndex(geo.keyIndex)}>Jump to key play</button> : null}{geo.swingIndex >= 0 ? <button type="button" onClick={() => setSelectedIndex(geo.swingIndex)}>Jump to {board === "heartbreak" ? "peak" : "low point"}</button> : null}</div>
         <output id={readoutId} className={styles.readout} aria-live="polite" aria-label="Selected play"><span><strong>{pct(selected.wp)}</strong> chance to win <b>{clockLabel(selected.q, selected.t)}</b></span><span className={styles.description}>{selected.desc || "Play description unavailable."}</span></output>
       </div> : null}
+      </div>
 
-      {game.keyPlay.wpa != null ? <div className={styles.keyNote}><span>{board === "heartbreak" ? "Biggest second-half setback" : "Biggest second-half boost"}</span><strong>{game.keyPlay.wpa > 0 ? "+" : ""}{(game.keyPlay.wpa * 100).toFixed(1)} percentage points</strong><small>{clockLabel(game.keyPlay.qtr, game.keyPlay.secondsLeft)} · Published analysis marker</small></div> : null}
+      {game.keyPlay.wpa != null ? <div className={styles.keyNote}><span>{board === "heartbreak" ? "Biggest second-half setback" : "Biggest second-half boost"}</span><strong>{game.keyPlay.wpa > 0 ? "+" : ""}{(game.keyPlay.wpa * 100).toFixed(1)} percentage points</strong><small>{clockLabel(game.keyPlay.qtr, game.keyPlay.secondsLeft)} · Key play marked above</small></div> : null}
     </figure>
   );
 }

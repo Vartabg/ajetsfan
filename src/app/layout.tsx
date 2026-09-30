@@ -18,7 +18,7 @@ const sans = Manrope({ variable: "--font-sans", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "The Back Page — a Jets fan",
   description:
-    "An independent Jets publication. Official headlines, player profiles, current results, team efficiency, and a searchable archive of Jets football.",
+    "Jets football for those of us still watching. Sunday stories, the players in our jerseys, current news, and The Morgue: a shrine to lost leads and improbable wins.",
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {

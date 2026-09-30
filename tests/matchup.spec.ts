@@ -12,6 +12,7 @@ test("the matchup compares the scheduled opponent using the published analysis c
   const fixture = nextScheduledGame(current);
   test.skip(!fixture, "No remaining scheduled fixture");
   await page.goto("/");
+  await page.locator("summary").filter({ hasText: "Open the film room" }).click();
   const table = page.getByRole("table", { name: `Current-season efficiency comparison: Jets versus ${fixture!.game.opponentDisplay}` });
   const jets = data.teams.find((team) => team.team === "NYJ");
   const opponent = data.teams.find((team) => team.team === fixture!.game.opponent);
