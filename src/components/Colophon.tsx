@@ -14,8 +14,8 @@ export default function Colophon({ games, snapshot }: { games: Game[]; snapshot:
   return (
     <footer className={styles.foot}>
       <div className={styles.top}><Link href="/" className={styles.brand}>The Back Page</Link><p className={styles.tagline}>We’re watching anyway.</p></div>
-      <div className={styles.bottom}><p>An independent Jets fan project. See you next Sunday.</p><Link href="/how-made">How it is made</Link></div>
-      <details className={styles.sources}><summary>Sources &amp; the small print</summary><p>
+      <div className={styles.bottom}><p>An independent Jets fan project. See you next Sunday.</p><div className={styles.links}><Link href="/how-made">How it is made</Link><a href="#top">Back to top <span aria-hidden="true">↑</span></a></div></div>
+      <details className={styles.sources}><summary className="disclosure"><span className="when-closed">Sources &amp; the small print</span><span className="when-open">Hide sources &amp; the small print</span></summary><p>
         Play-by-play and win probability from{" "}
         <a href="https://github.com/nflverse/nflverse-data" target="_blank" rel="noreferrer">
           nflverse

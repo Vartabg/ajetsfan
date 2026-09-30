@@ -6,20 +6,22 @@
 .hero h1 { font-size: clamp(4rem, 7vw, 6.5rem); line-height: .91; }
 .hero h1 span { color: var(--spot); }
 .intro > p { max-width: 37ch; margin: 1.25rem 0; font-size: .95rem; line-height: 1.65; }
-.intro nav { display: flex; flex-wrap: wrap; gap: .6rem 1.3rem; }
-.intro nav a { font-size: .74rem; font-weight: 800; text-decoration: none; border-bottom: 1px solid var(--rule); padding: .2rem 0; }
+.intro nav { display: flex; flex-wrap: wrap; gap: .3rem 1rem; }
+.intro nav a { display: inline-flex; align-items: center; min-height: 44px; font-size: .74rem; font-weight: 800; text-decoration: none; border-bottom: 1px solid var(--rule); padding: .2rem 0; }
 .intro nav a:hover { color: var(--spot); }
 .intro nav a span { margin-left: .25rem; }
 .coverPhoto > div { aspect-ratio: 5 / 4; }
 .lineupNames { margin-top: .8rem; padding-top: .7rem; border-top: 1px solid var(--rule); }
 .lineupKicker { margin: 0 0 .6rem; font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: 1.1rem; font-weight: 700; }
 .lineupPlayers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
-.featuredPlayer { min-width: 0; display: flex; gap: .5rem; align-items: center; text-decoration: none; padding: .25rem 0; }
+.featuredPlayer { min-width: 0; display: flex; gap: .5rem; align-items: center; min-height: 44px; text-decoration: none; padding: .4rem 0; }
 .featuredPlayer:hover strong { text-decoration: underline; text-underline-offset: 3px; }
+.featuredPlayer:focus-visible { outline-color: var(--spot); }
 .jersey { flex: none; color: var(--spot); font: 400 2.4rem/1 var(--font-hed), Impact, sans-serif; }
 .featuredName { min-width: 0; }
 .featuredName > strong { display: block; font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: 1rem; font-weight: 700; line-height: 1.15; }
 .featuredName > span { display: block; margin-top: .2rem; font-size: .6rem; color: var(--ink-2); }
+.featuredName > .profileCue { color: var(--spot); font-size: .65rem; font-weight: 700; }
 .edition { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; margin: 0; padding: .7rem 0; border-top: 1px solid var(--rule); font-size: .64rem; color: var(--ink-2); }
 .edition b { color: var(--ink); text-transform: uppercase; letter-spacing: .07em; }
 .rosterSection { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 3px solid var(--rule); scroll-margin-top: 1.5rem; }

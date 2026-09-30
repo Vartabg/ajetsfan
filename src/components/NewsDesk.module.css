@@ -3,7 +3,7 @@
 .kicker { margin: 0 0 .55rem; color: var(--spot); font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .14em; }
 .header h2 { font-size: clamp(2.6rem, 4.5vw, 4rem); line-height: .98; }
 .headingBreak { display: none; }
-.allNews { display: inline-flex; align-items: center; gap: 1rem; padding: .45rem 0; font-size: .78rem; font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--spot); }
+.allNews { display: inline-flex; align-items: center; min-height: 44px; gap: 1rem; padding: .45rem 0; font-size: .78rem; font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--spot); }
 .allNews span { color: var(--spot); font-size: 1.2rem; }
 .stories { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 2rem; align-items: start; }
 .single { grid-template-columns: 1fr; }

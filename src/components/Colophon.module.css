@@ -2,11 +2,12 @@
 .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1.5rem; border-bottom: 1px solid #ffffff26; margin-bottom: 1.2rem; }
 .brand { color: var(--accent); font: 400 2rem/1.2 var(--font-hed), sans-serif; text-transform: uppercase; text-decoration: none; }
 .tagline { font: 700 .75rem/1.5 var(--font-sans), sans-serif; margin: 0; }
-.bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem; font-size: .72rem; }
+.bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .75rem; font-size: .72rem; }
 .bottom p { margin: 0; }
-.bottom a { color: #e6f3d5; text-underline-offset: 3px; }
+.links { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; }
+.bottom a { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; color: #e6f3d5; text-underline-offset: 3px; }
 .sources { margin-top: 1rem; }
-.sources summary { font-size: .68rem; cursor: pointer; }
+.sources summary { font-size: .75rem; cursor: pointer; border-block: 1px solid #ffffff26; padding: .4rem 0; }
 .sources p { font: .68rem/1.8 var(--font-sans), sans-serif; max-width: 110ch; }
 .sources a { color: #e6f3d5; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 @media (max-width: 640px) { .foot { padding: 2rem 1rem; } .brand { font-size: 1.7rem; } }

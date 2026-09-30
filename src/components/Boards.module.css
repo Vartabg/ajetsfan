@@ -12,20 +12,34 @@
 .tab:focus-visible { outline-color: var(--spot); }
 .explainer { margin: .85rem 0 1.5rem; color: var(--ink-2); font-size: .68rem; line-height: 1.6; }
 .explainer a { color: var(--spot); text-underline-offset: 4px; margin-left: .35rem; white-space: nowrap; }
+.archiveNav { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem 1rem; margin: -.4rem 0 1.2rem; }
+.archiveNav button { display: inline-flex; gap: 1.5rem; align-items: center; min-height: 44px; padding: .65rem 1rem; border: 1px solid var(--spot); color: var(--spot); font-size: .8rem; font-weight: 800; }
+.archiveNav button:hover { background: var(--paper-2); }
+.archiveNav > span { color: var(--ink-2); font-size: .7rem; }
 .detail { min-width: 0; }
-.share { display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; padding: .5rem 0 1rem; color: var(--spot); font-size: .7rem; font-weight: 700; }
-.share a, .share button { padding: .4rem 0; text-decoration: underline; text-underline-offset: 4px; }
-.share span[role="status"] { flex-basis: 100%; color: var(--ink-2); font-weight: 400; }
+.share { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; padding: .7rem 0 1rem; color: var(--spot); font-size: .75rem; font-weight: 700; }
+.share a, .share button { display: inline-flex; align-items: center; gap: .65rem; min-height: 44px; padding: .65rem .75rem; text-decoration: underline; text-underline-offset: 4px; }
+.share button.copied { background: var(--spot); color: #fff; text-decoration: none; }
+.share button.copied:focus-visible { outline-color: var(--spot); }
+.share .backToResults { margin-left: auto; font-weight: 800; }
+.share span[role="status"] { flex-basis: 100%; min-height: 1.5em; color: var(--ink-2); font-weight: 400; }
 .archiveHead { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .4rem 1rem; margin-top: 2rem; padding-top: 1.2rem; border-top: 3px solid var(--rule); }
 .archiveHead h2 { font: 400 clamp(1.7rem, 3vw, 2.4rem)/1.2 var(--font-hed), Impact, sans-serif; text-transform: uppercase; }
+.archiveHead h2, .resultsBar p { scroll-margin-top: 1.5rem; }
 .archiveHead p { margin: 0; color: var(--ink-2); font-size: .72rem; }
 .filters { display: grid; grid-template-columns: minmax(120px, .8fr) minmax(120px, .8fr) minmax(180px, 1.5fr) minmax(140px, .9fr); gap: 1rem; margin-top: 1.2rem; padding: 1rem 0; border-top: 1px solid var(--rule-soft); border-bottom: 1px solid var(--rule-soft); }
 .filters label { display: flex; flex-direction: column; gap: .4rem; min-width: 0; color: var(--ink-2); font-size: .7rem; font-weight: 700; }
+.search { min-width: 0; }
+.search > label { margin-bottom: .4rem; }
+.searchControl { position: relative; }
+.filters .searchControl input { padding-right: 3rem; }
+.searchControl input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.searchControl button { position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 44px; min-height: 44px; color: var(--spot); font-size: 1.5rem; font-weight: 700; }
 .filters input, .filters select { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--rule-soft); padding: .65rem .75rem; background: #fff; color: var(--ink); font: .9rem/1.4 var(--font-sans), Arial, sans-serif; }
 .resultsBar { display: flex; align-items: center; justify-content: space-between; min-height: 3.5rem; gap: 1rem; color: var(--ink-2); font-size: .72rem; }
 .resultsBar p { margin: 0; }
 .resultsBar strong { color: var(--ink); }
-.reset { color: var(--spot); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; padding: .5rem; }
+.reset { min-height: 44px; color: var(--spot); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; padding: .65rem; }
 .selectionNote { margin: 0 0 1rem; padding: .75rem 1rem; border-left: 3px solid var(--spot); background: var(--paper-2); color: var(--ink-2); font-size: .8rem; }
 .gameList { min-width: 0; }
 .list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
@@ -42,6 +56,7 @@
 .numbers > strong { color: var(--spot); font: 700 1.2rem/1.25 var(--font-sans-narrow), Arial, sans-serif; font-variant-numeric: tabular-nums; }
 .numbers > small { color: var(--ink-2); font-size: .58rem; line-height: 1.4; }
 .openGame { margin-top: .6rem; color: var(--spot); font-size: .62rem; font-weight: 700; }
+.rowOn .openGame { color: var(--forest); font-weight: 800; }
 .more { width: 100%; margin-top: 1rem; padding: .9rem; border: 1px solid var(--spot); color: var(--spot); font-size: .8rem; font-weight: 700; }
 .more:hover { background: var(--paper-2); }
 .empty { padding: 3rem 1.5rem; text-align: center; border: 1px solid var(--rule-soft); background: var(--paper-2); }
@@ -49,5 +64,5 @@
 .empty p { color: var(--ink-2); }
 .empty button { padding: .75rem 1.1rem; color: #fff; background: var(--spot); font-weight: 700; }
 @media (max-width: 900px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .list { grid-template-columns: 1fr; } }
-@media (max-width: 640px) { .toggle { gap: .6rem; } .tab { padding: 1rem .85rem; } .chapterTitle { font-size: 1.55rem; } .chapterLine { font-size: .85rem; min-height: 2.4rem; } .chapterCount { margin-top: .8rem; } .archiveHead { margin-top: 1.5rem; } .filters { gap: .85rem; } .search { grid-column: 1 / -1; grid-row: 2; } .filters label:last-child { grid-column: 1 / -1; } .row { gap: .6rem; padding: 1rem .8rem; grid-template-columns: 1.2rem minmax(0, 1fr) 5.8rem; } .numbers { padding-left: .6rem; } .matchup { font-size: 1.2rem; } .date, .score { font-size: .6rem; } .explainer { font-size: .65rem; } }
+@media (max-width: 640px) { .toggle { gap: .6rem; } .tab { padding: 1rem .85rem; } .chapterTitle { font-size: 1.55rem; } .chapterLine { font-size: .85rem; min-height: 2.4rem; } .chapterCount { margin-top: .8rem; } .archiveHead { margin-top: 1.5rem; } .filters { gap: .85rem; } .search { grid-column: 1 / -1; grid-row: 2; } .filters > label:last-child { grid-column: 1 / -1; } .share .backToResults { margin-left: 0; } .row { gap: .6rem; padding: 1rem .8rem; grid-template-columns: 1.2rem minmax(0, 1fr) 5.8rem; } .numbers { padding-left: .6rem; } .matchup { font-size: 1.2rem; } .date, .score { font-size: .6rem; } .explainer { font-size: .65rem; } }
 @media (max-width: 360px) { .chapterTitle { font-size: 1.4rem; } .chapterLine { font-size: .78rem; } .row { grid-template-columns: 1rem minmax(0, 1fr) 5.2rem; gap: .45rem; } }

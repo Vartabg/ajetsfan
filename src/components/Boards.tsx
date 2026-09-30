@@ -12,8 +12,12 @@ import styles from "./Boards.module.css";
 export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; miracle: Game[] }) {
   const params = useSearchParams();
   const [visibleCount, setVisibleCount] = useState(24);
-  const [copyState, setCopyState] = useState("");
+  const [sharing, setSharing] = useState<{ query: string; message: string } | null>(null);
   const caseHeading = useRef<HTMLHeadingElement>(null);
+  const archiveHeading = useRef<HTMLHeadingElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
+  const resultsSummary = useRef<HTMLParagraphElement>(null);
+  const copyRequest = useRef(0);
   const focusGameId = useRef<string | null>(null);
   const games = useMemo(() => [...heartbreak, ...miracle], [heartbreak, miracle]);
   const queryParams = new URLSearchParams(params.toString());
@@ -25,6 +29,7 @@ export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; mi
   const opponents = [...new Set(games.map((game) => game.opponentDisplay))].sort();
   const activeFilters = filters.season !== "all" || filters.opponent !== "all" || filters.query !== "" || filters.sort !== "swing";
   const missingSelection = !!params.get("game") && !list.some((game) => game.id === params.get("game"));
+  const copyState = sharing?.query === params.toString() ? sharing.message : "";
 
   useEffect(() => {
     if (selected?.id === focusGameId.current && caseHeading.current) {
@@ -51,7 +56,8 @@ export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; mi
       setVisibleCount(24);
       focusGameId.current = null;
     }
-    setCopyState("");
+    copyRequest.current += 1;
+    setSharing(null);
   }
 
   function reset() {
@@ -69,13 +75,37 @@ export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; mi
     update({ game: game.id });
   }
 
+  function moveTo(element: HTMLElement | null, block: ScrollLogicalPosition = "start") {
+    element?.focus({ preventScroll: true });
+    element?.scrollIntoView({ block, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+
+  function findGame() {
+    searchInput.current?.focus({ preventScroll: true });
+    archiveHeading.current?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+
+  function backToResults() {
+    const row = selected ? document.getElementById(`archive-game-${selected.id}`) : null;
+    if (row) moveTo(row, "center");
+    else moveTo(resultsSummary.current);
+  }
+
+  function clearSearch() {
+    update({ q: null }, true);
+    searchInput.current?.focus({ preventScroll: true });
+  }
+
   async function copyLink() {
     if (!selected) return;
+    const request = ++copyRequest.current;
+    const query = params.toString();
+    const stillCurrent = () => request === copyRequest.current && new URLSearchParams(window.location.search).toString() === query;
     try {
       await navigator.clipboard.writeText(new URL(gameHref(selected.id, board), window.location.origin).href);
-      setCopyState("Game link copied.");
+      if (stillCurrent()) setSharing({ query, message: "Game link copied." });
     } catch {
-      setCopyState("Use the game link beside this button to share this selection.");
+      if (stillCurrent()) setSharing({ query, message: "Copy failed. Use the game permalink to share this game." });
     }
   }
 
@@ -86,27 +116,28 @@ export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; mi
           {(["heartbreak", "miracle"] as const).map((value) => <button type="button" key={value} aria-pressed={board === value} className={`${styles.tab} ${board === value ? styles.tabOn : ""}`} onClick={() => update({ board: value, game: null })}><span className={styles.chapterTitle}>{value === "heartbreak" ? "Heartbreak" : "Miracles"}</span><span className={styles.chapterLine}>{value === "heartbreak" ? "Please stop the tape." : "The games that keep us coming back."}</span><span className={styles.chapterCount}>{value === "heartbreak" ? `${heartbreak.length} losses` : `${miracle.length} wins`} <span aria-hidden="true">{board === value ? "✓" : "→"}</span></span></button>)}
         </div>
         <p className={styles.explainer}>{board === "heartbreak" ? "Losses ordered by the highest chance the Jets had to win in the second half." : "Wins ordered by the lowest chance the Jets had to win in the second half."} <a href="/how-made">How the order works</a></p>
+        <div className={styles.archiveNav}><button type="button" onClick={findGame} aria-controls="archive-filters">Find a game <span aria-hidden="true">↓</span></button><span>Season, opponent or the play you remember.</span></div>
       </div>
 
       {missingSelection ? <p className={styles.selectionNote}>The linked game is unavailable in this selection. {selected ? "Showing the first matching game." : "Reset filters to explore the archive."}</p> : null}
       {selected ? <div className={styles.detail}>
         <SwingCurve game={selected} board={board} headingRef={caseHeading} />
-        <div className={styles.share}><a href={gameHref(selected.id, board)}>Game permalink <span aria-hidden="true">↗</span></a><button type="button" onClick={copyLink}>Copy game link</button><span role="status">{copyState}</span></div>
+        <div className={styles.share}><a href={gameHref(selected.id, board)}>Game permalink <span aria-hidden="true">↗</span></a><button type="button" aria-label={copyState === "Game link copied." ? "Game link copied" : "Copy game link"} className={copyState === "Game link copied." ? styles.copied : ""} onClick={copyLink}>{copyState === "Game link copied." ? "Copied" : "Copy game link"}</button><button type="button" className={styles.backToResults} onClick={backToResults} aria-controls="archive-results">Back to results <span aria-hidden="true">↓</span></button><span role="status" aria-label="Game link sharing">{copyState}</span></div>
       </div> : null}
 
-      <div className={styles.archiveHead}><h2>{board === "heartbreak" ? "Find your particular pain." : "Find a reason to believe."}</h2><p>Pick a game. We kept the tape.</p></div>
-      <div className={styles.filters}>
+      <div className={styles.archiveHead}><h2 ref={archiveHeading}>{board === "heartbreak" ? "Find your particular pain." : "Find a reason to believe."}</h2><p>Pick a game. We kept the tape.</p></div>
+      <div id="archive-filters" className={styles.filters}>
         <label>Season<select value={filters.season} onChange={(event) => update({ season: event.target.value })}><option value="all">All seasons</option>{seasons.map((season) => <option key={season} value={season}>{season}</option>)}</select></label>
         <label>Opponent<select value={filters.opponent} onChange={(event) => update({ opponent: event.target.value })}><option value="all">All opponents</option>{opponents.map((opponent) => <option key={opponent} value={opponent}>{opponent}</option>)}</select></label>
-        <label className={styles.search}>Search games<input type="search" value={filters.query} placeholder="Team, year or the play you remember…" onChange={(event) => update({ q: event.target.value }, true)} /></label>
+        <div className={styles.search}><label htmlFor="archive-search">Search games</label><div className={styles.searchControl}><input id="archive-search" ref={searchInput} type="search" value={filters.query} placeholder="Team, year or the play you remember…" onChange={(event) => update({ q: event.target.value }, true)} />{filters.query ? <button type="button" onClick={clearSearch} aria-label="Clear search"><span aria-hidden="true">×</span></button> : null}</div></div>
         <label>Sort by<select value={filters.sort} onChange={(event) => update({ sort: event.target.value })}><option value="swing">Most extreme</option><option value="recent">Newest first</option><option value="oldest">Oldest first</option></select></label>
       </div>
 
-      <div className={styles.resultsBar}><p aria-live="polite"><strong>{list.length}</strong> {list.length === 1 ? "game" : "games"} found</p>{activeFilters ? <button type="button" className={styles.reset} onClick={reset}>Reset filters</button> : null}</div>
+      <div className={styles.resultsBar}><p id="archive-results" ref={resultsSummary} tabIndex={-1} aria-live="polite"><strong>{list.length}</strong> {list.length === 1 ? "game" : "games"} found</p>{activeFilters ? <button type="button" className={styles.reset} onClick={reset}>Reset filters</button> : null}</div>
       {!selected ? <div className={styles.empty}><h2>No games match.</h2><p>Try another season, opponent or search term.</p><button type="button" onClick={reset}>Reset filters</button></div> : (
           <div className={styles.gameList}>
             <ol className={styles.list} aria-label="Matching games">
-              {list.slice(0, visibleCount).map((game, index) => <li key={game.id}><button type="button" className={`${styles.row} ${game.id === selected.id ? styles.rowOn : ""}`} aria-pressed={game.id === selected.id} aria-label={`Select ${game.date} ${game.atHome ? "vs" : "at"} ${game.opponentDisplay}, Jets ${game.jetsScore}–${game.oppScore}, ${pct(game.swing)}`} onClick={() => selectGame(game)}><span className={styles.rank}>{String(index + 1).padStart(2, "0")}</span><span className={styles.meta}><span className={styles.date}><time dateTime={game.date}>{formatDate(game.date)}</time> · Wk {game.week}{game.wentToOt ? " · OT" : ""}{game.seasonType !== "REG" ? " · playoffs" : ""}</span><strong className={styles.matchup}>Jets {game.atHome ? "vs" : "at"} {game.opponentDisplay}</strong><span className={styles.score}>Final: Jets {game.jetsScore} · {game.opponentDisplay} {game.oppScore}</span></span><span className={styles.numbers}><strong>{pct(game.swing)}</strong><small>{board === "heartbreak" ? "peak 2nd-half chance" : "lowest 2nd-half chance"}</small><span className={styles.openGame}>Open game <span aria-hidden="true">↗</span></span></span></button></li>)}
+              {list.slice(0, visibleCount).map((game, index) => <li key={game.id}><button id={`archive-game-${game.id}`} type="button" className={`${styles.row} ${game.id === selected.id ? styles.rowOn : ""}`} aria-pressed={game.id === selected.id} aria-label={`Select ${game.date} ${game.atHome ? "vs" : "at"} ${game.opponentDisplay}, Jets ${game.jetsScore}–${game.oppScore}, ${pct(game.swing)}`} onClick={() => selectGame(game)}><span className={styles.rank}>{String(index + 1).padStart(2, "0")}</span><span className={styles.meta}><span className={styles.date}><time dateTime={game.date}>{formatDate(game.date)}</time> · Wk {game.week}{game.wentToOt ? " · OT" : ""}{game.seasonType !== "REG" ? " · playoffs" : ""}</span><strong className={styles.matchup}>Jets {game.atHome ? "vs" : "at"} {game.opponentDisplay}</strong><span className={styles.score}>Final: Jets {game.jetsScore} · {game.opponentDisplay} {game.oppScore}</span></span><span className={styles.numbers}><strong>{pct(game.swing)}</strong><small>{board === "heartbreak" ? "peak 2nd-half chance" : "lowest 2nd-half chance"}</small><span className={styles.openGame}>{game.id === selected.id ? "Open now" : "Open game"} <span aria-hidden="true">{game.id === selected.id ? "↑" : "↗"}</span></span></span></button></li>)}
             </ol>
             {list.length > visibleCount ? <button className={styles.more} type="button" onClick={() => setVisibleCount((count) => count + 24)}>Show {Math.min(24, list.length - visibleCount)} more games <span aria-hidden="true">↓</span></button> : null}
           </div>

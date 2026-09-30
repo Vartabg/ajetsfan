@@ -4,12 +4,13 @@
 .brand { font-size: clamp(2rem, 4.4vw, 3.7rem); line-height: 1.1; text-decoration: none; color: var(--spot); letter-spacing: -.025em; }
 .tagline { margin: 0; font: 700 .85rem/1.5 var(--font-sans), sans-serif; }
 .tagline br { display: none; }
-.sections { display: flex; flex-wrap: wrap; align-items: center; border-top: 1px solid var(--rule-soft); border-bottom: 1px solid var(--rule); gap: .35rem; padding: .45rem 0; }
-.section { padding: .6rem .9rem; font-size: .75rem; font-weight: 700; letter-spacing: .07em; text-decoration: none; border-radius: 3px; transition: background .15s, color .15s; }
+.mobileWear { display: none; }
+.navigation { position: sticky; top: 0; z-index: 40; background: var(--paper); border-bottom: 1px solid var(--rule); box-shadow: 0 3px 10px #062c2108; }
+.sections { width: var(--shell); margin-inline: auto; display: flex; align-items: center; border-top: 1px solid var(--rule-soft); gap: .35rem; padding: .35rem 0; }
+.sections .section { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: .6rem .9rem; font-size: .75rem; font-weight: 700; letter-spacing: .07em; text-decoration: none; text-align: center; white-space: nowrap; border-radius: 3px; transition: background .15s, color .15s; }
 .section[aria-current="page"] { background: var(--spot); color: #fff; }
 .section:hover:not([aria-current="page"]) { background: var(--paper-2); }
+.section:focus-visible { outline-color: var(--spot); outline-offset: 2px; }
 .wear { margin-left: auto; padding: .4rem 0 .4rem 1rem; color: var(--spot); font: 700 .75rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .05em; }
 .wear::before { content: ''; display: inline-block; width: .45rem; height: .45rem; margin-right: .45rem; border-radius: 50%; background: var(--spot); }
-@media (max-width: 640px) { .folio { font-size: .6rem; letter-spacing: .04em; } .brandRow { padding: .8rem 0; } .brand { font-size: clamp(1.95rem, 8vw, 3rem); } .tagline { display: none; } .section { font-size: .65rem; padding: .6rem .6rem; letter-spacing: .03em; } .wear { padding-left: 0; font-size: .65rem; } }
-@media (max-width: 400px) { .wear { width: 100%; padding-left: .6rem; margin-left: 0; } }
-@media (max-width: 640px) { .section { font-size: .6rem; padding: .5rem; letter-spacing: .02em; } }
+@media (max-width: 640px) { .folio { display: grid; grid-template-columns: 1fr auto; font-size: .6rem; letter-spacing: .04em; } .domain { display: none; } .checkTime { grid-column: 1 / -1; } .mobileWear { display: block; color: var(--spot); } .brandRow { padding: .8rem 0; } .brand { font-size: clamp(1.95rem, 8vw, 3rem); } .tagline, .wear { display: none; } .sections { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .15rem; } .sections .section { font-size: .67rem; padding: .5rem .2rem; letter-spacing: .02em; } }

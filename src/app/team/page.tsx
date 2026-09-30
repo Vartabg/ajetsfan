@@ -35,13 +35,13 @@ export default async function TeamPage() {
         <div className={styles.intro}>
           <h1 className="hed">The names<br />on our<br /><span>jerseys.</span></h1>
           <p>Some Sundays we believe. Some Sundays we yell at the TV. These are our guys.</p>
-          <nav aria-label="Team coverage sections"><a href="#season-leaders">Who&apos;s carrying it <span aria-hidden="true">↓</span></a><a href="#roster">Find your guy <span aria-hidden="true">↓</span></a><a href="#news">From Florham Park <span aria-hidden="true">↓</span></a></nav>
+          {coverage ? <nav aria-label="Team coverage sections"><a href="#season-leaders">Season leaders <span aria-hidden="true">↓</span></a><a href="#roster">Players &amp; roster <span aria-hidden="true">↓</span></a><a href="#news">Team news <span aria-hidden="true">↓</span></a></nav> : null}
         </div>
         {coverPhoto || featured.length ? <div className={styles.lineup}>
           {coverPhoto ? <EditorialPhoto photo={coverPhoto} eager className={styles.coverPhoto} sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1288px) calc(58.33vw - 3.2rem), 700px" /> : null}
           {featured.length ? <div className={styles.lineupNames}><p className={styles.lineupKicker}>The guys we yell for.</p><div className={styles.lineupPlayers}>{featured.map((player) => <Link className={styles.featuredPlayer} href={`/team?${new URLSearchParams({ player: player.id })}#roster`} key={player.id}>
             {player.jersey !== null ? <span className={styles.jersey} aria-hidden="true">{player.jersey}</span> : null}
-            <span className={styles.featuredName}><strong>{player.name}</strong><span>{player.position}{player.jersey !== null ? ` · No. ${player.jersey}` : ""}</span></span>
+            <span className={styles.featuredName}><strong>{player.name}</strong><span>{player.position}{player.jersey !== null ? ` · No. ${player.jersey}` : ""}</span><span className={styles.profileCue}>View profile <span aria-hidden="true">↗</span></span></span>
           </Link>)}</div></div> : null}
         </div> : null}
       </div>
