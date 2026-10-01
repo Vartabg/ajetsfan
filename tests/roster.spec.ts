@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { CoverageSnapshot, PlayerStats, RosterPlayer } from "../src/lib/coverage";
-import { filterRoster, playerHref, playerInitials, playerStatLines, rosterFilters, statsForPlayer } from "../src/lib/roster";
+import { filterRoster, playerHref, playerInitials, playerStatLines, playerStatsMessage, rosterFilters, statsForPlayer } from "../src/lib/roster";
 
 const rosterPlayer = (overrides: Partial<RosterPlayer> = {}): RosterPlayer => ({
   id: "00-test-qb", espnId: null, name: "Tyrod Taylor", position: "QB", jersey: "8",
@@ -66,6 +66,21 @@ test("previous-season and unavailable stats cannot supply a current player line"
   expect(statsForPlayer({ ...feed, season: 2026, status: "unavailable" }, "00-test-qb", 2026)).toBeUndefined();
 });
 
+test("missing offensive totals, unsupported units and unavailable source seasons have distinct coverage messages", () => {
+  const feed: CoverageSnapshot["stats"] = { ...coverage.stats, season: 2026, status: "ready", players: [] };
+  const quarterback = rosterPlayer();
+  const defender = rosterPlayer({ group: "defense", position: "DB" });
+  expect(playerStatsMessage(feed, quarterback, 2026).empty).toContain("No passing, rushing or receiving totals are recorded");
+  expect(playerStatsMessage(feed, defender, 2026).empty).toContain("Defensive and kicking production isn’t included");
+  expect(playerStatsMessage(feed, defender, 2026).scope).toContain("Games recorded plus passing, rushing and receiving");
+  const unavailable = playerStatsMessage({ ...feed, status: "unavailable" }, defender, 2026).empty;
+  expect(unavailable).toContain("statistics are unavailable");
+  expect(unavailable).toContain("not treated as zero");
+  const previousSeason = playerStatsMessage({ ...feed, season: 2025 }, defender, 2026).empty;
+  expect(previousSeason).toContain("The available source covers 2025");
+  expect(previousSeason).not.toContain("No passing");
+});
+
 test("player deep links retain the exact profile, season statistics and browser history", async ({ page }) => {
   const player = profilePlayer();
   test.skip(!player, "This edition has no roster records for a selectable player profile.");
@@ -84,7 +99,7 @@ test("player deep links retain the exact profile, season statistics and browser 
   if (lines.length) {
     await expect(profile.getByRole("link", { name: "Season stats source" })).toHaveAttribute("href", coverage.stats.source);
   } else {
-    await expect(profile).toContainText("No recorded regular-season stats in this edition.");
+    await expect(profile).toContainText(playerStatsMessage(coverage.stats, player, editionSeason).empty);
     await expect(profile.getByRole("link", { name: "Season stats source" })).toHaveCount(0);
   }
   if (second) {
@@ -148,12 +163,22 @@ test("unrecorded players and unknown IDs show honest profile states", async ({ p
   if (player) {
     await page.goto(playerHref(player.id));
     const profile = page.getByRole("region", { name: player.name, exact: true });
-    await expect(profile).toContainText("No recorded regular-season stats in this edition.");
+    await expect(profile).toContainText(playerStatsMessage(coverage.stats, player, editionSeason).empty);
     await expect(profile.getByRole("link", { name: "Season stats source" })).toHaveCount(0);
   }
   await page.goto(playerHref("00-not-in-this-roster"));
   await expect(page.getByText("That player is not listed in this roster edition. Search the roster below.", { exact: true })).toBeVisible();
   await expect(page.getByRole("list", { name: "Roster players" }).locator("li")).toHaveCount(coverage.roster.players.length);
+});
+
+test("a defender profile names the statistical coverage gap rather than implying zero defensive production", async ({ page }) => {
+  const player = coverage.roster.players.find((candidate) => candidate.group === "defense");
+  test.skip(!player, "This edition has no defensive roster profile.");
+  if (!player) return;
+  await page.goto(playerHref(player.id));
+  const profile = page.getByRole("region", { name: player.name, exact: true });
+  await expect(profile).toContainText("Defensive and kicking production isn’t included in this edition.");
+  await expect(profile).not.toContainText("No recorded regular-season stats in this edition.");
 });
 
 test("a missing or failed headshot shows accessible initials without losing profile details", async ({ page }) => {
@@ -170,12 +195,11 @@ test("a missing or failed headshot shows accessible initials without losing prof
 
 test("overdue or unavailable roster and statistics each disclose their own source state", async ({ page }) => {
   const player = profilePlayer();
-  const hasProfileStats = player && playerStatLines(statsForPlayer(coverage.stats, player.id, editionSeason)).length > 0;
   const lastChecked = Math.max(...[coverage.roster, coverage.stats].map((feed) => Date.parse(feed.checkedAt ?? feed.attemptedAt)));
   await page.clock.install({ time: new Date(lastChecked + 26 * 60 * 60 * 1000) });
   await page.goto(player ? playerHref(player.id) : "/team#roster");
   await expect(page.getByRole("status", { name: "Roster update status", exact: true })).toBeVisible();
-  const statsStatus = page.getByRole("status", { name: hasProfileStats ? "Selected player statistics update status" : "Player statistics update status", exact: true });
+  const statsStatus = page.getByRole("status", { name: player ? "Selected player statistics update status" : "Player statistics update status", exact: true });
   await expect(statsStatus).toBeVisible();
   if (coverage.roster.status === "unavailable") await expect(page.getByRole("status", { name: "Roster update status", exact: true })).toContainText("This source is unavailable.");
   if (coverage.stats.status === "unavailable") await expect(statsStatus).toContainText("This source is unavailable.");

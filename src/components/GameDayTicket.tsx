@@ -47,6 +47,7 @@ function TicketForm({ game, saved, save }: { game: ScheduledGame; saved: TicketC
   const panel = useRef<HTMLDetailsElement>(null);
   const scoreInput = useRef<HTMLInputElement>(null);
   const opponentInput = useRef<HTMLInputElement>(null);
+  const convictionInput = useRef<HTMLInputElement>(null);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -56,6 +57,7 @@ function TicketForm({ game, saved, save }: { game: ScheduledGame; saved: TicketC
       setError("Enter both whole-number scores from 0 to 99 and choose your conviction.");
       if (jetsScore === null) scoreInput.current?.focus();
       else if (oppScore === null) opponentInput.current?.focus();
+      else convictionInput.current?.focus();
       return;
     }
     // Recheck the exact current time: a minute clock must not grant a late save.
@@ -86,11 +88,11 @@ function TicketForm({ game, saved, save }: { game: ScheduledGame; saved: TicketC
           <div><label htmlFor="ticket-jets-score">Jets score</label><input ref={scoreInput} id="ticket-jets-score" name="jets-score" type="number" min="0" max="99" step="1" inputMode="numeric" required aria-describedby="ticket-form-feedback" aria-invalid={!!error && ticketScore(jets) === null} value={jets} onChange={(event) => setJets(event.target.value)} /></div>
           <div><label htmlFor="ticket-opponent-score">{game.opponentDisplay} score</label><input ref={opponentInput} id="ticket-opponent-score" name="opponent-score" type="number" min="0" max="99" step="1" inputMode="numeric" required aria-describedby="ticket-form-feedback" aria-invalid={!!error && ticketScore(opponent) === null} value={opponent} onChange={(event) => setOpponent(event.target.value)} /></div>
         </fieldset>
-        <fieldset className={styles.conviction}><legend>How much do you believe?</legend>{CONVICTIONS.map((entry) => <label key={entry.value}><input type="radio" name="ticket-conviction" value={entry.value} required checked={conviction === entry.value} onChange={() => setConviction(entry.value)} /><span>{entry.label}</span></label>)}</fieldset>
+        <fieldset className={styles.conviction} aria-describedby="ticket-form-feedback" aria-invalid={!!error && !conviction}><legend>How much do you believe?</legend>{CONVICTIONS.map((entry, index) => <label key={entry.value}><input ref={index === 0 ? convictionInput : undefined} type="radio" name="ticket-conviction" value={entry.value} required checked={conviction === entry.value} onChange={() => setConviction(entry.value)} /><span>{entry.label}</span></label>)}</fieldset>
         <div className={styles.ritual}><label htmlFor="ticket-ritual">Sunday ritual <span>Optional. We make no promises.</span></label><select id="ticket-ritual" value={ritual} onChange={(event) => setRitual(event.target.value as Ritual)}>{RITUALS.map((entry) => <option key={entry.value} value={entry.value}>{entry.label}</option>)}</select></div>
         <p className={styles.formNote}>This is your fan call. The football remains unsupervised. Save changes before copying your ticket.</p>
         <button type="submit" className={styles.save}>Save my ticket <span aria-hidden="true">↗</span></button>
-        <p id="ticket-form-feedback" role="status" aria-label="Ticket form status" className={styles.error}>{error}</p>
+        <p role="status" aria-label="Ticket form status" className={styles.error}><span id="ticket-form-feedback">{error}</span></p>
       </form>
     </details>
   </div>;

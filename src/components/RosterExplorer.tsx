@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { CoverageSnapshot, RosterPlayer } from "@/lib/coverage";
 import { formatDate } from "@/lib/current";
-import { filterRoster, playerHref, playerInitials, playerStatLines, rosterFilters, statsForPlayer } from "@/lib/roster";
+import { filterRoster, playerHref, playerInitials, playerStatLines, playerStatsMessage, rosterFilters, statsForPlayer } from "@/lib/roster";
 import FeedStatus from "./FeedStatus";
 import styles from "./RosterExplorer.module.css";
 
@@ -25,10 +25,11 @@ function Portrait({ player, detailed = false }: { player: RosterPlayer; detailed
     : <span className={styles.initials} role={detailed ? "img" : undefined} aria-label={detailed ? `${player.name} initials` : undefined} aria-hidden={detailed ? undefined : true}>{playerInitials(player.name)}</span>}</div>;
 }
 
-export default function RosterExplorer({ roster, stats, editionSeason = roster.season }: {
+export default function RosterExplorer({ roster, stats, editionSeason = roster.season, profileIds = [] }: {
   roster: CoverageSnapshot["roster"];
   stats: CoverageSnapshot["stats"];
   editionSeason?: number;
+  profileIds?: string[];
 }) {
   const params = useSearchParams();
   const filters = rosterFilters(new URLSearchParams(params.toString()));
@@ -46,6 +47,7 @@ export default function RosterExplorer({ roster, stats, editionSeason = roster.s
   const activeFilters = filters.query !== "" || filters.unit !== "all" || filters.position !== "all" || filters.status !== "all";
   const playerStats = selected ? statsForPlayer(stats, selected.id, editionSeason) : undefined;
   const statLines = playerStatLines(playerStats);
+  const statMessage = selected ? playerStatsMessage(stats, selected, editionSeason) : null;
 
   useEffect(() => {
     if (focusSelection.current && selected && heading.current) {
@@ -127,10 +129,10 @@ export default function RosterExplorer({ roster, stats, editionSeason = roster.s
         <div className={styles.profileGrid}>
           <div className={styles.profileIdentity}><Portrait key={`${selected.id}-${selected.headshot}`} player={selected} detailed /><div><p className={styles.playerKicker}>{selected.position}{selected.jersey !== null ? ` · #${selected.jersey}` : ""}</p><h2 id="selected-player-heading" ref={heading} tabIndex={-1}>{selected.name}</h2><p className={styles.status}>Source roster status: <strong>{selected.statusLabel}</strong> ({selected.status})</p></div></div>
           <div className={styles.profileInfo}><dl className={styles.bio}><div><dt>Height</dt><dd>{selected.height ?? "Not listed"}</dd></div><div><dt>Weight</dt><dd>{selected.weight !== null ? `${selected.weight} lb` : "Not listed"}</dd></div><div><dt>College</dt><dd>{selected.college ?? "Not listed"}</dd></div><div><dt>Experience</dt><dd>{selected.experience !== null ? `${selected.experience} ${selected.experience === 1 ? "year" : "years"}` : "Not listed"}</dd></div></dl>
-            <div className={styles.statBlock}><h3>{editionSeason} regular-season stats</h3>{statLines.length ? <><dl className={styles.statLines}>{statLines.map((line) => <div key={line.label}><dt>{line.label}</dt><dd>{line.value}</dd></div>)}</dl><p className={styles.statNote}>Passing, rushing and receiving totals{stats.throughWeek !== null ? ` · through Week ${stats.throughWeek}` : ""}{stats.throughDate ? ` (${formatDate(stats.throughDate)})` : ""}.{stats.pendingGameIds.length ? ` ${stats.pendingGameIds.length} ${stats.pendingGameIds.length === 1 ? "result is" : "results are"} awaiting player statistics.` : ""}</p><FeedStatus feed={stats} label="Selected player statistics" /></> : <p className={styles.noStats}>No recorded regular-season stats in this edition.</p>}</div>
+            <div className={styles.statBlock}><h3>{editionSeason} regular-season stats</h3>{statLines.length ? <><dl className={styles.statLines}>{statLines.map((line) => <div key={line.label}><dt>{line.label}</dt><dd>{line.value}</dd></div>)}</dl><p className={styles.statNote}>{statMessage?.scope}{stats.throughWeek !== null || stats.throughDate ? <> {stats.throughWeek !== null ? `Through Week ${stats.throughWeek}` : "Through the source cutoff"}{stats.throughDate ? ` (${formatDate(stats.throughDate)})` : ""}.</> : null}{stats.pendingGameIds.length ? ` ${stats.pendingGameIds.length} ${stats.pendingGameIds.length === 1 ? "result is" : "results are"} awaiting player statistics.` : ""}</p></> : <p className={styles.noStats}>{statMessage?.empty}</p>}<FeedStatus feed={stats} label="Selected player statistics" /></div>
           </div>
         </div>
-        <div className={styles.profileLinks}>{selected.profileUrl ? <a href={selected.profileUrl} target="_blank" rel="noreferrer">Player profile <span aria-hidden="true">↗</span></a> : null}{statLines.length ? <a href={stats.source} target="_blank" rel="noreferrer">Season stats source <span aria-hidden="true">↗</span></a> : null}<a href={playerHref(selected.id)}>Player permalink</a><button type="button" className={copyState === "Player link copied." ? styles.copied : ""} onClick={copyLink}>{copyState === "Player link copied." ? <>Link copied <span aria-hidden="true">✓</span></> : "Copy player link"}</button><button className={styles.backToRoster} type="button" onClick={closePlayer}>Back to roster <span aria-hidden="true">↓</span></button><span role="status" aria-label="Player link copy status">{copyState}</span></div>
+        <div className={styles.profileLinks}>{profileIds.includes(selected.id) ? <a href={`/players/${encodeURIComponent(selected.id)}`}>Read the player page <span aria-hidden="true">↗</span></a> : null}{selected.profileUrl ? <a href={selected.profileUrl} target="_blank" rel="noreferrer">Player profile <span aria-hidden="true">↗</span></a> : null}{statLines.length ? <a href={stats.source} target="_blank" rel="noreferrer">Season stats source <span aria-hidden="true">↗</span></a> : null}<a href={playerHref(selected.id)}>Player permalink</a><button type="button" className={copyState === "Player link copied." ? styles.copied : ""} onClick={copyLink}>{copyState === "Player link copied." ? <>Link copied <span aria-hidden="true">✓</span></> : "Copy player link"}</button><button className={styles.backToRoster} type="button" onClick={closePlayer}>Back to roster <span aria-hidden="true">↓</span></button><span role="status" aria-label="Player link copy status">{copyState}</span></div>
       </section> : null}
 
       {!players.length ? <div className={styles.empty}><h2>No players match.</h2><p>Try another name, position, unit or roster status.</p>{activeFilters ? <button type="button" onClick={() => update({ q: null, unit: null, position: null, status: null, player: null })}>Reset filters</button> : <p>Roster records are unavailable in this edition.</p>}</div> : <ul className={styles.grid} aria-label="Roster players">{players.map((player) => <li key={player.id}><button id={`roster-player-${player.id}`} type="button" className={`${styles.playerCard} ${selected?.id === player.id ? styles.selectedCard : ""}`} aria-pressed={selected?.id === player.id} aria-expanded={selected?.id === player.id} aria-controls={selected ? "roster-player-profile" : undefined} aria-label={`View ${player.name}, ${player.position}${player.jersey !== null ? `, number ${player.jersey}` : ""}, roster status ${player.statusLabel}`} onClick={() => selectPlayer(player)}><div className={styles.cardPhoto}><Portrait key={`${player.id}-${player.headshot}`} player={player} /><span className={styles.jersey} aria-hidden="true">{player.jersey !== null ? `#${player.jersey}` : player.position}</span></div><div className={styles.cardText}><span className={styles.cardPosition}>{player.position} · {UNITS.find((unit) => unit.value === player.group)?.label}</span><strong>{player.name}</strong><span className={styles.cardStatus}>Roster: {player.statusLabel}</span><span className={styles.cardLink}>{selected?.id === player.id ? "Profile open" : "View player"} <span aria-hidden="true">{selected?.id === player.id ? "↑" : "↗"}</span></span></div></button></li>)}</ul>}

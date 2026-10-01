@@ -1,22 +1,25 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
+import { publishedGames } from "@/lib/published-pages";
 import Link from "next/link";
 import { Suspense } from "react";
 import { rank } from "@/lib/games";
 import { selectFanMemories } from "@/lib/fan-memories";
-import { loadGames } from "@/lib/load-games";
+import { loadGames, loadCurrent } from "@/lib/load-games";
 import { archiveCoverage, formatDate } from "@/lib/current";
 import Boards from "@/components/Boards";
 import MemoryWall from "@/components/MemoryWall";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/morgue",
   title: "The Morgue — a Jets fan",
   description:
     "A shrine to lost leads, improbable Jets wins, and the games we still can't leave alone. Explore the scores, turning points, and play-by-play.",
-};
+});
 
 export default async function Morgue() {
-  const games = await loadGames();
+  const [games, current] = await Promise.all([loadGames(), loadCurrent()]);
   const coverage = archiveCoverage(games);
   const heartbreak = rank(games, "heartbreak");
   const miracle = rank(games, "miracle");
@@ -43,7 +46,7 @@ export default async function Morgue() {
 
       {heartbreak.length + miracle.length > 0 ? <nav className={styles.index} aria-label="In The Morgue">{selectFanMemories(games).length ? <Link href="#fan-memories">The classic cases <span aria-hidden="true">↓</span></Link> : null}<Link href="#archive-filters">Find a game <span aria-hidden="true">↓</span></Link></nav> : null}
       <MemoryWall games={games} />
-      <Suspense fallback={<p className={styles.loading} role="status">Finding the tape…</p>}><Boards heartbreak={heartbreak} miracle={miracle} /></Suspense>
+      <Suspense fallback={<p className={styles.loading} role="status">Finding the tape…</p>}><Boards heartbreak={heartbreak} miracle={miracle} caseIds={publishedGames(games, current).map((game) => game.id)} /></Suspense>
       <p className={styles.sourceNote}>The scores are real. So are the reasons we remember them. {heartbreak.length + miracle.length} wins and losses qualify for these rankings. Win probability comes from nflverse; <a href="/how-made">the method and integrity checks are here</a>.</p>
     </main>
   );

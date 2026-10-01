@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
 import Link from "next/link";
 import { loadGames, loadCurrent, loadAnalytics } from "@/lib/load-games";
 import { archiveCoverage, formatCheckedAt, formatDate } from "@/lib/current";
@@ -6,10 +7,11 @@ import { rank } from "@/lib/games";
 import PaperSample from "./PaperSample";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/how-made",
   title: "How the paper is made — a Jets fan",
   description: "How The Back Page turns Jets play-by-play into a newspaper: data-driven art direction, honest probability rankings, and visible exclusions.",
-};
+});
 
 export default async function HowMade() {
   const [games, snapshot, analytics] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics()]);
@@ -93,6 +95,8 @@ export default async function HowMade() {
         <h2>A small system with a visible chain of decisions</h2>
         <p>The results and schedule are checked separately from the play-by-play analysis. DuckDB reads the source Parquet files during data preparation and writes static JSON. Next.js prints the edition from that checked data. Small React controls handle archive filters and play-by-play exploration. Editorial photographs come from official Jets coverage. Captions identify the game, practice, or archive context, and link to the original source.</p>
         {snapshot ? <p>Results last checked <time dateTime={snapshot.checkedAt}>{formatCheckedAt(snapshot.checkedAt)}</time>. Analysis {snapshot.analysisUpdatedAt ? <>last updated <time dateTime={snapshot.analysisUpdatedAt}>{formatCheckedAt(snapshot.analysisUpdatedAt)}</time></> : "has no published update time"}. <a href={snapshot.sources.schedule}>Inspect the results and schedule source</a>.</p> : null}
+        <p>A temporary current-season play-by-play outage retains the last verified analysis while independently checked results and team coverage advance. The successful analysis check, analysis content update, and pending game counts describe different things. Invalid analysis still stops publication for review.</p>
+        <p>Each eligible game and current roster player has a dedicated page and share card. The interactive archive and roster keep their filters and play controls. Vercel Web Analytics and Speed Insights provide audience and performance measurement when enabled for this project; page URLs are stripped of searches and fragments before sending. Personal game-day tickets stay in browser storage.</p>
         <p>There is no runtime language-model call deciding the headline. The source data, rules, and output can be inspected independently.</p>
         <ul>
           <li><a href="https://github.com/nflverse/nflverse-data">Original data: nflverse</a></li>

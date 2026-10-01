@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/site";
+import { publishedPlayers } from "@/lib/published-pages";
 import Link from "next/link";
 import { Suspense } from "react";
 import { leaders } from "@/lib/coverage";
@@ -11,10 +13,11 @@ import PlayerLeaders from "@/components/PlayerLeaders";
 import RosterExplorer from "@/components/RosterExplorer";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/team",
   title: "News & Team — The Back Page",
   description: "The names on our Jets jerseys. Meet the players, follow the season leaders, and catch up on official team news.",
-};
+});
 
 export default async function TeamPage() {
   const [coverage, current] = await Promise.all([loadCoverage(), loadCurrent()]);
@@ -52,7 +55,7 @@ export default async function TeamPage() {
     {coverage ? <>
       <PlayerLeaders stats={coverage.stats} roster={coverage.roster} editionSeason={season ?? coverage.season} />
       <NewsDesk feed={coverage.news} />
-      <section id="roster" className={styles.rosterSection} aria-labelledby="roster-heading"><div className={styles.rosterHeading}><div><p className={styles.kicker}>Every number has a name</p><h2 id="roster-heading" className="hed">Find your guy.</h2></div><p>{coverage.roster.season} source snapshot{coverage.roster.week != null ? ` · Week ${coverage.roster.week}` : ""}</p></div><p className={styles.rosterNote}>Search a name, number, or position. Pick a player for their profile and season stats. Roster membership does not establish game-day availability.{coverage.roster.excludedPlayers ? ` ${coverage.roster.excludedPlayers} source ${coverage.roster.excludedPlayers === 1 ? "entry is" : "entries are"} awaiting player identifiers and cannot supply a searchable profile.` : ""}</p><Suspense fallback={<p>Loading roster controls…</p>}><RosterExplorer roster={coverage.roster} stats={coverage.stats} editionSeason={season ?? coverage.season} /></Suspense></section>
+      <section id="roster" className={styles.rosterSection} aria-labelledby="roster-heading"><div className={styles.rosterHeading}><div><p className={styles.kicker}>Every number has a name</p><h2 id="roster-heading" className="hed">Find your guy.</h2></div><p>{coverage.roster.season} source snapshot{coverage.roster.week != null ? ` · Week ${coverage.roster.week}` : ""}</p></div><p className={styles.rosterNote}>Search a name, number, or position. Pick a player for their profile and season stats. Roster membership does not establish game-day availability.{coverage.roster.excludedPlayers ? ` ${coverage.roster.excludedPlayers} source ${coverage.roster.excludedPlayers === 1 ? "entry is" : "entries are"} awaiting player identifiers and cannot supply a searchable profile.` : ""}</p><Suspense fallback={<p>Loading roster controls…</p>}><RosterExplorer roster={coverage.roster} stats={coverage.stats} editionSeason={season ?? coverage.season} profileIds={publishedPlayers(coverage, season ?? coverage.season).map((player) => player.id)} /></Suspense></section>
     </> : <section className={styles.empty}><h2>Team coverage is being prepared.</h2><p>No verified news, roster, or player-stat snapshot is available in this edition.</p><a href="https://www.newyorkjets.com/news/" target="_blank" rel="noreferrer">Read official Jets coverage <span aria-hidden="true">↗</span></a></section>}
     <p className={styles.sourceNote}>Headlines come straight from the Jets. Rosters and season stats come from nflverse; check times and any delays are shown with each section.</p>
   </main>;

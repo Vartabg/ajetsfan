@@ -175,6 +175,26 @@ test.describe("personal ticket in the current edition", () => {
     expect(await page.evaluate((key) => localStorage.getItem(key), TICKET_STORAGE_KEY)).toBe(futureBook);
   });
 
+  test("a missing conviction focuses the required choice and its error without saving a ticket", async ({ page }) => {
+    await page.goto("/");
+    const ticket = page.getByRole("region", { name: "Put your optimism on paper." });
+    await ticket.locator("summary").click();
+    await ticket.getByLabel("Jets score", { exact: true }).fill("0");
+    await ticket.getByLabel(`${currentFixture!.opponentDisplay} score`, { exact: true }).fill("24");
+    await ticket.getByRole("button", { name: "Save my ticket" }).click();
+    const conviction = ticket.getByRole("group", { name: "How much do you believe?" });
+    const firstChoice = ticket.getByRole("radio", { name: "Nervous hope", exact: true });
+    await expect(firstChoice).toBeFocused();
+    await expect(conviction).toHaveAttribute("aria-invalid", "true");
+    await expect(conviction).toHaveAccessibleDescription(/choose your conviction/);
+    expect(await page.evaluate((key) => localStorage.getItem(key), TICKET_STORAGE_KEY)).toBeNull();
+    await page.keyboard.press("Space");
+    await expect(firstChoice).toBeChecked();
+    await ticket.getByRole("button", { name: "Save my ticket" }).click();
+    await expect(ticket.getByRole("status", { name: "Ticket status", exact: true })).toContainText("Ticket saved in this browser");
+    await expect(ticket.locator("details")).not.toHaveAttribute("open", "");
+  });
+
   test("invalid scores are rejected and an old fixture never preselects the next game", async ({ page }) => {
     const old = completedGames(current).filter((game) => game.season === current.season && game.seasonType === "REG").at(-1)!;
     await page.addInitScript(({ key, value }) => localStorage.setItem(key, value), { key: TICKET_STORAGE_KEY, value: JSON.stringify(addTicketCall(emptyTicketBook(current.season), call(old))) });

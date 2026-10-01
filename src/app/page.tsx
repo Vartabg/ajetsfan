@@ -1,4 +1,8 @@
 import Link from "next/link";
+import { pageMetadata } from "@/lib/site";
+import AnalysisStatus from "@/components/AnalysisStatus";
+
+export const metadata = pageMetadata({ path: "/", title: "The Back Page — a Jets fan", description: "Jets football for those of us still watching. Sunday stories, the names on our jerseys, and a Morgue for the leads we couldn’t keep." });
 import { rank, clockLabel, pct } from "@/lib/games";
 import { loadGames, loadCurve, loadCurrent, loadAnalytics } from "@/lib/load-games";
 import { currentSeasonSummary, formatCheckedAt, formatDate, nextScheduledGame, selectLead } from "@/lib/current";
@@ -6,6 +10,7 @@ import { gameHref } from "@/lib/explorer";
 import { epaLabel } from "@/lib/analytics";
 import { leaders } from "@/lib/coverage";
 import { playerHref } from "@/lib/roster";
+import { publishedGames, publishedPlayers } from "@/lib/published-pages";
 import PressChart from "@/components/PressChart";
 import EditorialPhoto from "@/components/EditorialPhoto";
 import { gameEditorialPhoto, playerActionPhoto } from "@/lib/editorial-photos";
@@ -25,6 +30,9 @@ export default async function BackPage() {
   const [games, snapshot, rawAnalytics, coverageFeed] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics(), loadCoverage()]);
   const analytics = rawAnalytics?.season === snapshot?.season ? rawAnalytics : null;
   const lead = selectLead(games, snapshot);
+  const caseIds = new Set(publishedGames(games, snapshot).map((game) => game.id));
+  const caseHref = (id: string, board: "heartbreak" | "miracle") => caseIds.has(id) ? `/games/${encodeURIComponent(id)}` : gameHref(id, board);
+  const profileIds = new Set(publishedPlayers(coverageFeed, snapshot?.season ?? null).map((player) => player.id));
   const result = lead.result;
   const analysis = lead.analysisStatus === "ready" ? lead.analysis : null;
   const gamePhoto = result ? gameEditorialPhoto(result.id) : null;
@@ -87,14 +95,14 @@ export default async function BackPage() {
           <div className={styles.playHeading}><span className={styles.kicker}>After the whistle</span><h2 className="hed">{lost ? "The play that hurt." : tied ? "The afternoon, on tape." : "The play that mattered."}</h2></div>
           <div className={styles.playCopy}>
             {analysis?.keyPlay.desc ? <><p className={styles.playClock}>{clockLabel(analysis.keyPlay.qtr, analysis.keyPlay.secondsLeft)} · {lost ? "Biggest second-half setback" : "Biggest second-half boost"}</p><p className={styles.playDescription}>{playStory}</p></> : <><p className={styles.playClock}>{pendingTitle}</p><p>The score is confirmed.{tied ? " Ties don’t enter the Heartbreak or Miracle rankings." : lead.analysisStatus === "suspect" ? " The play-by-play needs a score integrity review before we can tell the rest of the story." : " Usable play-by-play hasn’t arrived in this edition yet."}</p></>}
-            <Link href={analysis ? gameHref(analysis.id, lost ? "heartbreak" : "miracle") : "/morgue"} className={styles.underlined}>{analysis ? "Watch the whole game turn" : "Visit The Morgue"} <span aria-hidden="true">↗</span></Link>
+            <Link href={analysis ? caseHref(analysis.id, lost ? "heartbreak" : "miracle") : "/morgue"} className={styles.underlined}>{analysis ? "See how the game turned" : "Visit The Morgue"} <span aria-hidden="true">↗</span></Link>
           </div>
         </div> : null}
         {analysis ? <details className={styles.tape}><summary className="disclosure"><span className={styles.summaryCopy}><span className="when-closed">Show me every swing</span><span className="when-open">Hide the game tape</span><small>Win probability &amp; game numbers</small></span></summary><div className={styles.tapeBody}>
           {curve.length >= 2 ? <figure><figcaption><strong>Where it turned.</strong><span>Jets pre-play win probability · play sequence</span></figcaption><PressChart points={curve} board={lost ? "heartbreak" : "miracle"} /></figure> : <p>Game curve unavailable in this edition.</p>}
           <div className={styles.tapeNotes}><p><b>{pct(analysis.swing)}</b>{lost ? "Peak" : "Lowest"} second-half chance to win</p>{analysis.keyPlay.wpa != null ? <p><b>{analysis.keyPlay.wpa >= 0 ? "+" : ""}{(analysis.keyPlay.wpa * 100).toFixed(1)} pp</b>Change on the featured play</p> : null}{gameStats ? <p><b>{epaLabel(gameStats.offense.epaPerPlay)}</b>Game offense EPA / play</p> : null}</div>
           {sourcePlay ? <p className={styles.sourcePlay}><b>Source play:</b> {sourcePlay}</p> : null}
-          <small>Model estimates from play-by-play, not a measure of how much it hurt.{snapshot?.analysisUpdatedAt ? ` Analysis updated ${formatCheckedAt(snapshot.analysisUpdatedAt)}.` : ""}</small>
+          <AnalysisStatus check={snapshot?.analysisCheck} /><small>Model estimates from play-by-play, not a measure of how much it hurt.{snapshot?.analysisUpdatedAt ? ` Analysis updated ${formatCheckedAt(snapshot.analysisUpdatedAt)}.` : ""}</small>
         </div></details> : null}
       </article>
       {snapshot ? <section id="season" className={styles.season} aria-labelledby="season-heading">
@@ -102,7 +110,7 @@ export default async function BackPage() {
         <div className={styles.sundays}>
           <div className={styles.recent}><h3>Last time we put the jersey on</h3>{summary.recent.length ? <ol>{summary.recent.slice(0, 3).map((game) => {
             const analyzed = games.find((item) => item.id === game.id && !item.dataSuspect && item.swing != null && item.date === game.date && item.outcome === game.outcome && item.jetsScore === game.jetsScore && item.oppScore === game.oppScore);
-            return <li key={game.id}><span className={`${styles.resultLetter} ${game.outcome === "win" ? styles.win : ""}`}>{game.outcome === "win" ? "W" : game.outcome === "loss" ? "L" : "T"}</span><small>Week {game.week}</small><strong>NYJ {game.jetsScore} <span>—</span> {game.opponentDisplay} {game.oppScore}</strong>{analyzed ? <Link href={gameHref(game.id, game.outcome === "win" ? "miracle" : "heartbreak")} aria-label={`Explore Week ${game.week} against ${game.opponentDisplay}`}>↗</Link> : <small>{game.outcome === "tie" ? "Tie" : "Analysis pending"}</small>}</li>;
+            return <li key={game.id}><span className={`${styles.resultLetter} ${game.outcome === "win" ? styles.win : ""}`}>{game.outcome === "win" ? "W" : game.outcome === "loss" ? "L" : "T"}</span><small>Week {game.week}</small><strong>NYJ {game.jetsScore} <span>—</span> {game.opponentDisplay} {game.oppScore}</strong>{analyzed ? <Link href={caseHref(game.id, game.outcome === "win" ? "miracle" : "heartbreak")} aria-label={`Explore Week ${game.week} against ${game.opponentDisplay}`}>↗</Link> : <small>{game.outcome === "tie" ? "Tie" : "Analysis pending"}</small>}</li>;
           })}</ol> : <p>No regular-season final in this edition.</p>}</div>
           <div className={styles.nextSunday}><span className={styles.ticketMark} aria-hidden="true">Same seat. Same hope.</span><span className={styles.kicker}>And yes, we’re watching again</span>{next ? <><h3 className="hed">Jets {next.game.atHome ? "vs" : "at"} {next.game.opponentDisplay}</h3><p>Week {next.game.week} · <time dateTime={next.game.date}>{formatDate(next.game.date)}</time></p><p className={styles.kickoff}>{next.game.kickoff ? formatCheckedAt(next.game.kickoff) : "Kickoff time to be confirmed"}</p>{next.overdue ? <p>Kickoff has passed as of the results check; a final is not confirmed.</p> : null}</> : <><h3 className="hed">Waiting on the next fixture.</h3><p>No remaining fixture listed in this edition.</p></>}</div>
         </div>
@@ -112,13 +120,13 @@ export default async function BackPage() {
       </section> : null}
       <section className={styles.morgue} aria-labelledby="morgue-heading">
         <div className={styles.morgueHeading}><div><p className={styles.kicker}>The Morgue · visiting hours are always open</p><h2 id="morgue-heading" className="hed">You remember these.<br /><span>Unfortunately.</span></h2><p>The losses we still talk about. The wins that briefly cured us.</p></div><Link href="/morgue" className={styles.morgueDoor}>Enter <br />The Morgue <span aria-hidden="true">↗</span></Link></div>
-        <div className={styles.obituaries}>{stories.map(({ game, board, title, label, closer }) => <Link key={game.id} className={`${styles.obituary} ${board === "miracle" ? styles.signOfLife : ""}`} href={gameHref(game.id, board)}>
+        <div className={styles.obituaries}>{stories.map(({ game, board, title, label, closer }) => <Link key={game.id} className={`${styles.obituary} ${board === "miracle" ? styles.signOfLife : ""}`} href={caseHref(game.id, board)}>
           <p className={styles.obitLabel}>{label}</p><h3 className="hed">{title}</h3><p className={styles.obitScore}>NYJ {game.jetsScore} <span>—</span> {game.opponentDisplay} {game.oppScore}{game.wentToOt ? " / OT" : ""}</p><small>{formatDate(game.date)} · Week {game.week}</small><p className={styles.obitFoot}><span>{closer}</span><span aria-hidden="true">↗</span></p>
         </Link>)}</div>
       </section>
       <FanStand games={games} snapshot={snapshot} />
       <div className={styles.touchline}>
-        {spotlight ? <section className={styles.player} aria-labelledby="player-heading"><span className={styles.kicker}>Someone to shout for</span>{spotlightPhoto ? <EditorialPhoto photo={spotlightPhoto} sizes="(max-width: 640px) calc(100vw - 32px), 300px" className={styles.spotlightPhoto} /> : <p className={styles.jerseyNumber}>{spotlightRoster?.jersey ? `No. ${spotlightRoster.jersey}` : spotlight.position}</p>}<h2 id="player-heading" className="hed">{spotlight.name}</h2><p>{spotlight.receiving.receptions} catches. {spotlight.receiving.yards.toLocaleString("en-US")} yards. {spotlight.receiving.touchdowns} receiving TD.</p><small>{coverageFeed!.stats.season} receiving leader by yards · {spotlight.games} recorded games{coverageFeed!.stats.throughWeek != null ? ` · through Week ${coverageFeed!.stats.throughWeek}` : ""}</small><Link className={styles.underlined} href={spotlightRoster ? playerHref(spotlight.id) : "/team#season-leaders"}>Meet the man in the jersey <span aria-hidden="true">↗</span></Link><FeedStatus feed={coverageFeed!.stats} label="Player statistics" /></section> : null}
+        {spotlight ? <section className={styles.player} aria-labelledby="player-heading"><span className={styles.kicker}>Someone to shout for</span>{spotlightPhoto ? <EditorialPhoto photo={spotlightPhoto} sizes="(max-width: 640px) calc(100vw - 32px), 300px" className={styles.spotlightPhoto} /> : <p className={styles.jerseyNumber}>{spotlightRoster?.jersey ? `No. ${spotlightRoster.jersey}` : spotlight.position}</p>}<h2 id="player-heading" className="hed">{spotlight.name}</h2><p>{spotlight.receiving.receptions} catches. {spotlight.receiving.yards.toLocaleString("en-US")} yards. {spotlight.receiving.touchdowns} receiving TD.</p><small>{coverageFeed!.stats.season} receiving leader by yards · {spotlight.games} recorded games{coverageFeed!.stats.throughWeek != null ? ` · through Week ${coverageFeed!.stats.throughWeek}` : ""}</small><Link className={styles.underlined} href={profileIds.has(spotlight.id) ? `/players/${encodeURIComponent(spotlight.id)}` : spotlightRoster ? playerHref(spotlight.id) : "/team#season-leaders"}>Meet the man in the jersey <span aria-hidden="true">↗</span></Link><FeedStatus feed={coverageFeed!.stats} label="Player statistics" /></section> : null}
         {coverageFeed ? <NewsDesk feed={coverageFeed.news} limit={3} compact /> : null}
       </div>
       {snapshot ? <details className={styles.filmRoom}><summary className="disclosure"><span><span className="when-closed">Open the film room</span><span className="when-open">Close the film room</span><small>Data analysis · Unit matchups, league context &amp; the season in margins</small></span></summary><div>{next ? <Matchup game={next.game} overdue={next.overdue} analytics={analytics} /> : null}{analytics ? <LeagueContext analytics={analytics} opponent={next?.game.opponent ?? ""} /> : null}<SeasonTrend games={summary.finals} analysisIds={games.filter((game) => !game.dataSuspect && game.swing != null && game.outcome !== "tie").map((game) => game.id)} /></div></details> : null}

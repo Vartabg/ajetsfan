@@ -24,6 +24,7 @@ jobs:
     timeout-minutes: 20
     env:
       VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -77,3 +78,11 @@ jobs:
           else
             echo 'Deploy hook requested; check Vercel for deployment completion.' >> "$GITHUB_STEP_SUMMARY"
           fi
+      - name: Verify the exact published edition
+        if: steps.snapshot.outputs.changed == 'true'
+        run: |
+          if [ -z "$PUBLIC_SITE_URL" ]; then
+            echo 'Deployment unverified: PUBLIC_SITE_URL is not configured. A validated commit or deploy-hook request does not confirm that readers received this edition.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node scripts/verify-published-data.mjs --origin "$PUBLIC_SITE_URL"

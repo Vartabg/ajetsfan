@@ -21,6 +21,12 @@ export type CurrentSnapshot = {
   season: number;
   checkedAt: string;
   analysisUpdatedAt: string | null;
+  analysisCheck?: {
+    attemptedAt: string;
+    checkedAt: string | null;
+    status: "ready" | "retained" | "unavailable";
+    reason: "not-published" | "source-unavailable" | null;
+  };
   latestAnalyzedGameId: string | null;
   sources: { schedule: string; pbp: string };
   schedule: ScheduledGame[];

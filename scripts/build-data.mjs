@@ -17,10 +17,36 @@ import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { TEAM, SCHEDULE_SOURCE, pbpSource, parseLeagueSchedule, jetsSchedule, inferSeason, mergeAnalysis, currentManifest, readSnapshot, publishSnapshot, withDataLock, fetchText } from './data-refresh.mjs';
-import { extractAnalytics, retainAnalytics } from './season-analytics.mjs';
+import { extractAnalytics, retainAnalytics, validateAnalytics } from './season-analytics.mjs';
 import { refreshCoverage } from './coverage.mjs';
 
 const FIRST_SEASON = 1999;
+
+/** Extractors may explicitly report temporary unavailability; corrupt data must throw normally. */
+export class PbpAvailabilityError extends Error {
+  constructor(message, options) {
+    super(message, options);
+    this.name = 'PbpAvailabilityError';
+  }
+}
+
+const extractionUnavailable = (error) => error instanceof PbpAvailabilityError ||
+  ['ENOMEM', 'EMFILE', 'ENFILE', 'EAGAIN'].includes(error?.code) ||
+  /^Out of Memory Error:/.test(error?.message ?? '');
+
+async function downloadPbp(source, fetcher) {
+  let response;
+  try { response = await fetcher(source, { signal: AbortSignal.timeout(60_000) }); }
+  catch (cause) { throw new PbpAvailabilityError(`PBP request unavailable: ${source}`, { cause }); }
+  if (response.status === 404) return null;
+  if ([408, 425, 429].includes(response.status) || response.status >= 500) {
+    throw new PbpAvailabilityError(`PBP HTTP ${response.status}: ${source}`);
+  }
+  // Authentication/configuration errors and unexpected responses still fail the run.
+  if (!response.ok) throw new Error(`PBP HTTP ${response.status}: ${source}`);
+  try { return Buffer.from(await response.arrayBuffer()); }
+  catch (cause) { throw new PbpAvailabilityError(`PBP download interrupted: ${source}`, { cause }); }
+}
 
 // Administrative rows -- END QUARTER, timeouts, two-minute warnings -- carry
 // meaningless win probability. In the 2000 Oakland game an "END QUARTER 3" row
@@ -188,7 +214,7 @@ export async function extractSeason(db, season, src) {
 /** Refresh from official schedule/results first; analysis can legitimately arrive later. */
 export async function refreshData({
   out = path.join(process.cwd(), 'public', 'data'), now = new Date(), full = false,
-  fetcher = fetch, extract = null,
+  fetcher = fetch, extract = null, onAnalysisError = console.warn,
 } = {}) {
   return withDataLock(out, async () => {
     const previous = await readSnapshot(out);
@@ -208,6 +234,7 @@ export async function refreshData({
       : [...new Set(schedule.filter((g) => g.season >= lastArchivedSeason && g.season <= season).map((g) => g.season))]
         .filter((target) => target === season || needsBackfill(target)).sort((a, b) => a - b);
     const analyses = [];
+    let analysisCheck = null;
     let instance, db, temp;
     try {
       for (const target of seasons) {
@@ -215,29 +242,53 @@ export async function refreshData({
         const hasFinals = (target === season ? leagueSchedule : schedule).some((g) => g.season === target && g.status === 'final');
         if (!hasFinals) continue;
         let analysis;
-        if (extract) analysis = await extract(target);
-        else {
-          const source = pbpSource(target);
-          const response = await fetcher(source, { signal: AbortSignal.timeout(60_000) });
-          if (response.status === 404) analysis = null;
+        let unavailable = null;
+        try {
+          if (extract) analysis = await extract(target);
           else {
-            if (!response.ok) throw new Error(`PBP HTTP ${response.status}: ${source}`);
-            if (!db) {
-              const { DuckDBInstance } = await import('@duckdb/node-api');
-              instance = await DuckDBInstance.create(':memory:');
-              db = await instance.connect();
-              temp = await mkdtemp(path.join(os.tmpdir(), 'ajetsfan-pbp-'));
+            const body = await downloadPbp(pbpSource(target), fetcher);
+            if (body === null) analysis = null;
+            else {
+              if (!db) {
+                const { DuckDBInstance } = await import('@duckdb/node-api');
+                instance = await DuckDBInstance.create(':memory:');
+                db = await instance.connect();
+                temp = await mkdtemp(path.join(os.tmpdir(), 'ajetsfan-pbp-'));
+              }
+              const file = path.join(temp, `${target}.parquet`);
+              await writeFile(file, body);
+              analysis = await extractSeason(db, target, file);
+              if (target === season) analysis.analytics = await extractAnalytics(db, season, file, leagueSchedule, now, {
+                schedule: SCHEDULE_SOURCE, pbp: pbpSource(season), methodology: 'https://nflfastr.com/reference/fast_scraper.html',
+              });
+              await rm(file);
             }
-            const file = path.join(temp, `${target}.parquet`);
-            await writeFile(file, Buffer.from(await response.arrayBuffer()));
-            analysis = await extractSeason(db, target, file);
-            if (target === season) analysis.analytics = await extractAnalytics(db, season, file, leagueSchedule, now, {
-              schedule: SCHEDULE_SOURCE, pbp: pbpSource(season), methodology: 'https://nflfastr.com/reference/fast_scraper.html',
-            });
-            await rm(file);
+          }
+        } catch (error) {
+          // A historical backfill must be complete. Never turn malformed Parquet,
+          // schema errors, or analysis validation failures into an availability warning.
+          if (target !== season || !extractionUnavailable(error)) throw error;
+          onAnalysisError(`${target} analysis retained/unavailable: ${error.message}`);
+          unavailable = 'source-unavailable';
+          analysis = null;
+        }
+        if (analysis !== null) {
+          if (!analysis || !Array.isArray(analysis.games) || !(analysis.curves instanceof Map) || !(analysis.completeGameIds instanceof Set)) {
+            throw new Error('Invalid PBP extraction result');
+          }
+          if (analysis.analytics != null) {
+            if (analysis.analytics.season !== target) throw new Error('Invalid analytics extraction season');
+            validateAnalytics(analysis.analytics, leagueSchedule);
           }
         }
-        if (!analysis && target !== season) throw new Error(`Historical PBP unavailable: ${target}`);
+        if (analysis === null && target !== season) throw new Error(`Historical PBP unavailable: ${target}`);
+        if (target === season) analysisCheck = {
+          attemptedAt: now.toISOString(),
+          checkedAt: analysis ? now.toISOString() : previous.current?.season === season
+            ? previous.current.analysisCheck?.checkedAt ?? null : null,
+          status: analysis ? 'ready' : 'unavailable',
+          reason: analysis ? null : unavailable ?? 'not-published',
+        };
         if (analysis) analyses.push(analysis);
       }
       const result = mergeAnalysis(previous.games, analyses, schedule, { full });
@@ -251,7 +302,23 @@ export async function refreshData({
         }
       }
       const current = currentManifest({ season, schedule, games: result.games, now, previous: previous.current, analysisChanged });
-      const analytics = retainAnalytics(analyses.find((analysis) => analysis.analytics?.season === season)?.analytics ?? null, previous.analytics, now);
+      let analytics = retainAnalytics(analyses.find((analysis) => analysis.analytics?.season === season)?.analytics ?? null, previous.analytics, now);
+      if (analytics?.season === season && analysisCheck && analysisCheck.status !== 'ready') {
+        // Coverage can advance independently of the retained rates and their cutoff.
+        // Do not imply that a newly confirmed league final already has usable PBP.
+        const analyzed = new Set(analytics.analyzedGameIds);
+        const pendingGameIds = leagueSchedule.filter((game) => game.season === season && game.seasonType === 'REG' &&
+          game.status === 'final' && game.date <= now.toISOString().slice(0, 10) && !analyzed.has(game.id)).map((game) => game.id);
+        if (JSON.stringify(pendingGameIds) !== JSON.stringify(analytics.pendingGameIds)) {
+          analytics = { ...analytics, pendingGameIds };
+          validateAnalytics(analytics);
+        }
+      }
+      if (analysisCheck) {
+        if (analysisCheck.status === 'unavailable' && (current.latestAnalyzedGameId ||
+          analytics?.season === season && analytics.analyzedGameIds.length)) analysisCheck.status = 'retained';
+        current.analysisCheck = analysisCheck;
+      }
       const coverage = await refreshCoverage({ season, schedule: current.schedule, now, previous: previous.coverage, fetcher });
       await publishSnapshot(out, { ...result, current, analytics, coverage });
       const finals = current.schedule.filter((g) => g.status === 'final').length;

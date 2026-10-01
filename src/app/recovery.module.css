@@ -1,0 +1,7 @@
+.main { width: var(--shell); margin: 4rem auto 6rem; padding-block: 3rem; border-block: 1px solid var(--rule); }
+.kicker { color: var(--stamp); text-transform: uppercase; letter-spacing: .1em; font-size: .75rem; font-weight: 800; }
+.main h1 { font: 400 clamp(3rem, 7vw, 6rem)/1.04 var(--font-hed), Impact, sans-serif; max-width: 12ch; }
+.main > p:not(.kicker) { max-width: 48ch; color: var(--ink-2); }
+.actions { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: center; margin-top: 2rem; }
+.actions button { min-height: 44px; padding: .8rem 1.2rem; background: var(--spot); color: var(--paper); border: 0; font: inherit; font-weight: 800; cursor: pointer; }
+.actions a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 800; text-underline-offset: 4px; }

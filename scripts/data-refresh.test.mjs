@@ -4,9 +4,10 @@ import { mkdtemp, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promise
 import os from 'node:os';
 import path from 'node:path';
 import { parseCsv, parseSchedule, easternKickoff, inferSeason, mergeAnalysis, currentManifest, publishSnapshot, recoverPublication, withDataLock } from './data-refresh.mjs';
-import { refreshData, extractSeason } from './build-data.mjs';
+import { refreshData, extractSeason, PbpAvailabilityError } from './build-data.mjs';
 import { buildAnalytics } from './season-analytics.mjs';
 import { parseLeagueSchedule } from './data-refresh.mjs';
+import { NEWS_SOURCE, rosterSource, playerStatsSource } from './coverage.mjs';
 
 const HEADER = 'game_id,season,game_type,week,gameday,gametime,away_team,away_score,home_team,home_score';
 const csv = (...rows) => [HEADER, ...rows].join('\n');
@@ -38,6 +39,17 @@ async function sandbox(t) {
   return out;
 }
 const fetchSchedule = (value = csv(HISTORICAL, CURRENT, NEXT)) => async () => new Response(value);
+const coverageFixtures = new Map([
+  [NEWS_SOURCE, '<rss><channel><item><title>Fresh team report</title><link>https://www.newyorkjets.com/news/fresh-report</link><guid>fresh-report</guid><pubDate>Tue, 15 Sep 2026 10:00:00 GMT</pubDate></item></channel></rss>'],
+  [rosterSource(2026), 'season,team,game_type,week,gsis_id,espn_id,full_name,position,jersey_number,status,headshot_url,height,weight,college,years_exp\n2026,NYJ,REG,1,00-0099999,,Fixture Player,RB,20,ACT,,72,210,,1'],
+  [playerStatsSource(2026), 'player_id,player_display_name,position,headshot_url,season,week,season_type,game_id,team,opponent_team,completions,attempts,passing_yards,passing_tds,passing_interceptions,carries,rushing_yards,rushing_tds,targets,receptions,receiving_yards,receiving_tds\n00-0099999,Fixture Player,RB,,2026,1,REG,2026_01_BUF_NYJ,NYJ,BUF,0,0,0,0,0,1,3,0,0,0,0,0'],
+]);
+const fetchWithCoverage = (pbp, schedule = csv(HISTORICAL, CURRENT, NEXT)) => async (url) => {
+  if (url.endsWith('.parquet')) return pbp(url);
+  if (coverageFixtures.has(url)) return new Response(coverageFixtures.get(url));
+  if (url.endsWith('/games.csv')) return new Response(schedule);
+  throw new Error(`Unexpected fixture request: ${url}`);
+};
 
 test('CSV parser handles quoted commas, embedded newline, escaped quotes and CRLF', () => {
   assert.deepEqual(parseCsv('a,b\r\n"one, two","say ""yes""\nnow"\r\n'), [{ a: 'one, two', b: 'say "yes"\nnow' }]);
@@ -153,6 +165,7 @@ test('missing PBP publishes confirmed schedule with analysis pending and retains
   assert.equal(value.schedule[0].status, 'final');
   assert.equal(value.latestAnalyzedGameId, null);
   assert.equal(value.analysisUpdatedAt, '2026-01-05T12:00:00Z');
+  assert.deepEqual(value.analysisCheck, { attemptedAt: now.toISOString(), checkedAt: null, status: 'unavailable', reason: 'not-published' });
   assert.equal(await readFile(path.join(out, 'games.json'), 'utf8'), before);
 });
 
@@ -171,15 +184,29 @@ test('the refresher retains published analytics byte-for-byte across missing and
   const later = new Date('2026-09-16T12:00:00Z');
   await refreshData({ out, now: later, fetcher: async (url) => url.endsWith('.parquet') ? new Response('', { status: 404 }) : new Response(csv(HISTORICAL, CURRENT, NEXT)) });
   assert.equal(await readFile(path.join(out, 'analytics.json'), 'utf8'), before);
-  await assert.rejects(refreshData({ out, now: later, fetcher: async (url) => url.endsWith('.parquet') ? new Response('', { status: 503 }) : new Response(csv(HISTORICAL, CURRENT, NEXT)) }), /HTTP 503/);
+  const value = await refreshData({ out, now: later, fetcher: async (url) => url.endsWith('.parquet') ? new Response('', { status: 503 }) : new Response(csv(HISTORICAL, CURRENT, NEXT)), onAnalysisError: () => {} });
   assert.equal(await readFile(path.join(out, 'analytics.json'), 'utf8'), before);
+  assert.equal(value.checkedAt, later.toISOString());
+  assert.deepEqual(value.analysisCheck, { attemptedAt: later.toISOString(), checkedAt: now.toISOString(), status: 'retained', reason: 'source-unavailable' });
+  const nextFinal = csv(HISTORICAL, CURRENT, NEXT.replace(',NYJ,,MIA,', ',NYJ,7,MIA,21'));
+  const afterGame = new Date('2026-09-21T12:00:00Z');
+  await refreshData({ out, now: afterGame, fetcher: fetchWithCoverage(() => new Response('', { status: 503 }), nextFinal), onAnalysisError: () => {} });
+  const retained = JSON.parse(await readFile(path.join(out, 'analytics.json'), 'utf8'));
+  assert.deepEqual(retained, { ...JSON.parse(before), pendingGameIds: ['2026_02_NYJ_MIA'] });
+  // A malformed regressed candidate must fail validation before retention can mask it.
+  const currentBeforeInvalid = await readFile(path.join(out, 'current.json'), 'utf8');
+  await assert.rejects(refreshData({ out, now: afterGame, fetcher: fetchWithCoverage(), extract: async () => ({
+    ...analysis(), analytics: { ...analytics, analyzedGameIds: [] },
+  }) }), /analytics/i);
+  assert.equal(await readFile(path.join(out, 'current.json'), 'utf8'), currentBeforeInvalid);
+  assert.deepEqual(JSON.parse(await readFile(path.join(out, 'analytics.json'), 'utf8')), retained);
 });
 
-test('upstream failures retain all prior bytes and do not falsely advance checkedAt', async (t) => {
+test('schedule failures and rejected PBP data retain all prior bytes without advancing checkedAt', async (t) => {
   const out = await sandbox(t);
   const before = await readFile(path.join(out, 'current.json'), 'utf8');
   await assert.rejects(refreshData({ out, now, fetcher: async () => { throw new Error('offline'); } }), /offline/);
-  await assert.rejects(refreshData({ out, now, fetcher: async (url) => url.endsWith('.parquet') ? new Response('', { status: 503 }) : new Response(csv(HISTORICAL, CURRENT)) }), /HTTP 503/);
+  await assert.rejects(refreshData({ out, now, fetcher: async (url) => url.endsWith('.parquet') ? new Response('', { status: 403 }) : new Response(csv(HISTORICAL, CURRENT)) }), /HTTP 403/);
   await assert.rejects(refreshData({ out, now, fetcher: fetchSchedule(), extract: async () => analysis({ ...game(NEW_ID), jetsScore: 99 }) }), /final mismatch/);
   assert.equal(await readFile(path.join(out, 'current.json'), 'utf8'), before);
 });
@@ -191,6 +218,97 @@ test('unchanged analysis does not claim it was updated on a later check', async 
   const value = await refreshData({ out, now: tomorrow, fetcher: fetchSchedule(), extract: async () => analysis() });
   assert.equal(value.checkedAt, tomorrow.toISOString());
   assert.equal(value.analysisUpdatedAt, now.toISOString());
+  assert.deepEqual(value.analysisCheck, { attemptedAt: tomorrow.toISOString(), checkedAt: tomorrow.toISOString(), status: 'ready', reason: null });
+});
+
+test('a PBP 503 retains good analysis while new finals and all valid coverage feeds publish', async (t) => {
+  const out = await sandbox(t);
+  await refreshData({ out, now, fetcher: fetchWithCoverage(), extract: async () => analysis() });
+  const before = await readFile(path.join(out, 'games.json'), 'utf8');
+  const beforeCurve = await readFile(path.join(out, 'curves', `${NEW_ID}.json`), 'utf8');
+  const later = new Date('2026-09-21T12:00:00Z');
+  const schedule = csv(HISTORICAL, CURRENT, NEXT.replace(',NYJ,,MIA,', ',NYJ,7,MIA,21'));
+  const warnings = [];
+  const value = await refreshData({ out, now: later, fetcher: fetchWithCoverage(() => new Response('', { status: 503 }), schedule), onAnalysisError: (message) => warnings.push(message) });
+  assert.equal(value.schedule.at(-1).status, 'final');
+  assert.equal(value.schedule.at(-1).jetsScore, 7);
+  assert.equal(value.latestAnalyzedGameId, NEW_ID);
+  assert.equal(value.checkedAt, later.toISOString());
+  assert.equal(value.analysisUpdatedAt, now.toISOString());
+  assert.deepEqual(value.analysisCheck, { attemptedAt: later.toISOString(), checkedAt: now.toISOString(), status: 'retained', reason: 'source-unavailable' });
+  assert.match(warnings[0], /HTTP 503/);
+  assert.equal(await readFile(path.join(out, 'games.json'), 'utf8'), before);
+  assert.equal(await readFile(path.join(out, 'curves', `${NEW_ID}.json`), 'utf8'), beforeCurve);
+  const coverage = JSON.parse(await readFile(path.join(out, 'coverage.json'), 'utf8'));
+  for (const feed of [coverage.news, coverage.roster, coverage.stats]) {
+    assert.equal(feed.status, 'ready');
+    assert.equal(feed.checkedAt, later.toISOString());
+  }
+  assert.equal(coverage.news.items[0].title, 'Fresh team report');
+  assert.equal(coverage.roster.players[0].id, '00-0099999');
+  assert.equal(coverage.stats.players[0].rushing.yards, 3);
+  assert.deepEqual(coverage.stats.pendingGameIds, ['2026_02_NYJ_MIA']);
+});
+
+for (const [name, pbp] of [
+  ['network rejection', async () => { throw new TypeError('fetch failed'); }],
+  ['rate limiting', async () => new Response('', { status: 429 })],
+  ['interrupted download', async () => ({ status: 200, ok: true, arrayBuffer: async () => { throw new Error('connection reset'); } })],
+]) {
+  test(`current PBP ${name} publishes independent feeds without claiming available analysis`, async (t) => {
+    const out = await sandbox(t);
+    const before = await readFile(path.join(out, 'games.json'), 'utf8');
+    const value = await refreshData({ out, now, fetcher: fetchWithCoverage(pbp), onAnalysisError: () => {} });
+    assert.equal(value.checkedAt, now.toISOString());
+    assert.equal(value.analysisUpdatedAt, '2026-01-05T12:00:00Z');
+    assert.equal(value.latestAnalyzedGameId, null);
+    assert.deepEqual(value.analysisCheck, { attemptedAt: now.toISOString(), checkedAt: null, status: 'unavailable', reason: 'source-unavailable' });
+    assert.equal(await readFile(path.join(out, 'games.json'), 'utf8'), before);
+    const coverage = JSON.parse(await readFile(path.join(out, 'coverage.json'), 'utf8'));
+    assert.equal(coverage.news.checkedAt, now.toISOString());
+    assert.equal(coverage.stats.status, 'ready');
+  });
+}
+
+for (const error of [new PbpAvailabilityError('PBP extractor temporarily unavailable'), new Error('Out of Memory Error: failed to allocate')]) {
+  test(`current extraction availability is isolated: ${error.message}`, async (t) => {
+    const out = await sandbox(t);
+    const value = await refreshData({ out, now, fetcher: fetchWithCoverage(), extract: async () => { throw error; }, onAnalysisError: () => {} });
+    assert.equal(value.analysisCheck.reason, 'source-unavailable');
+    assert.equal(value.analysisCheck.checkedAt, null);
+    assert.equal(JSON.parse(await readFile(path.join(out, 'coverage.json'), 'utf8')).news.status, 'ready');
+  });
+}
+
+test('malformed returned analysis and ordinary extraction errors remain fatal and atomic', async (t) => {
+  const out = await sandbox(t);
+  const before = await readFile(path.join(out, 'current.json'), 'utf8');
+  for (const extract of [
+    async () => undefined,
+    async () => { throw new Error('PBP schema mismatch'); },
+    async () => analysis(game(NEW_ID), [{ ...curve[0], wp: 2 }, curve[1]]),
+    async () => ({ ...analysis(), analytics: { season: 2026, schemaVersion: 99 } }),
+  ]) {
+    await assert.rejects(refreshData({ out, now, fetcher: fetchWithCoverage(), extract }), /Invalid|schema mismatch/);
+    assert.equal(await readFile(path.join(out, 'current.json'), 'utf8'), before);
+    await assert.rejects(readFile(path.join(out, 'coverage.json')), { code: 'ENOENT' });
+  }
+});
+
+test('successfully downloaded corrupt Parquet is fatal rather than an availability fallback', async (t) => {
+  const out = await sandbox(t);
+  const before = await readFile(path.join(out, 'current.json'), 'utf8');
+  await assert.rejects(refreshData({ out, now, fetcher: fetchWithCoverage(() => new Response('not a Parquet file')) }), /Parquet|parquet|magic bytes/);
+  assert.equal(await readFile(path.join(out, 'current.json'), 'utf8'), before);
+});
+
+test('full rebuild historical outages fail before replacing any prior snapshot', async (t) => {
+  const out = await sandbox(t);
+  const before = await readFile(path.join(out, 'current.json'), 'utf8');
+  await assert.rejects(refreshData({ out, now, full: true, fetcher: fetchWithCoverage(() => new Response('', { status: 503 })) }), /HTTP 503/);
+  await assert.rejects(refreshData({ out, now, full: true, fetcher: fetchWithCoverage(), extract: async () => { throw new PbpAvailabilityError('historical extractor unavailable'); } }), /historical extractor unavailable/);
+  assert.equal(await readFile(path.join(out, 'current.json'), 'utf8'), before);
+  assert.deepEqual(JSON.parse(await readFile(path.join(out, 'games.json'), 'utf8')).map((g) => g.id), [OLD_ID]);
 });
 
 test('a failed directory promotion rolls back the old complete snapshot', async (t) => {

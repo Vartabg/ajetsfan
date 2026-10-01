@@ -9,7 +9,7 @@ import { archiveBoard, archiveFilters, filterArchive, gameHref } from "@/lib/exp
 import SwingCurve from "./SwingCurve";
 import styles from "./Boards.module.css";
 
-export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; miracle: Game[] }) {
+export default function Boards({ heartbreak, miracle, caseIds = [] }: { heartbreak: Game[]; miracle: Game[]; caseIds?: string[] }) {
   const params = useSearchParams();
   const [visibleCount, setVisibleCount] = useState(24);
   const [sharing, setSharing] = useState<{ query: string; message: string } | null>(null);
@@ -150,7 +150,7 @@ export default function Boards({ heartbreak, miracle }: { heartbreak: Game[]; mi
       {missingSelection ? <p className={styles.selectionNote}>The linked game is unavailable in this selection. {selected ? "Showing the first matching game." : "Reset filters to explore the archive."}</p> : null}
       {selected ? <div className={styles.detail}>
         <SwingCurve game={selected} board={board} headingRef={caseHeading} />
-        <div className={styles.share}><a href={gameHref(selected.id, board)}>Game permalink <span aria-hidden="true">↗</span></a><button type="button" aria-label={copyState === "Game link copied." ? "Game link copied" : "Copy game link"} className={copyState === "Game link copied." ? styles.copied : ""} onClick={copyLink}>{copyState === "Game link copied." ? "Copied" : "Copy game link"}</button><button type="button" className={styles.backToResults} onClick={backToResults} aria-controls="archive-results">Back to results <span aria-hidden="true">↓</span></button><span role="status" aria-label="Game link sharing">{copyState}</span></div>
+        <div className={styles.share}>{caseIds.includes(selected.id) ? <a href={`/games/${encodeURIComponent(selected.id)}`}>Read the game case <span aria-hidden="true">↗</span></a> : null}<a href={gameHref(selected.id, board)}>Game permalink <span aria-hidden="true">↗</span></a><button type="button" aria-label={copyState === "Game link copied." ? "Game link copied" : "Copy game link"} className={copyState === "Game link copied." ? styles.copied : ""} onClick={copyLink}>{copyState === "Game link copied." ? "Copied" : "Copy game link"}</button><button type="button" className={styles.backToResults} onClick={backToResults} aria-controls="archive-results">Back to results <span aria-hidden="true">↓</span></button><span role="status" aria-label="Game link sharing">{copyState}</span></div>
       </div> : null}
 
       <div className={styles.archiveHead}><h2 ref={archiveHeading}>{board === "heartbreak" ? "Find your particular pain." : "Find a reason to believe."}</h2><p>Pick a game. We kept the tape.</p></div>
