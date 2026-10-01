@@ -46,6 +46,14 @@ export default async function HowMade() {
         <Link href="/team">Explore the news desk and roster →</Link>
       </section>
 
+      <section id="rivalries" data-note="The fan stand">
+        <h2>The memories are picked by a fan</h2>
+        <p>The classic case files are editorial selections, separate from the probability rankings. Their dates and scores must match the checked archive before a game link appears. Each memory links to an official account, while “Fan reaction” marks this paper’s authored commentary. The Super Bowl III feature links to the Jets’ historical account; the play-by-play archive begins in 1999 and supplies no tape for the 1968 season.</p>
+        <p>The rivalry ledger covers regular-season results against today’s AFC East opponents: Buffalo, Miami and New England. It gives the included game count and season range, rather than claiming an all-time series record or complete historical division record. Playoffs are excluded. Current schedule-confirmed finals replace older analysis scores; unconfirmed fixtures do not count. An unreconciled archive score is omitted unless a confirmed current result supplies the score. Game-analysis links additionally require matching, eligible play-by-play.</p>
+        <p>The personal game-day ticket saves your score call, conviction and ritual in this browser when storage is available. It starts blank and has no public poll or community tally. Fixture changes require a new review; the form closes at kickoff, or at the start of the listed game date in America/Chicago when kickoff is unconfirmed. A saved call can be compared with a schedule-confirmed final, including a tie. Browser storage is editable, so this is a fan’s receipt rather than a verified prediction contest. “Copy saved ticket” copies text for you to share; it sends no message.</p>
+        <Link href="/#fan-stand">Visit the fan stand →</Link>
+      </section>
+
       <section id="efficiency" data-note="The scouting notes">
         <h2>Team efficiency, with the sample in view</h2>
         <p><strong>Expected points added (EPA)</strong> measures how a play changes the offense&apos;s expected scoring position. EPA per play is the sum divided by the number of included plays. Higher offensive EPA is better; lower defensive EPA allowed is better. <strong>Success rate</strong> is the share of those plays with EPA above zero.</p>

@@ -12,7 +12,7 @@ test("the front page follows the latest confirmed final and current season", asy
   await page.goto("/");
   const latest = completedGames(snapshot).filter((game) => game.season === snapshot.season).at(-1);
   if (latest) {
-    const article = page.locator("main article");
+    const article = page.locator("#latest-game");
     await expect(article).toContainText(`Latest final · Week ${latest.week}`);
     await expect(article).toContainText(`Jets ${latest.jetsScore}, ${latest.opponentDisplay} ${latest.oppScore}`);
     await expect(article.locator(`time[datetime="${latest.date}"]`)).toBeVisible();

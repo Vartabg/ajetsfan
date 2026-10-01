@@ -1,7 +1,10 @@
 import type { Game } from "./games";
+import { fanMemoryForGame } from "./fan-memories";
 
 /** Fan commentary, chosen from verified results rather than invented game events. */
 export function morgueEpitaph(game: Game): string {
+  const memory = fanMemoryForGame(game);
+  if (memory) return memory.epitaph;
   const margin = Math.abs(game.jetsScore - game.oppScore);
 
   if (game.outcome === "loss") {

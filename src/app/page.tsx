@@ -17,6 +17,8 @@ import LeagueContext from "@/components/LeagueContext";
 import { loadCoverage } from "@/lib/load-coverage";
 import NewsDesk from "@/components/NewsDesk";
 import SundayBriefing from "@/components/SundayBriefing";
+import GameDayTicket from "@/components/GameDayTicket";
+import FanStand from "@/components/FanStand";
 import styles from "./page.module.css";
 
 export default async function BackPage() {
@@ -59,7 +61,7 @@ export default async function BackPage() {
   return (
     <main id="main" className={styles.main}>
       {snapshot ? <DataFreshness checkedAt={snapshot.checkedAt} /> : null}
-      <nav className={styles.editionNav} aria-label="In this edition"><span>Go straight to</span>{next ? <Link href="#sunday-briefing">Sunday briefing <span aria-hidden="true">↓</span></Link> : null}{snapshot ? <Link href="#season" aria-label="Season and schedule">This season <span aria-hidden="true">↓</span></Link> : null}<Link href="/team#news">Jets news <span aria-hidden="true">↗</span></Link><Link href="/team#roster">The roster <span aria-hidden="true">↗</span></Link></nav>
+      <nav className={styles.editionNav} aria-label="In this edition"><span>Go straight to</span>{next ? <Link href="#sunday-briefing">Sunday briefing <span aria-hidden="true">↓</span></Link> : null}{snapshot ? <Link href="#season" aria-label="Season and schedule">This season <span aria-hidden="true">↓</span></Link> : null}<Link href="#fan-stand">For the lifers <span aria-hidden="true">↓</span></Link><Link href="/team#news">Jets news <span aria-hidden="true">↗</span></Link><Link href="/team#roster">The roster <span aria-hidden="true">↗</span></Link></nav>
       <article id="latest-game" className={styles.edition}>
         <div className={styles.cover}>
           <div className={styles.editionLine}><p>{lead.kind === "archive" ? "From the archive · no current-season final in this edition" : result ? `Latest final · Week ${result.week}${result.seasonType === "POST" ? " · playoffs" : ""}` : "The next chapter"}</p>{result ? <span className={styles.mobileFinal}>NYJ {result.jetsScore} <span aria-hidden="true">—</span> {result.opponentDisplay} {result.oppScore}</span> : null}<span className={styles.readerNote}>For those of us still watching</span></div>
@@ -105,6 +107,7 @@ export default async function BackPage() {
           <div className={styles.nextSunday}><span className={styles.ticketMark} aria-hidden="true">Same seat. Same hope.</span><span className={styles.kicker}>And yes, we’re watching again</span>{next ? <><h3 className="hed">Jets {next.game.atHome ? "vs" : "at"} {next.game.opponentDisplay}</h3><p>Week {next.game.week} · <time dateTime={next.game.date}>{formatDate(next.game.date)}</time></p><p className={styles.kickoff}>{next.game.kickoff ? formatCheckedAt(next.game.kickoff) : "Kickoff time to be confirmed"}</p>{next.overdue ? <p>Kickoff has passed as of the results check; a final is not confirmed.</p> : null}</> : <><h3 className="hed">Waiting on the next fixture.</h3><p>No remaining fixture listed in this edition.</p></>}</div>
         </div>
         {next ? <SundayBriefing game={next.game} overdue={next.overdue} snapshot={snapshot} analytics={analytics} /> : null}
+        <GameDayTicket game={next?.game ?? null} overdue={next?.overdue ?? false} finals={summary.finals} season={snapshot.season} />
         <details className={styles.schedule}><summary className="disclosure"><span className={styles.summaryCopy}><span className="when-closed">See the full {snapshot.season} schedule</span><span className="when-open">Hide the {snapshot.season} schedule</span><small>{snapshot.schedule.filter((game) => game.seasonType === "REG").length} games</small></span></summary><ol>{snapshot.schedule.filter((game) => game.seasonType === "REG").map((game) => <li key={game.id}><span>W{game.week}</span><time dateTime={game.date}>{formatDate(game.date)}</time><strong>{game.atHome ? "vs" : "at"} {game.opponentDisplay}</strong><span>{game.status === "final" ? `${game.outcome === "win" ? "W" : game.outcome === "loss" ? "L" : "T"} ${game.jetsScore}–${game.oppScore}` : game.kickoff ? formatCheckedAt(game.kickoff) : "Time TBD"}</span></li>)}</ol></details>
       </section> : null}
       <section className={styles.morgue} aria-labelledby="morgue-heading">
@@ -113,6 +116,7 @@ export default async function BackPage() {
           <p className={styles.obitLabel}>{label}</p><h3 className="hed">{title}</h3><p className={styles.obitScore}>NYJ {game.jetsScore} <span>—</span> {game.opponentDisplay} {game.oppScore}{game.wentToOt ? " / OT" : ""}</p><small>{formatDate(game.date)} · Week {game.week}</small><p className={styles.obitFoot}><span>{closer}</span><span aria-hidden="true">↗</span></p>
         </Link>)}</div>
       </section>
+      <FanStand games={games} snapshot={snapshot} />
       <div className={styles.touchline}>
         {spotlight ? <section className={styles.player} aria-labelledby="player-heading"><span className={styles.kicker}>Someone to shout for</span>{spotlightPhoto ? <EditorialPhoto photo={spotlightPhoto} sizes="(max-width: 640px) calc(100vw - 32px), 300px" className={styles.spotlightPhoto} /> : <p className={styles.jerseyNumber}>{spotlightRoster?.jersey ? `No. ${spotlightRoster.jersey}` : spotlight.position}</p>}<h2 id="player-heading" className="hed">{spotlight.name}</h2><p>{spotlight.receiving.receptions} catches. {spotlight.receiving.yards.toLocaleString("en-US")} yards. {spotlight.receiving.touchdowns} receiving TD.</p><small>{coverageFeed!.stats.season} receiving leader by yards · {spotlight.games} recorded games{coverageFeed!.stats.throughWeek != null ? ` · through Week ${coverageFeed!.stats.throughWeek}` : ""}</small><Link className={styles.underlined} href={spotlightRoster ? playerHref(spotlight.id) : "/team#season-leaders"}>Meet the man in the jersey <span aria-hidden="true">↗</span></Link><FeedStatus feed={coverageFeed!.stats} label="Player statistics" /></section> : null}
         {coverageFeed ? <NewsDesk feed={coverageFeed.news} limit={3} compact /> : null}

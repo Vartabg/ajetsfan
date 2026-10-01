@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { rank } from "@/lib/games";
+import { selectFanMemories } from "@/lib/fan-memories";
 import { loadGames } from "@/lib/load-games";
 import { archiveCoverage, formatDate } from "@/lib/current";
 import Boards from "@/components/Boards";
+import MemoryWall from "@/components/MemoryWall";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -38,6 +41,8 @@ export default async function Morgue() {
         <div className={styles.coverage}><span>{coverage.count} analyzed games · {coverage.seasonLabel}</span><span>{coverage.lastDate ? <>Through <time dateTime={coverage.lastDate}>{formatDate(coverage.lastDate)}</time></> : "No analyzed games yet"}</span></div>
       </header>
 
+      {heartbreak.length + miracle.length > 0 ? <nav className={styles.index} aria-label="In The Morgue">{selectFanMemories(games).length ? <Link href="#fan-memories">The classic cases <span aria-hidden="true">↓</span></Link> : null}<Link href="#archive-filters">Find a game <span aria-hidden="true">↓</span></Link></nav> : null}
+      <MemoryWall games={games} />
       <Suspense fallback={<p className={styles.loading} role="status">Finding the tape…</p>}><Boards heartbreak={heartbreak} miracle={miracle} /></Suspense>
       <p className={styles.sourceNote}>The scores are real. So are the reasons we remember them. {heartbreak.length + miracle.length} wins and losses qualify for these rankings. Win probability comes from nflverse; <a href="/how-made">the method and integrity checks are here</a>.</p>
     </main>

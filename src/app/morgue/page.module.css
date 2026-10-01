@@ -21,3 +21,6 @@
 .sourceNote a { color: var(--stamp); text-underline-offset: 4px; }
 @media (max-width: 900px) { .head { padding-inline: 1.5rem; } .intro { gap: 1.5rem; } .notice { padding-left: 1rem; } }
 @media (max-width: 640px) { .main { padding-top: 1.25rem; } .head { padding: 1.1rem 1.1rem 0; } .folio { gap: .5rem; } .folio > span { font-size: .65rem; } .intro { grid-template-columns: 1fr; gap: 1.35rem; padding: 1.5rem 0; } .title { font-size: clamp(3.8rem, 17vw, 5.8rem); } .epitaph { font-size: 1.18rem; margin-top: .85rem; } .notice { display: flex; flex-direction: column; align-items: start; padding: 1.15rem 0 0; border-left: 0; border-top: 1px solid #f7f4eb40; } .seal { padding: .4rem .7rem; } .seal > strong { font-size: 1.1rem; } .standfirst { max-width: none; font-size: .88rem; margin-top: 1.15rem; } .coverage { font-size: .7rem; } .kicker { font-size: .68rem; letter-spacing: .07em; } }
+
+.index { display: flex; flex-wrap: wrap; gap: .4rem 2rem; padding: .75rem 0; border-bottom: 1px solid var(--rule-soft); }
+.index a { display: inline-flex; align-items: center; gap: .6rem; min-height: 44px; font-size: .78rem; font-weight: 800; color: var(--spot); text-decoration: underline; text-underline-offset: .25em; }
