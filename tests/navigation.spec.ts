@@ -149,11 +149,9 @@ test("team section jumps have clear destinations and leave their headings visibl
 
 test("native disclosures toggle visible and accessible labels with Space and Enter while keeping focus", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  const summaries = page.locator("summary.disclosure");
-  const count = await summaries.count();
-  expect(count).toBeGreaterThanOrEqual(3);
-  for (let index = 0; index < count; index += 1) {
-    const summary = summaries.nth(index);
+  const summaries = await page.locator("summary.disclosure").filter({ visible: true }).all();
+  expect(summaries.length).toBeGreaterThanOrEqual(3);
+  for (const summary of summaries) {
     const details = summary.locator("..");
     const closed = summary.locator(".when-closed");
     const open = summary.locator(".when-open");

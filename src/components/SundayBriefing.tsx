@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { SeasonAnalytics } from "@/lib/analytics";
 import type { CurrentSnapshot, ScheduledGame } from "@/lib/current";
 import { currentSeasonSummary, formatDate } from "@/lib/current";
@@ -26,7 +27,7 @@ export default function SundayBriefing({ game, overdue, snapshot, analytics }: {
     <div className={styles.columns}>
       <div className={styles.questions}>
         {questions.length ? <ol aria-label="Football questions">{questions.map((question, index) => <li key={question.id}><span className={styles.number} aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><div><h3>{question.title}</h3><p>{question.body}</p><small>{question.evidence}</small></div></li>)}</ol> : <p className={styles.pending}>{overdue ? "This fixture is awaiting a confirmed final. Follow the team’s latest coverage below." : "The next matchup needs more validated play-by-play before we can put the football questions in context."}</p>}
-        {questions.length && analytics ? <p className={styles.scope}>Based on {analytics.teams.find((team) => team.team === "NYJ")?.completedGames} Jets games and {analytics.teams.find((team) => team.team === game.opponent)?.completedGames} {game.opponentDisplay} games through Week {analytics.throughWeek}{analytics.throughDate ? ` · ${formatDate(analytics.throughDate)}` : ""}. These are things to watch, not predictions. <a href="/how-made#efficiency">EPA explained <span aria-hidden="true">↗</span></a></p> : null}
+        {questions.length && analytics ? <p className={styles.scope}>Based on {analytics.teams.find((team) => team.team === "NYJ")?.completedGames} Jets games and {analytics.teams.find((team) => team.team === game.opponent)?.completedGames} {game.opponentDisplay} games · highest included week: Week {analytics.throughWeek}{analytics.throughDate ? ` · ${formatDate(analytics.throughDate)}` : ""}. These are things to watch, not predictions. <Link href="/how-made#efficiency">EPA explained <span aria-hidden="true">↗</span></Link></p> : null}
       </div>
       <MatchdayDesk report={report} />
     </div>

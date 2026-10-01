@@ -13,6 +13,7 @@ import DataFreshness from "@/components/DataFreshness";
 import FeedStatus from "@/components/FeedStatus";
 import Matchup from "@/components/Matchup";
 import SeasonTrend from "@/components/SeasonTrend";
+import LeagueContext from "@/components/LeagueContext";
 import { loadCoverage } from "@/lib/load-coverage";
 import NewsDesk from "@/components/NewsDesk";
 import SundayBriefing from "@/components/SundayBriefing";
@@ -116,7 +117,7 @@ export default async function BackPage() {
         {spotlight ? <section className={styles.player} aria-labelledby="player-heading"><span className={styles.kicker}>Someone to shout for</span>{spotlightPhoto ? <EditorialPhoto photo={spotlightPhoto} sizes="(max-width: 640px) calc(100vw - 32px), 300px" className={styles.spotlightPhoto} /> : <p className={styles.jerseyNumber}>{spotlightRoster?.jersey ? `No. ${spotlightRoster.jersey}` : spotlight.position}</p>}<h2 id="player-heading" className="hed">{spotlight.name}</h2><p>{spotlight.receiving.receptions} catches. {spotlight.receiving.yards.toLocaleString("en-US")} yards. {spotlight.receiving.touchdowns} receiving TD.</p><small>{coverageFeed!.stats.season} receiving leader by yards · {spotlight.games} recorded games{coverageFeed!.stats.throughWeek != null ? ` · through Week ${coverageFeed!.stats.throughWeek}` : ""}</small><Link className={styles.underlined} href={spotlightRoster ? playerHref(spotlight.id) : "/team#season-leaders"}>Meet the man in the jersey <span aria-hidden="true">↗</span></Link><FeedStatus feed={coverageFeed!.stats} label="Player statistics" /></section> : null}
         {coverageFeed ? <NewsDesk feed={coverageFeed.news} limit={3} compact /> : null}
       </div>
-      {snapshot ? <details className={styles.filmRoom}><summary className="disclosure"><span><span className="when-closed">Open the film room</span><span className="when-open">Close the film room</span><small>Data analysis · Matchup, team efficiency &amp; the season in margins</small></span></summary><div>{next ? <Matchup game={next.game} overdue={next.overdue} analytics={analytics} /> : null}<SeasonTrend games={summary.finals} /></div></details> : null}
+      {snapshot ? <details className={styles.filmRoom}><summary className="disclosure"><span><span className="when-closed">Open the film room</span><span className="when-open">Close the film room</span><small>Data analysis · Unit matchups, league context &amp; the season in margins</small></span></summary><div>{next ? <Matchup game={next.game} overdue={next.overdue} analytics={analytics} /> : null}{analytics ? <LeagueContext analytics={analytics} opponent={next?.game.opponent ?? ""} /> : null}<SeasonTrend games={summary.finals} analysisIds={games.filter((game) => !game.dataSuspect && game.swing != null && game.outcome !== "tie").map((game) => game.id)} /></div></details> : null}
       <section className={styles.freshness} aria-label="Data freshness"><span>{snapshot ? `${snapshot.season} edition` : "The analyzed archive"}</span><span>{snapshot ? <>Results checked <time dateTime={snapshot.checkedAt}>{formatCheckedAt(snapshot.checkedAt)}</time></> : "Current-season results unavailable in this edition."}</span><Link href="/how-made">Sources &amp; how it works</Link></section>
     </main>
   );

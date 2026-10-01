@@ -59,6 +59,8 @@
 .readout > span:first-child { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem; font-size: .75rem; }
 .readout strong { color: var(--spot); font: 700 1.4rem/1.2 var(--font-sans-narrow), Arial, sans-serif; font-variant-numeric: tabular-nums; }
 .readout b { margin-left: auto; font: .74rem/1.5 var(--font-mono), monospace; }
+.change { display: block; margin-top: .6rem; color: var(--ink-2); font-size: .75rem; line-height: 1.6; }
+.change strong { font-size: 1rem; color: var(--ink); }
 .description { display: block; margin-top: .75rem; color: var(--ink-2); font-size: .86rem; line-height: 1.65; overflow-wrap: anywhere; }
 .keyNote { display: flex; align-items: baseline; flex-wrap: wrap; gap: .3rem 1rem; padding: .85rem 1.5rem; border-top: 1px solid var(--rule-soft); background: var(--paper-2); color: var(--ink-2); font-size: .74rem; }
 .keyNote > span { font-weight: 700; }

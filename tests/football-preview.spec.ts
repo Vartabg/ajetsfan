@@ -32,7 +32,7 @@ test("football questions pair each offense with the other defense and preserve s
   const questions = previewQuestions(game(), snapshot());
   expect(questions.map((question) => question.id)).toEqual(["passing", "rushing", "pass-defense"]);
   expect(questions[0].evidence).toBe("NYJ offense: +0.20 EPA per dropback (118 plays). CHI defense: -0.06 EPA allowed per dropback (98 plays).");
-  expect(questions[1].evidence).toBe("NYJ offense: -0.21 EPA per designed rush (74 plays). CHI defense: -0.01 EPA allowed per designed rush (62 plays).");
+  expect(questions[1].evidence).toBe("NYJ offense: -0.21 EPA per rush (no scrambles) (74 plays). CHI defense: -0.01 EPA allowed per rush (no scrambles) (62 plays).");
   expect(questions[2].evidence).toBe("CHI offense: +0.23 EPA per dropback (114 plays). NYJ defense: +0.03 EPA allowed per dropback (107 plays).");
 });
 
@@ -42,7 +42,7 @@ test("a new scheduled opponent supplies its own defense and passing offense", ()
   const questions = previewQuestions(game({ opponent: "CLE", opponentDisplay: "CLE", atHome: true }), analytics);
   expect(questions[0].title).toBe("Can the passing game deliver?");
   expect(questions[0].evidence).toContain("CLE defense: +0.41 EPA allowed per dropback");
-  expect(questions[1].evidence).toContain("CLE defense: +0.27 EPA allowed per designed rush");
+  expect(questions[1].evidence).toContain("CLE defense: +0.27 EPA allowed per rush (no scrambles)");
   expect(questions[2].evidence).toContain("CLE offense: -0.35 EPA per dropback");
   expect(questions[2].title).toContain("Cleveland");
   expect(JSON.stringify(questions)).not.toContain("CHI");

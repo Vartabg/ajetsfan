@@ -45,9 +45,10 @@ export type SeasonAnalytics = {
   }[];
 };
 
-export function epaLabel(value: number | null | undefined): string {
+export function epaLabel(value: number | null | undefined, decimals: 2 | 3 = 2): string {
   if (value == null || !Number.isFinite(value)) return "—";
-  return `${value > 0 ? "+" : ""}${value.toFixed(2)}`;
+  const rounded = Number(value.toFixed(decimals));
+  return `${rounded > 0 ? "+" : ""}${rounded.toFixed(decimals)}`;
 }
 
 export function rateLabel(value: number | null | undefined): string {

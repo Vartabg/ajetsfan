@@ -48,7 +48,7 @@ test("the front page keeps deeper analysis available through keyboard disclosure
   await page.goto("/");
   const film = page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "Open the film room" }) });
   await expect(film).not.toHaveAttribute("open", "");
-  await film.locator("summary").focus();
+  await film.locator(":scope > summary").focus();
   await page.keyboard.press("Enter");
   await expect(film).toHaveAttribute("open", "");
   await expect(film.getByText("The season in margins.", { exact: true })).toBeVisible();

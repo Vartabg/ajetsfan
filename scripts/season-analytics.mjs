@@ -9,6 +9,34 @@ export const ANALYTICS_DEFINITIONS = {
 const count = (row, key) => Number(row[key] ?? 0);
 const blankTotals = () => ({ plays: 0, epa: 0, successes: 0, passPlays: 0, passEpa: 0, rushPlays: 0, rushEpa: 0 });
 const safeRate = (total, denominator) => denominator ? total / denominator : null;
+// Reconstructing sums from serialized, unrounded rates can introduce round-off.
+const sameTotal = (left, right) => Number.isFinite(left) && Number.isFinite(right) &&
+  Math.abs(left - right) <= 1e-9 * Math.max(1, Math.abs(left), Math.abs(right));
+const isoDate = (value) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+  Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
+
+function rateTotals(row) {
+  return {
+    plays: row.plays, epa: (row.epaPerPlay ?? 0) * row.plays,
+    successes: (row.successRate ?? 0) * row.plays,
+    passPlays: row.passPlays, passEpa: (row.passEpaPerPlay ?? 0) * row.passPlays,
+    rushPlays: row.rushPlays, rushEpa: (row.rushEpaPerPlay ?? 0) * row.rushPlays,
+  };
+}
+
+function poolRates(rows) {
+  const total = blankTotals();
+  for (const row of rows) addTotals(total, rateTotals(row));
+  return total;
+}
+
+function checkTotals(actual, expected, label) {
+  for (const key of Object.keys(expected)) {
+    const equal = key.endsWith('Plays') || key === 'plays'
+      ? actual[key] === expected[key] : sameTotal(actual[key], expected[key]);
+    if (!equal) throw new Error(`Analytics ${label} does not reconcile: ${key}`);
+  }
+}
 
 function addTotals(total, row) {
   for (const key of Object.keys(total)) total[key] += count(row, key);
@@ -90,7 +118,7 @@ export function buildAnalytics({ season, schedule, states, totals, swings = [], 
     analyzedGameIds: [...ids].sort(), pendingGameIds: finals.filter((game) => !ids.has(game.id)).map((game) => game.id).sort(),
     definitions: ANALYTICS_DEFINITIONS, sources, teams, games,
   };
-  validateAnalytics(value);
+  validateAnalytics(value, league);
   return value;
 }
 
@@ -106,13 +134,22 @@ export function retainAnalytics(candidate, previous, now) {
   return { ...candidate, analysisUpdatedAt: candidate.analyzedGameIds.length ? now.toISOString() : null };
 }
 
-export function validateAnalytics(value) {
+export function validateAnalytics(value, schedule = null) {
   if (value.schemaVersion !== 1 || !Number.isInteger(value.season) || !Array.isArray(value.teams) || !Array.isArray(value.games) ||
       !Array.isArray(value.analyzedGameIds) || !Array.isArray(value.pendingGameIds)) throw new Error('Invalid analytics schema');
   const analyzed = new Set(value.analyzedGameIds);
-  if (analyzed.size !== value.analyzedGameIds.length || value.analyzedGameIds.some((id) => !GAME_ID.test(id)) ||
+  if (analyzed.size !== value.analyzedGameIds.length || new Set(value.pendingGameIds).size !== value.pendingGameIds.length ||
+      value.analyzedGameIds.some((id) => !GAME_ID.test(id)) ||
       value.pendingGameIds.some((id) => !GAME_ID.test(id) || analyzed.has(id))) throw new Error('Invalid analytics game coverage');
   if ([...value.analyzedGameIds, ...value.pendingGameIds].some((id) => Number(id.slice(0, 4)) !== value.season)) throw new Error('Analytics season/coverage mismatch');
+  const gamesByTeam = new Map();
+  const jetsIds = new Set();
+  for (const id of analyzed) {
+    const [, week, away, home] = id.split('_');
+    if (Number(week) < 1 || away === home) throw new Error('Invalid analytics game participants');
+    for (const team of [away, home]) gamesByTeam.set(team, (gamesByTeam.get(team) ?? 0) + 1);
+    if (away === TEAM || home === TEAM) jetsIds.add(id);
+  }
   for (const field of ['schedule', 'pbp', 'methodology']) if (typeof value.sources?.[field] !== 'string') throw new Error('Analytics source metadata missing');
   for (const field of ['epaPerPlay', 'successRate', 'passRush', 'scope']) if (typeof value.definitions?.[field] !== 'string') throw new Error('Analytics definitions missing');
   const names = new Set();
@@ -123,14 +160,23 @@ export function validateAnalytics(value) {
       if (denominator === 0 ? row[field] !== null : !Number.isFinite(row[field])) throw new Error(`Invalid analytics rate: ${field}`);
     }
     if (row.successRate !== null && (row.successRate < 0 || row.successRate > 1)) throw new Error('Invalid analytics success rate');
+    const totals = rateTotals(row);
+    if (!sameTotal(totals.epa, totals.passEpa + totals.rushEpa)) throw new Error('Analytics split EPA does not reconcile');
+    if (!sameTotal(totals.successes, Math.round(totals.successes))) throw new Error('Analytics success count is not a whole play');
   };
   for (const row of value.teams) {
     if (names.has(row.team) || !/^[A-Z]+$/.test(row.team) || !Number.isInteger(row.completedGames) || row.completedGames < 0 ||
         row.completedGames > value.analyzedGameIds.length) throw new Error('Invalid analytics team');
     names.add(row.team);
     checkMetrics(row.offense); checkMetrics(row.defense);
+    if (row.completedGames !== (gamesByTeam.get(row.team) ?? 0) ||
+        (row.completedGames === 0 ? row.offense.plays !== 0 || row.defense.plays !== 0 : row.offense.plays === 0 || row.defense.plays === 0)) {
+      throw new Error(`Analytics team game coverage does not reconcile: ${row.team}`);
+    }
     for (const rank of Object.values(row.ranks)) if (rank !== null && (!Number.isInteger(rank) || rank < 1 || rank > value.teams.length)) throw new Error('Invalid analytics rank');
   }
+  if ([...gamesByTeam.keys()].some((team) => !names.has(team))) throw new Error('Analytics game participant missing from teams');
+  checkTotals(poolRates(value.teams.map((team) => team.offense)), poolRates(value.teams.map((team) => team.defense)), 'league offense/defense');
   for (const [rankField, side, metric, ascending] of [
     ['offenseEpa', 'offense', 'epaPerPlay', false], ['defenseEpa', 'defense', 'epaPerPlay', true],
     ['offenseSuccess', 'offense', 'successRate', false], ['defenseSuccess', 'defense', 'successRate', true],
@@ -138,15 +184,38 @@ export function validateAnalytics(value) {
     const expected = competitionRanks(value.teams, side, metric, ascending);
     if (value.teams.some((team) => team.ranks[rankField] !== (expected.get(team.team) ?? null))) throw new Error('Analytics rank does not match observed rates');
   }
+  const gameIds = new Set();
   for (const row of value.games) {
-    if (!analyzed.has(row.id)) throw new Error(`Analytics game outside coverage: ${row.id}`);
+    if (!jetsIds.has(row.id) || gameIds.has(row.id)) throw new Error(`Invalid analytics Jets game coverage: ${row.id}`);
+    gameIds.add(row.id);
+    const [, week, away, home] = row.id.split('_');
+    if (row.week !== Number(week) || row.atHome !== (home === TEAM) || row.opponent !== (home === TEAM ? away : home) || !isoDate(row.date)) {
+      throw new Error(`Invalid analytics game summary: ${row.id}`);
+    }
     checkMetrics(row.offense); checkMetrics(row.defense);
     for (const play of row.bigSwings) if (!Number.isFinite(play.wpa) || play.wpa < -1 || play.wpa > 1) throw new Error('Invalid analytics play swing');
+  }
+  if (gameIds.size !== jetsIds.size) throw new Error('Analytics Jets game coverage is incomplete');
+  const jets = value.teams.find((team) => team.team === TEAM);
+  if (jets) for (const side of ['offense', 'defense']) {
+    checkTotals(rateTotals(jets[side]), poolRates(value.games.map((game) => game[side])), `Jets ${side} game totals`);
   }
   if (value.analyzedGameIds.length && (!value.analysisUpdatedAt || !Number.isFinite(Date.parse(value.analysisUpdatedAt)) || !value.throughDate || !Number.isInteger(value.throughWeek))) {
     throw new Error('Analytics cutoff is missing');
   }
   if (!value.analyzedGameIds.length && (value.analysisUpdatedAt !== null || value.throughDate !== null || value.throughWeek !== null)) throw new Error('Empty analytics has a fabricated cutoff');
+  if (analyzed.size) {
+    if (value.throughWeek !== Math.max(...[...analyzed].map((id) => Number(id.split('_')[1])))) throw new Error('Analytics week cutoff does not match coverage');
+    if (!isoDate(value.throughDate) || value.games.some((game) => game.date > value.throughDate)) throw new Error('Analytics date cutoff does not match coverage');
+    // The public snapshot retains only Jets game dates. Exact league dates need
+    // the original schedule; a later non-Jets final can legitimately set cutoff.
+    if (schedule) {
+      const scheduleById = new Map(schedule.map((game) => [game.id, game]));
+      const dates = [...analyzed].map((id) => scheduleById.get(id)?.date);
+      if (dates.some((date) => !isoDate(date)) || value.throughDate !== dates.sort().at(-1) ||
+          value.games.some((game) => game.date !== scheduleById.get(game.id)?.date)) throw new Error('Analytics date cutoff does not match schedule');
+    }
+  }
 }
 
 export async function extractAnalytics(db, season, src, schedule, now, sources) {

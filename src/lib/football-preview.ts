@@ -53,7 +53,7 @@ export function previewQuestions(game: ScheduledGame, analytics: SeasonAnalytics
     const attack = splitSample(offense.offense, split);
     const resistance = splitSample(defense.defense, split);
     if (!attack || !resistance) return;
-    const unit = split === "pass" ? "dropback" : "designed rush";
+    const unit = split === "pass" ? "dropback" : "rush (no scrambles)";
     questions.push({
       ...question,
       evidence: `${offense.team} offense: ${epaLabel(attack.epa)} EPA per ${unit} (${attack.plays} plays). ${defense.team} defense: ${epaLabel(resistance.epa)} EPA allowed per ${unit} (${resistance.plays} plays).`,

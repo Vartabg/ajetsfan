@@ -110,6 +110,111 @@ test('validator rejects fabricated finite ranks/zero-denominator rates and malfo
   assert.throws(() => validateAnalytics(badIds), /coverage/);
 });
 
+test('validator reconciles split EPA and tolerates only floating-point round-off', () => {
+  const badSplit = fixture();
+  badSplit.teams.find((team) => team.team === 'NYJ').offense.passEpaPerPlay += 0.01;
+  assert.throws(() => validateAnalytics(badSplit), /split EPA does not reconcile/);
+  const fractionalSuccess = fixture();
+  fractionalSuccess.games[0].offense.successRate = 0.75; // 1.5 successes in two plays.
+  assert.throws(() => validateAnalytics(fractionalSuccess), /success count is not a whole play/);
+  const roundOff = fixture();
+  roundOff.games[0].offense.epaPerPlay += 1e-12;
+  assert.doesNotThrow(() => validateAnalytics(roundOff));
+});
+
+test('validator derives completed-game counts and team membership from analyzed participants', () => {
+  const wrongCount = fixture();
+  wrongCount.teams.find((team) => team.team === 'NYJ').completedGames = 0;
+  assert.throws(() => validateAnalytics(wrongCount), /team game coverage does not reconcile/);
+  const lostCoverage = fixture();
+  lostCoverage.analyzedGameIds.pop();
+  assert.throws(() => validateAnalytics(lostCoverage), /team game coverage does not reconcile/);
+  const missingTeam = fixture();
+  missingTeam.teams = missingTeam.teams.filter((team) => team.team !== 'BUF');
+  assert.throws(() => validateAnalytics(missingTeam), /game participant missing from teams/);
+});
+
+test('validator requires exactly one correctly identified summary for each analyzed Jets game', () => {
+  const incomplete = fixture();
+  incomplete.games.pop();
+  assert.throws(() => validateAnalytics(incomplete), /Jets game coverage is incomplete/);
+  const duplicate = fixture();
+  duplicate.games.push(structuredClone(duplicate.games[0]));
+  assert.throws(() => validateAnalytics(duplicate), /Invalid analytics Jets game coverage/);
+  const outsideCoverage = fixture();
+  outsideCoverage.games[0].id = '2026_01_BUF_NE';
+  assert.throws(() => validateAnalytics(outsideCoverage), /Invalid analytics Jets game coverage/);
+  for (const [field, wrong] of [['week', 9], ['opponent', 'NE'], ['atHome', false], ['date', '2026-02-30']]) {
+    const badSummary = fixture();
+    badSummary.games[0][field] = wrong;
+    assert.throws(() => validateAnalytics(badSummary), /Invalid analytics game summary/, field);
+  }
+});
+
+test('validator pools Jets game denominators, EPA and success back into season totals', () => {
+  for (const side of ['offense', 'defense']) {
+    const wrongEpa = fixture();
+    const row = wrongEpa.games[0][side];
+    // Preserve the within-game split identity; only the season pool is wrong.
+    row.passEpaPerPlay += 1;
+    row.epaPerPlay += row.passPlays / row.plays;
+    assert.throws(() => validateAnalytics(wrongEpa), new RegExp(`Jets ${side} game totals.*epa`));
+  }
+  const wrongSuccess = fixture();
+  wrongSuccess.games[0].offense.successRate = 1;
+  assert.throws(() => validateAnalytics(wrongSuccess), /Jets offense game totals.*successes/);
+  const wrongDenominator = fixture();
+  const row = wrongDenominator.games[0].offense;
+  row.plays *= 2; row.passPlays *= 2; row.rushPlays *= 2;
+  assert.throws(() => validateAnalytics(wrongDenominator), /Jets offense game totals.*plays/);
+});
+
+test('validator conserves league offense/defense denominators, EPA and successful plays', () => {
+  const wrongDenominator = fixture();
+  const denominator = wrongDenominator.teams.find((team) => team.team === 'BUF').defense;
+  denominator.plays *= 2; denominator.passPlays *= 2; denominator.rushPlays *= 2;
+  assert.throws(() => validateAnalytics(wrongDenominator), /league offense\/defense.*plays/);
+  const wrongEpa = fixture();
+  const epa = wrongEpa.teams.find((team) => team.team === 'BUF').defense;
+  epa.passEpaPerPlay += 1;
+  epa.epaPerPlay += epa.passPlays / epa.plays;
+  assert.throws(() => validateAnalytics(wrongEpa), /league offense\/defense.*epa/);
+  const wrongSuccess = fixture();
+  wrongSuccess.teams.find((team) => team.team === 'BUF').defense.successRate = 1;
+  assert.throws(() => validateAnalytics(wrongSuccess), /league offense\/defense.*successes/);
+});
+
+test('validator reconciles the week cutoff and calendar dates without inventing non-Jets dates', () => {
+  const wrongWeek = fixture();
+  wrongWeek.throughWeek = 3;
+  assert.throws(() => validateAnalytics(wrongWeek), /week cutoff does not match coverage/);
+  for (const date of ['2026-02-30', 'not-a-date', G1.date]) {
+    const wrongDate = fixture();
+    wrongDate.throughDate = date;
+    assert.throws(() => validateAnalytics(wrongDate), /date cutoff does not match coverage/, date);
+  }
+  const otherGame = { ...G1, id: '2026_03_BUF_NE', week: 3, date: '2026-09-28', homeTeam: 'NE' };
+  const schedule = [G1, G2, otherGame];
+  const value = fixture({
+    schedule, states: schedule.map(state),
+    totals: [...totals, ...totals.filter((row) => row.id === G1.id).map((row) => ({
+      ...row, id: otherGame.id, team: row.team === 'NYJ' ? 'NE' : row.team,
+    }))],
+  });
+  assert.equal(value.games.at(-1).date, G2.date);
+  assert.equal(value.throughDate, otherGame.date);
+  assert.doesNotThrow(() => validateAnalytics(value));
+  assert.doesNotThrow(() => validateAnalytics(value, schedule));
+  value.throughDate = '2026-09-29';
+  assert.doesNotThrow(() => validateAnalytics(value)); // No non-Jets dates in the snapshot.
+  assert.throws(() => validateAnalytics(value, schedule), /date cutoff does not match schedule/);
+});
+
+test('the published season snapshot satisfies full coverage and statistical accounting', async () => {
+  const published = JSON.parse(await readFile(new URL('../public/data/analytics.json', import.meta.url), 'utf8'));
+  assert.doesNotThrow(() => validateAnalytics(published));
+});
+
 test('analytics participates in complete staged publication and survives a later omitted enrichment', async (t) => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'ajetsfan-analytics-publish-'));
   t.after(() => rm(root, { recursive: true, force: true }));

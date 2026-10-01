@@ -28,7 +28,7 @@ export default async function HowMade() {
 
       <ol className={styles.pipeline} aria-label="From source data to the front page">
         <li><strong>01 / Source</strong><span>nflverse play-by-play</span></li>
-        <li><strong>02 / Check</strong><span>Real snaps, reconciled scores</span></li>
+        <li><strong>02 / Check</strong><span>Recorded plays, reconciled scores</span></li>
         <li><strong>03 / Rank</strong><span>Second-half probability</span></li>
         <li><strong>04 / Print</strong><span>Lead, headline, paper</span></li>
       </ol>
@@ -50,8 +50,9 @@ export default async function HowMade() {
         <h2>Team efficiency, with the sample in view</h2>
         <p><strong>Expected points added (EPA)</strong> measures how a play changes the offense&apos;s expected scoring position. EPA per play is the sum divided by the number of included plays. Higher offensive EPA is better; lower defensive EPA allowed is better. <strong>Success rate</strong> is the share of those plays with EPA above zero.</p>
         <p>The sample includes current-season regular-season games confirmed final by the schedule, with completed, score-reconciled play-by-play. Included plays have a valid offense and defense, down 1–4, a run or pass play type, and finite EPA. No-plays, kneels, spikes, and two-point attempts are excluded. These are pooled play rates, rather than averages of game averages.</p>
-        <p><strong>Dropbacks</strong> include passes, sacks, and quarterback scrambles marked as dropbacks in the source. The rushing split uses the remaining designed runs. Empty samples show a dash. League ranks compare teams with analyzed games and give tied values the same rank; the next rank skips the tied places.</p>
-        {analytics?.throughDate ? <p>The efficiency snapshot includes {analytics.analyzedGameIds.length} completed games and {analytics.teams.length} teams through Week {analytics.throughWeek}, {formatDate(analytics.throughDate)}. {analytics.pendingGameIds.length} confirmed league finals await usable analysis. Last analysis update: {analytics.analysisUpdatedAt ? formatCheckedAt(analytics.analysisUpdatedAt) : "unavailable"}.</p> : <p>No current-season efficiency snapshot is available in this edition.</p>}
+        <p><strong>Dropbacks</strong> include passes, sacks, and quarterback scrambles marked as dropbacks in the source. The rushing split uses the remaining included non-dropback plays; it excludes quarterback scrambles and may include aborted run snaps. Empty samples show a dash. League ranks compare eligible team samples using unrounded rates and give tied values the same rank; the next rank skips the tied places. Displayed EPA rates use three decimals in the Film Room; each rate carries its own play count.</p>
+        {analytics?.throughDate ? <p>The efficiency snapshot includes {analytics.analyzedGameIds.length} completed games and {analytics.teams.length} teams through {formatDate(analytics.throughDate)}. Week {analytics.throughWeek} is the highest included week, rather than a claim that every game in that week has been analyzed. {analytics.pendingGameIds.length} confirmed league finals await usable analysis. Last analysis update: {analytics.analysisUpdatedAt ? formatCheckedAt(analytics.analysisUpdatedAt) : "unavailable"}.</p> : <p>No current-season efficiency snapshot is available in this edition.</p>}
+        <p>League averages pool team rates by their included play counts, counting each offensive play once. Zero EPA is the model baseline; the observed league average can differ from zero. All game situations are included and rates are not opponent-adjusted. Offense-versus-defense tables describe what each unit has recorded against its own opponents; they do not calculate a predicted matchup advantage.</p>
         <p>Early-season samples are small. The comparison describes recorded performance and does not predict who will win the next game. <a href="https://nflfastr.com/articles/beginners_guide.html">Read the nflfastR guide to EPA and win probability</a>.</p>
       </section>
 
@@ -59,6 +60,7 @@ export default async function HowMade() {
         <h2>The headline is a calculation</h2>
         <p><strong>Heartbreak</strong> ranks losses by the highest Jets win probability reached in the second half. <strong>Miracle</strong> ranks wins by the lowest probability reached in the second half. Overtime is included.</p>
         <p>The latest confirmed current-season final supplies the lead. Its probability analysis appears only when the play-by-play passes integrity checks and agrees with the confirmed score. A result awaiting analysis still counts toward the record and streak. When the season has no confirmed final, an older archive feature is clearly labeled.</p>
+        <p>The curve shows the Jets’ estimated chance to win before each recorded play. “Change on this play” is the source WPA oriented to the Jets and expressed in percentage points, not a relative percentage change or an individual player grade. <a href="https://nflfastr.com/reference/fast_scraper.html">Inspect the nflfastR probability field definitions</a>.</p>
         <p>These are model estimates at particular moments, not a measurement of how every fan felt. The analyzed archive covers the {coverage.seasonLabel} seasons{coverage.lastDate ? `, through ${formatDate(coverage.lastDate)}` : ""}; the paper is a postgame edition.</p>
         <Link href="/morgue">Inspect the rankings and game curves →</Link>
       </section>
@@ -66,7 +68,7 @@ export default async function HowMade() {
       <section data-note="A correction, on record">
         <h2>The useful finding was a bad number</h2>
         <p>A quarter-ending administrative row in the 2000 Oakland game carried a 99.4% win probability while nearby real snaps were around 4%. Checking only for a non-null possession team did not remove it: the row contained an empty string.</p>
-        <p>The extraction now requires a possession team that is neither null nor empty, plus a play type, before reading probability. Selecting the decisive play also excludes no-plays, kneels, and spikes. The source query keeps those rules beside the calculation.</p>
+        <p>The extraction now requires a possession team that is neither null nor empty, plus a play type, before reading probability. The probability curve and second-half extrema retain recorded rows such as nullified plays, kneels, and spikes when the possession and probability are valid. Selecting the decisive play excludes no-plays, kneels, and spikes. The source query keeps those rules beside the calculation.</p>
         <a href="https://github.com/Vartabg/ajetsfan/blob/master/scripts/build-data.mjs">Read the extraction and integrity checks →</a>
       </section>
 

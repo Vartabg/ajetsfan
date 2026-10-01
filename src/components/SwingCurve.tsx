@@ -5,6 +5,7 @@ import type { Board, Game } from "@/lib/games";
 import { clockLabel, pct } from "@/lib/games";
 import { formatDate } from "@/lib/current";
 import { keyPlayIndex } from "@/lib/curve";
+import { wpaLabel } from "@/lib/analytics-context";
 import { morgueEpitaph } from "@/lib/morgue";
 import styles from "./SwingCurve.module.css";
 
@@ -129,10 +130,10 @@ function GameCurve({ game, board, headingRef }: { game: Game; board: Board; head
       {geo && points && selected ? <div className={styles.scrubber}>
         <div className={styles.scrubberHead}><label htmlFor={`play-slider-${game.id}`}>Inspect a play</label><span>Play {index + 1} / {points.length}</span></div>
         <p id={helpId} className={styles.scrubberHelp}>Drag through the game, or use the arrow keys one play at a time.</p>
-        <input ref={playSlider} id={`play-slider-${game.id}`} type="range" min={1} max={points.length} step={1} value={index + 1} aria-label="Play sequence" aria-valuetext={`Play ${index + 1} of ${points.length}, ${clockLabel(selected.q, selected.t)}, Jets win probability ${pct(selected.wp)}`} aria-describedby={`${readoutId} ${helpId}`} onChange={(event) => setSelectedIndex(Number(event.target.value) - 1)} />
+        <input ref={playSlider} id={`play-slider-${game.id}`} type="range" min={1} max={points.length} step={1} value={index + 1} aria-label="Play sequence" aria-valuetext={`Play ${index + 1} of ${points.length}, ${clockLabel(selected.q, selected.t)}, Jets win probability before this play ${pct(selected.wp)}`} aria-describedby={`${readoutId} ${helpId}`} onChange={(event) => setSelectedIndex(Number(event.target.value) - 1)} />
         <div className={styles.steps}><button type="button" disabled={index === 0} onClick={() => setSelectedIndex(Math.max(0, index - 1))}><span aria-hidden="true">←</span> Previous play</button><button type="button" disabled={index === points.length - 1} onClick={() => setSelectedIndex(Math.min(points.length - 1, index + 1))}>Next play <span aria-hidden="true">→</span></button></div>
         <div className={styles.jump}>{geo.keyIndex >= 0 ? <button type="button" onClick={() => setSelectedIndex(geo.keyIndex)}>Jump to key play</button> : null}{geo.swingIndex >= 0 ? <button type="button" onClick={() => setSelectedIndex(geo.swingIndex)}>Jump to {board === "heartbreak" ? "peak" : "low point"}</button> : null}</div>
-        <output id={readoutId} className={styles.readout} aria-live="polite" aria-label="Selected play"><span><strong>{pct(selected.wp)}</strong> chance to win <b>{clockLabel(selected.q, selected.t)}</b></span><span className={styles.description}>{selected.desc || "Play description unavailable."}</span></output>
+        <output id={readoutId} className={styles.readout} aria-live="polite" aria-label="Selected play"><span><span>Before this play:</span> <strong>{pct(selected.wp)}</strong> Jets win probability <b>{clockLabel(selected.q, selected.t)}</b></span><span className={styles.change}>Change on this play: <strong>{wpaLabel(selected.d)}</strong></span><span className={styles.description}>{selected.desc || "Play description unavailable."}</span></output>
       </div> : null}
       </div>
 
