@@ -106,16 +106,16 @@ const actual = rivalryLedger(games, current);
 
 test("the rendered rivalry ledger matches the archive sample and opens the intended cases", async ({ page }) => {
   await page.goto("/");
-  const desk = page.getByRole("region", { name: "The grudges keep receipts.", exact: true });
+  const desk = page.getByRole("region", { name: "AFC East record.", exact: true });
   await expect(desk).toBeVisible();
   await expect(desk.getByRole("article")).toHaveCount(3);
-  await expect(desk).toContainText("Today’s AFC East rivals");
+  await expect(desk).toContainText("Today’s AFC East opponents");
   await expect(desk).toContainText("postseason excluded");
   for (const entry of actual.entries) {
     const column = desk.getByRole("article", { name: entry.name, exact: true });
     await expect(column).toContainText(rivalryRecord(entry));
     await expect(column).toContainText(`${entry.count} meetings`);
-    await expect(column.getByRole("link", { name: `Reopen the ${entry.name} losses` })).toHaveAttribute("href", entry.archiveHref);
+    await expect(column.getByRole("link", { name: `Browse ${entry.name} losses` })).toHaveAttribute("href", entry.archiveHref);
     if (entry.latest) {
       await expect(column).toContainText(`NYJ ${entry.latest.jetsScore} · ${entry.opponent} ${entry.latest.oppScore}`);
       await expect(column.locator(`time[datetime="${entry.latest.date}"]`)).toHaveCount(1);
@@ -134,7 +134,7 @@ for (const view of [{ width: 320, enlarged: false }, { width: 320, enlarged: tru
     await page.goto("/");
     if (view.enlarged) await page.addStyleTag({ content: "html { font-size: 200% !important; } body { font-size: 32px !important; }" });
     await page.evaluate(() => document.fonts.ready);
-    const desk = page.getByRole("region", { name: "The grudges keep receipts.", exact: true });
+    const desk = page.getByRole("region", { name: "AFC East record.", exact: true });
     await expect(desk).toBeVisible();
     const geometry = await desk.evaluate((element) => ({
       width: innerWidth,
@@ -150,7 +150,7 @@ for (const view of [{ width: 320, enlarged: false }, { width: 320, enlarged: tru
     expect(geometry.clipping).toBe(false);
     expect(geometry.overlap).toBe(false);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    const link = desk.getByRole("link", { name: "Reopen the Buffalo losses" });
+    const link = desk.getByRole("link", { name: "Browse Buffalo losses" });
     await link.focus();
     await expect(link).toBeFocused();
   });

@@ -19,9 +19,9 @@ const sans = Manrope({ variable: "--font-sans", subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: siteOrigin(),
   applicationName: "The Back Page",
-  title: "The Back Page — a Jets fan",
+  title: "The Back Page — Jets football, on the record",
   description:
-    "Jets football for those of us still watching. Sunday stories, the players in our jerseys, current news, and The Morgue: a shrine to lost leads and improbable wins.",
+    "Checked Jets results, sourced team news, player statistics, and game-by-game win-probability charts. Independent coverage with visible dates, samples, and methods.",
   robots: { index: indexableSite(), follow: indexableSite() },
   openGraph: { siteName: "The Back Page", locale: "en_US", type: "website" },
   twitter: { card: "summary_large_image" },

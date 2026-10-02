@@ -28,22 +28,37 @@ const snapshot = (): SeasonAnalytics => ({
   games: [],
 });
 
-test("football questions pair each offense with the other defense and preserve split denominators", () => {
+test("unit comparisons pair each offense with the opposing defense and preserve split denominators", () => {
   const questions = previewQuestions(game(), snapshot());
   expect(questions.map((question) => question.id)).toEqual(["passing", "rushing", "pass-defense"]);
-  expect(questions[0].evidence).toBe("NYJ offense: +0.20 EPA per dropback (118 plays). CHI defense: -0.06 EPA allowed per dropback (98 plays).");
-  expect(questions[1].evidence).toBe("NYJ offense: -0.21 EPA per rush (no scrambles) (74 plays). CHI defense: -0.01 EPA allowed per rush (no scrambles) (62 plays).");
-  expect(questions[2].evidence).toBe("CHI offense: +0.23 EPA per dropback (114 plays). NYJ defense: +0.03 EPA allowed per dropback (107 plays).");
+  expect(questions[0]).toMatchObject({
+    unit: "dropback",
+    offense: { team: "NYJ", epa: 0.20, plays: 118, games: 3 },
+    defense: { team: "CHI", epa: -0.06, plays: 98, games: 3 },
+  });
+  expect(questions[1]).toMatchObject({
+    unit: "rush (no scrambles)",
+    offense: { team: "NYJ", epa: -0.21, plays: 74, games: 3 },
+    defense: { team: "CHI", epa: -0.01, plays: 62, games: 3 },
+  });
+  expect(questions[2]).toMatchObject({
+    unit: "dropback",
+    offense: { team: "CHI", epa: 0.23, plays: 114, games: 3 },
+    defense: { team: "NYJ", epa: 0.03, plays: 107, games: 3 },
+  });
+  expect(questions[0].evidence).toBe("NYJ offense: +0.200 EPA per dropback (118 plays). CHI defense: -0.060 EPA allowed per dropback (98 plays).");
+  expect(questions[1].evidence).toBe("NYJ offense: -0.210 EPA per rush (no scrambles) (74 plays). CHI defense: -0.010 EPA allowed per rush (no scrambles) (62 plays).");
+  expect(questions[2].evidence).toBe("CHI offense: +0.230 EPA per dropback (114 plays). NYJ defense: +0.030 EPA allowed per dropback (107 plays).");
 });
 
 test("a new scheduled opponent supplies its own defense and passing offense", () => {
   const analytics = snapshot();
   analytics.teams.push(team("CLE", metrics({ passEpaPerPlay: -0.35 }), metrics({ passEpaPerPlay: 0.41, rushEpaPerPlay: 0.27 })));
   const questions = previewQuestions(game({ opponent: "CLE", opponentDisplay: "CLE", atHome: true }), analytics);
-  expect(questions[0].title).toBe("Can the passing game deliver?");
-  expect(questions[0].evidence).toContain("CLE defense: +0.41 EPA allowed per dropback");
-  expect(questions[1].evidence).toContain("CLE defense: +0.27 EPA allowed per rush (no scrambles)");
-  expect(questions[2].evidence).toContain("CLE offense: -0.35 EPA per dropback");
+  expect(questions[0].title).toBe("Jets passing offense");
+  expect(questions[0].evidence).toContain("CLE defense: +0.410 EPA allowed per dropback");
+  expect(questions[1].evidence).toContain("CLE defense: +0.270 EPA allowed per rush (no scrambles)");
+  expect(questions[2].evidence).toContain("CLE offense: -0.350 EPA per dropback");
   expect(questions[2].title).toContain("Cleveland");
   expect(JSON.stringify(questions)).not.toContain("CHI");
 });
@@ -58,7 +73,7 @@ test("unavailable, previous-season and already-final data cannot supply a previe
   expect(previewQuestions(game(), missingJets)).toEqual([]);
 });
 
-test("a team without a completed offensive and defensive sample cannot supply questions", () => {
+test("a team without a completed offensive and defensive sample cannot supply comparisons", () => {
   for (const side of [0, 1]) {
     const noGames = snapshot();
     noGames.teams[side].completedGames = 0;
@@ -71,7 +86,7 @@ test("a team without a completed offensive and defensive sample cannot supply qu
   }
 });
 
-test("missing or invalid EPA omits only the question using that split", () => {
+test("missing or invalid EPA omits only the comparison using that split", () => {
   for (const invalid of [null, Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
     const analytics = snapshot();
     analytics.teams[1].defense.passEpaPerPlay = invalid;
@@ -99,7 +114,19 @@ test("a genuine zero EPA is usable and defensive values retain their allowed lab
   analytics.teams[1].defense.passEpaPerPlay = -0.31;
   const questions = previewQuestions(game(), analytics);
   expect(questions).toHaveLength(3);
-  expect(questions[0].evidence).toContain("NYJ offense: 0.00 EPA per dropback");
-  expect(questions[0].evidence).toContain("CHI defense: -0.31 EPA allowed per dropback");
+  expect(questions[0].offense.epa).toBe(0);
+  expect(questions[0].evidence).toContain("NYJ offense: 0.000 EPA per dropback");
+  expect(questions[0].evidence).toContain("CHI defense: -0.310 EPA allowed per dropback");
   expect(JSON.stringify(questions)).not.toMatch(/projected|favored|win probability|league rank/i);
+});
+
+test("opposing units retain their own game samples rather than implying matched opponents", () => {
+  const analytics = snapshot();
+  analytics.teams[0].completedGames = 2;
+  analytics.teams[1].completedGames = 4;
+  const comparisons = previewQuestions(game(), analytics);
+  expect(comparisons[0].offense.games).toBe(2);
+  expect(comparisons[0].defense.games).toBe(4);
+  expect(comparisons[2].offense.games).toBe(4);
+  expect(comparisons[2].defense.games).toBe(2);
 });

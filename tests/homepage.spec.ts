@@ -15,7 +15,7 @@ test("the front page follows the latest confirmed final and current season", asy
     const article = page.locator("#latest-game");
     await expect(article).toContainText(`Latest final · Week ${latest.week}`);
     await expect(article).toContainText(`Jets ${latest.jetsScore}, ${latest.opponentDisplay} ${latest.oppScore}`);
-    await expect(article.locator(`time[datetime="${latest.date}"]`)).toBeVisible();
+    await expect(article.getByLabel(`Final score: Jets ${latest.jetsScore}, ${latest.opponentDisplay} ${latest.oppScore}`, { exact: true }).locator(`time[datetime="${latest.date}"]`)).toBeVisible();
   } else {
     await expect(page.locator("main")).toContainText("From the archive");
   }
@@ -25,7 +25,7 @@ test("the front page follows the latest confirmed final and current season", asy
   const next = nextScheduledGame(snapshot);
   if (next) await expect(season).toContainText(`Jets ${next.game.atHome ? "vs" : "at"} ${next.game.opponentDisplay}`);
   await expect(page.getByRole("region", { name: "Data freshness" }).locator("time")).toHaveAttribute("datetime", snapshot.checkedAt);
-  await expect(page.locator("footer")).toContainText(`holds ${games.length} games`);
+  await expect(page.getByRole("contentinfo")).toContainText(`holds ${games.length} games`);
 });
 
 for (const width of [1280, 390, 320]) {
@@ -51,7 +51,8 @@ test("the front page keeps deeper analysis available through keyboard disclosure
   await film.locator(":scope > summary").focus();
   await page.keyboard.press("Enter");
   await expect(film).toHaveAttribute("open", "");
-  await expect(film.getByText("The season in margins.", { exact: true })).toBeVisible();
+  await expect(page.getByText("The season in margins.", { exact: true })).toBeVisible();
+  await expect(film.getByRole("region", { name: "Where the Jets sit." })).toBeVisible();
   await page.keyboard.press("Enter");
   await expect(film).not.toHaveAttribute("open", "");
 });

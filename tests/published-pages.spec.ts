@@ -6,7 +6,8 @@ import { playerStatLines, statsForPlayer } from "../src/lib/roster";
 import type { CoverageSnapshot } from "../src/lib/coverage";
 import type { CurrentSnapshot } from "../src/lib/current";
 import { selectLead } from "../src/lib/current";
-import type { Game } from "../src/lib/games";
+import { pct, type Game } from "../src/lib/games";
+import { wpaLabel } from "../src/lib/analytics-context";
 
 const games = JSON.parse(readFileSync("public/data/games.json", "utf8")) as Game[];
 const current = JSON.parse(readFileSync("public/data/current.json", "utf8")) as CurrentSnapshot;
@@ -23,7 +24,7 @@ test("the front-page game story opens its published case before the optional int
   test.skip(!game, "This edition's lead is awaiting an eligible analysis.");
   if (!game) return;
   await page.goto("/");
-  const link = page.locator("#postgame").getByRole("link", { name: "See how the game turned", exact: true });
+  const link = page.locator("#postgame").getByRole("link", { name: "Read the game case", exact: true });
   await expect(link).toHaveAttribute("href", `/games/${game.id}`);
   await link.click();
   await expect(page.getByLabel(`Final score: Jets ${game.jetsScore}, ${game.opponentDisplay} ${game.oppScore}`, { exact: true })).toBeVisible();
@@ -73,6 +74,12 @@ test("published case and player are readable with JavaScript disabled and retain
   await expect(page.locator('a[aria-current="page"][href="/morgue"]')).toHaveCount(1);
   await expect(page.getByLabel("Final score: Jets 41, IND 0", { exact: true })).toContainText("0");
   await expect(page.getByRole("heading", { name: "Forty-one to nothing", exact: true })).toBeVisible();
+  const evidence = page.locator('dl[aria-label="Game evidence"]');
+  await expect(evidence).toContainText("+41");
+  await expect(evidence).toContainText(pct(classic.swing));
+  await expect(evidence).toContainText(wpaLabel(classic.keyPlay.wpa));
+  await expect(page.getByText("Fan reaction", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "The probability path.", exact: true })).toBeVisible();
   await expect(page.locator("main")).toContainText("2002 postseason");
   await expect(page.locator("main time").first()).toHaveAttribute("datetime", "2003-01-04");
   await expect(page).toHaveTitle(/Jets 41–0 IND/);

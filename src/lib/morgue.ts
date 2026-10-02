@@ -1,27 +1,18 @@
 import type { Game } from "./games";
-import { fanMemoryForGame } from "./fan-memories";
 
-/** Fan commentary, chosen from verified results rather than invented game events. */
-export function morgueEpitaph(game: Game): string {
-  const memory = fanMemoryForGame(game);
-  if (memory) return memory.epitaph;
-  const margin = Math.abs(game.jetsScore - game.oppScore);
+/** A score-based summary, without attributing feelings or motives to anyone. */
+export function gameEvidenceSummary(game: Game): string {
+  if (game.dataSuspect) return "Score integrity review required. Probability analysis withheld.";
+  if (!Number.isInteger(game.jetsScore) || game.jetsScore < 0 || !Number.isInteger(game.oppScore) || game.oppScore < 0) return "Final score unavailable.";
+  const margin = game.jetsScore - game.oppScore;
+  return `NYJ ${game.jetsScore}–${game.opponentDisplay} ${game.oppScore}. Differential: ${margin > 0 ? "+" : ""}${margin} ${Math.abs(margin) === 1 ? "point" : "points"}${game.wentToOt ? " · overtime" : ""}.`;
+}
 
-  if (game.outcome === "loss") {
-    if (game.wentToOt) return "We stayed for overtime. Of course we did. It still hurts.";
-    if (margin <= 8) return "One score short. Plenty of time to think about it.";
-    if (margin >= 17) return "The remote deserves hazard pay.";
-    if (game.peakH2Wp != null && game.peakH2Wp >= .9) return "For a while, even the numbers believed.";
-    return "Four quarters. A familiar ache.";
-  }
-
-  if (game.outcome === "win") {
-    if (game.troughH2Wp != null && game.troughH2Wp <= .1) return "We were rehearsing the rant. Then they won.";
-    if (game.wentToOt) return "Extra football. For once, a reward.";
-    if (margin <= 8) return "Just enough to keep us hopelessly attached.";
-    if (margin >= 17) return `Won by ${margin}. We're trying to act normal.`;
-    return "Football is fun again. Please let this catch on.";
-  }
-
-  return "A draw. Even the closure got canceled.";
+/** Describe the signed model change without assigning a cause to the result. */
+export function keyPlayEvidenceLabel(game: Game): string {
+  const change = game.keyPlay.wpa;
+  if (change == null || !Number.isFinite(change) || Math.abs(change) > 1) return "Selected second-half play";
+  if (game.outcome === "loss") return change < 0 ? "Largest second-half probability decrease" : "Smallest second-half probability change";
+  if (game.outcome === "win") return change > 0 ? "Largest second-half probability increase" : "Largest second-half probability change";
+  return "Selected second-half play";
 }

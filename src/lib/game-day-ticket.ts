@@ -3,9 +3,9 @@ import type { FinalGame, ScheduledGame } from "./current";
 export const TICKET_STORAGE_KEY = "ajetsfan:game-day-tickets:v1";
 export const MAX_TICKET_CALLS = 24;
 export const CONVICTIONS = [
-  { value: "nervous", label: "Nervous hope" },
-  { value: "believe", label: "I believe" },
-  { value: "again", label: "I have learned nothing" },
+  { value: "nervous", label: "Low confidence" },
+  { value: "believe", label: "Medium confidence" },
+  { value: "again", label: "High confidence" },
 ] as const;
 export const RITUALS = [
   { value: "", label: "No ritual to declare" },
@@ -141,9 +141,9 @@ export function ticketReceipt(book: TicketBook, finals: FinalGame[], season: num
     if (!call) continue;
     const exact = call.jetsScore === game.jetsScore && call.oppScore === game.oppScore;
     const winner = Math.sign(call.jetsScore - call.oppScore) === Math.sign(game.jetsScore - game.oppScore);
-    const verdict = exact ? "Exact score. Frame the receipt." : winner
-      ? call.jetsScore === call.oppScore ? "You called the draw. Even the closure got canceled." : "Right winner. The score had other plans."
-      : "The football disagreed. The jersey stays on.";
+    const verdict = exact ? "Exact score match." : winner
+      ? call.jetsScore === call.oppScore ? "Correct tie; different score." : "Correct winner; different score."
+      : "Prediction did not match the final outcome.";
     return { game, call, exact, winner, verdict };
   }
   return null;
@@ -156,5 +156,5 @@ export function ticketShareText(call: TicketCall): string {
     `Jets ${call.fixture.atHome ? "vs" : "at"} ${call.fixture.opponentDisplay} · ${call.fixture.date}\n` +
     `My call: NYJ ${call.jetsScore}–${call.fixture.opponentDisplay} ${call.oppScore}\n` +
     `Conviction: ${conviction}${call.ritual ? `\nRitual: ${ritual}` : ""}\n` +
-    "Same team. Same questionable optimism.\na Jets fan";
+    "User prediction · saved locally\najetsfan.com";
 }

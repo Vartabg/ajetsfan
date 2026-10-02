@@ -2,8 +2,8 @@ import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { FAN_MEMORIES, fanMemoryForGame, selectFanMemories, type FanMemory } from "../src/lib/fan-memories";
-import { morgueEpitaph } from "../src/lib/morgue";
-import type { Game } from "../src/lib/games";
+import { gameEvidenceSummary, keyPlayEvidenceLabel } from "../src/lib/morgue";
+import { pct, type Game } from "../src/lib/games";
 
 const archive = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/games.json"), "utf8")) as Game[];
 const cases = selectFanMemories(archive);
@@ -27,7 +27,6 @@ test.describe("memory fixture integrity", () => {
       expect(url.searchParams.get("board")).toBe(game.outcome === "win" ? "miracle" : "heartbreak");
       expect(board).toBe(game.outcome === "win" ? "miracle" : "heartbreak");
       expect(new URL(memory.source.url).hostname).toBe("www.newyorkjets.com");
-      expect(morgueEpitaph(game)).toBe(memory.epitaph);
     }
   });
 
@@ -48,13 +47,12 @@ test.describe("memory fixture integrity", () => {
         const game = memoryGame(memory, overrides);
         expect(selectFanMemories([game])).toEqual([]);
         expect(fanMemoryForGame(game)).toBeNull();
-        expect(morgueEpitaph(game)).not.toBe(memory.epitaph);
       }
       for (const swing of [0, 1]) expect(selectFanMemories([memoryGame(memory, { swing })])).toHaveLength(1);
     }
   });
 
-  test("changed fixture metadata cannot inherit the original story or specific epitaph", () => {
+  test("changed fixture metadata cannot inherit the sourced account of another fixture", () => {
     for (const memory of FAN_MEMORIES) {
       const fixture = memory.fixture;
       const changes: Partial<Game>[] = [
@@ -68,7 +66,6 @@ test.describe("memory fixture integrity", () => {
         const game = memoryGame(memory, overrides);
         expect(selectFanMemories([game])).toEqual([]);
         expect(fanMemoryForGame(game)).toBeNull();
-        expect(morgueEpitaph(game)).not.toBe(memory.epitaph);
       }
     }
   });
@@ -80,19 +77,44 @@ test.describe("memory fixture integrity", () => {
     expect(selectFanMemories([corrected, game])).toEqual([]);
     expect(selectFanMemories([game, { ...game }])).toEqual([]);
   });
+
+  test("score evidence preserves zero, a loss and overtime without invented reactions", () => {
+    const shutout = memoryGame(FAN_MEMORIES[2]);
+    expect(gameEvidenceSummary(shutout)).toBe("NYJ 41–IND 0. Differential: +41 points.");
+    expect(gameEvidenceSummary({ ...shutout, jetsScore: 0, oppScore: 41, outcome: "loss" })).toBe("NYJ 0–IND 41. Differential: -41 points.");
+    expect(gameEvidenceSummary({ ...shutout, jetsScore: 1, oppScore: 0, wentToOt: true })).toBe("NYJ 1–IND 0. Differential: +1 point · overtime.");
+    expect(gameEvidenceSummary({ ...shutout, jetsScore: 0, oppScore: 0, outcome: "tie" })).toBe("NYJ 0–IND 0. Differential: 0 points.");
+    expect(gameEvidenceSummary({ ...shutout, dataSuspect: true })).toBe("Score integrity review required. Probability analysis withheld.");
+    for (const jetsScore of [-1, 1.5, Number.NaN]) expect(gameEvidenceSummary({ ...shutout, jetsScore })).toBe("Final score unavailable.");
+  });
+
+  test("play headings follow the signed estimate rather than assuming a loss contains a decrease", () => {
+    const game = memoryGame(FAN_MEMORIES[2]);
+    const label = (outcome: Game["outcome"], wpa: number | null) => keyPlayEvidenceLabel({ ...game, outcome, keyPlay: { ...game.keyPlay, wpa } });
+    expect(label("loss", -.2)).toBe("Largest second-half probability decrease");
+    expect(label("win", .2)).toBe("Largest second-half probability increase");
+    expect(label("loss", .2)).toBe("Smallest second-half probability change");
+    expect(label("win", -.2)).toBe("Largest second-half probability change");
+    expect(label("loss", 0)).toBe("Smallest second-half probability change");
+    expect(label("win", 0)).toBe("Largest second-half probability change");
+    for (const change of [null, Number.NaN, Number.POSITIVE_INFINITY, 1.01, -1.01]) expect(label("loss", change)).toBe("Selected second-half play");
+  });
 });
 
 test.describe("memory ledger entry points", () => {
-  test("full cases distinguish fan commentary from sourced facts and display the playoff season correctly", async ({ page }) => {
+  test("full cases show sourced facts and numerical evidence with the correct playoff season", async ({ page }) => {
     await page.goto("/morgue");
     const wall = page.locator("#fan-memories");
-    await expect(wall.getByRole("heading", { name: "The cases we still talk about.", exact: true })).toBeVisible();
+    await expect(wall.getByRole("heading", { name: "Selected games. The record.", exact: true })).toBeVisible();
     await expect(wall.locator("article")).toHaveCount(cases.length);
     for (const { memory, game, href } of cases) {
       const article = wall.locator(`#memory-${game.id}`);
-      await expect(article.getByText("Fan reaction", { exact: true })).toBeVisible();
-      await expect(article.getByText(memory.reaction, { exact: true })).toBeVisible();
-      await expect(article.getByText("What happened", { exact: true })).toBeVisible();
+      await expect(article.getByText("Fan reaction", { exact: true })).toHaveCount(0);
+      await expect(article.getByText("Source account", { exact: true })).toBeVisible();
+      await expect(article.locator("dl")).toContainText("Jets point differential");
+      await expect(article.locator("dl")).toContainText(`${game.jetsScore > game.oppScore ? "+" : ""}${game.jetsScore - game.oppScore}`);
+      await expect(article.locator("dl")).toContainText("second-half model win probability");
+      await expect(article.locator("dl")).toContainText(pct(game.swing));
       await expect(article).toContainText(memory.fact);
       await expect(article.getByRole("link", { name: `Open the ${memory.title} case`, exact: true })).toHaveAttribute("href", `${href}#game-case-heading`);
       await expect(article.getByRole("link", { name: memory.source.label, exact: true })).toHaveAttribute("href", memory.source.url);
@@ -112,7 +134,7 @@ test.describe("memory ledger entry points", () => {
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL((url) => url.searchParams.get("game") === selected.game.id && url.searchParams.get("board") === selected.board && url.hash === "#game-case-heading");
     await expect(page.locator("#game-case-heading")).toBeInViewport();
-    await expect(page.getByRole("figure", { name: `Game analysis: ${selected.game.date} ${selected.game.opponentDisplay}`, exact: true })).toContainText(selected.memory.epitaph);
+    await expect(page.getByRole("figure", { name: `Game analysis: ${selected.game.date} ${selected.game.opponentDisplay}`, exact: true })).toContainText(gameEvidenceSummary(selected.game));
     await page.getByRole("button", { name: "Back to results", exact: true }).click();
     await expect(page.locator(`#archive-game-${selected.game.id}`)).toBeFocused();
     await expect(page.locator(`#archive-game-${selected.game.id}`)).toHaveAttribute("aria-pressed", "true");
@@ -122,7 +144,7 @@ test.describe("memory ledger entry points", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
     const wall = page.locator("#remembered-cases");
-    await expect(wall.getByRole("heading", { name: "Never let them forget.", exact: true })).toBeVisible();
+    await expect(wall.getByRole("heading", { name: "Selected games.", exact: true })).toBeVisible();
     for (const { memory, href } of cases) await expect(wall.getByRole("link", { name: `Open the ${memory.title} case`, exact: true })).toHaveAttribute("href", `${href}#game-case-heading`);
     const ledger = wall.getByRole("link", { name: "Read the memory ledger", exact: true });
     await ledger.focus();

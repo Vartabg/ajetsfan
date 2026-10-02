@@ -29,7 +29,7 @@ export async function ShareImage({ eyebrow, title, detail, score }: { eyebrow: s
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", borderTop: "2px solid #15231d", paddingTop: 18 }}>
         <span style={{ fontSize: 23, fontFamily: "Anton" }}>AJETSFAN.COM</span>
-        <span style={{ fontSize: 20 }}>Football. Heartbreak. Occasional signs of life.</span>
+        <span style={{ fontSize: 20 }}>Scores. Plays. Probability.</span>
       </div>
     </div>,
     { width: 1200, height: 630, fonts: [

@@ -8,7 +8,7 @@
 .intro > div { min-width: 0; }
 .article { display: block; margin-bottom: .3rem; font-size: .31em; line-height: 1; font-style: italic; letter-spacing: -.02em; }
 .period { color: #dcb19a; }
-.epitaph { margin: 1rem 0 0; font: italic 400 clamp(1.2rem, 1.8vw, 1.65rem)/1.35 var(--font-serif), Georgia, serif; color: #e1d9c8; }
+.epitaph { margin: 1rem 0 0; font: italic 400 clamp(1.2rem, 1.8vw, 1.65rem)/1.35 var(--font-serif), Georgia, serif; color: #e1d9c8; overflow-wrap: anywhere; }
 .notice { min-width: 0; padding-left: 1.5rem; border-left: 1px solid #f7f4eb40; }
 .seal { display: inline-flex; flex-direction: column; align-items: center; gap: .3rem; max-width: calc(100% - .5rem); padding: .5rem .9rem; border: 3px double #dcb19a; color: #dcb19a; overflow-wrap: anywhere; transform: rotate(-3deg); }
 .seal > * { max-width: 100%; }

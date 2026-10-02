@@ -6,7 +6,7 @@ import { clockLabel, pct } from "@/lib/games";
 import { formatDate } from "@/lib/current";
 import { keyPlayIndex } from "@/lib/curve";
 import { wpaLabel } from "@/lib/analytics-context";
-import { morgueEpitaph } from "@/lib/morgue";
+import { gameEvidenceSummary, keyPlayEvidenceLabel } from "@/lib/morgue";
 import styles from "./SwingCurve.module.css";
 
 type Point = { playId?: number; q: number; t: number | null; wp: number; d: number | null; desc: string | null; type: string | null };
@@ -96,18 +96,18 @@ function GameCurve({ game, board, headingRef }: { game: Game; board: Board; head
   return (
     <figure className={styles.card} aria-label={`Game analysis: ${game.date} ${game.opponentDisplay}`}>
       <figcaption className={styles.head}>
-        <div className={styles.identity}><p className={styles.eyebrow}>{board === "heartbreak" ? "Heartbreak" : "Miracle"} · {game.season} season</p><h2 id="game-case-heading" ref={headingRef} tabIndex={-1} className={styles.matchup}>Jets {game.atHome ? "vs" : "at"} {game.opponentDisplay}</h2><p className={styles.epitaph}>{morgueEpitaph(game)}</p><p className={styles.sub}><time dateTime={game.date}>{formatDate(game.date)}</time> · Week {game.week}{game.seasonType !== "REG" ? " · playoffs" : ""}</p></div>
+        <div className={styles.identity}><p className={styles.eyebrow}>{board === "heartbreak" ? "Heartbreak" : "Miracle"} · {game.season} season</p><h2 id="game-case-heading" ref={headingRef} tabIndex={-1} className={styles.matchup}>Jets {game.atHome ? "vs" : "at"} {game.opponentDisplay}</h2><p className={styles.evidenceSummary}>{gameEvidenceSummary(game)}</p><p className={styles.sub}><time dateTime={game.date}>{formatDate(game.date)}</time> · Week {game.week}{game.seasonType !== "REG" ? " · playoffs" : ""}</p></div>
         <div className={styles.scoreBlock}>
           <div className={styles.scoreboard}><div><span>Jets</span><strong>{game.jetsScore}</strong></div><span className={styles.scoreDash} aria-hidden="true">–</span><div><span>{game.opponentDisplay}</span><strong>{game.oppScore}</strong></div></div>
           <p className={styles.final}>Final · {game.outcome === "win" ? "Jets win" : game.outcome === "loss" ? "Jets loss" : "Tie"}{game.wentToOt ? " · OT" : ""}</p>
         </div>
       </figcaption>
 
-      <div className={styles.context}><strong>{pct(game.swing)}</strong><span>{board === "heartbreak" ? "Peak" : "Lowest"} Jets win probability in the second half, according to the model.</span></div>
+      <div className={styles.context}><strong>{pct(game.swing)}</strong><span>{board === "heartbreak" ? "Peak" : "Lowest"} model-estimated Jets win probability after halftime, including overtime.</span></div>
 
       <div className={styles.tape}>
       <div className={styles.plot}>
-        <h3 className={styles.plotTitle}>Where it turned.</h3><p className={styles.plotSub}>Jets win probability before each recorded play.</p>
+        <h3 className={styles.plotTitle}>The probability path.</h3><p className={styles.plotSub}>Model-estimated Jets win probability before each recorded play.</p>
         <div ref={canvas} className={styles.canvas}>
           {error || points === null ? <div className={styles.state}>
             <p role="status">{error ? <>Couldn&apos;t load this game&apos;s probability curve.</> : "Loading game curve…"}</p>
@@ -137,7 +137,7 @@ function GameCurve({ game, board, headingRef }: { game: Game; board: Board; head
       </div> : null}
       </div>
 
-      {game.keyPlay.wpa != null ? <div className={styles.keyNote}><span>{board === "heartbreak" ? "Biggest second-half setback" : "Biggest second-half boost"}</span><strong>{game.keyPlay.wpa > 0 ? "+" : ""}{(game.keyPlay.wpa * 100).toFixed(1)} percentage points</strong><small>{clockLabel(game.keyPlay.qtr, game.keyPlay.secondsLeft)} · Key play marked above</small></div> : null}
+      {game.keyPlay.wpa != null ? <div className={styles.keyNote}><span>{keyPlayEvidenceLabel(game)}</span><strong>{wpaLabel(game.keyPlay.wpa)}</strong><small>{clockLabel(game.keyPlay.qtr, game.keyPlay.secondsLeft) || "Clock unavailable"} · {geo && geo.keyIndex >= 0 ? "Key play marked above" : "Source featured play"}</small></div> : null}
     </figure>
   );
 }

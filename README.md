@@ -1,13 +1,15 @@
 # The Back Page — a Jets fan
 
-An independent Jets fan publication about the Sunday experience: the final score, the play that mattered, the players in our jerseys, and the hope that brings us back. The Morgue mixes football obituaries, gallows humor, and improbable wins. Official news and verified football numbers support the stories; deeper analysis opens in the film room. A subtle paper tint follows the streak, with the full paper conditions available as an interactive specimen.
+An independent Jets publication built around checked final scores, recorded play descriptions, recorded player production, and visual football evidence. The Morgue keeps its newspaper case-file identity while presenting second-half probability rankings and sourced historical context. Every displayed rate carries its unit and sample; deeper analysis opens in the film room. A subtle paper tint follows the recorded streak, with the full paper conditions available as an interactive specimen.
+
+Published copy describes verifiable results, dates, play descriptions, counts, and rates. It does not assign feelings or invented dialogue to fans or players. Historical statements link to their sources; probability and efficiency estimates remain distinct from confirmed results and matchup predictions.
 
 ## Explore
 
-- `/`: a latest-game cover and turning play, recent Sundays and the next fixture, Morgue features, a player spotlight, official news, and optional game tape/film-room analysis and full schedule.
+- `/`: a latest-game cover, measured play change, visible win-probability and offense comparison charts, season point margins, confirmed results and the next fixture, measured unit comparisons, historical cases, a player spotlight, official news, and optional film-room analysis and full schedule.
 - `/team`: dated official headlines, passing/rushing/receiving leaders, and roster search by name, jersey, position, unit, and source status. Player selections and filters use shareable URLs, such as `/team?player=00-0033106#roster`.
 - `/morgue`: Heartbreak & Miracles rankings with season/opponent filters, search, sorting, shareable selected-game URLs, and keyboard/pointer play scrubbing. Example: `/morgue?game=2026_03_NYJ_DET&board=heartbreak`.
-- `/games/{game_id}`: a server-rendered final, fan reaction, sourced turning play and optional probability chart, with a dedicated share card and a link to the matching interactive tape. Unreliable or unknown cases return HTTP 404.
+- `/games/{game_id}`: a server-rendered final, sourced game context and measured play change, and a probability chart when usable source points exist, with a dedicated share card and a link to the matching interactive tape. Unreliable or unknown cases return HTTP 404.
 - `/players/{gsis_id}`: current source roster profiles, guarded recorded statistics, source check times and dedicated share cards. Historical or unknown player identities return HTTP 404.
 - `/how-made`: the engineering case study, interactive paper comparison, source rules, and visible data exclusions.
 

@@ -44,9 +44,13 @@
 .postgame { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2.5rem; padding: 1.6rem 0 1.4rem; border-top: 1px solid var(--rule-soft); }
 .kicker { display: block; color: var(--spot); font: 800 .72rem/1.6 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 .6rem; }
 .playHeading { position: relative; padding-left: 1rem; border-left: 3px solid var(--stamp); }
-.playHeading h2 { font-size: clamp(1.9rem, 2.6vw, 2.35rem); max-width: 12ch; line-height: 1.04; }
+.playHeading h2 { font-size: clamp(1.9rem, 2.6vw, 2.35rem); max-width: 12ch; line-height: 1.04; overflow-wrap: anywhere; }
 .playClock { font: 700 .72rem/1.7 var(--font-sans), sans-serif; color: var(--ink-2); margin: 0 0 .5rem; }
 .playDescription { font: 1.13rem/1.7 var(--font-serif), Georgia, serif; margin: 0 0 1rem; }
+.featuredDelta { margin: 1rem 0 0; font: 400 clamp(2.5rem, 4vw, 3.5rem)/1.05 var(--font-hed), sans-serif; color: var(--stamp); }
+.featuredDelta > span { display: block; max-width: 28ch; margin-top: .5rem; font: 500 .75rem/1.5 var(--font-sans), sans-serif; color: var(--ink-2); }
+.evidenceNote { margin: .85rem 0; max-width: 94ch; color: var(--ink-2); font: 500 .75rem/1.7 var(--font-sans), sans-serif; }
+.evidenceNote a { text-underline-offset: 3px; }
 .underlined { display: inline-flex; align-items: center; min-height: 44px; font-size: .8rem; font-weight: 800; text-underline-offset: 5px; }
 .underlined span { margin-left: 1rem; }
 .tape { border-top: 1px solid var(--rule-soft); }
@@ -55,7 +59,7 @@
 .summaryCopy small { color: var(--ink-2); font-size: .72rem; font-weight: 500; }
 .tape summary:hover, .schedule summary:hover, .filmRoom > summary:hover { background: var(--paper-2); }
 .tape[open] > summary, .schedule[open] > summary { background: var(--paper-2); border-bottom: 1px solid var(--rule-soft); }
-.tapeBody { padding: 1rem 0 1.4rem; }
+.tapeBody { padding: 1.3rem 0 1.4rem; border-top: 1px solid var(--rule-soft); }
 .tapeBody figure { margin: 0; max-width: 900px; }
 .tapeBody figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; font-size: .75rem; }
 .tapeBody figcaption span, .tapeBody > small { color: var(--ink-2); }
@@ -147,7 +151,7 @@
 }
 @media (max-width: 640px) {
   .main { margin-top: .6rem; }
-  .editionNav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .4rem; margin-bottom: .7rem; }
+  .editionNav { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr)); gap: .4rem; margin-bottom: .7rem; }
   .editionNav > span { display: none; }
   .editionNav a { gap: .35rem; padding-inline: .15rem; font-size: .7rem; }
   .editionLine { align-items: center; gap: .3rem .75rem; flex-wrap: wrap; padding: .65rem 0; font-size: .68rem; letter-spacing: .03em; }

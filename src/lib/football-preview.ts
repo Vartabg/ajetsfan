@@ -5,7 +5,9 @@ import type { ScheduledGame } from "./current";
 export type PreviewQuestion = {
   id: "passing" | "rushing" | "pass-defense";
   title: string;
-  body: string;
+  unit: "dropback" | "rush (no scrambles)";
+  offense: { team: string; epa: number; plays: number; games: number };
+  defense: { team: string; epa: number; plays: number; games: number };
   evidence: string;
 };
 
@@ -45,7 +47,7 @@ export function previewQuestions(game: ScheduledGame, analytics: SeasonAnalytics
 
   const questions: PreviewQuestion[] = [];
   const addQuestion = (
-    question: Omit<PreviewQuestion, "evidence">,
+    question: Pick<PreviewQuestion, "id" | "title">,
     offense: TeamAnalytics,
     defense: TeamAnalytics,
     split: Split,
@@ -56,24 +58,24 @@ export function previewQuestions(game: ScheduledGame, analytics: SeasonAnalytics
     const unit = split === "pass" ? "dropback" : "rush (no scrambles)";
     questions.push({
       ...question,
-      evidence: `${offense.team} offense: ${epaLabel(attack.epa)} EPA per ${unit} (${attack.plays} plays). ${defense.team} defense: ${epaLabel(resistance.epa)} EPA allowed per ${unit} (${resistance.plays} plays).`,
+      unit,
+      offense: { team: offense.team, epa: attack.epa, plays: attack.plays, games: offense.completedGames },
+      defense: { team: defense.team, epa: resistance.epa, plays: resistance.plays, games: defense.completedGames },
+      evidence: `${offense.team} offense: ${epaLabel(attack.epa, 3)} EPA per ${unit} (${attack.plays} plays). ${defense.team} defense: ${epaLabel(resistance.epa, 3)} EPA allowed per ${unit} (${resistance.plays} plays).`,
     });
   };
 
   addQuestion({
     id: "passing",
-    title: game.atHome ? "Can the passing game deliver?" : "Can the passing game travel?",
-    body: `Keep the chains moving, not just the highlight reel. How the Jets handle ${opponentName}’s pass defense is a story to follow on every drive.`,
+    title: "Jets passing offense",
   }, jets, opponent, "pass");
   addQuestion({
     id: "rushing",
-    title: "Can the run game get moving?",
-    body: `First down is a lot friendlier when the ground game gives you something. Watch whether the Jets can find that rhythm against ${opponentName}.`,
+    title: "Jets rushing offense",
   }, jets, opponent, "rush");
   addQuestion({
     id: "pass-defense",
-    title: `Can they slow ${opponentName} through the air?`,
-    body: `Get off the field and give the offense another shot. Watch how the Jets’ pass defense handles ${opponentName} when a drive needs a stop.`,
+    title: `${opponentName} passing offense`,
   }, opponent, jets, "pass");
   return questions;
 }

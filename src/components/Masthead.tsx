@@ -18,7 +18,7 @@ export default function Masthead({ streak, wear, checkedAt }: { streak: Streak |
 
       <div className={styles.brandRow}>
         <Link href="/" className={styles.brand} aria-label="The Back Page"><FanMark className={styles.crest} /><span className={styles.wordmark}><span className={styles.brandNote} aria-hidden="true">An independent Jets publication</span><span className={`${styles.brandName} hed`}>The Back Page</span></span></Link>
-        <p className={styles.tagline}>Hope. Regret.{" "}<br />Jets football.</p>
+        <p className={styles.tagline}>Jets football.<br />On the record.</p>
       </div>
 
     </header>
