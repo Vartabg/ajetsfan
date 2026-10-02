@@ -1,6 +1,14 @@
 # Playbook Lab
 
-The lab lives at `/film-room#playbook-lab`, ahead of the sourced Jets notebook. It is a local diagram editor: select an alignment and concept, draw assignments, and examine motion on a shared timeline.
+The lab lives at `/film-room#playbook-lab`, ahead of the sourced Jets notebook. It opens with Garrett Wilson's Cleveland touchdown and offers six source-backed Jets study diagrams. It is also a local diagram editor: select an alignment and concept, draw assignments, and examine motion on a shared timeline.
+
+## Jets study archive
+
+`src/lib/jets-playbook.ts` contains Wilson's 15-yard winning touchdown and Davis's 66-yard touchdown in Cleveland (2022), Jumbo Elliott's 3-yard Monday Night Miracle touchdown (2000), Wesley Walker's 43-yard overtime winner (1986), the Butt Fumble (2012) and Marino's Fake Spike (1994). Each record carries primary source links, confirmed facts, explicit schematic limits, team orientation, named central actors and four teaching moments.
+
+Only central actions supported by the cited accounts receive movement. Other markers are anonymous stationary placeholders, not claims that the real players stood still. Alignments, front/concept IDs, coordinates, exact route geometry, timing, flight and blocking remain illustrative. The template selectors do not establish historical calls. The Fake Spike correctly presents Miami offense against Jets defense. The Butt Fumble illustrates a loose ball, Gregory recovery and return without simulating contact or assigning Moore a blocking error.
+
+Readers can filter glory/agony, load a study diagram, step through moments, edit the players and timing, restore the original, undo, save and share a study copy. Direct anchors such as `/film-room#jets-play:sanchez-thanksgiving` open the corresponding board. Historical notebooks link to matching drawings. An optional `archiveId` survives export/import; the UI compares the validated design with its canonical board and labels modified versions as edited study copies. Source facts describe the original historical play, not the reader's edited assignments.
 
 ## Football scope
 
@@ -15,7 +23,7 @@ Sources: [NFL formations](https://operations.nfl.com/rules-officiating/nfl-footb
 
 Select a player on the field or in the native roster selector. Move the player, draw a route with field points, or use a route pattern as a starting point. Numeric position and waypoint controls provide an alternative to dragging. Defensive assignments can be drawn with the same tools.
 
-Play, pause, return to the snap, change playback speed or scrub the timeline. Motion uses distance along each player's polyline over a six-second diagram duration. Ball motion illustrates the chosen carrier-to-target transfer. The engine does not simulate blocking, collisions, fatigue, acceleration, quarterback progressions, catches, interceptions or play success. It uses no tracking data.
+Play, pause, return to the snap, change playback speed or scrub the timeline. Motion uses distance along each player's polyline over a six-second diagram duration or an optional `motionWindow`. Players hold their starting position before the window and their endpoint after it. Ball motion illustrates the chosen carrier-to-target transfer or an optional ordered `ballEvents` sequence of carry, flight and loose-ball intervals. A carry or flight can refer to either team; this depicts a scripted turnover rather than predicting one. Custom ball settings or formation changes remove the archival event sequence, with Undo available. The engine does not simulate blocking, collisions, fatigue, acceleration, quarterback progressions, catches, interceptions or play success. It uses no tracking data.
 
 Edits return playback to the snap. Undo restores prior edits. Reset starts again from the selected presets. Playback starts only on reader action.
 

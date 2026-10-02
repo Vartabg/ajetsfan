@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useReducer, useRef, useState, useSyncExternalStore, type FormEvent, type KeyboardEvent, type PointerEvent } from "react";
 import { FIELD, concepts, createPlay, defensiveFormations, formationWarnings, offensiveFormations, routeForPlayer, routePatterns, sampleBall, samplePlayer, validatePlayDesign, type PlayDesign, type PlaybookPlayer, type Point } from "@/lib/playbook";
+import { getJetsPlayDesign, jetsPlays } from "@/lib/jets-playbook";
 import styles from "./PlaybookLab.module.css";
 
 const STORAGE_KEY = "ajetsfan:playbook:v1";
@@ -27,7 +28,8 @@ function subscribeLocation(notify: () => void) {
   window.addEventListener("hashchange", notify);
   return () => { window.removeEventListener("popstate", notify); window.removeEventListener("hashchange", notify); };
 }
-const diagramSnapshot = () => window.location.hash.startsWith("#playbook-lab:") ? window.location.hash.slice("#playbook-lab:".length) : "";
+const diagramSnapshot = () => window.location.hash.startsWith("#playbook-lab:") ? window.location.hash.slice("#playbook-lab:".length)
+  : window.location.hash.startsWith("#jets-play:") ? `jets:${window.location.hash.slice("#jets-play:".length)}` : "";
 const serverDiagramSnapshot = () => "";
 
 function encodeDesign(design: PlayDesign) {
@@ -53,28 +55,34 @@ export default function PlaybookLab() {
   // A different shared diagram loads a new workspace. Ordinary section anchors
   // leave the current edit session intact, including its undo history.
   if (encoded !== loaded.seen) setLoaded({ seen: encoded, token: encoded || loaded.token, generation: encoded ? loaded.generation + 1 : loaded.generation });
-  const shared = loaded.token ? readSharedDesign(loaded.token) : null;
-  return <PlaybookWorkspace key={loaded.generation} initialDesign={shared ?? createPlay()} sharedError={Boolean(loaded.token && !shared)} sharedLoaded={Boolean(shared)} />;
+  const shared = loaded.token.startsWith("jets:") ? getJetsPlayDesign(loaded.token.slice(5)) : loaded.token ? readSharedDesign(loaded.token) : null;
+  return <PlaybookWorkspace key={loaded.generation} initialDesign={shared ?? getJetsPlayDesign("wilson-cleveland") ?? createPlay()} sharedError={Boolean(loaded.token && !shared)} sharedLoaded={Boolean(shared)} />;
 }
 
 function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initialDesign: PlayDesign; sharedError: boolean; sharedLoaded: boolean }) {
   const [{ design, undo }, dispatch] = useReducer(ledgerReducer, { design: initialDesign, undo: [] });
-  const [selectedId, setSelectedId] = useState("x");
+  const [selectedId, setSelectedId] = useState(() => jetsPlays.find((play) => play.id === initialDesign.archiveId)?.focusPlayerIds[0] ?? "x");
   const [tool, setTool] = useState<"move" | "draw">("move");
   const [drag, setDrag] = useState<Drag | null>(null);
   const dragRef = useRef<Drag | null>(null);
   const fieldRef = useRef<SVGSVGElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(1);
   const timeRef = useRef(0);
-  const [notice, setNotice] = useState(sharedError ? "This diagram link is invalid or too large. A fresh teaching preset is ready." : sharedLoaded ? "Shared diagram loaded. You can edit your own copy." : "Choose a formation, select a player, then draw an assignment.");
+  const [notice, setNotice] = useState(sharedError ? "This diagram link is invalid or too large. A fresh Jets study diagram is ready." : sharedLoaded ? "Shared diagram loaded. You can edit your own copy." : "Wilson’s Cleveland touchdown is on the board. Choose another Jets moment, run the play, or draw your own answer.");
   const [shareUrl, setShareUrl] = useState("");
   const copyRequest = useRef(0);
   const importRequest = useRef(0);
   const [importText, setImportText] = useState("");
   const [followId, setFollowId] = useState("x");
   const [routePattern, setRoutePattern] = useState("go");
+  const [archiveFilter, setArchiveFilter] = useState<"all" | "great" | "painful">("all");
+  const archive = jetsPlays.find((play) => play.id === design.archiveId);
+  const originalArchive = Boolean(archive && JSON.stringify(validatePlayDesign(archive.design)) === JSON.stringify(validatePlayDesign(design)));
+  const archiveMoment = archive?.moments.filter((moment) => moment.at <= seconds).at(-1);
+  const filteredArchive = jetsPlays.filter((play) => archiveFilter === "all" || play.category === archiveFilter);
   const selected = design.players.find((player) => player.id === selectedId) ?? design.players[0];
   const offense = design.players.filter((player) => player.side === "offense");
   const defense = design.players.filter((player) => player.side === "defense");
@@ -111,7 +119,8 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
 
   useEffect(() => () => { copyRequest.current += 1; importRequest.current += 1; }, []);
   useEffect(() => {
-    if (sharedLoaded || sharedError) document.getElementById("playbook-lab")?.scrollIntoView({ behavior: "instant", block: "start" });
+    if (sharedLoaded) stageRef.current?.scrollIntoView({ behavior: "instant", block: "start" });
+    else if (sharedError) document.getElementById("playbook-lab")?.scrollIntoView({ behavior: "instant", block: "start" });
   }, [sharedLoaded, sharedError]);
 
   function stopAtSnap() {
@@ -142,12 +151,31 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
     edit(createPlay(offenseId, defenseId, conceptId), "Preset loaded. Every new preset starts with eleven players on each side.");
   }
 
+  function loadJetsPlay(playId: string) {
+    cancelDrag();
+    const next = getJetsPlayDesign(playId);
+    if (!next) return;
+    if (edit(next, "Jets study diagram loaded. The source records the action; positions and timing are illustrative. Undo restores your previous design.")) {
+      setSelectedId(jetsPlays.find((play) => play.id === playId)?.focusPlayerIds[0] ?? "qb");
+      setTool("move");
+      requestAnimationFrame(() => stageRef.current?.scrollIntoView({ behavior: "instant", block: "start" }));
+    }
+  }
+
+  function editBall(ball: PlayDesign["ball"]) {
+    const { ballEvents: _events, ...withoutEvents } = design;
+    void _events;
+    edit({ ...withoutEvents, ball }, "Custom ball settings applied. The archival ball sequence has been replaced by your pass or handoff.");
+  }
+
   function changeFormation(side: "offense" | "defense", formationId: string) {
     cancelDrag();
     const next = createPlay(side === "offense" ? formationId : design.offenseId, side === "defense" ? formationId : design.defenseId, design.conceptId);
     const players = design.players.filter((player) => player.side !== side).concat(next.players.filter((player) => player.side === side));
     const sameBallPlayers = players.some((player) => player.id === design.ball.carrierId && player.side === "offense") && players.some((player) => player.id === design.ball.targetId && player.side === "offense" && player.eligible);
-    edit({ ...design, offenseId: next.offenseId, defenseId: next.defenseId, players, ball: sameBallPlayers ? design.ball : next.ball, name: design.name === baseline.name ? next.name : design.name }, side === "defense" ? "Defensive front changed. Your offensive routes and ball settings have been kept." : "Offensive formation changed. Your defensive assignments have been kept.");
+    const { ballEvents: _events, ...withoutEvents } = design;
+    void _events;
+    edit({ ...withoutEvents, offenseId: next.offenseId, defenseId: next.defenseId, players, ball: sameBallPlayers ? design.ball : next.ball, name: design.name === baseline.name ? next.name : design.name }, side === "defense" ? "Defensive front changed. Your offensive routes have been kept; any archival ball sequence is now a custom pass or handoff." : "Offensive formation changed. Your defensive assignments have been kept; any archival ball sequence is now a custom pass or handoff.");
   }
 
   function fieldPoint(clientX: number, clientY: number): Point | null {
@@ -230,6 +258,23 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
     const y = Number(fields.get("y"));
     if (!Number.isFinite(x) || !Number.isFinite(y)) return;
     changePlayer(selected.id, clampPoint({ x, y }), `${selected.label} starting position updated.`);
+  }
+
+  function timingPlayer(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const fields = new FormData(event.currentTarget);
+    const from = Number(fields.get("from"));
+    const to = Number(fields.get("to"));
+    if (!Number.isFinite(from) || !Number.isFinite(to) || from < 0 || to > FIELD.duration || from >= to) {
+      setNotice("Movement must start before it ends, within the six-second diagram timeline.");
+      return;
+    }
+    edit({ ...design, players: design.players.map((player) => {
+      if (player.id !== selected.id) return player;
+      const { motionWindow: _window, ...withoutWindow } = player;
+      void _window;
+      return from === 0 && to === FIELD.duration ? withoutWindow : { ...withoutWindow, motionWindow: { from, to } };
+    }) }, `${selected.label} moves from ${from.toFixed(1)} to ${to.toFixed(1)} diagram seconds, holding position outside that window.`);
   }
 
   function pointForm(event: FormEvent<HTMLFormElement>, index: number | null) {
@@ -358,16 +403,25 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
     }
   }
 
-  return <section id="playbook-lab" className={styles.lab} aria-labelledby="playbook-lab-heading" data-offense={design.offenseId} data-defense={design.defenseId} data-concept={design.conceptId} data-time={seconds.toFixed(2)} data-running={running} data-selected={selected.id} data-tool={tool}>
+  return <section id="playbook-lab" className={styles.lab} aria-labelledby="playbook-lab-heading" data-offense={design.offenseId} data-defense={design.defenseId} data-concept={design.conceptId} data-time={seconds.toFixed(2)} data-running={running} data-selected={selected.id} data-tool={tool} data-archive={archive?.id ?? ""} data-archive-original={originalArchive}>
     <header className={styles.heading}><div><span className={styles.kicker}>The chalkboard comes alive</span><h2 id="playbook-lab-heading">Draw it. Run it. Read it.</h2></div><p>Build the look. Draw the assignments. Roll the play forward and inspect every movement, one frame at a time.</p></header>
+    <section className={styles.archive} aria-labelledby="jets-archive-heading">
+      <header className={styles.archiveHeading}><div><span className={styles.kicker}>The Jets archive / {String(jetsPlays.length).padStart(2, "0")} snaps</span><h3 id="jets-archive-heading">Some plays never leave you.</h3><p>Load a moment from Jets history. Follow the named players, step through the action, then draw your own answer.</p></div><div className={styles.archiveFilters} role="group" aria-label="Filter Jets archive">{(["all", "great", "painful"] as const).map((filter) => <button key={filter} type="button" aria-pressed={archiveFilter === filter} onClick={() => setArchiveFilter(filter)}>{filter === "all" ? "Every snap" : filter === "great" ? "The glory" : "The agony"}</button>)}</div></header>
+      <div className={styles.archiveCards}>{filteredArchive.map((play) => <button key={play.id} type="button" data-jets-play={play.id} aria-pressed={archive?.id === play.id} aria-label={`Load ${play.title}`} onClick={() => loadJetsPlay(play.id)}><span className={styles.archiveMeta}>{play.date.slice(0, 4)} · {play.opponent}<em>{play.category === "great" ? "Glory" : "Agony"}</em></span><strong>{play.title}</strong><span>{play.result}</span><small>{archive?.id === play.id ? originalArchive ? "Loaded / study diagram" : "Loaded / edited copy" : "Draw this play"}<span aria-hidden="true"> ↗</span></small></button>)}</div>
+      <div className={styles.archiveFoot}><p>Sourced football action. Illustrative positions and timing. Unknown assignments stay blank.</p><button type="button" onClick={() => { cancelDrag(); if (edit(createPlay(), "Teaching play loaded. Draw your own assignments; Undo restores the Jets study diagram.")) setSelectedId("x"); }}>Start a teaching play</button></div>
+    </section>
+    {archive ? <article className={styles.archiveRecord} aria-labelledby="jets-play-heading">
+      <div className={styles.archiveSituation}><span className={styles.kicker}>{originalArchive ? "Sourced action / study diagram" : "Edited study copy / source play below"} · Jets on {archive.jetsSide}</span><h3 id="jets-play-heading">{archive.title}</h3><p>{archive.situation}</p><strong>{archive.result}</strong><p>{archive.summary}</p><a href="#jets-play-stage">Go to the board <span aria-hidden="true">↓</span></a></div>
+      <div className={styles.archiveEvidence}><p>Template formations, routes, spacing and the six-second clock are editing aids. They do not establish the historical play call or actual player tracking.</p><details><summary>What the sources establish</summary><ul>{archive.confirmed.map((fact) => <li key={fact}>{fact}</li>)}</ul><h4>What remains illustrative</h4><ul>{archive.illustrative.map((note) => <li key={note}>{note}</li>)}</ul></details><div className={styles.archiveSources}>{archive.sources.map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.label}<span aria-hidden="true"> ↗</span><span className="sr-only"> (opens in a new tab)</span></a>)}</div>{!originalArchive ? <button type="button" onClick={() => loadJetsPlay(archive.id)}>Restore source diagram</button> : null}</div>
+    </article> : null}
     <div className={styles.presets}>
       <label>Offensive formation<select aria-label="Offensive formation" value={design.offenseId} onChange={(event) => changeFormation("offense", event.target.value)}>{offensiveFormations.map((formation) => <option key={formation.id} value={formation.id}>{formation.label} · {formation.personnel}</option>)}</select><span>{offensiveFormation.description}</span></label>
       <label>Defensive front<select aria-label="Defensive front" value={design.defenseId} onChange={(event) => changeFormation("defense", event.target.value)}>{defensiveFormations.map((formation) => <option key={formation.id} value={formation.id}>{formation.label} · {formation.personnel}</option>)}</select><span>{defensiveFormation.description}</span></label>
       <label>Play concept<select aria-label="Play concept" value={design.conceptId} onChange={(event) => choosePreset(design.offenseId, design.defenseId, event.target.value)}>{concepts.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select><span>{concept.description}</span></label>
     </div>
-    <p className={styles.presetHelp}>Changing a formation replaces that side’s assignments. A new play concept reloads both sides; Undo edit restores your previous design.</p>
-    <div className={styles.stage}>
-      <div className={styles.stageHeader}><div><span>Assignment playback / {seconds === 0 ? "At the snap" : running ? "Running" : "Paused"}</span><strong>{design.name}</strong></div><p><span data-lab-count="offense">{offense.length}</span> offense <i aria-hidden="true">/</i> <span data-lab-count="defense">{defense.length}</span> defense</p></div>
+    <p className={styles.presetHelp}>{archive ? "These are teaching templates, not verified historical formations. " : ""}Changing a formation replaces that side’s assignments. A new play concept reloads both sides; Undo edit restores your previous design.</p>
+    <div ref={stageRef} id="jets-play-stage" className={styles.stage}>
+      <div className={styles.stageHeader}><div><span>{archive ? originalArchive ? "Jets study diagram" : "Your edited study copy" : "Assignment playback"} / {seconds === 0 ? "At the snap" : running ? "Running" : "Paused"}</span><strong>{design.name}</strong></div><p><span data-lab-count="offense">{offense.length}</span> {archive?.jetsSide === "offense" ? "Jets" : archive ? archive.opponent : "offense"} <i aria-hidden="true">/</i> <span data-lab-count="defense">{defense.length}</span> {archive?.jetsSide === "defense" ? "Jets" : archive ? archive.opponent : "defense"}</p></div>
       <div className={styles.fieldTools}><div role="group" aria-label="Field tool"><button type="button" aria-pressed={tool === "move"} onClick={() => { cancelDrag(); setTool("move"); }}>Move players</button><button type="button" aria-pressed={tool === "draw"} onClick={() => { cancelDrag(); setTool("draw"); stopAtSnap(); }}>Draw assignment</button></div><p>{tool === "draw" ? `Click or tap the field to add points for ${selected.label}.` : "Select a player. Drag to move; arrow keys also work."}</p></div>
       <figure className={styles.figure}>
         <svg ref={fieldRef} role="group" viewBox={`0 0 ${FIELD.width} ${FIELD.height}`} className={`${styles.field} ${tool === "draw" ? styles.drawing : ""}`} aria-labelledby={`${id}-field-title ${id}-field-desc`} onClick={drawPoint} onKeyDown={(event) => { if (event.key === "Escape") cancelDrag(); }}>
@@ -381,20 +435,28 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
           {seconds === 0 ? selected.path.map((point, at) => <g key={`${selected.id}-${at}`} data-route-point={at} className={styles.routePoint}><circle cx={point.x} cy={point.y} r="11" /><text x={point.x} y={point.y + 4} textAnchor="middle">{at + 1}</text></g>) : null}
           {design.players.map((player) => {
             const point = drag?.id === player.id ? drag.point : samplePlayer(player, seconds);
+            const lineName = ["lt", "lg", "c", "rg", "rt"].includes(player.id);
+            const sideName = player.side === "defense";
+            const qbName = archive?.id === "sanchez-thanksgiving" && player.id === "qb";
+            const labelPosition = lineName ? { x: 0, y: -64, textAnchor: "middle" as const }
+              : sideName ? { x: 30, y: 4, textAnchor: "start" as const }
+              : qbName ? { x: -30, y: 4, textAnchor: "end" as const }
+              : { x: 0, y: 35, textAnchor: "middle" as const };
             return <g key={player.id} className={`${styles.player} ${player.side === "offense" ? styles.offensivePlayer : styles.defensivePlayer} ${selected.id === player.id ? styles.selectedPlayer : ""}`} role="button" tabIndex={selected.id === player.id ? 0 : -1} aria-label={`Select ${player.label}, ${player.side}${player.eligible ? ", eligible receiver" : ""}`} aria-pressed={selected.id === player.id} data-lab-player={player.id} data-side={player.side} data-x={point.x.toFixed(2)} data-y={point.y.toFixed(2)} transform={`translate(${point.x} ${point.y})`} onPointerDown={(event) => startDrag(event, player)} onPointerMove={moveDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} onLostPointerCapture={cancelDrag} onClick={(event) => { event.stopPropagation(); selectPlayer(player); }} onKeyDown={(event) => keyboardPlayer(event, player)} onBlur={cancelDrag}>
-              <circle r="25" className={styles.playerHit} /><circle r="16" className={styles.playerBody} /><text y="5" textAnchor="middle">{player.label}</text>{player.eligible ? <circle cx="15" cy="-14" r="4" className={styles.eligibleDot} /> : null}
+              <circle r="25" className={styles.playerHit} /><circle r="16" className={styles.playerBody} /><text y="5" textAnchor="middle">{player.label.length > 5 ? player.label.match(/^\d+|\d+$/)?.[0] ?? (player.id === "qb" ? "QB" : player.side === "offense" ? "REC" : "DB") : player.label}</text>{player.label.length > 5 ? <text {...labelPosition} className={styles.playerName}>{player.label}</text> : null}{player.eligible ? <circle cx="15" cy="-14" r="4" className={styles.eligibleDot} /> : null}
             </g>;
           })}
           <g transform={`translate(${ball.x} ${ball.y})`} data-lab-ball data-x={ball.x.toFixed(2)} data-y={ball.y.toFixed(2)} className={styles.ball}><g transform="translate(20 -20)"><ellipse rx="10" ry="6" /><path d="M-4 0H4M-2-2V2M1-2V2" /></g></g>
         </svg>
-        <figcaption><span><i className={styles.offenseKey} />Offense &amp; route</span><span><i className={styles.defenseKey} />Defense &amp; assignment</span><span><i className={styles.eligibleKey} />Eligible receiver</span><span data-lab-alignment>{customAlignment ? "Custom alignment: check formation legality" : "Preset starting alignment"}</span></figcaption>
+        <figcaption><span><i className={styles.offenseKey} />{archive?.jetsSide === "offense" ? "Jets offense" : archive ? `${archive.opponent} offense` : "Offense & route"}</span><span><i className={styles.defenseKey} />{archive?.jetsSide === "defense" ? "Jets defense" : archive ? `${archive.opponent} defense` : "Defense & assignment"}</span><span><i className={styles.eligibleKey} />Eligible receiver</span><span data-lab-alignment>{archive ? originalArchive ? "Illustrative alignment / unknown assignments blank" : "Edited study alignment / custom assignments" : customAlignment ? "Custom alignment: check formation legality" : "Preset starting alignment"}</span></figcaption>
       </figure>
       <div className={styles.transport}>
         <div className={styles.playButtons}><button type="button" className={styles.playButton} onClick={togglePlayback} aria-label={running ? "Pause play" : "Run play"}><span aria-hidden="true">{running ? "Ⅱ" : "▶"}</span>{running ? "Pause" : "Run play"}</button><button type="button" onClick={replay}>Replay</button><button type="button" onClick={() => { cancelDrag(); stopAtSnap(); }}>Back to snap</button></div>
         <label className={styles.timeline}>Play timeline <output>{seconds.toFixed(1)} / {FIELD.duration.toFixed(1)} sec</output><input type="range" min="0" max={FIELD.duration} step="0.05" value={seconds} aria-label="Play timeline" aria-valuetext={`${seconds.toFixed(2)} seconds of ${FIELD.duration}`} onChange={(event) => scrub(Number(event.target.value))} /></label>
         <label className={styles.speed}>Playback speed<select aria-label="Playback speed" value={speed} onChange={(event) => setSpeed(Number(event.target.value))}><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label>
       </div>
-      <p className={styles.playbackNote}>Movement follows the paths you draw over six seconds. Ball movement is an illustrative pass or handoff. This is assignment playback, not film tracking, collision physics, or a prediction of who wins the play. No animation starts automatically.</p>
+      {archive && originalArchive ? <div className={styles.moments}><div role="group" aria-label="Step through Jets play">{archive.moments.map((moment, at) => <button type="button" key={moment.at} aria-pressed={archiveMoment?.at === moment.at} onClick={() => scrub(moment.at)} data-jets-moment={moment.at}><span>{String(at + 1).padStart(2, "0")}</span>{moment.label}</button>)}</div><p data-jets-moment-detail><strong>{archiveMoment?.label}</strong>{archiveMoment?.detail}</p><small>Steps use illustrative diagram time, not timestamps from the film.</small></div> : null}
+      <p className={styles.playbackNote}>Movement follows the paths you draw over six seconds{archive ? ", with staged movement windows for the central action" : ""}. Ball movement is illustrative. This is assignment playback, not film tracking, collision physics, or a prediction of who wins the play. No animation starts automatically.</p>
     </div>
     <p className={styles.status} role="status" aria-live="polite" data-lab-status>{notice}</p>
     <div className={styles.editor}>
@@ -403,13 +465,15 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
         <div className={styles.roster} role="group" aria-label="Select offensive player">{offense.map((player) => <button type="button" key={player.id} aria-pressed={selected.id === player.id} onClick={() => selectPlayer(player)} aria-label={`Select ${player.label}, offense`} data-lab-roster={player.id}>{player.label}</button>)}</div><div className={`${styles.roster} ${styles.defenseRoster}`} role="group" aria-label="Select defensive player">{defense.map((player) => <button type="button" key={player.id} aria-pressed={selected.id === player.id} onClick={() => selectPlayer(player)} aria-label={`Select ${player.label}, defense`} data-lab-roster={player.id}>{player.label}</button>)}</div>
         <form key={`${selected.id}-${selected.x}-${selected.y}`} onSubmit={positionPlayer} className={styles.coordinates}><label>Start X<input type="number" name="x" min="20" max={FIELD.width - 20} defaultValue={selected.x} step="1" required /></label><label>Start Y<input type="number" name="y" min="20" max={FIELD.height - 20} defaultValue={selected.y} step="1" required /></label><button type="submit">Move to position</button></form>
         <p className={styles.editorHelp}>Upfield decreases Y. Moving a start leaves the assignment’s destination points in place. Field players support arrow keys; hold Shift for a larger move. Edits return playback to the snap.</p>
+        <details><summary>Movement timing</summary><p>Stage a release, a catch or a return. A player holds the start before this window and the final point after it. Times are diagram seconds.</p><form key={`${selected.id}-${selected.motionWindow?.from ?? 0}-${selected.motionWindow?.to ?? FIELD.duration}`} onSubmit={timingPlayer} className={styles.coordinates}><label>Movement starts<input type="number" name="from" min="0" max="5.9" step="0.1" defaultValue={selected.motionWindow?.from ?? 0} required /></label><label>Movement ends<input type="number" name="to" min="0.1" max={FIELD.duration} step="0.1" defaultValue={selected.motionWindow?.to ?? FIELD.duration} required /></label><button type="submit">Apply movement timing</button></form></details>
         <div className={styles.quickRoute}><label>Route pattern<select aria-label="Route pattern" value={routePattern} onChange={(event) => setRoutePattern(event.target.value)}>{routePatterns.map((pattern) => <option key={pattern.id} value={pattern.id}>{pattern.label}</option>)}</select></label><button type="button" onClick={() => changePlayer(selected.id, { path: routeForPlayer(selected, routePattern) }, `${selected.label}’s ${routePatterns.find((pattern) => pattern.id === routePattern)?.label.toLowerCase()} assignment applied.`)}>Apply route pattern</button></div>
         <div className={styles.assignmentButtons}><button type="button" disabled={!selected.path.length} onClick={() => changePlayer(selected.id, { path: selected.path.slice(0, -1) }, "Last assignment point removed.")}>Remove last point</button><button type="button" disabled={!selected.path.length} onClick={() => changePlayer(selected.id, { path: [] }, `${selected.label}’s assignment cleared.`)}>Clear assignment</button></div>
         {selected.side === "defense" ? <div className={styles.follow}><label>Follow a receiver<select aria-label="Receiver to follow" value={followTarget.id} onChange={(event) => setFollowId(event.target.value)}>{eligible.map((player) => <option key={player.id} value={player.id}>{player.label}</option>)}</select></label><button type="button" onClick={followReceiver}>Draw follow assignment</button><button type="button" onClick={rushQuarterback}>Rush the quarterback</button><p>Follow copies the receiver’s current route with a fixed teaching offset; it does not model leverage, reaction, or real coverage. A rush aims at the quarterback’s starting position.</p></div> : null}
         <details className={styles.pointEditor}><summary>Assignment coordinates ({selected.path.length} points)</summary><p>Add or edit destinations numerically. Each point is visited in order; the route starts at the player’s position.</p>{selected.path.map((point, at) => <form key={`${selected.id}-${at}-${point.x}-${point.y}`} onSubmit={(event) => pointForm(event, at)} className={styles.coordinates}><strong>{at + 1}</strong><label>Point {at + 1} X<input type="number" name="x" min="20" max={FIELD.width - 20} defaultValue={point.x} step="1" required /></label><label>Point {at + 1} Y<input type="number" name="y" min="20" max={FIELD.height - 20} defaultValue={point.y} step="1" required /></label><button type="submit">Update point {at + 1}</button></form>)}<form key={selected.id} onSubmit={(event) => pointForm(event, null)} className={styles.coordinates}><label>New point X<input type="number" name="x" min="20" max={FIELD.width - 20} defaultValue={selected.x} step="1" required /></label><label>New point Y<input type="number" name="y" min="20" max={FIELD.height - 20} defaultValue={Math.max(20, selected.y - 80)} step="1" required /></label><button type="submit" disabled={selected.path.length >= MAX_POINTS}>Add assignment point</button></form></details>
       </section>
       <section className={styles.designEditor} aria-labelledby="lab-design-heading"><span className={styles.kicker}>Make it your own</span><h3 id="lab-design-heading">Keep the playbook.</h3><label key={design.name}>Design name<input type="text" defaultValue={design.name} maxLength={80} onBlur={(event) => { const name = event.target.value.trim(); if (name && name !== design.name) { if (!edit({ ...design, name }, "Design renamed.")) event.target.value = design.name; } else if (!name) { event.target.value = design.name; setNotice("A design needs a name. The previous name has been kept."); } }} /></label>
-        <div className={styles.ballControls}><label>Ball carrier<select aria-label="Ball carrier" value={design.ball.carrierId} onChange={(event) => edit({ ...design, ball: { ...design.ball, carrierId: event.target.value } })}>{offense.map((player) => <option key={player.id} value={player.id}>{player.label}</option>)}</select></label><label>Pass target<select aria-label="Pass target" value={design.ball.targetId} onChange={(event) => edit({ ...design, ball: { ...design.ball, targetId: event.target.value } })}>{eligible.map((player) => <option key={player.id} value={player.id}>{player.label}</option>)}</select></label><label>Release time (seconds)<input aria-label="Release time" type="number" min="0" max="5.4" step="0.1" value={design.ball.releaseAt} onChange={(event) => { if (event.target.value !== "") edit({ ...design, ball: { ...design.ball, releaseAt: Number(event.target.value) } }); }} /></label></div>
+        {design.ballEvents ? <div className={styles.eventBall}><strong>Staged ball sequence</strong><p>This design follows {design.ballEvents.length} ball events. Flights, loose balls and possession changes are replayed as drawn. Custom pass settings replace that sequence.</p><button type="button" onClick={() => editBall(design.ball)}>Use a custom pass or handoff</button></div> : null}
+        <div className={styles.ballControls}><label>Ball carrier<select aria-label="Ball carrier" disabled={Boolean(design.ballEvents)} value={design.ball.carrierId} onChange={(event) => editBall({ ...design.ball, carrierId: event.target.value })}>{offense.map((player) => <option key={player.id} value={player.id}>{player.label}</option>)}</select></label><label>Pass target<select aria-label="Pass target" disabled={Boolean(design.ballEvents)} value={design.ball.targetId} onChange={(event) => editBall({ ...design.ball, targetId: event.target.value })}>{eligible.map((player) => <option key={player.id} value={player.id}>{player.label}</option>)}</select></label><label>Release time (seconds)<input aria-label="Release time" disabled={Boolean(design.ballEvents)} type="number" min="0" max="5.4" step="0.1" value={design.ball.releaseAt} onChange={(event) => { if (event.target.value !== "") editBall({ ...design.ball, releaseAt: Number(event.target.value) }); }} /></label></div>
         <div className={styles.designActions}><button type="button" disabled={!undo.length} onClick={undoEdit}>Undo edit{undo.length ? ` (${undo.length})` : ""}</button><button type="button" onClick={() => choosePreset(design.offenseId, design.defenseId, design.conceptId)}>Reset preset</button><button type="button" onClick={saveLocal}>Save in browser</button><button type="button" onClick={loadLocal}>Load saved design</button><button type="button" onClick={exportDesign}>Export JSON</button><button type="button" onClick={shareDesign}>Copy diagram link</button></div>
         {shareUrl ? <label className={styles.shareLink}>Diagram link<input type="text" readOnly value={shareUrl} onFocus={(event) => event.currentTarget.select()} /></label> : null}
         <p className={styles.editorHelp}>One saved design stays in this browser. Share links carry the design; JSON keeps a portable copy. Undo retains your last thirty edits during this visit.</p>

@@ -7,6 +7,7 @@ import { clockLabel, pct } from "@/lib/games";
 import { wpaLabel } from "@/lib/analytics-context";
 import { formatDate } from "@/lib/current";
 import { parseFilmSelection, pressureOptions, type FilmCase, type FilmScene, type FilmSelection } from "@/lib/film-room";
+import { jetsPlays } from "@/lib/jets-playbook";
 import ScoutingBoard from "./ScoutingBoard";
 import styles from "./FilmRoom.module.css";
 
@@ -50,6 +51,7 @@ function SourceViewer({ film }: { film: FilmCase }) {
     {film.scene ? <Scene key={film.scene.src} scene={film.scene} /> : <div className={styles.replayCover}><span className={styles.replayKicker}>From the source archive</span><strong>{film.title}</strong><p>Open the official replay, then work through the record and the scouting questions below.</p><span className={styles.filmStrip} aria-hidden="true">01 — 02 — 03 — 04</span></div>}
     <div className={styles.videoControls}><div><span className={styles.videoLabel}>Official replay</span><p>{replay.label}</p></div><a className={styles.replayButton} href={replay.url} target="_blank" rel="noreferrer">Open official replay <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a>{youtubeUrl ? <a href={youtubeUrl} target="_blank" rel="noreferrer">Watch on YouTube <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : null}</div>
     <p className={styles.videoNote}>These NFL clips restrict embedded playback. The replay opens at its source in a new tab; keep this notebook open while you watch. {film.video.label} is also available on YouTube.</p>
+    {jetsPlays.some((play) => play.id === film.id) ? <a className={styles.replayButton} href={`#jets-play:${film.id}`}>Draw this Jets play <span aria-hidden="true">↑</span></a> : null}
   </div>;
 }
 

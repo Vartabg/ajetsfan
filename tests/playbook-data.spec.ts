@@ -3,7 +3,7 @@ import { isDeepStrictEqual } from "node:util";
 import {
   FIELD, concepts, createPlay, defensiveFormations, formationWarnings, offensiveFormations,
   routeForPlayer, routePatterns, sampleBall, samplePlayer, validatePlayDesign,
-  type PlayDesign, type PlaybookPlayer, type Point,
+  type BallEvent, type PlayDesign, type PlaybookPlayer, type Point,
 } from "../src/lib/playbook";
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -116,6 +116,97 @@ test("ball playback follows the carrier, interpolates to the catch point, then f
   const run = createPlay("i-form", "goal-line", "inside-zone");
   expect(run.ball.targetId).toBe("rb");
   expect(sampleBall(run, 6)).toEqual(samplePlayer(run.players.find((player) => player.id === "rb")!, 6));
+});
+
+test("optional motion windows hold before and after a staged illustrative assignment", () => {
+  const player: PlaybookPlayer = { id: "d1", label: "Recovery", side: "defense", eligible: false, x: 200, y: 100, path: [{ x: 500, y: 100 }, { x: 500, y: 400 }], motionWindow: { from: 2, to: 5 } };
+  expect(samplePlayer(player, 0)).toEqual({ x: 200, y: 100 });
+  expect(samplePlayer(player, 2)).toEqual({ x: 200, y: 100 });
+  expect(samplePlayer(player, 3.5)).toEqual({ x: 500, y: 100 });
+  expect(samplePlayer(player, 4.25)).toEqual({ x: 500, y: 250 });
+  expect(samplePlayer(player, 5)).toEqual({ x: 500, y: 400 });
+  expect(samplePlayer(player, Infinity)).toEqual({ x: 500, y: 400 });
+  expect(samplePlayer(player, Number.NaN)).toEqual({ x: 200, y: 100 });
+});
+
+test("explicit ball events draw a continuous loose ball, defensive recovery and return", () => {
+  const play = createPlay();
+  const quarterback = play.players.find((player) => player.id === "qb")!;
+  const defender = play.players.find((player) => player.id === "d1")!;
+  Object.assign(quarterback, { x: 100, y: 400, path: [{ x: 200, y: 400 }], motionWindow: { from: 0, to: 2 } });
+  Object.assign(defender, { x: 250, y: 420, path: [{ x: 750, y: 600 }], motionWindow: { from: 3, to: 6 } });
+  play.archiveId = "jets-fumble-example";
+  play.ballEvents = [
+    { at: 0, kind: "carry", carrierId: "qb" },
+    { at: 2, kind: "loose", until: 3, to: { x: 250, y: 420 } },
+    { at: 3, kind: "carry", carrierId: "d1" },
+  ];
+  expect(validatePlayDesign(play)).toEqual(play);
+  expect(sampleBall(play, 1)).toEqual({ x: 150, y: 400 });
+  expect(sampleBall(play, 2)).toEqual({ x: 200, y: 400 });
+  expect(sampleBall(play, 2.5)).toEqual({ x: 225, y: 410 });
+  expect(sampleBall(play, 3)).toEqual({ x: 250, y: 420 });
+  expect(sampleBall(play, 4.5)).toEqual(samplePlayer(defender, 4.5));
+  expect(sampleBall(play, 6)).toEqual({ x: 750, y: 600 });
+  expect(sampleBall(play, Number.NaN)).toEqual({ x: 100, y: 400 });
+  const held = clone(play);
+  held.ballEvents = held.ballEvents!.slice(0, 2);
+  expect(sampleBall(held, 6)).toEqual({ x: 250, y: 420 });
+  const imported = validatePlayDesign(JSON.parse(JSON.stringify(play)))!;
+  (imported.ballEvents![1] as Extract<BallEvent, { kind: "loose" }>).to.x = 1;
+  imported.players.find((player) => player.id === "d1")!.motionWindow!.from = 2.5;
+  expect((play.ballEvents[1] as Extract<BallEvent, { kind: "loose" }>).to.x).toBe(250);
+  expect(defender.motionWindow!.from).toBe(3);
+});
+
+test("explicit flight events meet a moving receiver or interceptor and follow possession after arrival", () => {
+  const play = createPlay();
+  Object.assign(play.players.find((player) => player.id === "qb")!, { x: 100, y: 400, path: [] });
+  const target = play.players.find((player) => player.id === "x")!;
+  Object.assign(target, { x: 500, y: 300, path: [{ x: 500, y: 0 }] });
+  play.ballEvents = [{ at: 0, kind: "carry", carrierId: "qb" }, { at: 2, kind: "flight", until: 3, targetId: "x" }];
+  expect(validatePlayDesign(play)).toEqual(play);
+  expect(sampleBall(play, 2)).toEqual({ x: 100, y: 400 });
+  expect(sampleBall(play, 2.5)).toEqual({ x: 300, y: 275 });
+  expect(sampleBall(play, 3)).toEqual({ x: 500, y: 150 });
+  expect(sampleBall(play, 4.5)).toEqual(samplePlayer(target, 4.5));
+  expect(sampleBall(play, 6)).toEqual(samplePlayer(target, 6));
+  const interceptor = play.players.find((player) => player.id === "d2")!;
+  play.ballEvents[1] = { at: 2, kind: "flight", until: 3, targetId: "d2" };
+  expect(validatePlayDesign(play)).not.toBeNull();
+  expect(sampleBall(play, 3)).toEqual(samplePlayer(interceptor, 3));
+  expect(sampleBall(play, 6)).toEqual(samplePlayer(interceptor, 6));
+});
+
+test("imports validate archive association, motion windows and ordered bounded ball events", () => {
+  const valid = createPlay();
+  const carry = { at: 0, kind: "carry", carrierId: "qb" };
+  const replaceEvents = (ballEvents: unknown) => ({ ...valid, ballEvents });
+  const replaceWindow = (motionWindow: unknown) => ({ ...valid, players: valid.players.map((player, index) => index === 0 ? { ...player, motionWindow } : player) });
+  const malformed: unknown[] = [
+    ...[undefined, null, "", "A", "<script>", "../other", "a".repeat(65)].map((archiveId) => ({ ...valid, archiveId })),
+    ...[undefined, null, [], {}, { from: 0 }, { from: 0, to: 6, extra: true }, { from: -1, to: 6 }, { from: 0, to: 7 }, { from: 3, to: 3 }, { from: 4, to: 3 }, { from: NaN, to: 6 }, { from: 0, to: Infinity }, { from: "0", to: 6 }].map(replaceWindow),
+    ...[undefined, null, {}, [], new Array(2), [carry, null], [carry, { at: 1, kind: "other" }],
+      [{ ...carry, at: 1 }], [{ at: 0, kind: "loose", until: 1, to: { x: 10, y: 10 } }],
+      [carry, { ...carry, at: 0 }], [carry, { ...carry, at: -.1 }], [carry, { ...carry, at: NaN }],
+      [carry, { ...carry, at: 7 }], [carry, { ...carry, at: 1, carrierId: "missing" }], [{ ...carry, extra: true }],
+      [carry, { at: 1, kind: "flight", until: 2, targetId: "missing" }], [carry, { at: 1, kind: "flight", until: 1, targetId: "x" }],
+      [carry, { at: 1, kind: "flight", until: Infinity, targetId: "x" }], [carry, { at: 1, kind: "flight", until: 7, targetId: "x" }],
+      [carry, { at: 1, kind: "flight", until: 3, targetId: "x" }, { ...carry, at: 2 }],
+      [carry, { at: 1, kind: "flight", until: 2, targetId: "x", extra: true }],
+      [carry, { at: 1, kind: "loose", until: 1, to: { x: 10, y: 10 } }], [carry, { at: 1, kind: "loose", until: 2, to: { x: -1, y: 10 } }],
+      [carry, { at: 1, kind: "loose", until: 2, to: { x: 10, y: 621 } }], [carry, { at: 1, kind: "loose", until: 2, to: { x: 10, y: 10, extra: true } }],
+      [carry, { at: 1, kind: "loose", until: 3, to: { x: 10, y: 10 } }, { ...carry, at: 2 }],
+      Array.from({ length: 13 }, (_, index) => ({ ...carry, at: index / 3 })),
+    ].map(replaceEvents),
+  ];
+  for (const value of malformed) expect(validatePlayDesign(value)).toBeNull();
+  expect(validatePlayDesign({ ...valid, archiveId: "jets-1994-fake-spike" })?.archiveId).toBe("jets-1994-fake-spike");
+  expect(validatePlayDesign(replaceWindow({ from: 0, to: 6 }))!.players[0].motionWindow).toEqual({ from: 0, to: 6 });
+  expect(validatePlayDesign(replaceEvents([carry, { at: 1, kind: "flight", until: 3, targetId: "x" }, { at: 3, kind: "carry", carrierId: "x" }]))).not.toBeNull();
+  expect(validatePlayDesign(replaceEvents([{ ...carry, carrierId: "d1" }, { at: 6, kind: "carry", carrierId: "d2" }]))).not.toBeNull();
+  expect(validatePlayDesign(replaceEvents([carry, { at: 1, kind: "loose", until: 6, to: { x: 1000, y: 620 } }]))).not.toBeNull();
+  expect(validatePlayDesign(replaceEvents(Array.from({ length: 12 }, (_, index) => ({ ...carry, at: index / 2 }))))).not.toBeNull();
 });
 
 test("quick routes mirror breaks, clamp extreme alignments and hold still when asked", () => {

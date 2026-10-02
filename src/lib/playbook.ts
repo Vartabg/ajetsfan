@@ -6,6 +6,8 @@
 export const FIELD = { width: 1000, height: 620, lineOfScrimmage: 360, duration: 6 } as const;
 
 export type Point = { x: number; y: number };
+/** A bounded teaching interval; not measured player-tracking time. */
+export type MotionWindow = { from: number; to: number };
 export type PlaybookPlayer = Point & {
   id: string;
   label: string;
@@ -13,7 +15,14 @@ export type PlaybookPlayer = Point & {
   eligible: boolean;
   /** Route destinations, excluding the starting position. */
   path: Point[];
+  /** Hold the start/end outside this interval; omitted means the whole board timeline. */
+  motionWindow?: MotionWindow;
 };
+/** Explicit schematic possession changes, throws and loose-ball motion. */
+export type BallEvent =
+  | { at: number; kind: "carry"; carrierId: string }
+  | { at: number; kind: "flight"; until: number; targetId: string }
+  | { at: number; kind: "loose"; until: number; to: Point };
 export type PlayDesign = {
   version: 1;
   name: string;
@@ -22,6 +31,10 @@ export type PlayDesign = {
   conceptId: string;
   players: PlaybookPlayer[];
   ball: { carrierId: string; targetId: string; releaseAt: number };
+  /** Optional archive association; source fidelity is checked against the canonical design. */
+  archiveId?: string;
+  /** Overrides the simple ball model; begins with carry at zero and permits either team. */
+  ballEvents?: BallEvent[];
 };
 export type PlaybookFormation = {
   id: string;
@@ -253,7 +266,7 @@ export function createPlay(offenseId = "spread-2x2", defenseId = "nickel", conce
 
 const playbackTime = (seconds: number) => Number.isNaN(seconds) ? 0 : clamp(seconds, 0, FIELD.duration);
 const lerp = (from: Point, to: Point, proportion: number): Point => ({ x: from.x + (to.x - from.x) * proportion, y: from.y + (to.y - from.y) * proportion });
-/** Constant progress by total path distance, not a prediction of player speed. */
+/** Constant progress by total path distance within its window, not player speed. */
 export function samplePlayer(player: PlaybookPlayer, seconds: number): Point {
   const start = { x: player.x, y: player.y };
   const points = [start, ...player.path];
@@ -262,8 +275,10 @@ export function samplePlayer(player: PlaybookPlayer, seconds: number): Point {
   if (!total) return start;
   const time = playbackTime(seconds);
   const final = points[points.length - 1];
-  if (time === FIELD.duration) return { x: final.x, y: final.y };
-  let remaining = total * time / FIELD.duration;
+  const window = player.motionWindow ?? { from: 0, to: FIELD.duration };
+  if (time <= window.from) return start;
+  if (time >= window.to) return { x: final.x, y: final.y };
+  let remaining = total * (time - window.from) / (window.to - window.from);
   for (let index = 0; index < lengths.length; index += 1) {
     const length = lengths[index];
     if (!length) continue;
@@ -276,10 +291,31 @@ export function samplePlayer(player: PlaybookPlayer, seconds: number): Point {
 
 /**
  * A 0.6-second illustrative throw or handoff joins the carrier's release point
- * to the target's future position. There is no interception/contact simulation.
+ * to the target's future position. Explicit events can instead draw a throw,
+ * loose ball, recovery or return, without simulating contact or predicting it.
  */
 export function sampleBall(design: PlayDesign, seconds: number): Point {
   const time = playbackTime(seconds);
+  if (design.ballEvents?.length) {
+    let position: Point = { x: 0, y: 0 };
+    for (let index = 0; index < design.ballEvents.length; index += 1) {
+      const event = design.ballEvents[index];
+      const next = design.ballEvents[index + 1];
+      const endTime = next ? Math.min(time, next.at) : time;
+      if (event.kind === "carry") {
+        position = samplePlayer(design.players.find((player) => player.id === event.carrierId)!, endTime);
+      } else if (event.kind === "flight") {
+        const target = design.players.find((player) => player.id === event.targetId)!;
+        position = endTime >= event.until ? samplePlayer(target, endTime)
+          : lerp(position, samplePlayer(target, event.until), (endTime - event.at) / (event.until - event.at));
+      } else {
+        position = endTime >= event.until ? { ...event.to }
+          : lerp(position, event.to, (endTime - event.at) / (event.until - event.at));
+      }
+      if (!next || time < next.at) return position;
+    }
+    return position;
+  }
   const carrier = design.players.find((player) => player.id === design.ball.carrierId)!;
   const target = design.players.find((player) => player.id === design.ball.targetId)!;
   if (time <= design.ball.releaseAt) return samplePlayer(carrier, time);
@@ -308,6 +344,12 @@ function keys(value: Record<string, unknown>, expected: string[]): boolean {
   const actual = Object.keys(value);
   return actual.length === expected.length && actual.every((key) => expected.includes(key));
 }
+function optionalKeys(value: Record<string, unknown>, required: string[], optional: string[]): boolean {
+  return required.every((key) => Object.hasOwn(value, key)) && Object.keys(value).every((key) => required.includes(key) || optional.includes(key));
+}
+function finiteTime(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= FIELD.duration;
+}
 function safeText(value: unknown, max: number): value is string {
   return typeof value === "string" && value.trim().length > 0 && value.length <= max && !/[<>\u0000-\u001f\u007f]/.test(value);
 }
@@ -323,19 +365,25 @@ const known = (value: unknown, choices: readonly { id: string }[]): value is str
  * fields. It checks data structure and bounds, not custom formation legality.
  */
 export function validatePlayDesign(value: unknown): PlayDesign | null {
-  if (!record(value) || !keys(value, ["version", "name", "offenseId", "defenseId", "conceptId", "players", "ball"])
+  if (!record(value) || !optionalKeys(value, ["version", "name", "offenseId", "defenseId", "conceptId", "players", "ball"], ["archiveId", "ballEvents"])
     || value.version !== 1 || !safeText(value.name, 80)
     || !known(value.offenseId, offensiveFormations) || !known(value.defenseId, defensiveFormations) || !known(value.conceptId, concepts)
     || !Array.isArray(value.players) || value.players.length !== 22) return null;
   const players: PlaybookPlayer[] = [];
   const ids = new Set<string>();
   for (const player of value.players) {
-    if (!record(player) || !keys(player, ["id", "label", "side", "eligible", "x", "y", "path"])
+    if (!record(player) || !optionalKeys(player, ["id", "label", "side", "eligible", "x", "y", "path"], ["motionWindow"])
       || typeof player.id !== "string" || !/^[a-z][a-z0-9-]{0,31}$/.test(player.id) || ids.has(player.id)
       || !safeText(player.label, 24) || (player.side !== "offense" && player.side !== "defense") || typeof player.eligible !== "boolean"
       || !point({ x: player.x, y: player.y }) || !Array.isArray(player.path) || player.path.length > 12 || !Array.from(player.path).every(point)) return null;
     ids.add(player.id);
-    players.push({ id: player.id, label: player.label.trim(), side: player.side, eligible: player.eligible, x: player.x as number, y: player.y as number, path: player.path.map((entry) => ({ x: entry.x, y: entry.y })) });
+    let motionWindow: MotionWindow | undefined;
+    if (Object.hasOwn(player, "motionWindow")) {
+      const window = player.motionWindow;
+      if (!record(window) || !keys(window, ["from", "to"]) || !finiteTime(window.from) || !finiteTime(window.to) || window.from >= window.to) return null;
+      motionWindow = { from: window.from, to: window.to };
+    }
+    players.push({ id: player.id, label: player.label.trim(), side: player.side, eligible: player.eligible, x: player.x as number, y: player.y as number, path: player.path.map((entry) => ({ x: entry.x, y: entry.y })), ...(motionWindow ? { motionWindow } : {}) });
   }
   const attacking = players.filter((player) => player.side === "offense");
   const defending = players.filter((player) => player.side === "defense");
@@ -345,8 +393,35 @@ export function validatePlayDesign(value: unknown): PlayDesign | null {
     || typeof value.ball.releaseAt !== "number" || !Number.isFinite(value.ball.releaseAt) || value.ball.releaseAt < 0 || value.ball.releaseAt > FIELD.duration - .6) return null;
   const { carrierId, targetId, releaseAt } = value.ball;
   if (!attacking.some((player) => player.id === carrierId) || !attacking.some((player) => player.id === targetId && player.eligible)) return null;
+  let archiveId: string | undefined;
+  if (Object.hasOwn(value, "archiveId")) {
+    if (typeof value.archiveId !== "string" || !/^[a-z0-9-]{1,64}$/.test(value.archiveId)) return null;
+    archiveId = value.archiveId;
+  }
+  let ballEvents: BallEvent[] | undefined;
+  if (Object.hasOwn(value, "ballEvents")) {
+    if (!Array.isArray(value.ballEvents) || !value.ballEvents.length || value.ballEvents.length > 12) return null;
+    ballEvents = [];
+    for (const event of value.ballEvents) {
+      if (!record(event) || !finiteTime(event.at) || (ballEvents.length && event.at <= ballEvents[ballEvents.length - 1].at)) return null;
+      if (event.kind === "carry") {
+        if (!keys(event, ["at", "kind", "carrierId"]) || typeof event.carrierId !== "string" || !ids.has(event.carrierId)) return null;
+        ballEvents.push({ at: event.at, kind: "carry", carrierId: event.carrierId });
+      } else if (event.kind === "flight") {
+        if (!keys(event, ["at", "kind", "until", "targetId"]) || !finiteTime(event.until) || event.until <= event.at
+          || typeof event.targetId !== "string" || !ids.has(event.targetId)) return null;
+        ballEvents.push({ at: event.at, kind: "flight", until: event.until, targetId: event.targetId });
+      } else if (event.kind === "loose") {
+        if (!keys(event, ["at", "kind", "until", "to"]) || !finiteTime(event.until) || event.until <= event.at || !point(event.to)) return null;
+        ballEvents.push({ at: event.at, kind: "loose", until: event.until, to: { x: event.to.x, y: event.to.y } });
+      } else return null;
+    }
+    if (ballEvents[0].at !== 0 || ballEvents[0].kind !== "carry"
+      || ballEvents.some((event, index) => event.kind !== "carry" && ballEvents![index + 1] && event.until > ballEvents![index + 1].at)) return null;
+  }
   return {
     version: 1, name: value.name.trim(), offenseId: value.offenseId, defenseId: value.defenseId, conceptId: value.conceptId, players,
     ball: { carrierId, targetId, releaseAt },
+    ...(archiveId ? { archiveId } : {}), ...(ballEvents ? { ballEvents } : {}),
   };
 }

@@ -32,6 +32,7 @@ test("formation changes preserve twenty-two editable players and remain independ
 test("a keyboard edit, route pattern and undo change the diagram rather than its source notebook", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
   const lab = labFor(page);
+  await lab.getByRole("button", { name: "Start a teaching play", exact: true }).click();
   const x = lab.getByLabel("Start X", { exact: true });
   const initialX = await x.inputValue();
   await x.fill("220");
@@ -57,6 +58,7 @@ test("field drawing, dragging and defender assignments are real edits with usabl
   await page.setViewportSize({ width: 1280, height: 1000 });
   await page.goto("/film-room#playbook-lab");
   const lab = labFor(page);
+  await lab.getByRole("button", { name: "Start a teaching play", exact: true }).click();
   await lab.getByRole("button", { name: "Clear assignment", exact: true }).click();
   await lab.getByRole("button", { name: "Draw assignment", exact: true }).click();
   const field = lab.locator("svg");
@@ -172,6 +174,7 @@ test("saved plays survive reload and explicit load restores an edited formation"
 test("play export and import round-trip a diagram and reject corrupt player data without replacing it", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
   const lab = labFor(page);
+  await lab.getByRole("button", { name: "Start a teaching play", exact: true }).click();
   await lab.getByLabel("Offensive formation", { exact: true }).selectOption(offensiveFormations[2].id);
   const downloadPromise = page.waitForEvent("download");
   await lab.getByRole("button", { name: "Export JSON", exact: true }).click();

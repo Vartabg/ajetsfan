@@ -10,7 +10,7 @@ import styles from "./page.module.css";
 
 export const metadata = pageMetadata({
   path: "/film-room", title: "Film Room — Jets plays, sources and scouting concepts",
-  description: "Draw plays, explore offensive and defensive formations, and animate your own playbook. Study iconic Jets plays with official replays, sourced situations and coverage lessons.",
+  description: "Relive iconic Jets plays on an editable animated chalkboard: Jumbo Elliott, Wesley Walker, the Cleveland comeback, the Butt Fumble and the fake spike. Draw your own plays and study the sources.",
 });
 
 export default async function FilmRoomPage() {
@@ -23,7 +23,7 @@ export default async function FilmRoomPage() {
     <header className={styles.header}>
       <p className={styles.kicker}>The Jets, one snap at a time</p>
       <h1 className="hed">Film Room<span aria-hidden="true">.</span></h1>
-      <p>Draw the play. Move the pieces. Then return to the tape with a better eye for the football.</p>
+      <p>The plays you still celebrate. The ones you wish you could forget. Put them on the board, follow the action, and return to the tape with a better eye for the football.</p>
       <nav aria-label="Film Room sections"><Link href="#playbook-lab">Build a play <span aria-hidden="true">↓</span></Link><Link href="#film-room">Study the Jets <span aria-hidden="true">↓</span></Link><Link href="#scouting-board">Read the coverage <span aria-hidden="true">↓</span></Link></nav>
     </header>
     <PlaybookLab />
