@@ -8,7 +8,7 @@ The accepted [product vision](docs/product-vision.md) guides future passes: ever
 
 ## Explore
 
-- `/film-room`: four sourced historical plays, direct official replay links, scouting questions, and an independent interactive coverage/pressure teaching board. Recorded facts, source accounts and unresolved assignments stay distinct.
+- `/film-room`: an editable playbook lab with offensive/defensive formation and concept presets, custom player positions and movement paths, animated playback, local saves, validated play files and shareable diagrams. Four sourced historical plays, direct official replay links, scouting questions, and an independent coverage/pressure board remain separate from custom diagrams. See [playbook behavior and limits](docs/playbook-lab.md).
 - `/`: a latest-game cover, measured play change, visible win-probability and offense comparison charts, season point margins, confirmed results and the next fixture, measured unit comparisons, historical cases, a player spotlight, official news, and expandable league and unit comparisons and full schedule.
 - `/#visual-story`: an original visual comeback explorer for Cleveland in 2022 and Miami in 2000. Recorded clocks, source descriptions, a probability path and curated chapters share one selected moment. Readers can scrub, play/pause chapters and share a moment URL; motion respects reader preferences and pauses when the story is out of view.
 - `/team`: dated official headlines, passing/rushing/receiving leaders, and roster search by name, jersey, position, unit, and source status. Player selections and filters use shareable URLs, such as `/team?player=00-0033106#roster`.
@@ -36,7 +36,7 @@ npx playwright install chrome
 npm run test:a11y
 ```
 
-Browser checks use system Google Chrome and a production server. They verify the current front page, news links, roster filters and player profiles, matchup numbers, full schedule, archive filters and shareable links, play scrubbing, case-study navigation, responsive reflow, and automated accessibility at 1280, 390, and 320px. Data tests cover parsing, source URL validation, season rollover, incomplete analysis, independent feed failure, failed publication, and recovery. CI runs the same gates. Automated checks do not establish complete accessibility conformance.
+Browser checks use system Google Chrome and a production server. They verify the current front page, news links, roster filters and player profiles, matchup numbers, full schedule, archive filters and shareable links, play scrubbing, case-study navigation, editable play diagrams and playback, responsive reflow, and automated accessibility at 1280, 390, and 320px. Data tests cover parsing, source URL validation, season rollover, incomplete analysis, independent feed failure, failed publication, and recovery. CI runs the same gates. Automated checks do not establish complete accessibility conformance.
 
 ## Data and decisions
 

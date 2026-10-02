@@ -64,6 +64,15 @@ export default async function HowMade() {
         <Link href="/film-room">Enter the Film Room →</Link>
       </section>
 
+      <section id="playbook-methods" data-note="The playbook lab">
+        <h2>Your playbook, in motion</h2>
+        <p>The Playbook Lab is a diagramming tool. Its offensive presets illustrate common alignments with eleven players, five interior linemen, two eligible ends and four players in the backfield. Personnel notation counts running backs and tight ends; it does not identify a formation. Defensive presets describe personnel and alignment, rather than establishing a coverage or how many defenders rush. See the <a href="https://operations.nfl.com/rules-officiating/nfl-football-basics/formations">NFL formation guide</a> and the <a href="https://operations.nfl.com/rules-officiating/2026-nfl-rulebook">2026 NFL rulebook</a>.</p>
+        <p>Preset concepts and custom movement paths are teaching examples. Players travel along those paths on a six-second diagram timeline. The ball follows the selected carrier, then an illustrative transfer to the selected target. This motion does not calculate player speed, blocking, collisions, pass completion, quarterback reads or the result of a play. A defender following a route illustrates a chosen assignment; it does not solve real man coverage.</p>
+        <p>Moving a player freely can produce an illegal formation. The editor preserves eleven players on each side, but imported and custom alignments are not certified as legal NFL plays. No historical play in the source notebook inherits an assignment from the lab.</p>
+        <p>Saved diagrams remain in this browser when storage is available. Export downloads a play file; import validates its structure and field coordinates before loading. A shared link contains the diagram itself and loads it into the editor. These actions do not publish a community playbook or send a message.</p>
+        <Link href="/film-room#playbook-lab">Build a play →</Link>
+      </section>
+
       <section id="efficiency" data-note="The scouting notes">
         <h2>Team efficiency, with the sample in view</h2>
         <p><strong>Expected points added (EPA)</strong> measures how a play changes the offense&apos;s expected scoring position. EPA per play is the sum divided by the number of included plays. Higher offensive EPA is better; lower defensive EPA allowed is better. <strong>Success rate</strong> is the share of those plays with EPA above zero.</p>
