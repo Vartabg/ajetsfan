@@ -8,7 +8,7 @@ The accepted [product vision](docs/product-vision.md) guides future passes: ever
 
 ## Explore
 
-- `/film-room`: four sourced historical plays, on-demand official source video, scouting questions, and an independent interactive coverage/pressure teaching board. Recorded facts, source accounts and unresolved assignments stay distinct.
+- `/film-room`: four sourced historical plays, direct official replay links, scouting questions, and an independent interactive coverage/pressure teaching board. Recorded facts, source accounts and unresolved assignments stay distinct.
 - `/`: a latest-game cover, measured play change, visible win-probability and offense comparison charts, season point margins, confirmed results and the next fixture, measured unit comparisons, historical cases, a player spotlight, official news, and expandable league and unit comparisons and full schedule.
 - `/#visual-story`: an original visual comeback explorer for Cleveland in 2022 and Miami in 2000. Recorded clocks, source descriptions, a probability path and curated chapters share one selected moment. Readers can scrub, play/pause chapters and share a moment URL; motion respects reader preferences and pauses when the story is out of view.
 - `/team`: dated official headlines, passing/rushing/receiving leaders, and roster search by name, jersey, position, unit, and source status. Player selections and filters use shareable URLs, such as `/team?player=00-0033106#roster`.

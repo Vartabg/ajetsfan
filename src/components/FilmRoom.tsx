@@ -44,15 +44,12 @@ function Scene({ scene }: { scene: FilmScene }) {
 }
 
 function SourceViewer({ film }: { film: FilmCase }) {
-  const [loaded, setLoaded] = useState(false);
-  const available = film.video && /^[A-Za-z0-9_-]{11}$/.test(film.video.youtubeId);
-  const viewerId = `film-source-viewer-${film.id}`;
+  const replay = film.replays[0];
+  const youtubeUrl = /^[A-Za-z0-9_-]{11}$/.test(film.video.youtubeId) ? `https://www.youtube.com/watch?v=${film.video.youtubeId}` : null;
   return <div className={styles.sourceViewer} data-source-viewer={film.id}>
-    <div id={viewerId}>
-    {loaded && available ? <div className={styles.videoFrame}><iframe data-source-video src={`https://www.youtube-nocookie.com/embed/${film.video.youtubeId}?rel=0&playsinline=1`} title={`Source video: ${film.video.label}`} allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /></div> : film.scene ? <Scene key={film.scene.src} scene={film.scene} /> : <div className={styles.replayCover}><span className={styles.replayKicker}>From the source archive</span><strong>{film.title}</strong><p>Open the source video, then work through the record and the scouting questions below.</p><span className={styles.filmStrip} aria-hidden="true">01 — 02 — 03 — 04</span></div>}
-    </div>
-    <div className={styles.videoControls}><div><span className={styles.videoLabel}>Source video</span><p>{film.video?.label || "The source replay"}</p></div>{available ? <button type="button" aria-expanded={loaded} aria-controls={viewerId} onClick={() => setLoaded((value) => !value)}>{loaded ? "Close source video" : "Load source video"} <span aria-hidden="true">{loaded ? "×" : "▶"}</span></button> : null}{film.video ? <a href={film.video.sourceUrl} target="_blank" rel="noreferrer">Watch source video <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : null}</div>
-    <p className={styles.videoNote}>{loaded ? "If this source cannot play here, use Watch source video." : "The external player loads when you choose. Playback never starts automatically."}</p>
+    {film.scene ? <Scene key={film.scene.src} scene={film.scene} /> : <div className={styles.replayCover}><span className={styles.replayKicker}>From the source archive</span><strong>{film.title}</strong><p>Open the official replay, then work through the record and the scouting questions below.</p><span className={styles.filmStrip} aria-hidden="true">01 — 02 — 03 — 04</span></div>}
+    <div className={styles.videoControls}><div><span className={styles.videoLabel}>Official replay</span><p>{replay.label}</p></div><a className={styles.replayButton} href={replay.url} target="_blank" rel="noreferrer">Open official replay <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a>{youtubeUrl ? <a href={youtubeUrl} target="_blank" rel="noreferrer">Watch on YouTube <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : null}</div>
+    <p className={styles.videoNote}>These NFL clips restrict embedded playback. The replay opens at its source in a new tab; keep this notebook open while you watch. {film.video.label} is also available on YouTube.</p>
   </div>;
 }
 

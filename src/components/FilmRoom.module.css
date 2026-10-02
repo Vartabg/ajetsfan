@@ -47,8 +47,6 @@
 .scene figcaption > p { color: #bdd0c3; font: .72rem/1.75 var(--font-sans), sans-serif; }
 .scene figcaption a { color: var(--paper); font: .64rem/1.7 var(--font-sans), sans-serif; text-underline-offset: .25em; }
 .scene figcaption small { color: #bdd0c3; font: .62rem/1.7 var(--font-sans), sans-serif; }
-.videoFrame { width: 100%; aspect-ratio: 16 / 9; background: #001b13; }
-.videoFrame iframe { display: block; width: 100%; height: 100%; border: 0; }
 .replayCover { display: flex; flex-direction: column; justify-content: center; min-height: 290px; padding: 2.5rem 1.75rem; background: repeating-linear-gradient(0deg, transparent 0 38px, #ffffff07 39px 40px), #001b13; }
 .replayKicker { color: var(--accent); font: 700 .63rem/1.7 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; }
 .replayCover > strong { max-width: 18ch; margin-top: 1rem; font: 400 clamp(2rem, 4vw, 3.75rem)/1.03 var(--font-hed), Impact, sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
@@ -58,7 +56,7 @@
 .videoControls > div { flex: 1; min-width: 160px; }
 .videoLabel { display: block; margin-bottom: .2rem; color: var(--accent); font: 700 .6rem/1.7 var(--font-mono), monospace; text-transform: uppercase; }
 .videoControls p { color: #bdd0c3; font: .7rem/1.7 var(--font-sans), sans-serif; }
-.videoControls button { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .7rem; min-height: 44px; padding: .65rem .85rem; color: var(--forest); background: var(--accent); font: 800 .68rem/1.6 var(--font-sans), sans-serif; }
+.videoControls a.replayButton { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .7rem; min-height: 44px; padding: .65rem .85rem; color: var(--forest); background: var(--accent); font: 800 .68rem/1.6 var(--font-sans), sans-serif; text-decoration:none; }
 .videoControls a { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .45rem; min-height: 44px; color: var(--accent); font: 700 .65rem/1.7 var(--font-sans), sans-serif; text-underline-offset: .25em; }
 .videoNote { padding: 0 1.25rem 1rem; color: #bdd0c3; font: .62rem/1.7 var(--font-sans), sans-serif; }
 .recordedPlay { padding: 1.15rem 1.25rem 1.5rem; border-top: 1px solid #f8f5ed30; }

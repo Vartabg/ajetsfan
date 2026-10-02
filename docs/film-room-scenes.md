@@ -23,6 +23,6 @@ Three Wilson generation attempts were inspected and withheld. The first changed 
 
 ## Football evidence
 
-Case definitions live in `src/lib/film-room.ts`. They retain exact original archive rows, verified gamebook situations, attributed source accounts, unresolved assignments and official replay links. YouTube embeds use the privacy-enhanced domain, load only on request and never autoplay. There are no invented playback offsets or All-22 claims.
+Case definitions live in `src/lib/film-room.ts`. They retain exact original archive rows, verified gamebook situations, attributed source accounts, unresolved assignments and official replay links. Hosted checks confirmed that all three verified NFL-owned YouTube sources block embedded playback. The viewer therefore links directly to the official replay and YouTube in new tabs; no third-party player or autoplay is inserted. There are no invented playback offsets or All-22 claims.
 
 The coverage and pressure board is a separate teaching schematic. It assigns exactly eleven defenders in compatible packages and uses a legal illustrative formation with five eligible receivers. It never claims to reconstruct a selected game's actual call or tracking coordinates.

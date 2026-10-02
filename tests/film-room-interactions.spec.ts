@@ -1,6 +1,13 @@
 import { test, expect } from "@playwright/test";
 import path from "node:path";
 
+const replaySources: Record<string, { official: string; youtubeId: string }> = {
+  "wilson-cleveland": { official: "https://www.newyorkjets.com/video/highlights-every-jets-play-during-the-game-winning-drive-vs-the-browns", youtubeId: "LR1zPFNjOMM" },
+  "elliott-miami": { official: "https://www.nfl.com/videos/nfl-100-greatest-no-92-offensive-lineman-jumbo-elliott-s-jumbo-touchdown-complet", youtubeId: "hOfjgr-lC4c" },
+  "hall-miami": { official: "https://www.nfl.com/videos/craziest-nfl-finishes-the-monday-night-miracle", youtubeId: "hOfjgr-lC4c" },
+  "sanchez-thanksgiving": { official: "https://www.nfl.com/videos/mark-sanchez-s-butt-fumble-against-patriots", youtubeId: "82RIfy-gRa4" },
+};
+
 test("case and teaching choices survive back/reload and preserve unrelated URL context", async ({ page }) => {
   await page.goto("/film-room?keep=research#film-room");
   const room = page.locator("#film-room");
@@ -63,35 +70,40 @@ test("category filters keep a selected play visible, including when history chan
   await expect(room.locator("[data-film-case]")).toHaveCount(4);
 });
 
-test("external video requires an explicit load, avoids autoplay and is removed when the case changes", async ({ page }) => {
+test("replay links follow the selected case and history without requesting blocked external players", async ({ page }) => {
   const playerRequests: string[] = [];
-  await page.route("https://www.youtube-nocookie.com/**", async (route) => {
+  await page.route((url) => /(^|\.)(?:youtube(?:-nocookie)?\.com|googlevideo\.com|ytimg\.com)$/.test(url.hostname), async (route) => {
     playerRequests.push(route.request().url());
-    await route.fulfill({ status: 200, contentType: "text/html", body: "<!doctype html><html lang='en'><title>Source player test</title><body>Source player</body></html>" });
+    await route.fulfill({ status: 204 });
   });
   await page.goto("/film-room?play=wilson-cleveland");
   const room = page.locator("#film-room");
-  await expect(room.locator("[data-source-video]")).toHaveCount(0);
-  expect(playerRequests).toEqual([]);
-  await room.getByRole("button", { name: /Load source video/ }).click();
-  const player = room.locator("[data-source-video]");
-  await expect(player).toHaveCount(1);
-  const source = new URL((await player.getAttribute("src"))!);
-  expect(source.hostname).toBe("www.youtube-nocookie.com");
-  expect(source.pathname).toBe("/embed/LR1zPFNjOMM");
-  expect(source.searchParams.get("autoplay")).not.toBe("1");
-  expect(await player.getAttribute("allow")).not.toContain("autoplay");
-  await expect.poll(() => playerRequests.length).toBe(1);
-  await room.getByRole("button", { name: /Close source video/ }).click();
-  await expect(player).toHaveCount(0);
-  await room.getByRole("button", { name: /Load source video/ }).click();
-  await expect(player).toHaveCount(1);
-  await room.locator('[data-film-case="sanchez-thanksgiving"]').click();
-  await expect(player).toHaveCount(0);
-  await expect(room.getByRole("button", { name: /Load source video/ })).toBeVisible();
+  for (const [id, source] of Object.entries(replaySources)) {
+    await room.locator(`[data-film-case="${id}"]`).click();
+    await expect(room).toHaveAttribute("data-film", id);
+    const viewer = room.locator(`[data-source-viewer="${id}"]`);
+    const official = viewer.getByRole("link", { name: /Open official replay/ });
+    const youtube = viewer.getByRole("link", { name: /Watch on YouTube/ });
+    await expect(official).toHaveAttribute("href", source.official);
+    await expect(youtube).toHaveAttribute("href", `https://www.youtube.com/watch?v=${source.youtubeId}`);
+    for (const link of [official, youtube]) {
+      await expect(link).toHaveAttribute("target", "_blank");
+      await expect(link).toHaveAttribute("rel", /(?:^|\s)noreferrer(?:\s|$)/);
+      await expect(link).toHaveAccessibleName(/opens in a new tab/i);
+    }
+    await expect(viewer.locator("p").filter({ hasText: /new tab/i })).toBeVisible();
+    await expect(room.locator("iframe")).toHaveCount(0);
+    await expect(room.getByRole("button", { name: /Load source video|Close source video/ })).toHaveCount(0);
+    expect(playerRequests).toEqual([]);
+  }
   await page.goBack();
-  await expect(room).toHaveAttribute("data-film", "wilson-cleveland");
-  await expect(player).toHaveCount(0);
+  await expect(room).toHaveAttribute("data-film", "hall-miami");
+  await expect(room.locator("[data-source-viewer]").getByRole("link", { name: /Open official replay/ })).toHaveAttribute("href", replaySources["hall-miami"].official);
+  await page.reload();
+  await expect(room).toHaveAttribute("data-film", "hall-miami");
+  await expect(room.locator("[data-source-viewer]").getByRole("link", { name: /Watch on YouTube/ })).toHaveAttribute("href", "https://www.youtube.com/watch?v=hOfjgr-lC4c");
+  await expect(room.locator("iframe")).toHaveCount(0);
+  expect(playerRequests).toEqual([]);
 });
 
 for (const record of [
@@ -236,8 +248,14 @@ for (const media of [
     const reference = scene.getByRole("link", { name: /^(?:Photo source|Historical reference):/ });
     await expect(reference).toBeVisible();
     expect(["www.newyorkjets.com", "www.nfl.com"]).toContain(new URL((await reference.getAttribute("href"))!).hostname);
-    await expect(room.getByRole("button", { name: /Load source video/ })).toBeVisible();
-    await expect(room.getByRole("link", { name: /Watch source video/ })).toBeVisible();
+    const viewer = room.locator("[data-source-viewer]");
+    const official = viewer.getByRole("link", { name: /Open official replay/ });
+    const youtube = viewer.getByRole("link", { name: /Watch on YouTube/ });
+    await expect(official).toBeVisible();
+    await expect(official).toHaveAttribute("href", replaySources[media.id].official);
+    await expect(youtube).toBeVisible();
+    await expect(youtube).toHaveAttribute("href", `https://www.youtube.com/watch?v=${replaySources[media.id].youtubeId}`);
+    await expect(room.locator("iframe")).toHaveCount(0);
     await expect(room.locator("[data-film-description]")).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   });
