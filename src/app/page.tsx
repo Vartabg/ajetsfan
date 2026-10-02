@@ -25,6 +25,8 @@ import SundayBriefing from "@/components/SundayBriefing";
 import GameEvidence from "@/components/GameEvidence";
 import GameDayTicket from "@/components/GameDayTicket";
 import FanStand from "@/components/FanStand";
+import VisualGameStory from "@/components/VisualGameStory";
+import { buildVisualStory, visualStoryIds, type VisualStory } from "@/lib/visual-story";
 import styles from "./page.module.css";
 
 export default async function BackPage() {
@@ -37,7 +39,14 @@ export default async function BackPage() {
   const result = lead.result;
   const analysis = lead.analysisStatus === "ready" ? lead.analysis : null;
   const gamePhoto = result ? gameEditorialPhoto(result.id) : null;
-  const curve = analysis ? await loadCurve(analysis.id) : [];
+  const [curve, storyCandidates] = await Promise.all([
+    analysis ? loadCurve(analysis.id) : Promise.resolve([]),
+    Promise.all(visualStoryIds.map(async (id) => {
+      const game = caseIds.has(id) ? games.find((item) => item.id === id) : null;
+      return game ? buildVisualStory(game, await loadCurve(id)) : null;
+    })),
+  ]);
+  const visualStories = storyCandidates.filter((story): story is VisualStory => story != null);
   const summary = currentSeasonSummary(snapshot);
   const next = nextScheduledGame(snapshot);
   const heartbreak = rank(games, "heartbreak")[0];
@@ -65,7 +74,7 @@ export default async function BackPage() {
   return (
     <main id="main" className={styles.main}>
       {snapshot ? <DataFreshness checkedAt={snapshot.checkedAt} /> : null}
-      <nav className={styles.editionNav} aria-label="In this edition"><span>Go straight to</span>{next ? <Link href="#sunday-briefing">Sunday briefing <span aria-hidden="true">↓</span></Link> : null}{snapshot ? <Link href="#season" aria-label="Season and schedule">This season <span aria-hidden="true">↓</span></Link> : null}<Link href="#fan-stand">Jets history <span aria-hidden="true">↓</span></Link><Link href="/team#news">Jets news <span aria-hidden="true">↗</span></Link><Link href="/team#roster">The roster <span aria-hidden="true">↗</span></Link></nav>
+      <nav className={styles.editionNav} aria-label="In this edition"><span>Go straight to</span>{next ? <Link href="#sunday-briefing">Sunday briefing <span aria-hidden="true">↓</span></Link> : null}{snapshot ? <Link href="#season" aria-label="Season and schedule">This season <span aria-hidden="true">↓</span></Link> : null}{visualStories.length ? <Link href="#visual-story">Visual stories <span aria-hidden="true">↓</span></Link> : null}<Link href="#fan-stand">Jets history <span aria-hidden="true">↓</span></Link><Link href="/team#news">Jets news <span aria-hidden="true">↗</span></Link><Link href="/team#roster">The roster <span aria-hidden="true">↗</span></Link></nav>
       <article id="latest-game" className={styles.edition}>
         <div className={styles.cover}>
           <div className={styles.editionLine}><p>{lead.kind === "archive" ? "From the archive · no current-season final in this edition" : result ? `Latest final · Week ${result.week}${result.seasonType === "POST" ? " · playoffs" : ""}` : "The current edition"}</p>{result ? <span className={styles.mobileFinal}>NYJ {result.jetsScore} <span aria-hidden="true">—</span> {result.opponentDisplay} {result.oppScore}</span> : null}<span className={styles.readerNote}>Scores. Plays. Probability.</span></div>
@@ -121,6 +130,7 @@ export default async function BackPage() {
           <p className={styles.obitLabel}>{label}</p><h3 className="hed">{title}</h3><p className={styles.obitScore}>NYJ {game.jetsScore} <span>—</span> {game.opponentDisplay} {game.oppScore}{game.wentToOt ? " / OT" : ""}</p><small>{formatDate(game.date)} · Week {game.week}</small><p className={styles.obitFoot}><span>{closer}</span><span aria-hidden="true">↗</span></p>
         </Link>)}</div>
       </section>
+      {visualStories.length ? <VisualGameStory stories={visualStories} /> : null}
       <FanStand games={games} snapshot={snapshot} />
       <div className={styles.touchline}>
         {spotlight ? <section className={styles.player} aria-labelledby="player-heading"><span className={styles.kicker}>Receiving production</span>{spotlightPhoto ? <EditorialPhoto photo={spotlightPhoto} sizes="(max-width: 640px) calc(100vw - 32px), 300px" className={styles.spotlightPhoto} /> : <p className={styles.jerseyNumber}>{spotlightRoster?.jersey ? `No. ${spotlightRoster.jersey}` : spotlight.position}</p>}<h2 id="player-heading" className="hed">{spotlight.name}</h2><p>{spotlight.receiving.receptions} receptions. {spotlight.receiving.yards.toLocaleString("en-US")} yards. {spotlight.receiving.touchdowns} receiving TD.</p><small>{coverageFeed!.stats.season} receiving leader by yards · {spotlight.games} recorded games{coverageFeed!.stats.throughWeek != null ? ` · through Week ${coverageFeed!.stats.throughWeek}` : ""}</small><Link className={styles.underlined} href={profileIds.has(spotlight.id) ? `/players/${encodeURIComponent(spotlight.id)}` : spotlightRoster ? playerHref(spotlight.id) : "/team#season-leaders"}>Player profile and statistics <span aria-hidden="true">↗</span></Link><FeedStatus feed={coverageFeed!.stats} label="Player statistics" /></section> : null}

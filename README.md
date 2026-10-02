@@ -9,6 +9,7 @@ The accepted [product vision](docs/product-vision.md) guides future passes: ever
 ## Explore
 
 - `/`: a latest-game cover, measured play change, visible win-probability and offense comparison charts, season point margins, confirmed results and the next fixture, measured unit comparisons, historical cases, a player spotlight, official news, and optional film-room analysis and full schedule.
+- `/#visual-story`: an original visual comeback explorer for Cleveland in 2022 and Miami in 2000. Recorded clocks, source descriptions, a probability path and curated chapters share one selected moment. Readers can scrub, play/pause chapters and share a moment URL; motion respects reader preferences and pauses when the story is out of view.
 - `/team`: dated official headlines, passing/rushing/receiving leaders, and roster search by name, jersey, position, unit, and source status. Player selections and filters use shareable URLs, such as `/team?player=00-0033106#roster`.
 - `/morgue`: Heartbreak & Miracles rankings with season/opponent filters, search, sorting, shareable selected-game URLs, and keyboard/pointer play scrubbing. Example: `/morgue?game=2026_03_NYJ_DET&board=heartbreak`.
 - `/games/{game_id}`: a server-rendered final, sourced game context and measured play change, and a probability chart when usable source points exist, with a dedicated share card and a link to the matching interactive tape. Unreliable or unknown cases return HTTP 404.

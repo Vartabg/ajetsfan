@@ -49,6 +49,8 @@ Important distinctions from the inspection:
 
 ### 1. Comeback explorer and discovery paths
 
+The homepage now includes a visual story explorer for the 2022 Cleveland and 2000 Miami comebacks. It connects recorded play selection to a clock, original description, probability path and source-grounded chapters, with optional chapter playback and shareable moment URLs. The next phase adds cross-game comparison and broader discovery paths.
+
 Give fans a focused way to revisit an improbable win or compare two games. One play selection controls the probability curve, period, available clock and original description. Add meaningful entry points such as the 2000 Miami and 2022 Cleveland wins, with direct links to their cases and tape.
 
 Use the existing archive and curve loaders. Exclude flagged games from rankings. Keep the time sequence within each game; comparisons can align quarters or play progress, but must identify their alignment method. Show pre-play model estimates separately from the confirmed final. Where overtime clock metadata is unreliable, show the period without inventing a clock.
