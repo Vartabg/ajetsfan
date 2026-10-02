@@ -47,7 +47,7 @@ for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/", { waitUntil: "domcontentloaded" });
     const navigation = page.getByRole("navigation", { name: "Site sections" });
-    await expect(navigation.getByRole("link")).toHaveCount(3);
+    await expect(navigation.getByRole("link")).toHaveCount(4);
     await expectTouchTargets(navigation.getByRole("link"));
     await expectTouchTargets(page.getByRole("navigation", { name: "In this edition" }).getByRole("link"));
 

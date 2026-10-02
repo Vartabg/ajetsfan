@@ -46,7 +46,7 @@ for (const width of [1280, 390, 320]) {
 
 test("the front page keeps deeper analysis available through keyboard disclosures", async ({ page }) => {
   await page.goto("/");
-  const film = page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "Open the film room" }) });
+  const film = page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "Open league and unit comparisons" }) });
   await expect(film).not.toHaveAttribute("open", "");
   await film.locator(":scope > summary").focus();
   await page.keyboard.press("Enter");

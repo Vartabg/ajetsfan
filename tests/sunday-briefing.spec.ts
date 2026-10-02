@@ -44,7 +44,7 @@ test("the Sunday briefing shows measured opposing units and season stakes before
     await expect(briefing).toContainText(`With a win: ${record.wins + 1}–${record.losses}`);
     await expect(briefing).toContainText(`With a loss: ${record.wins}–${record.losses + 1}`);
   }
-  await expect(page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "Open the film room" }) })).not.toHaveAttribute("open", "");
+  await expect(page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "Open league and unit comparisons" }) })).not.toHaveAttribute("open", "");
   await expect(page.getByRole("link", { name: "Sunday briefing", exact: false })).toHaveAttribute("href", "#sunday-briefing");
 });
 

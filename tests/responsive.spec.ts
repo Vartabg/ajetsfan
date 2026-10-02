@@ -26,12 +26,12 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
   await page.evaluate(() => document.fonts.ready);
   await expect(page.locator("main")).toBeVisible();
   if (route === "/") {
-    await page.locator("summary").filter({ hasText: "Open the film room" }).click();
+    await page.locator("summary").filter({ hasText: "Open league and unit comparisons" }).click();
     await expect(page.getByText("The season in margins.", { exact: true })).toBeVisible();
   }
   const navigation = page.getByRole("navigation", { name: "Site sections" });
   const links = navigation.getByRole("link");
-  await expect(links).toHaveCount(3);
+  await expect(links).toHaveCount(4);
   const boxes = [];
   for (const link of await links.all()) {
     const box = await link.boundingBox();

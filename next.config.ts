@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "static.clubs.nfl.com", port: "", pathname: "/image/upload/*/jets/**", search: "" },
+      { protocol: "https", hostname: "static.clubs.nfl.com", port: "", pathname: "/image/private/t_editorial_landscape_12_desktop_3x/f_auto/jets/zlqrkeixkuukaccd4ctj.jpg", search: "" },
       { protocol: "https", hostname: "static.www.nfl.com", port: "", pathname: "/image/upload/**", search: "" },
       { protocol: "https", hostname: "static.www.nfl.com", port: "", pathname: "/image/private/**", search: "" },
       { protocol: "https", hostname: "a.espncdn.com", port: "", pathname: "/i/headshots/nfl/players/**", search: "" },

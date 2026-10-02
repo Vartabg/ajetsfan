@@ -1,5 +1,7 @@
 # Editorial photography
 
+The Film Room adds an original Cleveland archival still and a separately labeled Sanchez scene recreation. Its references, generation prompt and rejected variants are documented in [film-room-scenes.md](film-room-scenes.md). Generated imagery is editorial illustration and is excluded from film evidence.
+
 The publication uses unbranded football photographs from official Jets coverage, rather than an anonymous generated stadium scene or repeated studio headshots. Image URLs remain on the official Jets/NFL CDN and are served through Next.js image optimization. Each displayed figure links to its source. Individual photographer names are credited when supplied by that source; otherwise the link says “Source: New York Jets.” No individual credit is inferred from the article author.
 
 Selections live in `src/lib/editorial-photos.ts`. A game photograph is returned only for its exact game ID. Player and team selections are scoped to the edition season and do not silently carry into a later season. New game photographs are editorial selections; a confirmed final can lead without a matching photograph. The result, statistics, and source-refresh pipeline remain independent of these selections.

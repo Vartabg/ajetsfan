@@ -7,6 +7,7 @@ import styles from "./Masthead.module.css";
 const SECTIONS = [
   { href: "/", label: "The Back Page" },
   { href: "/team", label: "Around the Jets" },
+  { href: "/film-room", label: "Film Room" },
   { href: "/morgue", label: "The Morgue" },
 ];
 
