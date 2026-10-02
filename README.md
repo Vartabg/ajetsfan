@@ -4,6 +4,8 @@ An independent Jets publication built around checked final scores, recorded play
 
 Published copy describes verifiable results, dates, play descriptions, counts, and rates. It does not assign feelings or invented dialogue to fans or players. Historical statements link to their sources; probability and efficiency estimates remain distinct from confirmed results and matchup predictions.
 
+The accepted [product vision](docs/product-vision.md) guides future passes: every surprising Jets fact should open into an explorable football story. It maps the discovery, connected-data and evidence patterns from garovartabedian.com to a comeback explorer, unified Jets discovery, a sourced draft trade tree and football puzzles, with explicit delivery and data requirements.
+
 ## Explore
 
 - `/`: a latest-game cover, measured play change, visible win-probability and offense comparison charts, season point margins, confirmed results and the next fixture, measured unit comparisons, historical cases, a player spotlight, official news, and optional film-room analysis and full schedule.
