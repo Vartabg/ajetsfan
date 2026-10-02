@@ -36,7 +36,7 @@ test("the Jets archive has six distinct dated plays and primary source links for
       expect(source.label.trim().length).toBeGreaterThan(3);
       const url = new URL(source.url);
       expect(url.protocol).toBe("https:");
-      expect(url.hostname).toMatch(/(^|\.)(nfl\.com|newyorkjets\.com|patriots\.com|miamidolphins\.com|youtube\.com)$/);
+      expect(url.hostname).toMatch(/(^|\.)(nfl\.com|nflgsis\.com|nfl\.info|newyorkjets\.com|patriots\.com|miamidolphins\.com|youtube\.com)$/);
     }
   }
 });

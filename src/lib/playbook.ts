@@ -33,6 +33,8 @@ export type PlayDesign = {
   ball: { carrierId: string; targetId: string; releaseAt: number };
   /** Optional archive association; source fidelity is checked against the canonical design. */
   archiveId?: string;
+  /** Distinguishes a complete illustrative study from the source-action board. */
+  studyMode?: "full-snap";
   /** Overrides the simple ball model; begins with carry at zero and permits either team. */
   ballEvents?: BallEvent[];
 };
@@ -365,7 +367,7 @@ const known = (value: unknown, choices: readonly { id: string }[]): value is str
  * fields. It checks data structure and bounds, not custom formation legality.
  */
 export function validatePlayDesign(value: unknown): PlayDesign | null {
-  if (!record(value) || !optionalKeys(value, ["version", "name", "offenseId", "defenseId", "conceptId", "players", "ball"], ["archiveId", "ballEvents"])
+  if (!record(value) || !optionalKeys(value, ["version", "name", "offenseId", "defenseId", "conceptId", "players", "ball"], ["archiveId", "ballEvents", "studyMode"])
     || value.version !== 1 || !safeText(value.name, 80)
     || !known(value.offenseId, offensiveFormations) || !known(value.defenseId, defensiveFormations) || !known(value.conceptId, concepts)
     || !Array.isArray(value.players) || value.players.length !== 22) return null;
@@ -398,6 +400,7 @@ export function validatePlayDesign(value: unknown): PlayDesign | null {
     if (typeof value.archiveId !== "string" || !/^[a-z0-9-]{1,64}$/.test(value.archiveId)) return null;
     archiveId = value.archiveId;
   }
+  if (Object.hasOwn(value, "studyMode") && (value.studyMode !== "full-snap" || !archiveId)) return null;
   let ballEvents: BallEvent[] | undefined;
   if (Object.hasOwn(value, "ballEvents")) {
     if (!Array.isArray(value.ballEvents) || !value.ballEvents.length || value.ballEvents.length > 12) return null;
@@ -422,6 +425,6 @@ export function validatePlayDesign(value: unknown): PlayDesign | null {
   return {
     version: 1, name: value.name.trim(), offenseId: value.offenseId, defenseId: value.defenseId, conceptId: value.conceptId, players,
     ball: { carrierId, targetId, releaseAt },
-    ...(archiveId ? { archiveId } : {}), ...(ballEvents ? { ballEvents } : {}),
+    ...(archiveId ? { archiveId } : {}), ...(value.studyMode === "full-snap" ? { studyMode: "full-snap" } : {}), ...(ballEvents ? { ballEvents } : {}),
   };
 }

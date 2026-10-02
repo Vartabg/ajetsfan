@@ -68,6 +68,38 @@
 .stageHeader p { display: flex; flex-wrap: wrap; gap: .4rem; color: #c8d8ce; font: .65rem/1.8 var(--font-mono), monospace; }
 .stageHeader p > span { color: #d2f66b; font-weight: 800; }
 .stageHeader i { font-style: normal; color: #718f80; }
+.studyMode { padding: 1rem 1.5rem; border-bottom: 1px solid #f8f5ed26; }
+.studyMode > div, .pathTools { display: flex; flex-wrap: wrap; gap: .4rem; }
+.studyMode button[aria-pressed="true"], .pathTools button[aria-pressed="true"] { color: #062c21; border-color: #d2f66b; background: #d2f66b; }
+.studyMode p { margin-top: .65rem; color: #c8d8ce; font: .7rem/1.85 var(--font-sans), sans-serif; }
+.pathTools { padding: .7rem 1.5rem 0; }
+.snapDesk { padding: 1.5rem; border-top: 1px solid #f8f5ed26; }
+.snapDeskHeading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: .7rem; }
+.snapDeskHeading span, .assignmentRead > div > span { color: #d2f66b; font: 700 .6rem/1.8 var(--font-mono), monospace; letter-spacing: .06em; }
+.snapDeskHeading h4 { margin-top: .3rem; font: 600 1.6rem/1.3 var(--font-serif), Georgia, serif; }
+.snapDeskHeading p { color: #c8d8ce; font: .65rem/1.8 var(--font-mono), monospace; }
+.snapDeskHeading i { font-style: normal; color: #718f80; }
+.assignmentRead { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: .8rem 1.5rem; margin-top: 1rem; padding: 1.2rem; border: 1px solid #f8f5ed45; background: #001b13; }
+.assignmentRead > div { min-width: 0; }
+.assignmentRead h5 { margin-top: .4rem; font: 600 1.3rem/1.4 var(--font-serif), Georgia, serif; overflow-wrap: anywhere; }
+.assignmentRead h5 small { display: block; margin-block: .25rem; color: #c8d8ce; font: .65rem/1.8 var(--font-sans), sans-serif; }
+.assignmentRead strong { color: #f8f5ed; font: 800 .75rem/1.8 var(--font-sans), sans-serif; }
+.assignmentRead p, .snapLedger p, .snapQuestions p, .snapQuestions li { color: #c8d8ce; font: .7rem/1.85 var(--font-sans), sans-serif; overflow-wrap: anywhere; }
+.assignmentSources { grid-column: 1/-1; display: flex; flex-wrap: wrap; gap: .2rem 1rem; }
+.assignmentSources a { display: inline-flex; align-items: center; min-height: 44px; color: #d2f66b; font: 700 .65rem/1.8 var(--font-sans), sans-serif; overflow-wrap: anywhere; }
+.lab .snapDesk details { border-color: #f8f5ed26; }
+.lab .snapDesk summary { color: #d2f66b; }
+.lab .snapDesk p, .lab .snapDesk li { color: #c8d8ce; }
+.snapLedger > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; margin-top: .8rem; }
+.snapLedger section { min-width: 0; }
+.snapLedger h5 { margin-block: .5rem; color: #c8d8ce; font: 700 .65rem/1.8 var(--font-mono), monospace; text-transform: uppercase; }
+.snapLedger section button { display: grid; grid-template-columns: 65px minmax(0, 1fr); gap: .1rem .6rem; width: 100%; border-width: 0 0 1px; text-align: left; }
+.snapLedger button > span { grid-row: span 2; color: #d2f66b; font-family: var(--font-mono), monospace; }
+.snapLedger button strong { font-size: .7rem; }
+.snapLedger button small { color: #c8d8ce; font: 500 .6rem/1.8 var(--font-sans), sans-serif; }
+.snapLedger button[aria-pressed="true"] { border-left: 3px solid #d2f66b; background: #d2f66b0d; }
+.snapQuestions ol { padding-left: 1.2rem; margin-top: .7rem; }
+.snapQuestions li { margin-top: .35rem; }
 .fieldTools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1.5rem; padding: .7rem 1.5rem; }
 .fieldTools > div { display: flex; flex-wrap: wrap; gap: .4rem; }
 .stage button { color: #f8f5ed; border-color: #f8f5ed45; }
@@ -168,6 +200,11 @@
 .alignmentNotice ul { margin-top: .5rem; padding-left: 1.2rem; }
 @media (max-width: 1000px) { .transport { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .playButtons { grid-column: 1/-1; } }
 @media (max-width: 720px) {
+  .studyMode, .snapDesk { padding: 1rem; }
+  .studyMode > div > button { flex: 1 1 120px; }
+  .pathTools { padding-inline: 1rem; }
+  .pathTools button { flex: 1 1 110px; }
+  .assignmentRead, .snapLedger > div { grid-template-columns: minmax(0, 1fr); }
   .heading, .presets, .editor, .methods { grid-template-columns: minmax(0, 1fr); gap: 1.2rem; }
   .heading { margin-bottom: 1.25rem; }
   .stageHeader { flex-direction: column; align-items: flex-start; padding: 1rem; }

@@ -212,7 +212,10 @@ for (const view of [{ width: 1280, enlarged: false }, { width: 390, enlarged: fa
     const lab = labFor(page);
     const geometry = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, viewport: innerWidth }));
     expect(geometry.width).toBeLessThanOrEqual(geometry.viewport);
-    for (const button of await lab.locator("button").all()) {
+    // Closed native disclosures can expose zero-size layout boxes in Chrome.
+    // Touch targets apply to rendered controls; the open assignment ledger is
+    // exercised separately in jets-snap-interactions.spec.ts.
+    for (const button of await lab.locator("button:visible").all()) {
       const bounds = await button.boundingBox();
       if (bounds) expect(bounds.height, await button.textContent() ?? "button").toBeGreaterThanOrEqual(44);
     }

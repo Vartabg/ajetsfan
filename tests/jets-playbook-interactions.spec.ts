@@ -15,7 +15,8 @@ test("the board opens on a sourced Jets touchdown without auto-playing or callin
   await expect(lab).toHaveAttribute("data-selected", "h");
   await expect(lab.locator('[data-lab-player="h"]')).toHaveAccessibleName(/G\. Wilson/);
   await expect(lab).toContainText("not verified historical formations");
-  await expect(lab).toContainText("Unknown assignments stay blank");
+  await expect(lab).toHaveAttribute("data-study-mode", "full-snap");
+  await expect(lab.locator("[data-study-limit]")).toContainText("Supporting assignments are illustrative");
   await expect(lab.getByRole("group", { name: "Step through Jets play" })).toBeVisible();
   await lab.getByText("What the sources establish", { exact: true }).click();
   await expect(lab).toContainText("15-yard touchdown");

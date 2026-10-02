@@ -12,6 +12,8 @@ export type JetsPlay = {
   summary: string;
   sources: { label: string; url: string }[];
   confirmed: string[];
+  /** Broad visible actions; these do not establish each player's assignment. */
+  filmObservations?: { detail: string; sourceLabel: string; offsetLabel: string }[];
   illustrative: string[];
   focusPlayerIds: string[];
   /** These are teaching-time positions, not timestamps from the original film. */
@@ -134,11 +136,15 @@ export const jetsPlays: JetsPlay[] = [
     sources: [
       { label: "Jets official game recap", url: "https://www.newyorkjets.com/news/jets-shock-browns-with-13-point-comeback-in-last-2-minutes-for-31-30-win" },
       { label: "Jets: Wilson's winning reception", url: "https://www.newyorkjets.com/news/jets-wr-garrett-wilson-comes-up-big-in-return-to-buckeye-state" },
+      { label: "Official Jets film breakdown · winning TD at 1:15", url: "https://www.newyorkjets.com/video/baldy-s-breakdown-garrett-wilson-s-big-day-against-the-browns" },
     ],
     confirmed: [
       "Joe Flacco threw a 15-yard touchdown to Garrett Wilson on a slant, with 22 seconds remaining after the score.",
       "The Jets account describes Wilson catching between defenders and entering the end zone.",
       "The touchdown tied Cleveland at 30; Greg Zuerlein's extra point provided the 31–30 winning margin.",
+    ],
+    filmObservations: [
+      { detail: "The inspected frames show blockers retreating into the pocket and engaging rushers; other eligible receivers release downfield while defenders turn or move with routes. These broad visible actions do not resolve all 22 identities or individual protection and coverage assignments.", sourceLabel: "Official Jets film breakdown · winning TD at 1:15", offsetLabel: "Official breakdown · frames at 1:15 and 1:18" },
     ],
     illustrative: [...limits, "Wilson's starting side, slot location, route angle, catch point and short finish are schematic; no defender identity or coverage call is assigned."],
     focusPlayerIds: ["h", "qb"],
@@ -192,10 +198,13 @@ export const jetsPlays: JetsPlay[] = [
     sources: [
       { label: "Jets: the Monday Night Miracle", url: "https://www.newyorkjets.com/news/do-you-believe-in-miracles-jets-roar-back-from-23-down-rock-dolphins-40-37-in-ot" },
       { label: "Watch the official NFL highlight", url: "https://www.nfl.com/videos/nfl-100-greatest-no-92-offensive-lineman-jumbo-elliott-s-jumbo-touchdown-complet" },
+      { label: "Official NFL gamebook · p. 11", url: "https://www.nflgsis.com/2000/reg/08/1105/Gamebook.pdf" },
+      { label: "NFL Films radio account · p. 2", url: "https://www.nfl.info/nflmedia/nflinternational/Archives/2011_Pages/%5E11.Programs/11.Extra/wk13.NFLExtra.pdf" },
     ],
     confirmed: [
       "Vinny Testaverde completed a 3-yard touchdown to Jumbo Elliott in the Jets' goal-line offense.",
       "Elliott played as an eligible receiving lineman and juggled the ball before securing the touchdown.",
+      "The NFL gamebook records second-and-goal from the Miami 3, Elliott #76 reporting eligible and a play-action fake before the throw. It does not identify the back involved in the fake.",
       "John Hall's extra point tied the game at 37 with 42 seconds remaining; the Jets won 40–37 in overtime.",
     ],
     illustrative: [...limits, "The eligible Elliott marker is placed at a teaching line end. His actual side, release shape and teammates' alignment are not established; the animation does not reproduce the juggles or replay review."],
