@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { loadSeasonArchive } from "@/lib/load-season-archive";
 import { phaseResults, seasonNumbers } from "@/lib/season-archive";
 import { pageMetadata } from "@/lib/site";

@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   // Pin the root so Turbopack does not walk up into it.
   turbopack: { root: path.resolve(".") },
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "i.ytimg.com", port: "", pathname: "/vi/**", search: "" },
       { protocol: "https", hostname: "static.clubs.nfl.com", port: "", pathname: "/image/upload/*/jets/**", search: "" },

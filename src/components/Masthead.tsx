@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "./IntentLink";
 import type { Streak } from "@/lib/paper";
 import { WEAR_NOTE } from "@/lib/paper";
 import { formatCheckedAt, formatDate } from "@/lib/current";

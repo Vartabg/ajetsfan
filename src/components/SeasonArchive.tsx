@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { formatDate } from "@/lib/current";
 import { formatMediaDate, mediaForSeason, type MediaOutlet } from "@/lib/media";
-import { phaseResults, seasonNumbers, type ArchivePhase, type ArchiveSeason } from "@/lib/season-archive";
+import { phaseResults, seasonNumbers, type ArchivePhase } from "@/lib/season-archive";
+import type { SeasonArchivePresentation } from "@/lib/season-presentation";
 import type { SeasonRankings as SeasonRankingsData } from "@/lib/season-rankings";
 import type { NextGenSeason } from "@/lib/nextgen-stats";
 import SeasonRankings from "./SeasonRankings";
@@ -51,7 +52,7 @@ function SeasonChapter({ id, active, label, hint, matchCount, year, phaseLabel, 
   </details>;
 }
 
-export default function SeasonArchive({ season, years, outlets, rankings = null, nextgen = null, nextgenCheckedAt = null }: { season: ArchiveSeason; years: number[]; outlets: MediaOutlet[]; rankings?: SeasonRankingsData | null; nextgen?: NextGenSeason | null; nextgenCheckedAt?: string | null }) {
+export default function SeasonArchive({ season, years, outlets, rankings = null, nextgen = null, nextgenCheckedAt = null }: { season: SeasonArchivePresentation; years: number[]; outlets: MediaOutlet[]; rankings?: SeasonRankingsData | null; nextgen?: NextGenSeason | null; nextgenCheckedAt?: string | null }) {
   const location = useSyncExternalStore(subscribe, snapshot, serverSnapshot);
   const url = useMemo(() => new URL(`/seasons/${season.year}${location}`, "https://ajetsfan.com"), [location, season.year]);
   const params = url.searchParams;
@@ -65,7 +66,7 @@ export default function SeasonArchive({ season, years, outlets, rankings = null,
   const visible = results.filter((game) => matches(`${game.opponent} ${game.opponentDisplay} ${game.date} week ${game.week} ${game.outcome} ${game.jetsScore} ${game.oppScore}`));
   const facts = season.facts.filter((fact) => (phase === "all" || fact.phase === phase) && matches(`${fact.title} ${fact.text}`));
   const media = mediaForSeason(season.media, season.year, phase).filter((item) => matches(`${item.title} ${item.summary} ${item.author} ${outlets.find((outlet) => outlet.id === item.outletId)?.name ?? ""}`));
-  const caseById = new Map(season.cases.map((game) => [game.id, game]));
+  const caseIds = new Set(season.caseIds);
   const scale = Math.max(1, ...results.map((game) => Math.abs(game.jetsScore - game.oppScore)));
   const phaseLabel = phases.find((item) => item.value === phase)!.label;
   const regular = seasonNumbers(phaseResults(season, "regular"));
@@ -138,7 +139,7 @@ export default function SeasonArchive({ season, years, outlets, rankings = null,
     <section className={styles.evidence} aria-labelledby="season-results-heading">
       <header className={styles.sectionHead}><div><p className={styles.kicker}>{phaseLabel} · final scores</p><h2 id="season-results-heading" className="hed">The season, game by game.</h2></div><p role="status" data-season-results-count>{visible.length} of {results.length} finals shown</p></header>
       {visible.length ? <><div className={styles.chartLegend}><span>← Loss margin</span><span>Jets win margin →</span></div><ol className={styles.games} aria-label="Final scores and scoring margins">{visible.map((game) => {
-        const margin = game.jetsScore - game.oppScore, analysis = caseById.get(game.id);
+        const margin = game.jetsScore - game.oppScore, analysis = caseIds.has(game.id);
         return <li key={game.id} data-season-game={game.id}>
           <div className={styles.fixture}><strong>{game.atHome ? "vs" : "at"} {game.opponentDisplay}</strong><small>{game.seasonType === "POST" ? "Playoffs" : `Week ${game.week}`} · <time dateTime={game.date}>{formatDate(game.date)}</time></small></div>
           <div className={styles.marginTrack} aria-hidden="true"><span className={`${styles.marginBar} ${margin < 0 ? styles.loss : ""}`} style={{ "--bar": `${Math.abs(margin) / scale * 50}%` } as CSSProperties} /><b className={margin < 0 ? styles.negative : ""}>{margin > 0 ? "+" : ""}{margin}</b></div>

@@ -59,6 +59,13 @@ function SourceViewer({ film }: { film: FilmCase }) {
 }
 
 export default function FilmRoom({ cases }: { cases: FilmCase[] }) {
+  useEffect(() => {
+    const anchor = window.location.hash;
+    if (anchor !== "#film-room" && anchor !== "#scouting-board") return;
+    // Direct links must wait for the deferred notebook to have real geometry.
+    const frame = requestAnimationFrame(() => document.getElementById(anchor.slice(1))?.scrollIntoView({ behavior: "instant", block: "start" }));
+    return () => cancelAnimationFrame(frame);
+  }, []);
   return cases.length ? <FilmExperience cases={cases} /> : <section className={styles.empty}><h2>Roll the tape.</h2><p>No verified film cases are available in this edition.</p></section>;
 }
 

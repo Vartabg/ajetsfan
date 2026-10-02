@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
+import dynamic from "next/dynamic";
 import type { FilmCase } from "@/lib/film-room";
-import FilmRoom from "./FilmRoom";
 import PlaybookLab from "./PlaybookLab";
 import styles from "@/app/film-room/page.module.css";
 
 const WORKSPACE_EVENT = "ajetsfan:film-workspace";
+const FilmRoom = dynamic(() => import("./FilmRoom"), {
+  loading: () => <p role="status">Loading game studies…</p>,
+});
+const prepareStudies = () => { void import("./FilmRoom"); };
 function subscribe(notify: () => void) {
   const events = ["popstate", "hashchange", "ajetsfan:film-selection", WORKSPACE_EVENT];
   events.forEach((event) => window.addEventListener(event, notify));
@@ -26,14 +30,9 @@ function selectedWorkspace(location: string): "playbook" | "studies" {
 export default function FilmWorkspace({ cases }: { cases: FilmCase[] }) {
   const location = useSyncExternalStore(subscribe, snapshot, serverSnapshot);
   const selected = selectedWorkspace(location);
-  useEffect(() => {
-    const anchor = window.location.hash;
-    if (anchor !== "#film-room" && anchor !== "#scouting-board") return;
-    // The matching workspace becomes visible after hydration. Honor its old
-    // section links once it is laid out, without jumping on workspace switches.
-    const frame = requestAnimationFrame(() => document.getElementById(anchor.slice(1))?.scrollIntoView({ behavior: "instant", block: "start" }));
-    return () => cancelAnimationFrame(frame);
-  }, []);
+  const [studiesVisited, setStudiesVisited] = useState(false);
+  // Retain the loaded notebook when returning to the board, including edits.
+  if (selected === "studies" && !studiesVisited) setStudiesVisited(true);
   function choose(next: "playbook" | "studies") {
     if (next === selected) return;
     const url = new URL(window.location.href);
@@ -45,10 +44,10 @@ export default function FilmWorkspace({ cases }: { cases: FilmCase[] }) {
   return <section id="film-workspace" className={styles.workspace} data-film-workspace={selected}>
     <nav className={styles.workspaceNav} aria-label="Film Room workspaces">
       <button type="button" aria-pressed={selected === "playbook"} aria-controls="film-playbook-workspace" onClick={() => choose("playbook")}>Playbook</button>
-      <button type="button" aria-pressed={selected === "studies"} aria-controls="film-studies-workspace" onClick={() => choose("studies")}>Game studies</button>
+      <button type="button" aria-pressed={selected === "studies"} aria-controls="film-studies-workspace" onMouseEnter={prepareStudies} onFocus={prepareStudies} onTouchStart={prepareStudies} onClick={() => choose("studies")}>Game studies</button>
     </nav>
-    {/* Keep both mounted so switching workspaces preserves edits and selections. */}
+    {/* Load the hidden notebook on first use; keep it mounted after that. */}
     <div id="film-playbook-workspace" hidden={selected !== "playbook"}><PlaybookLab /></div>
-    <div id="film-studies-workspace" hidden={selected !== "studies"}><FilmRoom cases={cases} /></div>
+    <div id="film-studies-workspace" hidden={selected !== "studies"}>{studiesVisited ? <FilmRoom cases={cases} /> : null}</div>
   </section>;
 }
