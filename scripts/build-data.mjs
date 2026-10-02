@@ -9,19 +9,44 @@
  *   public/data/games.json          one row per game, powers both boards
  *   public/data/curves/{id}.json    per-play win probability series, loaded on click
  *
- * Run: node scripts/build-data.mjs
+ * Run: node scripts/build-data.mjs (current season); add --full for historical rebuild.
+ * Schedule/results publish independently while complete play-by-play is pending.
  */
-import { DuckDBInstance } from '@duckdb/node-api';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { TEAM, SCHEDULE_SOURCE, pbpSource, parseLeagueSchedule, jetsSchedule, inferSeason, mergeAnalysis, currentManifest, readSnapshot, publishSnapshot, withDataLock, fetchText } from './data-refresh.mjs';
+import { extractAnalytics, retainAnalytics, validateAnalytics } from './season-analytics.mjs';
+import { refreshCoverage } from './coverage.mjs';
 
 const FIRST_SEASON = 1999;
-const LAST_SEASON = 2025;
-const TEAM = 'NYJ';
 
-const OUT = path.join(process.cwd(), 'public', 'data');
-const url = (s) =>
-  `https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_${s}.parquet`;
+/** Extractors may explicitly report temporary unavailability; corrupt data must throw normally. */
+export class PbpAvailabilityError extends Error {
+  constructor(message, options) {
+    super(message, options);
+    this.name = 'PbpAvailabilityError';
+  }
+}
+
+const extractionUnavailable = (error) => error instanceof PbpAvailabilityError ||
+  ['ENOMEM', 'EMFILE', 'ENFILE', 'EAGAIN'].includes(error?.code) ||
+  /^Out of Memory Error:/.test(error?.message ?? '');
+
+async function downloadPbp(source, fetcher) {
+  let response;
+  try { response = await fetcher(source, { signal: AbortSignal.timeout(60_000) }); }
+  catch (cause) { throw new PbpAvailabilityError(`PBP request unavailable: ${source}`, { cause }); }
+  if (response.status === 404) return null;
+  if ([408, 425, 429].includes(response.status) || response.status >= 500) {
+    throw new PbpAvailabilityError(`PBP HTTP ${response.status}: ${source}`);
+  }
+  // Authentication/configuration errors and unexpected responses still fail the run.
+  if (!response.ok) throw new Error(`PBP HTTP ${response.status}: ${source}`);
+  try { return Buffer.from(await response.arrayBuffer()); }
+  catch (cause) { throw new PbpAvailabilityError(`PBP download interrupted: ${source}`, { cause }); }
+}
 
 // Administrative rows -- END QUARTER, timeouts, two-minute warnings -- carry
 // meaningless win probability. In the 2000 Oakland game an "END QUARTER 3" row
@@ -43,20 +68,18 @@ const IS_MEANINGFUL_PLAY = `
 const num = (v) => (typeof v === 'bigint' ? Number(v) : v);
 const clean = (row) => Object.fromEntries(Object.entries(row).map(([k, v]) => [k, num(v)]));
 
-const instance = await DuckDBInstance.create(':memory:');
-const db = await instance.connect();
-await db.run('INSTALL httpfs; LOAD httpfs;');
-
-const rows = async (sql) => (await db.runAndReadAll(sql)).getRowObjects().map(clean);
-
-const games = [];
-let curvesWritten = 0;
-
-await mkdir(path.join(OUT, 'curves'), { recursive: true });
-
-for (let season = FIRST_SEASON; season <= LAST_SEASON; season++) {
-  const src = url(season);
-
+export async function extractSeason(db, season, src) {
+  const rows = async (sql) => (await db.runAndReadAll(sql)).getRowObjects().map(clean);
+  const games = [];
+  const parquet = `read_parquet('${src.replaceAll("'", "''")}')`;
+  const columns = await rows(`DESCRIBE SELECT * FROM ${parquet}`);
+  const hasGameEnd = columns.some((column) => column.column_name === 'game_end');
+  // Terminal rows often have null WP and no possession/play type. Inspect raw
+  // PBP, before filtering real snaps, so a truncated file cannot look complete.
+  const terminal = `${hasGameEnd ? 'game_end = 1 OR ' : ''}trim("desc") ILIKE 'END GAME%' OR trim("desc") ILIKE 'END OF GAME%'`;
+  const completed = await rows(`SELECT DISTINCT game_id FROM ${parquet}
+    WHERE (home_team='${TEAM}' OR away_team='${TEAM}') AND (${terminal})`);
+  const completeGameIds = new Set(completed.map((game) => game.game_id));
   // Every Jets play, flipped to the Jets' point of view.
   const jetsView = `
     SELECT
@@ -71,7 +94,7 @@ for (let season = FIRST_SEASON; season <= LAST_SEASON; season++) {
       home_team='${TEAM}' AS at_home,
       total_home_score, total_away_score, home_score, away_score,
       (${IS_SNAP}) AS is_snap
-    FROM read_parquet('${src}')
+    FROM ${parquet}
     WHERE (home_team='${TEAM}' OR away_team='${TEAM}') AND home_wp IS NOT NULL
   `;
 
@@ -105,18 +128,18 @@ for (let season = FIRST_SEASON; season <= LAST_SEASON; season++) {
       FROM j GROUP BY game_id
     ),
     swing AS (
-      SELECT game_id, "desc" AS play_desc, jets_wpa, qtr,
+      SELECT game_id, play_id, "desc" AS play_desc, jets_wpa, qtr,
              half_seconds_remaining, game_seconds_remaining,
-             row_number() OVER (PARTITION BY game_id ORDER BY jets_wpa ASC)  AS worst_rank,
-             row_number() OVER (PARTITION BY game_id ORDER BY jets_wpa DESC) AS best_rank
+             row_number() OVER (PARTITION BY game_id ORDER BY jets_wpa ASC, play_id ASC)  AS worst_rank,
+             row_number() OVER (PARTITION BY game_id ORDER BY jets_wpa DESC, play_id ASC) AS best_rank
       FROM j
       WHERE qtr >= 3 AND jets_wpa IS NOT NULL AND ${IS_MEANINGFUL_PLAY}
     )
     SELECT s.*,
            ${season} AS season,
-           w.play_desc AS worst_play, w.jets_wpa AS worst_play_wpa,
+           w.play_id AS worst_play_id, w.play_desc AS worst_play, w.jets_wpa AS worst_play_wpa,
            w.qtr AS worst_play_qtr, w.game_seconds_remaining AS worst_play_left,
-           b.play_desc AS best_play,  b.jets_wpa AS best_play_wpa,
+           b.play_id AS best_play_id, b.play_desc AS best_play,  b.jets_wpa AS best_play_wpa,
            b.qtr AS best_play_qtr,  b.game_seconds_remaining AS best_play_left
     FROM summary s
     LEFT JOIN swing w ON w.game_id = s.game_id AND w.worst_rank = 1
@@ -157,8 +180,8 @@ for (let season = FIRST_SEASON; season <= LAST_SEASON; season++) {
       temp: g.temp,
       wind: g.wind,
       keyPlay: won
-        ? { desc: g.best_play, wpa: g.best_play_wpa, qtr: g.best_play_qtr, secondsLeft: g.best_play_left }
-        : { desc: g.worst_play, wpa: g.worst_play_wpa, qtr: g.worst_play_qtr, secondsLeft: g.worst_play_left },
+        ? { playId: g.best_play_id, desc: g.best_play, wpa: g.best_play_wpa, qtr: g.best_play_qtr, secondsLeft: g.best_play_left }
+        : { playId: g.worst_play_id, desc: g.worst_play, wpa: g.worst_play_wpa, qtr: g.worst_play_qtr, secondsLeft: g.worst_play_left },
     });
   }
 
@@ -166,7 +189,7 @@ for (let season = FIRST_SEASON; season <= LAST_SEASON; season++) {
   const curves = await rows(`
     WITH j AS (${jetsView})
     SELECT game_id, play_id, qtr, game_seconds_remaining AS left_s, jets_wp, jets_wpa,
-           "desc" AS play_desc, play_type
+           "desc" AS play_desc, play_type, (${IS_MEANINGFUL_PLAY}) AS meaningful
     FROM j WHERE qtr IS NOT NULL AND ${IS_SNAP}
     ORDER BY game_id, play_id
   `);
@@ -175,6 +198,8 @@ for (let season = FIRST_SEASON; season <= LAST_SEASON; season++) {
   for (const p of curves) {
     if (!byGame.has(p.game_id)) byGame.set(p.game_id, []);
     byGame.get(p.game_id).push({
+      playId: p.play_id,
+      meaningful: Boolean(p.meaningful),
       q: p.qtr,
       t: p.left_s,
       wp: p.jets_wp === null ? null : Math.round(p.jets_wp * 1000) / 1000,
@@ -183,31 +208,139 @@ for (let season = FIRST_SEASON; season <= LAST_SEASON; season++) {
       type: p.play_type,
     });
   }
-  for (const [id, series] of byGame) {
-    await writeFile(path.join(OUT, 'curves', `${id}.json`), JSON.stringify(series));
-    curvesWritten++;
-  }
-
-  process.stdout.write(`${season}: ${seasonGames.length} games  `);
+  return { games, curves: byGame, completeGameIds };
 }
 
-games.sort((a, b) => (a.date < b.date ? -1 : 1));
-await writeFile(path.join(OUT, 'games.json'), JSON.stringify(games, null, 0));
+/** Refresh from official schedule/results first; analysis can legitimately arrive later. */
+export async function refreshData({
+  out = path.join(process.cwd(), 'public', 'data'), now = new Date(), full = false,
+  fetcher = fetch, extract = null, onAnalysisError = console.warn,
+} = {}) {
+  return withDataLock(out, async () => {
+    const previous = await readSnapshot(out);
+    if (!full && !previous.games.length) throw new Error('No historical snapshot; run with --full to initialize');
+    const leagueSchedule = parseLeagueSchedule(await fetchText(SCHEDULE_SOURCE, fetcher));
+    const schedule = jetsSchedule(leagueSchedule);
+    const season = inferSeason(schedule, now);
+    const archived = new Map(previous.games.map((game) => [game.id, game]));
+    const lastArchivedSeason = Math.max(FIRST_SEASON, ...previous.games.map((game) => game.season));
+    const needsBackfill = (target) => schedule.some((game) => {
+      const old = archived.get(game.id);
+      return game.season === target && game.status === 'final' &&
+        (!old || old.dataSuspect || old.jetsScore !== game.jetsScore || old.oppScore !== game.oppScore);
+    });
+    const seasons = full
+      ? [...new Set(schedule.filter((g) => g.season >= FIRST_SEASON && g.season <= season).map((g) => g.season))].sort((a, b) => a - b)
+      : [...new Set(schedule.filter((g) => g.season >= lastArchivedSeason && g.season <= season).map((g) => g.season))]
+        .filter((target) => target === season || needsBackfill(target)).sort((a, b) => a - b);
+    const analyses = [];
+    let analysisCheck = null;
+    let instance, db, temp;
+    try {
+      for (const target of seasons) {
+        // No completed games means there is nothing to analyze yet.
+        const hasFinals = (target === season ? leagueSchedule : schedule).some((g) => g.season === target && g.status === 'final');
+        if (!hasFinals) continue;
+        let analysis;
+        let unavailable = null;
+        try {
+          if (extract) analysis = await extract(target);
+          else {
+            const body = await downloadPbp(pbpSource(target), fetcher);
+            if (body === null) analysis = null;
+            else {
+              if (!db) {
+                const { DuckDBInstance } = await import('@duckdb/node-api');
+                instance = await DuckDBInstance.create(':memory:');
+                db = await instance.connect();
+                temp = await mkdtemp(path.join(os.tmpdir(), 'ajetsfan-pbp-'));
+              }
+              const file = path.join(temp, `${target}.parquet`);
+              await writeFile(file, body);
+              analysis = await extractSeason(db, target, file);
+              if (target === season) analysis.analytics = await extractAnalytics(db, season, file, leagueSchedule, now, {
+                schedule: SCHEDULE_SOURCE, pbp: pbpSource(season), methodology: 'https://nflfastr.com/reference/fast_scraper.html',
+              });
+              await rm(file);
+            }
+          }
+        } catch (error) {
+          // A historical backfill must be complete. Never turn malformed Parquet,
+          // schema errors, or analysis validation failures into an availability warning.
+          if (target !== season || !extractionUnavailable(error)) throw error;
+          onAnalysisError(`${target} analysis retained/unavailable: ${error.message}`);
+          unavailable = 'source-unavailable';
+          analysis = null;
+        }
+        if (analysis !== null) {
+          if (!analysis || !Array.isArray(analysis.games) || !(analysis.curves instanceof Map) || !(analysis.completeGameIds instanceof Set)) {
+            throw new Error('Invalid PBP extraction result');
+          }
+          if (analysis.analytics != null) {
+            if (analysis.analytics.season !== target) throw new Error('Invalid analytics extraction season');
+            validateAnalytics(analysis.analytics, leagueSchedule);
+          }
+        }
+        if (analysis === null && target !== season) throw new Error(`Historical PBP unavailable: ${target}`);
+        if (target === season) analysisCheck = {
+          attemptedAt: now.toISOString(),
+          checkedAt: analysis ? now.toISOString() : previous.current?.season === season
+            ? previous.current.analysisCheck?.checkedAt ?? null : null,
+          status: analysis ? 'ready' : 'unavailable',
+          reason: analysis ? null : unavailable ?? 'not-published',
+        };
+        if (analysis) analyses.push(analysis);
+      }
+      const result = mergeAnalysis(previous.games, analyses, schedule, { full });
+      let analysisChanged = JSON.stringify(result.games) !== JSON.stringify(previous.games);
+      if (!analysisChanged) {
+        for (const [id, points] of result.curves) {
+          let old;
+          try { old = await readFile(path.join(out, 'curves', `${id}.json`), 'utf8'); }
+          catch (error) { if (error.code !== 'ENOENT') throw error; }
+          if (old !== JSON.stringify(points)) { analysisChanged = true; break; }
+        }
+      }
+      const current = currentManifest({ season, schedule, games: result.games, now, previous: previous.current, analysisChanged });
+      let analytics = retainAnalytics(analyses.find((analysis) => analysis.analytics?.season === season)?.analytics ?? null, previous.analytics, now);
+      if (analytics?.season === season && analysisCheck && analysisCheck.status !== 'ready') {
+        // Coverage can advance independently of the retained rates and their cutoff.
+        // Do not imply that a newly confirmed league final already has usable PBP.
+        const analyzed = new Set(analytics.analyzedGameIds);
+        const pendingGameIds = leagueSchedule.filter((game) => game.season === season && game.seasonType === 'REG' &&
+          game.status === 'final' && game.date <= now.toISOString().slice(0, 10) && !analyzed.has(game.id)).map((game) => game.id);
+        if (JSON.stringify(pendingGameIds) !== JSON.stringify(analytics.pendingGameIds)) {
+          analytics = { ...analytics, pendingGameIds };
+          validateAnalytics(analytics);
+        }
+      }
+      if (analysisCheck) {
+        if (analysisCheck.status === 'unavailable' && (current.latestAnalyzedGameId ||
+          analytics?.season === season && analytics.analyzedGameIds.length)) analysisCheck.status = 'retained';
+        current.analysisCheck = analysisCheck;
+      }
+      const coverage = await refreshCoverage({ season, schedule: current.schedule, now, previous: previous.coverage, fetcher });
+      await publishSnapshot(out, { ...result, current, analytics, coverage });
+      const finals = current.schedule.filter((g) => g.status === 'final').length;
+      console.log(`${season}: ${finals} confirmed results; ${result.games.length} archived games; latest analyzed: ${current.latestAnalyzedGameId ?? 'pending'}`);
+      return current;
+    } finally {
+      if (db) db.closeSync();
+      if (instance) instance.closeSync();
+      if (temp) await rm(temp, { recursive: true, force: true });
+    }
+  });
+}
 
-const eligible = games.filter((g) => !g.dataSuspect && g.swing != null);
-const losses = eligible.filter((g) => g.outcome === 'loss').sort((a, b) => b.swing - a.swing);
-const wins = eligible.filter((g) => g.outcome === 'win').sort((a, b) => a.swing - b.swing);
-const suspect = games.filter((g) => g.dataSuspect);
-
-const line = (g) =>
-  `  ${g.date} ${g.atHome ? 'vs' : 'at'} ${g.opponentDisplay}  ${(g.swing * 100).toFixed(1)}%  ` +
-  `${g.outcome === 'win' ? 'won' : 'lost'} ${g.jetsScore}-${g.oppScore}\n      ${String(g.keyPlay.desc).slice(0, 88)}`;
-
-console.log(`\n\n${games.length} games, ${curvesWritten} curves written.`);
-console.log(`${suspect.length} excluded as data-suspect: ${suspect.map((g) => g.id).join(', ') || 'none'}`);
-console.log('\nWorst heartbreak, all time:');
-losses.slice(0, 5).forEach((g) => console.log(line(g)));
-console.log('\nBiggest miracle, all time:');
-wins.slice(0, 5).forEach((g) => console.log(line(g)));
-
-await db.closeSync();
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  const args = process.argv.slice(2);
+  if (args.some((arg) => arg !== '--full')) {
+    console.error('Usage: node scripts/build-data.mjs [--full]');
+    process.exitCode = 1;
+  } else {
+    refreshData({ full: args.includes('--full') }).catch((error) => {
+      console.error(`Data refresh failed: ${error.message}`);
+      process.exitCode = 1;
+    });
+  }
+}

@@ -1,0 +1,25 @@
+.trend { margin: 0; min-width: 0; padding: 1.5rem 0; background: var(--paper); border-top: 3px solid var(--forest); border-bottom: 1px solid var(--rule); }
+.trend figcaption { display: flex; flex-direction: column; gap: .45rem; padding-bottom: 1rem; border-bottom: 1px solid var(--rule-soft); }
+.trend figcaption strong { font: 700 1.75rem/1.2 var(--font-sans-narrow), "Arial Narrow", sans-serif; }
+.trend figcaption span { font-size: .76rem; color: var(--ink-2); }
+.total { margin: .25rem 0 0; font-size: .8rem; color: var(--ink-2); }
+.total b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; padding: 0 .1rem .75rem; }
+.bars { list-style: none; display: flex; width: max-content; min-width: 100%; padding: 0; margin: 1rem 0 0; }
+.column { flex: 1; width: 7rem; padding: 0 .4rem; text-align: center; }
+.column + .column { border-left: 1px dashed var(--rule-soft); }
+.plot { display: grid; grid-template-rows: 7rem 7rem; }
+.upper, .lower { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+.upper { justify-content: flex-end; }
+.lower { border-top: 1px solid var(--rule-soft); }
+.plot span { display: block; width: min(50%, 3.5rem); flex-shrink: 0; }
+.positive { background: var(--spot); }
+.negative { background: var(--stamp, #8b3e32); }
+.tie { background: var(--ink-2); }
+.plot strong { font: 700 1rem/1.3 var(--font-sans-narrow), sans-serif; font-variant-numeric: tabular-nums; }
+.opponent { display: block; font: 800 .85rem/1.4 var(--font-sans-narrow), sans-serif; }
+.score { display: block; margin-top: .3rem; font: .78rem/1.4 var(--font-mono), monospace; }
+.week { display: block; margin-top: .2rem; font-size: .72rem; color: var(--ink-2); }
+.analysis { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; font-size: .74rem; color: var(--spot); text-decoration: underline; text-underline-offset: .2em; }
+.hint { font-size: .74rem; color: var(--ink-2); margin: .75rem 0 0; }
+@media (max-width: 640px) { .trend { padding: 1.25rem 0; } .trend figcaption strong { font-size: 1.5rem; } }

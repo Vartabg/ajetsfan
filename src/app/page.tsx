@@ -1,150 +1,153 @@
 import Link from "next/link";
-import { rank, clockLabel } from "@/lib/games";
-import { loadGames, loadCurve } from "@/lib/load-games";
-import { currentStreak, wearLevel, pickLead, headlineScale, spellNumber, WEAR_NOTE } from "@/lib/paper";
+import Image from "next/image";
+import { pageMetadata } from "@/lib/site";
+import AnalysisStatus from "@/components/AnalysisStatus";
+
+export const metadata = pageMetadata({ path: "/", title: "The Back Page — a Jets fan", description: "Jets results, player statistics, measured game analysis, and a sourced archive. Scores, plays, and probability with the evidence in view." });
+import { rank, clockLabel, pct } from "@/lib/games";
+import { loadGames, loadCurve, loadCurrent, loadAnalytics } from "@/lib/load-games";
+import { currentSeasonSummary, formatCheckedAt, formatDate, nextScheduledGame, selectLead } from "@/lib/current";
+import { gameHref } from "@/lib/explorer";
+import { keyPlayEvidenceLabel } from "@/lib/morgue";
+import { leaders } from "@/lib/coverage";
+import { playerHref } from "@/lib/roster";
+import { publishedGames, publishedPlayers } from "@/lib/published-pages";
 import PressChart from "@/components/PressChart";
+import EditorialPhoto from "@/components/EditorialPhoto";
+import { gameEditorialPhoto, playerActionPhoto } from "@/lib/editorial-photos";
+import DataFreshness from "@/components/DataFreshness";
+import FeedStatus from "@/components/FeedStatus";
+import Matchup from "@/components/Matchup";
+import SeasonTrend from "@/components/SeasonTrend";
+import LeagueContext from "@/components/LeagueContext";
+import { loadCoverage } from "@/lib/load-coverage";
+import NewsDesk from "@/components/NewsDesk";
+import SundayBriefing from "@/components/SundayBriefing";
+import GameEvidence from "@/components/GameEvidence";
+import GameDayTicket from "@/components/GameDayTicket";
+import FanStand from "@/components/FanStand";
+import VisualGameStory from "@/components/VisualGameStory";
+import HomeDisclosure from "@/components/HomeDisclosure";
+import { buildVisualStory, visualStoryIds, type VisualStory } from "@/lib/visual-story";
+import { FIELD, offensiveFormations, defensiveFormations } from "@/lib/playbook";
+import { jetsPlays } from "@/lib/jets-playbook";
 import styles from "./page.module.css";
 
-const MONTHS = ["Jan.","Feb.","March","April","May","June","July","Aug.","Sept.","Oct.","Nov.","Dec."];
-const longDate = (iso: string) => {
-  const [y, m, d] = iso.split("-").map(Number);
-  return `${MONTHS[m - 1]} ${d}, ${y}`;
-};
-
 export default async function BackPage() {
-  const games = await loadGames();
-  const streak = currentStreak(games);
-  const wear = wearLevel(streak);
-  const lead = pickLead(games, streak)!;
-  const curve = await loadCurve(lead.id);
-  const heartbreak = rank(games, "heartbreak");
-  const miracle = rank(games, "miracle");
-
-  const pct = (lead.swing ?? 0) * 100;
-  const scale = headlineScale(lead.swing);
-  const lost = lead.outcome === "loss";
+  const [games, snapshot, rawAnalytics, coverageFeed] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics(), loadCoverage()]);
+  const analytics = rawAnalytics?.season === snapshot?.season ? rawAnalytics : null;
+  const lead = selectLead(games, snapshot);
+  const caseIds = new Set(publishedGames(games, snapshot).map((game) => game.id));
+  const caseHref = (id: string, board: "heartbreak" | "miracle") => caseIds.has(id) ? `/games/${encodeURIComponent(id)}` : gameHref(id, board);
+  const profileIds = new Set(publishedPlayers(coverageFeed, snapshot?.season ?? null).map((player) => player.id));
+  const result = lead.result;
+  const analysis = lead.analysisStatus === "ready" ? lead.analysis : null;
+  const gamePhoto = result ? gameEditorialPhoto(result.id) : null;
+  const [curve, storyCandidates] = await Promise.all([
+    analysis ? loadCurve(analysis.id) : Promise.resolve([]),
+    Promise.all(visualStoryIds.map(async (id) => {
+      const game = caseIds.has(id) ? games.find((item) => item.id === id) : null;
+      return game ? buildVisualStory(game, await loadCurve(id)) : null;
+    })),
+  ]);
+  const visualStories = storyCandidates.filter((story): story is VisualStory => story != null);
+  const summary = currentSeasonSummary(snapshot);
+  const next = nextScheduledGame(snapshot);
+  const heartbreak = rank(games, "heartbreak")[0];
+  const miracle = rank(games, "miracle")[0];
+  const gameStats = analysis ? analytics?.games.find((game) => game.id === analysis.id) : null;
+  const lost = result?.outcome === "loss";
+  const tied = result?.outcome === "tie";
+  const margin = result ? Math.abs(result.jetsScore - result.oppScore) : 0;
+  const headline = !result ? "Jets football." : tied ? "Jets tie." : lost ? "Jets lose." : "Jets win.";
+  const resultSummary = !result ? "Results, players and the next game." :
+    `${tied ? "A tied final" : `A ${margin}-point ${lost ? "loss" : "win"}`} ${result.atHome ? "at home" : "on the road"}.`;
+  const pendingTitle = tied ? "A tied final · no probability ranking" : lead.analysisStatus === "suspect" ? "Analysis held for review" :
+    lead.analysisStatus === "unavailable" ? "Win probability unavailable" : "Win-probability analysis pending";
+  const playHeading = analysis ? `${keyPlayEvidenceLabel(analysis)}.` : "Analysis status.";
+  const spotlight = coverageFeed && coverageFeed.stats.status !== "unavailable" && coverageFeed.stats.season === snapshot?.season
+    ? leaders(coverageFeed.stats, "receiving", 1)[0] : null;
+  const spotlightRoster = spotlight && coverageFeed?.roster.status !== "unavailable" && coverageFeed?.roster.season === snapshot?.season ? coverageFeed?.roster.players.find((player) => player.id === spotlight.id) : null;
+  const spotlightPhoto = spotlight ? playerActionPhoto(spotlight.id, snapshot?.season ?? 0) : null;
+  const sourcePlay = analysis?.keyPlay.desc?.replace(/^\([^)]*\)\s*/, "").replace(/\b\d{1,2}-(?=[A-Z])/g, "");
+  const stories = [
+    heartbreak && { game: heartbreak, board: "heartbreak" as const, title: `${pct(heartbreak.swing)} peak. A loss.`, label: "Highest second-half estimate in a loss", closer: "Read the game case" },
+    miracle && { game: miracle, board: "miracle" as const, title: `${pct(miracle.swing)} low. A win.`, label: "Lowest second-half estimate in a win", closer: "Read the game case" },
+  ].filter((story) => !!story);
 
   return (
     <main id="main" className={styles.main}>
-      <article className={styles.lead}>
-        <p className={`${styles.kicker} label`}>
-          {lost ? "The worst night in the archive" : "The deepest hole in the archive"}
-        </p>
-
-        <div className={styles.leadGrid}>
-          <div className={styles.leadLeft}>
-            <h1 className="hed" style={{ fontSize: `clamp(52px, ${scale * 11}vw, ${scale * 128}px)` }}>
-              {spellNumber(Number(pct.toFixed(1)))}
-            </h1>
-
-            <p className={`${styles.deck} deck`}>
-              {lead.atHome ? "" : "At "}
-              {lead.opponentDisplay} {lead.oppScore}, Jets {lead.jetsScore}
-              {lead.wentToOt ? " · OT" : ""} · {longDate(lead.date)}
-            </p>
-
-            <div className={styles.body}>
-              <p>
-                <span className={styles.dropcap}>{lost ? "W" : "T"}</span>
-                {lost ? (
-                  <>
-                    ith the ball and the clock on their side, the Jets held a {pct.toFixed(1)} percent
-                    chance to win this game. In the twenty-seven seasons on record, no Jets team has
-                    ever been closer to a win it did not get.
-                  </>
-                ) : (
-                  <>
-                    heir chances had fallen to {pct.toFixed(1)} percent. In the twenty-seven seasons on
-                    record, no Jets team has climbed out of a hole this deep and still won.
-                  </>
-                )}
-              </p>
-              {lead.keyPlay.desc ? (
-                <p>
-                  The play that decided it, with{" "}
-                  <span className="agate">{clockLabel(lead.keyPlay.qtr, lead.keyPlay.secondsLeft)}</span>{" "}
-                  showing: <em>{lead.keyPlay.desc}</em>
-                </p>
-              ) : null}
-              <p className={styles.jump}>
-                Continued in <Link href="/morgue">The Morgue</Link> →
-              </p>
+      {snapshot ? <DataFreshness checkedAt={snapshot.checkedAt} /> : null}
+      <nav className={styles.editionNav} aria-label="In this edition">{next ? <Link href="#sunday-briefing">Sunday briefing <span aria-hidden="true">↓</span></Link> : null}{snapshot ? <Link href="#season" aria-label="Season and schedule">This season <span aria-hidden="true">↓</span></Link> : null}{visualStories.length ? <Link href="#visual-story">Visual stories <span aria-hidden="true">↓</span></Link> : null}<Link href="#fan-stand">Jets history <span aria-hidden="true">↓</span></Link></nav>
+      <article id="latest-game" className={styles.edition}>
+        <div className={styles.cover}>
+          <div className={styles.editionLine}><p>{lead.kind === "archive" ? "From the archive · no current-season final in this edition" : result ? `Latest final · Week ${result.week}${result.seasonType === "POST" ? " · playoffs" : ""}` : "The current edition"}</p>{result ? <span className={styles.mobileFinal}>NYJ {result.jetsScore} <span aria-hidden="true">—</span> {result.opponentDisplay} {result.oppScore}</span> : null}<span className={styles.readerNote}>Scores. Plays. Probability.</span></div>
+          <div className={`${styles.coverBody} ${!result ? styles.copyOnly : !gamePhoto ? styles.scoreOnly : ""}`}>
+            <div className={styles.coverCopy}>
+              <span className={styles.voiceLabel}>{result ? "Confirmed result" : "Source-led coverage"}</span>
+              <h1 className="hed"><span>{headline}</span>{result ? <em>{result.jetsScore}–{result.oppScore}.</em> : null}</h1>
+              <p>{resultSummary}</p>
+              {result ? <Link href="#postgame" className={styles.coverLink}>Examine the game <span aria-hidden="true">↓</span></Link> : <Link href="/team" className={styles.coverLink}>Current team coverage <span aria-hidden="true">↗</span></Link>}
             </div>
+            <div className={styles.coverVisual}>{gamePhoto ? <EditorialPhoto photo={gamePhoto} sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 900px) calc(55vw - 2.6125rem), (max-width: 1288px) calc(55vw - 3.3rem), 656px" eager /> : null}
+            {result ? <div className={styles.scoreboard} aria-label={`Final score: Jets ${result.jetsScore}, ${result.opponentDisplay} ${result.oppScore}`}>
+              <span className={styles.finalLabel}>Final{analysis?.wentToOt ? " / OT" : ""}</span>
+              <div className={styles.scoreRow}><b>NYJ</b><strong>{result.jetsScore}</strong></div>
+              <div className={styles.scoreRow}><b>{result.opponentDisplay}</b><strong>{result.oppScore}</strong></div>
+              <p className="sr-only">Jets {result.jetsScore}, {result.opponentDisplay} {result.oppScore}</p>
+              <time dateTime={result.date}>{formatDate(result.date)}</time>
+              <small>{result.atHome ? "At home" : "On the road"}</small>
+            </div> : null}</div>
           </div>
-
-          <aside className={styles.rail}>
-            <figure className={styles.chart}>
-              <figcaption className="label">Win probability · {lead.date}</figcaption>
-              <PressChart points={curve} board={lost ? "heartbreak" : "miracle"} />
-            </figure>
-
-            <div className={styles.edition}>
-              <p className="label">About this edition</p>
-              <p className={styles.editionBody}>
-                This paper yellows with the losing streak. {WEAR_NOTE[wear]}
-                {streak && streak.type === "loss" && streak.count > 1 ? (
-                  <>
-                    {" "}
-                    The Jets have lost {streak.count} straight since {longDate(streak.since)}.
-                  </>
-                ) : null}{" "}
-                A win prints it back on fresh stock.
-              </p>
-              <div className={styles.wearScale} aria-hidden="true">
-                {[0, 1, 2, 3, 4].map((n) => (
-                  <span key={n} className={n === wear ? styles.wearOn : styles.wearOff} data-swatch={n} />
-                ))}
-              </div>
-            </div>
-          </aside>
         </div>
+        {result ? <HomeDisclosure target="postgame" label="Game breakdown" hint="Key play & win probability"><div id="postgame" className={styles.postgame}>
+          <div className={styles.playHeading}><span className={styles.kicker}>Play-by-play evidence</span><h2 className="hed">{playHeading}</h2>{analysis?.keyPlay.wpa != null ? <p className={styles.featuredDelta}>{analysis.keyPlay.wpa >= 0 ? "+" : ""}{(analysis.keyPlay.wpa * 100).toFixed(1)}<span>percentage points · Jets win probability</span></p> : null}</div>
+          <div className={styles.playCopy}>
+            {analysis?.keyPlay.desc ? <><p className={styles.playClock}>{clockLabel(analysis.keyPlay.qtr, analysis.keyPlay.secondsLeft)} · Source play description</p><p className={styles.playDescription}>{sourcePlay}</p><p className={styles.evidenceNote}>Selected by the {lost ? "smallest" : "largest"} Jets win-probability change in the second half. The model’s change is an estimate, not proof that one play determined the result.</p></> : <><p className={styles.playClock}>{pendingTitle}</p><p>The score is confirmed.{tied ? " Ties don’t enter the Heartbreak or Miracle rankings." : lead.analysisStatus === "suspect" ? " The play-by-play needs a score integrity review before publication." : " Usable play-by-play hasn’t arrived in this edition yet."}</p></>}
+            <Link href={analysis ? caseHref(analysis.id, lost ? "heartbreak" : "miracle") : "/morgue"} className={styles.underlined}>{analysis ? "Read the game case" : "Visit The Morgue"} <span aria-hidden="true">↗</span></Link>
+          </div>
+        </div>
+        {analysis ? <section className={styles.tapeBody} aria-label="Game probability evidence">
+          {curve.length >= 2 ? <figure><figcaption><strong>Win probability, play by play.</strong><span>Jets pre-play model estimate · play sequence</span></figcaption><PressChart points={curve} board={lost ? "heartbreak" : "miracle"} /></figure> : <p>Game curve unavailable in this edition.</p>}
+          <p className={styles.evidenceNote}>Pre-play model estimates · marker: {lost ? "highest" : "lowest"} second-half estimate.</p>
+          <details className={styles.sourceNotes}><summary>Sources & calculation notes</summary><p className={styles.evidenceNote}>The line shows estimates before recorded plays; it does not extend to an inferred final whistle.</p><AnalysisStatus check={snapshot?.analysisCheck} /><p className={styles.evidenceNote}><a href="https://github.com/nflverse/nflverse-data" target="_blank" rel="noreferrer">Play-by-play source: nflverse<span className="sr-only"> (opens in a new tab)</span></a>{snapshot?.analysisUpdatedAt ? ` · Archive updated ${formatCheckedAt(snapshot.analysisUpdatedAt)}.` : ""} <Link href="/how-made#efficiency">Methods and definitions</Link></p></details>
+        </section> : null}</HomeDisclosure> : null}
+        {analysis ? <HomeDisclosure target="game-evidence" label="Compare the offenses" hint="Efficiency & play samples"><GameEvidence game={analysis} statistics={gameStats ?? null} /></HomeDisclosure> : null}
       </article>
-
-      <section className={styles.strip}>
-        <div className={styles.stripCol}>
-          <h2 className={`${styles.stripHead} label`}>Heartbreak · the standings</h2>
-          <ol className={`${styles.agateList} agate`}>
-            {heartbreak.slice(0, 6).map((g, i) => (
-              <li key={g.id}>
-                <span className={styles.n}>{i + 1}</span>
-                <span className={styles.mt}>{g.atHome ? "vs" : "at"} {g.opponentDisplay}</span>
-                <span className={styles.dt}>{g.date}</span>
-                <span className={styles.pc}>{((g.swing ?? 0) * 100).toFixed(1)}</span>
-              </li>
-            ))}
-          </ol>
+      {snapshot ? <section id="season" className={styles.season} aria-labelledby="season-heading">
+        <div className={styles.seasonLine}><div><span className={styles.kicker}>The story so far</span><h2 id="season-heading" className="hed">The {snapshot.season} season</h2></div><p><strong>{summary.wins}–{summary.losses}{summary.ties ? `–${summary.ties}` : ""}</strong><span>Regular season · confirmed finals</span></p></div>
+        <div className={styles.sundays}>
+          <div className={styles.recent}><h3>Recent confirmed results</h3>{summary.recent.length ? <ol>{summary.recent.slice(0, 3).map((game) => {
+            const analyzed = games.find((item) => item.id === game.id && !item.dataSuspect && item.swing != null && item.date === game.date && item.outcome === game.outcome && item.jetsScore === game.jetsScore && item.oppScore === game.oppScore);
+            return <li key={game.id}><span className={`${styles.resultLetter} ${game.outcome === "win" ? styles.win : ""}`}>{game.outcome === "win" ? "W" : game.outcome === "loss" ? "L" : "T"}</span><small>Week {game.week}</small><strong>NYJ {game.jetsScore} <span>—</span> {game.opponentDisplay} {game.oppScore}</strong>{analyzed ? <Link href={caseHref(game.id, game.outcome === "win" ? "miracle" : "heartbreak")} aria-label={`Explore Week ${game.week} against ${game.opponentDisplay}`}>↗</Link> : <small>{game.outcome === "tie" ? "Tie" : "Analysis pending"}</small>}</li>;
+          })}</ol> : <p>No regular-season final in this edition.</p>}</div>
+          <div className={styles.nextSunday}><span className={styles.ticketMark} aria-hidden="true">Next fixture</span><span className={styles.kicker}>On the checked schedule</span>{next ? <><h3 className="hed">Jets {next.game.atHome ? "vs" : "at"} {next.game.opponentDisplay}</h3><p>Week {next.game.week} · <time dateTime={next.game.date}>{formatDate(next.game.date)}</time></p><p className={styles.kickoff}>{next.game.kickoff ? formatCheckedAt(next.game.kickoff) : "Kickoff time to be confirmed"}</p>{next.overdue ? <p>Kickoff has passed as of the results check; a final is not confirmed.</p> : null}</> : <><h3 className="hed">Next fixture unavailable.</h3><p>No remaining fixture listed in this edition.</p></>}</div>
         </div>
-
-        <div className={styles.stripCol}>
-          <h2 className={`${styles.stripHead} label`}>Miracles · the standings</h2>
-          <ol className={`${styles.agateList} agate`}>
-            {miracle.slice(0, 6).map((g, i) => (
-              <li key={g.id}>
-                <span className={styles.n}>{i + 1}</span>
-                <span className={styles.mt}>{g.atHome ? "vs" : "at"} {g.opponentDisplay}</span>
-                <span className={styles.dt}>{g.date}</span>
-                <span className={styles.pc}>{((g.swing ?? 0) * 100).toFixed(1)}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        <div className={styles.stripCol}>
-          <h2 className={`${styles.stripHead} label`}>The record</h2>
-          <table className={`${styles.agateTable} agate`}>
-            <tbody>
-              <tr><td>Games in the archive</td><td>{heartbreak.length + miracle.length}</td></tr>
-              <tr><td>Losses after reaching 90%</td><td>{heartbreak.filter((g) => (g.swing ?? 0) >= 0.9).length}</td></tr>
-              <tr><td>Wins from under 10%</td><td>{miracle.filter((g) => (g.swing ?? 1) <= 0.1).length}</td></tr>
-              <tr><td>Seasons covered</td><td>1999–2025</td></tr>
-              <tr><td>Current stock</td><td>{wear}/4</td></tr>
-            </tbody>
-          </table>
-          <p className={styles.stripNote}>
-            Full archive in <Link href="/morgue">The Morgue</Link>.
-          </p>
-        </div>
+        <HomeDisclosure target="season-trend" label="Season trend" hint="Every final, on one chart"><div id="season-trend"><SeasonTrend games={summary.finals} analysisIds={games.filter((game) => !game.dataSuspect && game.swing != null && game.outcome !== "tie").map((game) => game.id)} /></div></HomeDisclosure>
+        {next ? <HomeDisclosure target="sunday-briefing" label="Sunday briefing" hint={`Week ${next.game.week} · unit comparisons & availability`}><SundayBriefing game={next.game} overdue={next.overdue} snapshot={snapshot} analytics={analytics} /></HomeDisclosure> : null}
+        <HomeDisclosure target="game-day-ticket" label="Make your game-day call" hint="Save a score prediction"><GameDayTicket game={next?.game ?? null} overdue={next?.overdue ?? false} finals={summary.finals} season={snapshot.season} /></HomeDisclosure>
+        <details className={styles.schedule}><summary className="disclosure"><span className={styles.summaryCopy}><span className="when-closed">See the full {snapshot.season} schedule</span><span className="when-open">Hide the {snapshot.season} schedule</span><small>{snapshot.schedule.filter((game) => game.seasonType === "REG").length} games</small></span></summary><ol>{snapshot.schedule.filter((game) => game.seasonType === "REG").map((game) => <li key={game.id}><span>W{game.week}</span><time dateTime={game.date}>{formatDate(game.date)}</time><strong>{game.atHome ? "vs" : "at"} {game.opponentDisplay}</strong><span>{game.status === "final" ? `${game.outcome === "win" ? "W" : game.outcome === "loss" ? "L" : "T"} ${game.jetsScore}–${game.oppScore}` : game.kickoff ? formatCheckedAt(game.kickoff) : "Time TBD"}</span></li>)}</ol></details>
+      </section> : null}
+      <section className={styles.exploreRooms} aria-label="Explore Jets reporting and seasons">
+        <Link href="/media" className={styles.mediaDoor}><div className={styles.mediaPoster}><Image src="https://i.ytimg.com/vi/s657QMErTG4/hqdefault.jpg" alt="Original SNY Jets Game Plan video thumbnail" fill sizes="(max-width: 640px) 90vw, 45vw" /><span>SNY · Jets Game Plan</span></div><div><h2 className="hed">Media Room <span aria-hidden="true">↗</span></h2><p>Beat reporting, radio, video and replay.</p></div></Link>
+        <Link href="/seasons" className={styles.seasonDoor}><h2 className="hed">Your year.<br />Your Jets.</h2><div className={styles.yearStrip} aria-hidden="true"><span>1968</span><span>2002</span><span>2010</span><span>{snapshot?.season ?? "2026"}</span></div><p>Pick a season. Explore its games and players.</p><strong>Season archive <span aria-hidden="true">↗</span></strong></Link>
+        <Link href="/film-room#playbook-lab" className={styles.filmDoor}><div className={styles.formationPoster} aria-hidden="true"><svg viewBox={`0 0 ${FIELD.width} ${FIELD.height}`}><g stroke="#c8d5bd50" strokeWidth="3">{[120,240,360,480].map((y) => <line key={y} x1="40" x2="960" y1={y} y2={y} />)}</g><line x1="40" x2="960" y1={FIELD.lineOfScrimmage} y2={FIELD.lineOfScrimmage} stroke="#d7eb70" strokeWidth="5" />{offensiveFormations[0].players.map((player) => <circle key={player.id} cx={player.x} cy={player.y} r="17" fill="#f8f5ed" stroke="#064c32" strokeWidth="3" />)}</svg><span>{offensiveFormations[0].label} schematic</span></div><div><h2 className="hed">Film Room <span aria-hidden="true">↗</span></h2><p>Draw a play. Run it back.</p><small>{offensiveFormations.length + defensiveFormations.length} formations · {jetsPlays.length} Jets studies</small></div></Link>
+        <Link href="/morgue" className={styles.archiveDoor}><p className={styles.kicker}>The game archive</p><h2 className="hed">The Morgue <span aria-hidden="true">↗</span></h2><p>Great finishes. Brutal endings.</p><small>Games ranked by second-half model probability.</small></Link>
       </section>
+      <HomeDisclosure target="archive-stories" label="From The Morgue" hint="Two games at the extremes"><section id="archive-stories" className={styles.morgue} aria-labelledby="morgue-heading">
+        <div className={styles.morgueHeading}><div><p className={styles.kicker}>The Morgue · the game archive</p><h2 id="morgue-heading" className="hed">The result.<br /><span>The evidence.</span></h2><p>Losses ranked by peak second-half win-probability estimate. Wins ranked by the lowest. The final score is a fact; probability is a model.</p></div><Link href="/morgue" className={styles.morgueDoor}>Enter <br />The Morgue <span aria-hidden="true">↗</span></Link></div>
+        <div className={styles.obituaries}>{stories.map(({ game, board, title, label, closer }) => <Link key={game.id} className={`${styles.obituary} ${board === "miracle" ? styles.signOfLife : ""}`} href={caseHref(game.id, board)}>
+          <p className={styles.obitLabel}>{label}</p><h3 className="hed">{title}</h3><p className={styles.obitScore}>NYJ {game.jetsScore} <span>—</span> {game.opponentDisplay} {game.oppScore}{game.wentToOt ? " / OT" : ""}</p><small>{formatDate(game.date)} · Week {game.week}</small><p className={styles.obitFoot}><span>{closer}</span><span aria-hidden="true">↗</span></p>
+        </Link>)}</div>
+      </section></HomeDisclosure>
+      {visualStories.length ? <HomeDisclosure target="visual-story" label="Visual game stories" hint="Replay a game, moment by moment"><VisualGameStory stories={visualStories} /></HomeDisclosure> : null}
+      <HomeDisclosure target="fan-stand" label="Jets history" hint="Super Bowl III & classic games"><FanStand games={games} snapshot={snapshot} /></HomeDisclosure>
+      <HomeDisclosure target="around-jets" label="Players & headlines" hint="Current coverage"><nav className={styles.coverageLinks} aria-label="More team coverage"><Link href="/team#news">All headlines <span aria-hidden="true">↗</span></Link><Link href="/team#roster">Full roster <span aria-hidden="true">↗</span></Link></nav><div className={styles.touchline}>
+        {spotlight ? <section className={styles.player} aria-labelledby="player-heading"><span className={styles.kicker}>Receiving production</span>{spotlightPhoto ? <EditorialPhoto photo={spotlightPhoto} sizes="(max-width: 640px) calc(100vw - 32px), 300px" className={styles.spotlightPhoto} /> : <p className={styles.jerseyNumber}>{spotlightRoster?.jersey ? `No. ${spotlightRoster.jersey}` : spotlight.position}</p>}<h2 id="player-heading" className="hed">{spotlight.name}</h2><p>{spotlight.receiving.receptions} receptions. {spotlight.receiving.yards.toLocaleString("en-US")} yards. {spotlight.receiving.touchdowns} receiving TD.</p><small>{coverageFeed!.stats.season} receiving leader by yards · {spotlight.games} recorded games{coverageFeed!.stats.throughWeek != null ? ` · through Week ${coverageFeed!.stats.throughWeek}` : ""}</small><Link className={styles.underlined} href={profileIds.has(spotlight.id) ? `/players/${encodeURIComponent(spotlight.id)}` : spotlightRoster ? playerHref(spotlight.id) : "/team#season-leaders"}>Player profile and statistics <span aria-hidden="true">↗</span></Link><FeedStatus feed={coverageFeed!.stats} label="Player statistics" /></section> : null}
+        {coverageFeed ? <NewsDesk feed={coverageFeed.news} limit={3} compact /> : null}
+      </div></HomeDisclosure>
+      {snapshot ? <details className={styles.filmRoom}><summary className="disclosure"><span><span className="when-closed">Open league and unit comparisons</span><span className="when-open">Close league and unit comparisons</span><small>Data analysis · Unit matchups &amp; league context</small></span></summary><div>{next ? <Matchup game={next.game} overdue={next.overdue} analytics={analytics} /> : null}{analytics ? <LeagueContext analytics={analytics} opponent={next?.game.opponent ?? ""} /> : null}</div></details> : null}
+      <section className={styles.freshness} aria-label="Data freshness"><span>{snapshot ? `${snapshot.season} edition` : "The analyzed archive"}</span><span>{snapshot ? <>Results checked <time dateTime={snapshot.checkedAt}>{formatCheckedAt(snapshot.checkedAt)}</time></> : "Current-season results unavailable in this edition."}</span><Link href="/how-made">Sources &amp; how it works</Link></section>
     </main>
   );
 }

@@ -1,42 +1,26 @@
-.main {
-  position: relative;
-  z-index: 1;
-  width: var(--shell);
-  margin-inline: auto;
-  padding: 1.1rem 0 3rem;
-}
+.main { width: var(--shell); margin-inline: auto; padding: 1.75rem 0 4.5rem; }
+.head { position: relative; padding: 1.3rem 2.25rem 0; background: var(--forest); color: var(--paper); }
+.folio { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .4rem 1.5rem; padding-bottom: .9rem; border-bottom: 1px solid #f7f4eb40; }
+.kicker { margin: 0; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.folio > span { color: #d3c7b1; font: .7rem/1.5 var(--font-mono), monospace; text-transform: uppercase; letter-spacing: .04em; }
+.intro { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, .75fr); gap: 3rem; align-items: end; padding: 1.75rem 0 2rem; }
+.title { font: 400 clamp(4.6rem, 8.5vw, 7.6rem)/.95 var(--font-serif), Georgia, serif; letter-spacing: -.055em; overflow-wrap: anywhere; }
+.intro > div { min-width: 0; }
+.article { display: block; margin-bottom: .3rem; font-size: .31em; line-height: 1; font-style: italic; letter-spacing: -.02em; }
+.period { color: #dcb19a; }
+.epitaph { margin: 1rem 0 0; font: italic 400 clamp(1.2rem, 1.8vw, 1.65rem)/1.35 var(--font-serif), Georgia, serif; color: #e1d9c8; overflow-wrap: anywhere; }
+.notice { min-width: 0; padding-left: 1.5rem; border-left: 1px solid #f7f4eb40; }
+.seal { display: inline-flex; flex-direction: column; align-items: center; gap: .3rem; max-width: calc(100% - .5rem); padding: .5rem .9rem; border: 3px double #dcb19a; color: #dcb19a; overflow-wrap: anywhere; transform: rotate(-3deg); }
+.seal > * { max-width: 100%; }
+.seal > span { font: .65rem/1.3 var(--font-mono), monospace; text-transform: uppercase; letter-spacing: .09em; }
+.seal > strong { font: 700 1.25rem/1.1 var(--font-sans-narrow), Arial, sans-serif; text-transform: uppercase; letter-spacing: .05em; }
+.standfirst { max-width: 33ch; margin: 1.5rem 0 0; font-size: .94rem; line-height: 1.7; color: #e1d9c8; }
+.coverage { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem 1.5rem; padding: .85rem 0; border-top: 1px solid #f7f4eb40; color: #d3c7b1; font: .72rem/1.5 var(--font-mono), monospace; }
+.loading { padding: 3rem 0; color: var(--ink-2); }
+.sourceNote { margin: 2rem 0 0; padding-top: 1rem; border-top: 1px solid var(--rule-soft); color: var(--ink-2); font-size: .75rem; line-height: 1.75; }
+.sourceNote a { color: var(--stamp); text-underline-offset: 4px; }
+@media (max-width: 900px) { .head { padding-inline: 1.5rem; } .intro { gap: 1.5rem; } .notice { padding-left: 1rem; } }
+@media (max-width: 640px) { .main { padding-top: 1.25rem; } .head { padding: 1.1rem 1.1rem 0; } .folio { gap: .5rem; } .folio > span { font-size: .65rem; } .intro { grid-template-columns: 1fr; gap: 1.35rem; padding: 1.5rem 0; } .title { font-size: clamp(3.8rem, 17vw, 5.8rem); } .epitaph { font-size: 1.18rem; margin-top: .85rem; } .notice { display: flex; flex-direction: column; align-items: start; padding: 1.15rem 0 0; border-left: 0; border-top: 1px solid #f7f4eb40; } .seal { padding: .4rem .7rem; } .seal > strong { font-size: 1.1rem; } .standfirst { max-width: none; font-size: .88rem; margin-top: 1.15rem; } .coverage { font-size: .7rem; } .kicker { font-size: .68rem; letter-spacing: .07em; } }
 
-.head {
-  max-width: 46rem;
-  border-bottom: 3px solid var(--rule);
-  padding-bottom: 0.9rem;
-}
-
-.kicker {
-  color: var(--spot);
-  font-weight: 700;
-  margin: 0 0 0.3rem;
-}
-
-.title {
-  font-size: clamp(3rem, 11vw, 6.5rem);
-  margin: 0;
-}
-
-.standfirst {
-  margin: 0.8rem 0 0;
-  font-size: 1rem;
-  line-height: 1.5;
-  max-width: 40rem;
-}
-
-.crossref {
-  margin: 0.5rem 0 0;
-  font-family: var(--font-sans-narrow), sans-serif;
-  font-size: 0.76rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--ink-2);
-}
-
-.crossref a { color: var(--spot); font-weight: 700; }
+.index { display: flex; flex-wrap: wrap; gap: .4rem 2rem; padding: .75rem 0; border-bottom: 1px solid var(--rule-soft); }
+.index a { display: inline-flex; align-items: center; gap: .6rem; min-height: 44px; font-size: .78rem; font-weight: 800; color: var(--spot); text-decoration: underline; text-underline-offset: .25em; }

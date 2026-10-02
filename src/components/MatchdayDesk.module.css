@@ -1,0 +1,22 @@
+.desk { min-width: 0; padding: 1.3rem 1.5rem; border: 1px solid var(--rule-soft); border-top: 3px solid var(--stamp); background: var(--paper-2); align-self: start; }
+.kicker { margin: 0 0 .5rem; color: var(--stamp); font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.desk h3 { max-width: 15ch; font: 700 1.9rem/1.1 var(--font-sans-narrow), sans-serif; }
+.watch { margin: 1.1rem 0 0; }
+.watch > div { padding: .65rem 0; border-top: 1px solid var(--rule-soft); }
+.watch dt { color: var(--ink-2); font-size: .67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.watch dd { margin: .2rem 0 0; font-size: .95rem; font-weight: 700; }
+.watch small { display: block; margin-top: .2rem; color: var(--ink-2); font-size: .7rem; font-weight: 400; }
+.source { display: inline-flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 44px; color: var(--spot); font-size: .75rem; font-weight: 700; text-underline-offset: 4px; }
+.availability { margin-top: .8rem; border-block: 1px solid var(--rule-soft); }
+.availability summary { padding: .75rem 0; font-size: .78rem; font-weight: 800; cursor: pointer; }
+.availability summary small { display: block; margin-top: .3rem; color: var(--ink-2); font-size: .68rem; font-weight: 400; line-height: 1.5; }
+.reportNote { padding: 1rem 0; border-top: 1px solid var(--rule-soft); }
+.reportLabel { margin: 0 0 .4rem; color: var(--stamp); font-size: .65rem; }
+.availability h4 { font: 700 1.25rem/1.2 var(--font-sans-narrow), sans-serif; }
+.reportNote > p:not(.reportLabel) { font-size: .78rem; line-height: 1.6; margin: .5rem 0; }
+.checked, .notice { color: var(--ink-2); font-size: .67rem; line-height: 1.6; }
+.notice { padding: .6rem .75rem; border-left: 3px solid var(--stamp); }
+.links { margin-top: .75rem; border-top: 1px solid var(--rule-soft); }
+.links a { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 44px; padding: .45rem 0; font-size: .74rem; font-weight: 700; text-underline-offset: 4px; }
+.empty { font-size: .82rem; line-height: 1.6; }
+@media (max-width: 640px) { .desk { padding: 1.2rem; } }

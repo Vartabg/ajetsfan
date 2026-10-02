@@ -1,4 +1,5 @@
 import type { Game } from "./games";
+import type { ResultGame } from "./current";
 
 /**
  * The paper ages with the losing streak.
@@ -13,11 +14,11 @@ export type Streak = {
   type: "win" | "loss" | "tie";
   count: number;
   since: string;
-  lastGame: Game;
+  lastGame: ResultGame;
 };
 
-export function currentStreak(games: Game[]): Streak | null {
-  const played = [...games].sort((a, b) => (a.date < b.date ? -1 : 1));
+export function currentStreak(games: ResultGame[]): Streak | null {
+  const played = [...games].sort((a, b) => a.date.localeCompare(b.date) || a.week - b.week || a.id.localeCompare(b.id));
   if (!played.length) return null;
   const last = played[played.length - 1];
   let count = 0;
@@ -47,8 +48,8 @@ export const WEAR_NOTE: Record<number, string> = {
 };
 
 /**
- * The lead story: whichever number in the archive is most extreme. In season
- * this would be the most recent game; in the offseason the archive supplies it.
+ * An archive feature chosen from the mood. The current-season homepage uses
+ * selectLead in current.ts so confirmed new results always take precedence.
  */
 export function pickLead(games: Game[], streak: Streak | null): Game | null {
   const eligible = games.filter((g) => !g.dataSuspect && g.swing != null);

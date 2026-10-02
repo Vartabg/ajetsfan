@@ -1,41 +1,34 @@
 import Link from "next/link";
 import type { Streak } from "@/lib/paper";
 import { WEAR_NOTE } from "@/lib/paper";
+import { formatCheckedAt, formatDate } from "@/lib/current";
 import styles from "./Masthead.module.css";
+import SectionLinks from "./SectionLinks";
+import FanMark from "./FanMark";
 
-const SECTIONS = [
-  { href: "/", label: "The Back Page" },
-  { href: "/morgue", label: "The Morgue" },
-  { href: "/how-made", label: "How it is made" },
-];
-
-export default function Masthead({ streak, wear }: { streak: Streak | null; wear: number }) {
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-
+export default function Masthead({ streak, wear, checkedAt }: { streak: Streak | null; wear: number; checkedAt: string | null }) {
+  const streakLabel = streak ? `${streak.count} straight ${streak.type === "loss" ? streak.count === 1 ? "loss" : "losses" : streak.type === "win" ? streak.count === 1 ? "win" : "wins" : streak.count === 1 ? "tie" : "ties"}` : "Awaiting a result";
   return (
-    <header className={styles.head}>
-      <nav className={styles.sections}>
-        {SECTIONS.map((s) => (
-          <Link key={s.href} href={s.href} className={`${styles.section} label`}>
-            {s.label}
-          </Link>
-        ))}
-      </nav>
-
+    <><header id="top" className={styles.head}>
       <div className={styles.folio}>
-        <span className="label">a jets fan · ajetsfan.com</span>
-        <span className="label">{today}</span>
-        <span className={`${styles.wear} label`} title={WEAR_NOTE[wear]}>
-          {streak && streak.type === "loss" && streak.count > 1
-            ? `${streak.count} straight · stock ${wear}/4`
-            : `stock ${wear}/4`}
-        </span>
+        <span>a jets fan <span className={styles.domain}>· ajetsfan.com</span></span>
+        <span className={styles.mobileWear} title={WEAR_NOTE[wear]}>{streakLabel}</span>
+        <span className={styles.checkTime}>{checkedAt ? <>Results checked <time dateTime={checkedAt}>{formatCheckedAt(checkedAt)}</time></> : streak ? <>Latest archived result: {formatDate(streak.lastGame.date)}</> : "An independent Jets fan project"}</span>
       </div>
+
+      <div className={styles.brandRow}>
+        <Link href="/" className={styles.brand} aria-label="The Back Page"><FanMark className={styles.crest} /><span className={styles.wordmark}><span className={styles.brandNote} aria-hidden="true">An independent Jets publication</span><span className={`${styles.brandName} hed`}>The Back Page</span></span></Link>
+        <p className={styles.tagline}>Jets football.<br />On the record.</p>
+      </div>
+
     </header>
+    <div className={styles.navigation}>
+      <nav className={styles.sections} aria-label="Site sections">
+        <SectionLinks />
+        <span className={styles.wear} title={WEAR_NOTE[wear]}>
+          {streakLabel}
+        </span>
+      </nav>
+    </div></>
   );
 }

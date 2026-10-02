@@ -15,13 +15,13 @@ export default function PressChart({
 
   const W = 300;
   const H = 132;
-  const L = 22;
+  const L = 35;
   const T = 8;
   const B = 18;
 
-  // Downsample: a printed chart does not need one node per snap.
-  const step = Math.max(1, Math.floor(points.length / 90));
-  const pts = points.filter((_, i) => i % step === 0 || i === points.length - 1);
+  // A game has only a few hundred snaps. Keep them all so the line and marker
+  // cannot skip the second-half extreme used in the headline.
+  const pts = points;
 
   const x = (i: number) => L + (i / (pts.length - 1)) * (W - L - 4);
   const y = (wp: number) => T + (1 - wp) * (H - T - B);
@@ -45,7 +45,7 @@ export default function PressChart({
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img"
-         aria-label="Jets win probability across the game">
+         aria-label="Jets win probability across the game, from zero to 100 percent before each recorded play">
       <defs>
         <pattern id="pc-hatch" width="4" height="4" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
           <line x1="0" y1="0" x2="0" y2="4" stroke="var(--ink)" strokeWidth="1.1" opacity="0.26" />
@@ -56,12 +56,12 @@ export default function PressChart({
       <line x1={L} x2={W - 4} y1={y(0.5)} y2={y(0.5)} stroke="var(--rule-soft)" strokeWidth="0.5" strokeDasharray="2 3" />
       <line x1={L} x2={W - 4} y1={y(0)} y2={y(0)} stroke="var(--ink)" strokeWidth="1" />
 
-      <text x={0} y={y(1) + 3} className="agate" fontSize="7.5" fill="var(--ink-2)">100</text>
-      <text x={4} y={y(0.5) + 3} className="agate" fontSize="7.5" fill="var(--ink-2)">50</text>
-      <text x={9} y={y(0) + 3} className="agate" fontSize="7.5" fill="var(--ink-2)">0</text>
+      <text x={L - 6} y={y(1) + 3} textAnchor="end" className="agate" fontSize="9" fill="var(--ink-2)">100%</text>
+      <text x={L - 6} y={y(0.5) + 3} textAnchor="end" className="agate" fontSize="9" fill="var(--ink-2)">50%</text>
+      <text x={L - 6} y={y(0) + 3} textAnchor="end" className="agate" fontSize="9" fill="var(--ink-2)">0%</text>
 
       {marks.map((m) => (
-        <text key={`${m.label}-${m.at}`} x={m.at + 2} y={H - 6} className="agate" fontSize="7.5" fill="var(--ink-2)">
+        <text key={`${m.label}-${m.at}`} x={Math.min(W - 4, m.at + 2)} y={H - 4} textAnchor={m.at > W - 28 ? "end" : "start"} className="agate" fontSize="9" fill="var(--ink-2)">
           {m.label}
         </text>
       ))}

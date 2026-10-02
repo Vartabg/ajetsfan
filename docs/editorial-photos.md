@@ -1,0 +1,19 @@
+# Editorial photography
+
+The Film Room adds an original Cleveland archival still and a separately labeled Sanchez scene recreation. Its references, generation prompt and rejected variants are documented in [film-room-scenes.md](film-room-scenes.md). Generated imagery is editorial illustration and is excluded from film evidence.
+
+The publication uses unbranded football photographs from official Jets coverage, rather than an anonymous generated stadium scene or repeated studio headshots. Image URLs remain on the official Jets/NFL CDN and are served through Next.js image optimization. Each displayed figure links to its source. Individual photographer names are credited when supplied by that source; otherwise the link says “Source: New York Jets.” No individual credit is inferred from the article author.
+
+Selections live in `src/lib/editorial-photos.ts`. A game photograph is returned only for its exact game ID. Player and team selections are scoped to the edition season and do not silently carry into a later season. New game photographs are editorial selections; a confirmed final can lead without a matching photograph. The result, statistics, and source-refresh pipeline remain independent of these selections.
+
+| Use | Official source | Verified context |
+| --- | --- | --- |
+| Detroit game cover | [Week 3 game gallery](https://www.newyorkjets.com/photos/game-photos-jets-vs-lions-week-3-09-27-2026), photograph 45/78, `_DG13086` | Jets defender tackling a Lions receiver; September 27, 2026. Source credit: Dylan Goodman / © New York Jets 2026. |
+| Geno Smith | [September 28 player coverage](https://www.newyorkjets.com/news/geno-smith-playing-elite-level-jets-vs-lions-09-28-2026), `Geno 1` | Throwing in white Jets jersey against Detroit. Caption uses game date September 27, rather than article publication date. |
+| Garrett Wilson | [September 27 player coverage](https://www.newyorkjets.com/news/garrett-wilson-puts-elite-talent-on-display-with-touchdown-107-yards-vs-detroit-09-27-2026), `GW 1` | Contesting a catch against a Detroit defender, September 27, 2026. |
+| Breece Hall | [September 10 player coverage](https://www.newyorkjets.com/news/jets-breece-hall-feeling-fresh-ahead-of-season-opener-09-10-2026) | Running with the football at practice, explicitly captioned “Practice.” |
+| Team cover | [Hall career gallery](https://www.newyorkjets.com/photos/breece-hall-jets-career-photo-gallery), photograph 30, `20251109KR_CLE_NYJ_KHR32367` | Candid sideline photograph in a grass-stained Jets jersey. Individual date is not stated by the source caption; displayed as “Archive photograph.” |
+
+All selected images were visually inspected in the browser for football context, subject framing, and absence of overprinted article or sponsor graphics. The gallery's landscape transform includes side padding; reserved 4:3 or portrait frames crop within the photograph. Crops preserve the subject, ball, and relevant defender where possible. Photographs are not presented as pictures of the separately featured probability turning point.
+
+Only the cover loads eagerly. Supporting photographs load lazily, with reserved aspect ratios and accurate responsive sizes. Failed images show a plain unavailable state and an original-coverage link. Headshots and their initials fallback remain limited to the roster lookup and profile.
