@@ -5,7 +5,7 @@ import type { Game } from "../src/lib/games";
 import { archiveFilters, filterArchive, gameHref } from "../src/lib/explorer";
 
 const imageFixture = '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>';
-const routes = ["/", "/team", "/morgue", "/how-made"];
+const routes = ["/", "/team", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/media"];
 const games = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/games.json"), "utf8")) as Game[];
 
 test.beforeEach(async ({ page }) => {
@@ -31,7 +31,7 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
   }
   const navigation = page.getByRole("navigation", { name: "Site sections" });
   const links = navigation.getByRole("link");
-  await expect(links).toHaveCount(4);
+  await expect(links).toHaveCount(6);
   const boxes = [];
   for (const link of await links.all()) {
     const box = await link.boundingBox();
@@ -43,7 +43,8 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
     boxes.push(box!);
   }
   for (let index = 1; index < boxes.length; index += 1) {
-    expect.soft(boxes[index].x, `${route}: adjacent navigation targets do not overlap`).toBeGreaterThanOrEqual(boxes[index - 1].x + boxes[index - 1].width - 1);
+    if (Math.abs(boxes[index].y - boxes[index - 1].y) < 1) expect.soft(boxes[index].x, `${route}: adjacent navigation targets do not overlap`).toBeGreaterThanOrEqual(boxes[index - 1].x + boxes[index - 1].width - 1);
+    else expect.soft(boxes[index].y, `${route}: navigation rows do not overlap`).toBeGreaterThanOrEqual(boxes[index - 1].y + boxes[index - 1].height - 1);
   }
   const geometry = await page.evaluate(() => ({
     documentWidth: document.documentElement.scrollWidth,

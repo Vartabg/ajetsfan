@@ -36,7 +36,7 @@ export type PlayerStats = {
 export type CoverageSnapshot = {
   schemaVersion: 1;
   season: number;
-  news: FeedState & { items: NewsItem[] };
+  news: FeedState & { items: NewsItem[]; withheldFutureItems?: number };
   roster: FeedState & { season: number; week: number | null; excludedPlayers?: number; players: RosterPlayer[] };
   stats: FeedState & {
     season: number;

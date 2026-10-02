@@ -68,6 +68,14 @@ test('news rejects malformed XML, duplicates, missing fields, unsafe links and f
   assert.throws(() => parseNews('<!DOCTYPE rss [<!ENTITY x "bad">]>' + rss(xmlItem()), now), /XML/);
 });
 
+test('a scheduled RSS entry cannot block already published reporting or acquire a current date', () => {
+  const parsed = parseNews(rss(xmlItem('published'), xmlItem('scheduled', 'Wed, 30 Sep 2026 20:00:00 GMT')), now);
+  assert.equal(parsed.items.length, 1);
+  assert.equal(parsed.items[0].id, 'jets-published');
+  assert.equal(parsed.items[0].publishedAt, '2026-09-29T20:00:00.000Z');
+  assert.equal(parsed.withheldFutureItems, 1);
+});
+
 test('URL allowlists reject userinfo, lookalike hosts, scripts, traversal destinations and unverified image hosts', () => {
   assert.equal(safeCoverageUrl(photo, 'headshot'), photo);
   assert.equal(safeCoverageUrl('https://www.espn.com/nfl/player/_/id/15864', 'profile'), 'https://www.espn.com/nfl/player/_/id/15864');

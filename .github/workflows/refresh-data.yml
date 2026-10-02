@@ -36,6 +36,7 @@ jobs:
       - run: npm ci
       - run: npm run test:data
       - run: npm run data:refresh
+      - run: npm run data:rankings
       - name: Detect snapshot changes
         id: snapshot
         run: |

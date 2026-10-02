@@ -59,7 +59,7 @@ export default function NewsDesk({ feed, limit = 8, compact = false }: {
         </div>
       )}
 
-      <div className={styles.footer}><FeedStatus feed={feed} label="Official Jets news" /></div>
+      <div className={styles.footer}><FeedStatus feed={feed} label="Official Jets news" />{feed.withheldFutureItems ? <p>{feed.withheldFutureItems} future-dated {feed.withheldFutureItems === 1 ? "entry is" : "entries are"} withheld until publication.</p> : null}</div>
     </section>
   );
 }

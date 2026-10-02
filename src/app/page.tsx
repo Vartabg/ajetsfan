@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { pageMetadata } from "@/lib/site";
 import AnalysisStatus from "@/components/AnalysisStatus";
 
@@ -29,6 +30,7 @@ import VisualGameStory from "@/components/VisualGameStory";
 import { buildVisualStory, visualStoryIds, type VisualStory } from "@/lib/visual-story";
 import { offensiveFormations, defensiveFormations } from "@/lib/playbook";
 import { jetsPlays } from "@/lib/jets-playbook";
+import { mediaCollection } from "@/lib/media-catalog";
 import styles from "./page.module.css";
 
 export default async function BackPage() {
@@ -76,7 +78,7 @@ export default async function BackPage() {
   return (
     <main id="main" className={styles.main}>
       {snapshot ? <DataFreshness checkedAt={snapshot.checkedAt} /> : null}
-      <nav className={styles.editionNav} aria-label="In this edition"><span>Go straight to</span>{next ? <Link href="#sunday-briefing">Sunday briefing <span aria-hidden="true">↓</span></Link> : null}{snapshot ? <Link href="#season" aria-label="Season and schedule">This season <span aria-hidden="true">↓</span></Link> : null}{visualStories.length ? <Link href="#visual-story">Visual stories <span aria-hidden="true">↓</span></Link> : null}<Link href="/film-room">Film Room <span aria-hidden="true">↗</span></Link><Link href="#fan-stand">Jets history <span aria-hidden="true">↓</span></Link><Link href="/team#news">Jets news <span aria-hidden="true">↗</span></Link><Link href="/team#roster">The roster <span aria-hidden="true">↗</span></Link></nav>
+      <nav className={styles.editionNav} aria-label="In this edition"><span>Go straight to</span>{next ? <Link href="#sunday-briefing">Sunday briefing <span aria-hidden="true">↓</span></Link> : null}{snapshot ? <Link href="#season" aria-label="Season and schedule">This season <span aria-hidden="true">↓</span></Link> : null}<Link href="/seasons">Season archive <span aria-hidden="true">↗</span></Link><Link href="/media">Media Room <span aria-hidden="true">↗</span></Link>{visualStories.length ? <Link href="#visual-story">Visual stories <span aria-hidden="true">↓</span></Link> : null}<Link href="/film-room">Film Room <span aria-hidden="true">↗</span></Link><Link href="#fan-stand">Jets history <span aria-hidden="true">↓</span></Link><Link href="/team#news">Jets news <span aria-hidden="true">↗</span></Link><Link href="/team#roster">The roster <span aria-hidden="true">↗</span></Link></nav>
       <article id="latest-game" className={styles.edition}>
         <div className={styles.cover}>
           <div className={styles.editionLine}><p>{lead.kind === "archive" ? "From the archive · no current-season final in this edition" : result ? `Latest final · Week ${result.week}${result.seasonType === "POST" ? " · playoffs" : ""}` : "The current edition"}</p>{result ? <span className={styles.mobileFinal}>NYJ {result.jetsScore} <span aria-hidden="true">—</span> {result.opponentDisplay} {result.oppScore}</span> : null}<span className={styles.readerNote}>Scores. Plays. Probability.</span></div>
@@ -126,6 +128,10 @@ export default async function BackPage() {
         <GameDayTicket game={next?.game ?? null} overdue={next?.overdue ?? false} finals={summary.finals} season={snapshot.season} />
         <details className={styles.schedule}><summary className="disclosure"><span className={styles.summaryCopy}><span className="when-closed">See the full {snapshot.season} schedule</span><span className="when-open">Hide the {snapshot.season} schedule</span><small>{snapshot.schedule.filter((game) => game.seasonType === "REG").length} games</small></span></summary><ol>{snapshot.schedule.filter((game) => game.seasonType === "REG").map((game) => <li key={game.id}><span>W{game.week}</span><time dateTime={game.date}>{formatDate(game.date)}</time><strong>{game.atHome ? "vs" : "at"} {game.opponentDisplay}</strong><span>{game.status === "final" ? `${game.outcome === "win" ? "W" : game.outcome === "loss" ? "L" : "T"} ${game.jetsScore}–${game.oppScore}` : game.kickoff ? formatCheckedAt(game.kickoff) : "Time TBD"}</span></li>)}</ol></details>
       </section> : null}
+      <section className={styles.exploreRooms} aria-label="Explore Jets reporting and seasons">
+        <Link href="/media" className={styles.mediaDoor}><div className={styles.mediaPoster}><Image src="https://i.ytimg.com/vi/s657QMErTG4/hqdefault.jpg" alt="Original SNY Jets Game Plan video thumbnail" fill sizes="(max-width: 640px) 90vw, 45vw" /><span>SNY · original publisher thumbnail</span></div><div><p className={styles.kicker}>The Media Room · {mediaCollection.items.length} selections · {mediaCollection.outlets.length} outlets</p><h2 className="hed">Follow every angle <span aria-hidden="true">↗</span></h2><p>Beat reporting, SNY, WFAN, ESPN New York and the tape. Choose a source, topic or football season.</p></div></Link>
+        <Link href="/seasons" className={styles.seasonDoor}><p className={styles.kicker}>The season archive</p><h2 className="hed">Your year.<br />Your Jets.</h2><div className={styles.yearStrip} aria-hidden="true"><span>1968</span><span>2002</span><span>2010</span><span>{snapshot?.season ?? "2026"}</span></div><p>Results, playoff runs, game evidence, sourced memories and reporting organized by football season.</p><strong>Pick a season <span aria-hidden="true">↗</span></strong></Link>
+      </section>
       <section className={styles.morgue} aria-labelledby="morgue-heading">
         <div className={styles.morgueHeading}><div><p className={styles.kicker}>The Morgue · the game archive</p><h2 id="morgue-heading" className="hed">The result.<br /><span>The evidence.</span></h2><p>Losses ranked by peak second-half win-probability estimate. Wins ranked by the lowest. The final score is a fact; probability is a model.</p></div><Link href="/morgue" className={styles.morgueDoor}>Enter <br />The Morgue <span aria-hidden="true">↗</span></Link></div>
         <div className={styles.obituaries}>{stories.map(({ game, board, title, label, closer }) => <Link key={game.id} className={`${styles.obituary} ${board === "miracle" ? styles.signOfLife : ""}`} href={caseHref(game.id, board)}>

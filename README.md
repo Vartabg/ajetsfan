@@ -71,7 +71,7 @@ Set the GitHub Actions repository variable `PUBLIC_SITE_URL` to the production H
 
 ## Public launch configuration
 
-Set Vercel's `NEXT_PUBLIC_SITE_URL` to the chosen permanent HTTPS origin, without a path/query/fragment. Otherwise canonical URLs use Vercel's production project host when available. Without either configured origin, canonicals are omitted and the sitemap is empty. Preview and development deployments emit `noindex` and disallow crawling. The sitemap contains only eligible game cases and current player profiles; source-check timestamps are not fabricated as content modification dates. Rebuild after changing the public origin.
+Set Vercel's `NEXT_PUBLIC_SITE_URL` to the chosen permanent HTTPS origin, without a path/query/fragment. Otherwise canonical URLs use Vercel's production project host when available. Without either configured origin, canonicals are omitted and the sitemap is empty. Preview and development deployments emit `noindex` and disallow crawling. The sitemap includes the season directory, available season pages, Media Room, eligible game cases and current player profiles; source-check timestamps are not fabricated as content modification dates. Rebuild after changing the public origin.
 
 The favicon uses the publication's original football crest. Share images use its newspaper colors and self-hosted Anton type, including the [Google Fonts source](https://github.com/google/fonts/tree/main/ofl/anton) and bundled SIL Open Font License in `public/fonts/OFL-Anton.txt`. Card rendering needs no external font or photograph request.
 
@@ -88,3 +88,20 @@ Featured photography comes from official Jets game and player coverage, with sou
 The paper and editorial rules live in `src/lib/paper.ts`; ranking rules live in `src/lib/games.ts`. The case study derives counts and exclusions from the same snapshot as the product.
 
 Source data: [nflverse](https://github.com/nflverse/nflverse-data). Not affiliated with the New York Jets or the NFL.
+
+## Seasons and Media Room
+
+`/seasons` lists only years with available results or explicitly sourced material. `/seasons/[year]` separates regular-season and playoff samples, calculates score-based records/margins, links eligible game cases, and brings together tagged memories and media. Search narrows displayed content without changing the selected phase's totals. January playoffs stay with the preceding football season. The score archive starts in 1999; selected earlier years contain sources rather than invented complete results. Team and individual league comparisons are provided where complete weekly sources pass the checks; historical EPA splits are not included.
+
+`src/lib/media-catalog.json` is a manually reviewed collection, separate from the automatically refreshed official news desk. Verified authors, publication dates, source URLs, video/post identities and football-season tags are documented in `docs/media-sources.md`. Validation fails a build for invalid or conflicting entries. `/media` stores source/topic/format/season/search/selection in the URL, compares up to two items, and counts actual selections by outlet. Original publisher video thumbnails are optimized by Next Image. Supported YouTube and native X embeds load on explicit request, with bounded X failure handling and original-source fallbacks. Third-party availability is never guaranteed. Curated media requires another editorial review to become newer; data refresh does not update its check time.
+
+The official RSS parser validates every entry and then withholds future publication dates, preserving valid already-published items. An entirely future-dated feed retains the last verified edition. No publication date is altered.
+
+
+## League ranks, NFL tracking and PFF
+
+`npm run data:rankings` refreshes current-season league comparisons and the public Next Gen source. `npm run data:rankings -- --full` rechecks every available league season from 1999. The scheduled default-branch refresh runs this step after the score/coverage update. Checked static snapshots keep network traffic out of readers’ page requests; compressed weekly CSV mirrors reduce preparation downloads. Source failures retain the prior season’s successful-check timestamp.
+
+`public/data/season-rankings.json` contains phase-specific scoring and yardage team ranks plus Jets contributors’ individual volume ranks against their explicit league populations. Exact competition ties, actual participant counts, confirmed games, source gaps and all-club versus Jets totals are visible. Invalid or unassigned credits withhold affected metrics.
+
+`public/data/nextgen-stats.json` contains published Jets-tagged regular-season player aggregates from 2016 onward: time to throw, completion over expected, separation/cushion, rushing over expected and related measurements. Missing fields remain absent; NGS thresholds are not invented, and traded-player totals carry their all-club scope. `src/lib/pff-public.ts` holds five small dated public-source grade excerpts for 2025/2026. It is manually reviewed, not an API feed or comprehensive historical PFF dataset. A full grades integration requires appropriate API access and display rights. Provenance and definitions: [advanced statistics sources](docs/advanced-stats-sources.md).

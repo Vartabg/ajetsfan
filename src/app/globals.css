@@ -48,3 +48,4 @@ details[open] > summary .when-closed { display: none; }
 ::selection { background: var(--accent); color: var(--forest); }
 @media (max-width: 640px) { :root { --shell: calc(100% - 2rem); } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+@media(max-width:640px){html{scroll-padding-top:8rem}}

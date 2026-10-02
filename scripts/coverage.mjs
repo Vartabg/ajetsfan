@@ -80,13 +80,16 @@ export function parseNews(xml, now = new Date()) {
     const title = requiredText(row.title, 'news title', 500);
     const url = safeCoverageUrl(row.link, 'news');
     const publishedAt = timestamp(row.pubDate, 'news publication date');
-    if (Date.parse(publishedAt) > now.getTime()) throw new Error('News publication date is in the future');
     const id = row.guid ? requiredText(row.guid, 'news id', 1000) : url;
     if (ids.has(id) || urls.has(url)) throw new Error('Duplicate news item');
     ids.add(id); urls.add(url);
     return { id, title, url, publishedAt };
   });
-  return { items: items.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.id.localeCompare(b.id)).slice(0, 12) };
+  // Publishers can expose a scheduled story before its publication time. Keep
+  // already published reporting usable without promoting that future entry.
+  const published = items.filter((item) => Date.parse(item.publishedAt) <= now.getTime());
+  if (!published.length) throw new Error('News RSS has only future publication dates');
+  return { items: published.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.id.localeCompare(b.id)).slice(0, 12), withheldFutureItems: items.length - published.length };
 }
 
 export function parseRoster(csv, season) {
@@ -193,6 +196,7 @@ export function validateCoverage(coverage) {
   validateFeed(coverage.stats, playerStatsSource(seasonNumber(coverage.stats?.season)));
   for (const feed of [coverage.roster, coverage.stats]) if (feed.status === 'ready' && feed.season !== coverage.season) throw new Error('Ready coverage has the wrong season');
   if (!Array.isArray(coverage.news.items) || !Array.isArray(coverage.roster.players) || !Array.isArray(coverage.stats.players)) throw new Error('Invalid coverage arrays');
+  if (coverage.news.withheldFutureItems !== undefined) integer(coverage.news.withheldFutureItems, 'withheld future news items');
   const newsIds = new Set(), newsUrls = new Set();
   for (const item of coverage.news.items) {
     requiredText(item.id, 'news id', 1000); requiredText(item.title, 'news title', 500); safeCoverageUrl(item.url, 'news');

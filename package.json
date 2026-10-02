@@ -11,7 +11,8 @@
     "data:rebuild": "node scripts/build-data.mjs --full",
     "test:data": "node --test scripts/*.test.mjs",
     "test:a11y": "playwright test",
-    "test": "playwright test"
+    "test": "playwright test",
+    "data:rankings": "node scripts/refresh-season-rankings.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
