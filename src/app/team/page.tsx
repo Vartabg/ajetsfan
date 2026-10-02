@@ -38,8 +38,6 @@ export default async function TeamPage() {
         <div className={styles.intro}>
           <p className={styles.kicker}>Roster &amp; production</p>
           <h1 className="hed">The Jets<br />team<br /><span>sheet.</span></h1>
-          <p>Current source roster, recorded player production, and dated official coverage.</p>
-          <span className={styles.loyaltyStamp} aria-hidden="true">Source<br />checked.</span>
           {coverage ? <nav aria-label="Team coverage sections"><Link href="#season-leaders">Season leaders <span aria-hidden="true">↓</span></Link><Link href="#roster">Players &amp; roster <span aria-hidden="true">↓</span></Link><Link href="#news">Team news <span aria-hidden="true">↓</span></Link></nav> : null}
         </div>
         {coverPhoto ? <div className={styles.lineup}>
@@ -50,13 +48,13 @@ export default async function TeamPage() {
             {player.jersey !== null ? <span className={styles.jersey} aria-hidden="true">{player.jersey}</span> : null}
             <span className={styles.featuredName}><strong>{player.name}</strong><span>{player.position}{player.jersey !== null ? ` · No. ${player.jersey}` : ""}</span><span className={styles.profileCue}>View profile <span aria-hidden="true">↗</span></span></span>
           </Link>)}</div></div> : null}
-      {coverage ? <p className={styles.edition}><b>{season} edition</b><span>{rosterAvailable ? `${coverage.roster.season} roster: ${coverage.roster.players.length + (coverage.roster.excludedPlayers ?? 0)} source entries · ${coverage.roster.players.length} searchable profiles · ${active} active-roster profiles` : "Roster profiles unavailable"}</span><span>{coverage.stats.status !== "unavailable" && coverage.stats.season === season ? `Player stats from ${coverage.stats.analyzedGameIds.length} completed regular-season games` : "Current-season player stats pending"}</span></p> : null}
+      {coverage ? <p className={styles.edition}><b>{season} edition</b><span>{rosterAvailable ? `${coverage.roster.season} roster · ${coverage.roster.players.length} players · ${active} active` : "Roster unavailable"}</span></p> : null}
     </header>
     {coverage ? <>
       <PlayerLeaders stats={coverage.stats} roster={coverage.roster} editionSeason={season ?? coverage.season} />
       <NewsDesk feed={coverage.news} />
-      <section id="roster" className={styles.rosterSection} aria-labelledby="roster-heading"><div className={styles.rosterHeading}><div><p className={styles.kicker}>Source roster</p><h2 id="roster-heading" className="hed">The roster.</h2></div><p>{coverage.roster.season} source snapshot{coverage.roster.week != null ? ` · Week ${coverage.roster.week}` : ""}</p></div><p className={styles.rosterNote}>Search by name, number, or position for a source profile and recorded season statistics. Roster membership does not establish game-day availability.{coverage.roster.excludedPlayers ? ` ${coverage.roster.excludedPlayers} source ${coverage.roster.excludedPlayers === 1 ? "entry is" : "entries are"} awaiting player identifiers and cannot supply a searchable profile.` : ""}</p><Suspense fallback={<p>Loading roster controls…</p>}><RosterExplorer roster={coverage.roster} stats={coverage.stats} editionSeason={season ?? coverage.season} profileIds={publishedPlayers(coverage, season ?? coverage.season).map((player) => player.id)} /></Suspense></section>
+      <section id="roster" className={styles.rosterSection} aria-labelledby="roster-heading"><div className={styles.rosterHeading}><div><p className={styles.kicker}>The players</p><h2 id="roster-heading" className="hed">The roster.</h2></div><p>{coverage.roster.season}{coverage.roster.week != null ? ` · Week ${coverage.roster.week}` : ""}</p></div><details className={styles.rosterDetails}><summary>Roster details</summary><p>Roster membership does not establish game-day availability. {coverage.roster.players.length + (coverage.roster.excludedPlayers ?? 0)} source entries supply {coverage.roster.players.length} searchable profiles.{coverage.roster.excludedPlayers ? ` ${coverage.roster.excludedPlayers} entries await player identifiers.` : ""}</p><Link href="/how-made">Sources &amp; roster coverage</Link></details><Suspense fallback={<p>Loading roster controls…</p>}><RosterExplorer roster={coverage.roster} stats={coverage.stats} editionSeason={season ?? coverage.season} profileIds={publishedPlayers(coverage, season ?? coverage.season).map((player) => player.id)} /></Suspense></section>
     </> : <section className={styles.empty}><h2>Team coverage is being prepared.</h2><p>No verified news, roster, or player-stat snapshot is available in this edition.</p><a href="https://www.newyorkjets.com/news/" target="_blank" rel="noreferrer">Read official Jets coverage <span aria-hidden="true">↗</span></a></section>}
-    <p className={styles.sourceNote}>Headlines come straight from the Jets. Rosters and season stats come from nflverse; check times and any delays are shown with each section.</p>
+    <p className={styles.sourceNote}><Link href="/how-made">Sources &amp; definitions</Link></p>
   </main>;
 }

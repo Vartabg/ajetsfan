@@ -16,7 +16,7 @@ const comparisons = fixture && !fixture.overdue ? previewQuestions(fixture.game,
 
 test("the Sunday briefing shows measured opposing units and season stakes before the film room", async ({ page }) => {
   test.skip(!fixture || fixture.overdue, "No upcoming fixture in this edition");
-  await page.goto("/");
+  await page.goto("/#sunday-briefing");
   const briefing = page.getByRole("region", { name: "The matchup, in numbers." });
   await expect(briefing).toBeVisible();
   if (comparisons.length) {
@@ -52,7 +52,7 @@ for (const width of [320, 768]) {
   test(`unit values and sample labels reflow at ${width}px with 200% text`, async ({ page }) => {
     test.skip(!comparisons.length, "No current validated unit comparison");
     await page.setViewportSize({ width, height: 1000 });
-    await page.goto("/");
+    await page.goto("/#sunday-briefing");
     await page.addStyleTag({ content: "html { font-size: 200% !important; } body { font-size: 32px !important; }" });
     await page.evaluate(() => document.fonts.ready);
     const briefing = page.getByRole("region", { name: "The matchup, in numbers." });
@@ -97,7 +97,7 @@ test("dated availability is attributed and opens by keyboard without implying ga
   test.skip(!report, "No current reviewed game-week report");
   await page.clock.install({ time: new Date(Date.parse(report!.reviewedAt) + 60_000) });
   await page.setViewportSize({ width: 320, height: 900 });
-  await page.goto("/");
+  await page.goto("/#sunday-briefing");
   const desk = page.getByRole("complementary", { name: "Get your Sunday sorted." });
   await expect(desk).toContainText(report!.watch.network);
   await expect(desk).toContainText(report!.watch.venue);
@@ -128,7 +128,7 @@ test("dated availability is attributed and opens by keyboard without implying ga
 test("a static game-day desk warns when old and removes fixture-specific reporting at kickoff", async ({ page }) => {
   test.skip(!report, "No current reviewed game-week report");
   await page.clock.install({ time: new Date(Date.parse(report!.reviewedAt) + 25 * 60 * 60_000) });
-  await page.goto("/");
+  await page.goto("/#sunday-briefing");
   await expect(page.getByRole("status", { name: "Game-week reporting update status" })).toContainText("Availability can change");
   await page.clock.setSystemTime(new Date(Date.parse(report!.expiresAt) + 60_000));
   await page.clock.runFor(60_000);

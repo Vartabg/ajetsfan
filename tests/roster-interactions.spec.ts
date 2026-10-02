@@ -23,6 +23,7 @@ test("clear search keeps the selected player and other roster filters, then retu
   await expect(page.getByRole("button", { name: "Clear search", exact: true })).toHaveCount(0);
   const next = new URL(page.url()).searchParams;
   expect(next.has("q")).toBe(false);
+  expect(new URL(page.url()).hash).toBe("#roster");
   expect(next.get("player")).toBe(player.id);
   expect(next.get("unit")).toBe(player.group);
   expect(next.get("position")).toBe(player.position);

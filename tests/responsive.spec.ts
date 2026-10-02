@@ -26,6 +26,7 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
   await page.evaluate(() => document.fonts.ready);
   await expect(page.locator("main")).toBeVisible();
   if (route === "/") {
+    await page.locator('[data-home-disclosure="season-trend"] > summary').click();
     await page.locator("summary").filter({ hasText: "Open league and unit comparisons" }).click();
     await expect(page.getByText("The season in margins.", { exact: true })).toBeVisible();
   }

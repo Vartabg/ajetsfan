@@ -45,7 +45,7 @@ test("probability changes keep a valid zero distinct from an unavailable observa
 
 test("season margins reconcile confirmed scores and leave space for enlarged labels", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/#season-trend");
   await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
   const film = page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "Open league and unit comparisons" }) });
   await film.locator(":scope > summary").click();

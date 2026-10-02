@@ -142,7 +142,7 @@ test.describe("memory ledger entry points", () => {
 
   test("home clippings offer each valid case and a keyboard route to the full memory ledger", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/");
+    await page.goto("/#fan-stand");
     const wall = page.locator("#remembered-cases");
     await expect(wall.getByRole("heading", { name: "Selected games.", exact: true })).toBeVisible();
     for (const { memory, href } of cases) await expect(wall.getByRole("link", { name: `Open the ${memory.title} case`, exact: true })).toHaveAttribute("href", `${href}#game-case-heading`);
@@ -157,7 +157,7 @@ test.describe("memory ledger entry points", () => {
     test(`memory layouts remain within a 320px phone${enlarged ? " with 200% text" : ""}`, async ({ page }) => {
       await page.setViewportSize({ width: 320, height: 1000 });
       for (const route of ["/", "/morgue"]) {
-        await page.goto(route, { waitUntil: "domcontentloaded" });
+        await page.goto(route === "/" ? "/#fan-stand" : route, { waitUntil: "domcontentloaded" });
         if (enlarged) await page.addStyleTag({ content: "html { font-size: 200% !important; } body { font-size: 32px !important; }" });
         await page.evaluate(() => document.fonts.ready);
         const wall = page.locator(route === "/" ? "#remembered-cases" : "#fan-memories");

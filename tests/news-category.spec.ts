@@ -42,7 +42,7 @@ test("news categories accompany original sourced headlines on both pages", async
   const coverage = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/coverage.json"), "utf8")) as CoverageSnapshot;
   const items = [...coverage.news.items].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || a.id.localeCompare(b.id));
   for (const route of ["/", "/team"]) {
-    await page.goto(route);
+    await page.goto(route === "/" ? "/#around-jets" : route);
     const section = page.locator(route === "/" ? "#around-jets" : "#news");
     for (const item of items.slice(0, route === "/" ? 3 : 8)) {
       const link = section.getByRole("link", { name: item.title, exact: false });

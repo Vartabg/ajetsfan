@@ -229,5 +229,25 @@
 .filmIndex strong { display:block;font:400 3.4rem/1 var(--font-hed),sans-serif; }
 .filmIndex small { display:block;margin-top:1rem;font-size:.75rem;line-height:1.75;color:#bdd0c3; }
 @media(max-width:900px){.filmInvitation{grid-template-columns:minmax(0,1fr);gap:1.25rem}.filmIndex{border-left:0;border-top:1px solid #f8f5ed30;padding:1.25rem 0 0}.filmIndex p{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.75rem;align-items:center}.filmIndex strong{font-size:2.6rem}}
-.exploreRooms{display:grid;grid-template-columns:1.2fr 1fr;gap:2rem;margin:3rem 0}.exploreRooms>a{text-decoration:none;min-width:0}.mediaDoor{border:1px solid var(--rule-soft)}.mediaPoster{aspect-ratio:16/9;position:relative;background:var(--forest)}.mediaPoster img{object-fit:cover}.mediaPoster>span{position:absolute;bottom:0;left:0;right:0;padding:.5rem .8rem;background:#062c21e8;color:var(--paper);font-size:.65rem}.mediaDoor>div:last-child{padding:1.3rem}.exploreRooms h2{font-size:clamp(2rem,4vw,3.3rem);line-height:1.08;margin:.4rem 0 1rem}.exploreRooms p{font-size:.9rem;line-height:1.7;overflow-wrap:anywhere}.exploreRooms .kicker{font-size:.68rem}.seasonDoor{padding:2rem;background:var(--forest);color:var(--paper);display:flex;flex-direction:column;justify-content:center}.seasonDoor .kicker{color:var(--accent)}.yearStrip{display:flex;flex-wrap:wrap;gap:.4rem 1rem;border-block:1px solid #ffffff40;padding:.7rem 0;font:700 1rem/1.5 var(--font-mono),monospace;color:var(--accent)}.seasonDoor>strong{display:flex;justify-content:space-between;min-height:44px;align-items:center;font-size:.83rem}.exploreRooms a:hover h2{text-decoration:underline;text-underline-offset:5px}
+.exploreRooms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem;margin:2rem 0}.exploreRooms>a{text-decoration:none;min-width:0}.mediaDoor,.filmDoor{border:1px solid var(--rule-soft)}.mediaPoster,.formationPoster{aspect-ratio:16/9;position:relative;background:var(--forest)}.mediaPoster img{object-fit:cover}.mediaPoster>span,.formationPoster>span{position:absolute;bottom:0;left:0;right:0;padding:.5rem .8rem;background:#062c21e8;color:var(--paper);font-size:.65rem}.mediaDoor>div:last-child,.filmDoor>div:last-child{padding:1rem 1.2rem}.exploreRooms h2{font-size:clamp(1.9rem,3.5vw,2.8rem);line-height:1.08;margin:.3rem 0 .6rem;overflow-wrap:anywhere}.exploreRooms p{font-size:.9rem;line-height:1.7;overflow-wrap:anywhere;margin:.6rem 0}.exploreRooms small{display:block;font-size:.72rem;line-height:1.7;color:var(--ink-2);overflow-wrap:anywhere}.exploreRooms .kicker{font-size:.68rem}.seasonDoor,.archiveDoor{padding:1.5rem;background:var(--forest);color:var(--paper);display:flex;flex-direction:column;justify-content:center}.seasonDoor .kicker,.archiveDoor .kicker{color:var(--accent)}.yearStrip{display:flex;flex-wrap:wrap;gap:.4rem 1rem;border-block:1px solid #ffffff40;padding:.7rem 0;font:700 1rem/1.5 var(--font-mono),monospace;color:var(--accent)}.seasonDoor>strong{display:flex;justify-content:space-between;min-height:44px;align-items:center;font-size:.83rem}.exploreRooms a:hover h2{text-decoration:underline;text-underline-offset:5px}.formationPoster svg{display:block;width:100%;height:100%}.archiveDoor{background:var(--ink)}.archiveDoor small{color:#dbe0ce}
 @media(max-width:640px){.exploreRooms{grid-template-columns:1fr;gap:1rem;margin:2rem 0}.seasonDoor{padding:1.5rem}}
+
+.homeDisclosure{min-width:0;border-top:1px solid var(--rule-soft);scroll-margin-top:8rem}
+.homeDisclosure>summary{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:56px;padding:.75rem .6rem;list-style:none;cursor:pointer;font:700 1rem/1.5 var(--font-sans),sans-serif}
+.homeDisclosure>summary::-webkit-details-marker{display:none}
+.homeDisclosure>summary>span:first-child{min-width:0;overflow-wrap:anywhere}
+.homeDisclosure>summary small{display:block;font:400 .7rem/1.7 var(--font-sans),sans-serif;color:var(--ink-2);margin-top:.15rem}
+.homeDisclosure>summary:hover{background:var(--paper-2)}
+.homeDisclosure>summary:focus-visible,.sourceNotes>summary:focus-visible{outline:3px solid var(--spot);outline-offset:3px}
+.homeDisclosure[open]>summary{background:var(--forest);color:var(--paper)}
+.homeDisclosure[open]>summary small{color:#dbe0ce}
+.homeDisclosure[open]>summary:focus-visible{outline-color:var(--ink)}
+.homeDisclosure>div{min-width:0;padding:.5rem 0 1rem}
+.disclosureMark{display:inline-block;flex:none;font:400 1.4rem/1 var(--font-sans),sans-serif;transition:transform .15s}
+.homeDisclosure[open]>summary>.disclosureMark{transform:rotate(45deg)}
+.sourceNotes{border-top:1px solid var(--rule-soft);margin-top:1rem}
+.sourceNotes>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:.75rem;font-weight:700}
+.coverageLinks{display:flex;flex-wrap:wrap;gap:.3rem 1.2rem;padding:.5rem 0}
+.coverageLinks a{display:inline-flex;align-items:center;gap:.5rem;min-height:44px;font-size:.78rem;font-weight:700;text-underline-offset:4px}
+.homeDisclosure :global(#postgame),.homeDisclosure :global(#season-trend){scroll-margin-top:8rem}
+@media(prefers-reduced-motion:reduce){.disclosureMark{transition:none}}

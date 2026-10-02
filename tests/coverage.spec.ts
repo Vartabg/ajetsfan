@@ -9,7 +9,7 @@ const coverage = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/c
 test("official headlines keep their publication dates and source links across both views", async ({ page }) => {
   const items = [...coverage.news.items].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.id.localeCompare(b.id));
   for (const route of ["/", "/team"]) {
-    await page.goto(route);
+    await page.goto(route === "/" ? "/#around-jets" : route);
     const section = page.locator(route === "/" ? "#around-jets" : "#news");
     for (const item of items.slice(0, route === "/" ? 3 : 8)) {
       const link = section.getByRole("link", { name: item.title, exact: false });
@@ -43,7 +43,7 @@ test("each coverage source warns independently when a static edition is overdue"
   for (const label of ["Official Jets news", "Player statistics", "Roster"]) {
     await expect(page.getByRole("status", { name: `${label} update status`, exact: true })).toBeVisible();
   }
-  await page.goto("/");
+  await page.goto("/#around-jets");
   await expect(page.getByRole("status", { name: "Official Jets news update status", exact: true })).toBeVisible();
   if (coverage.stats.status !== "unavailable" && leaders(coverage.stats, "receiving", 1).length) {
     await expect(page.getByRole("status", { name: "Player statistics update status", exact: true })).toBeVisible();

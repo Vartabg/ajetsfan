@@ -17,7 +17,7 @@ test("season directory links the 2010 playoff run and marks earlier coverage as 
   await expect(page.locator("[data-season-record]")).toHaveText("—");
   await expect(page.locator("[data-season-game]")).toHaveCount(0);
   await expect(page.locator("[data-season-fact='super-bowl-iii']")).toContainText("January 12, 1969");
-  await expect(page.getByText("Full season results, player totals and play-by-play are not in this archive yet.", { exact: false })).toBeVisible();
+  await expect(page.getByText("Selected moments only. Full season results are unavailable.", { exact: false })).toBeVisible();
 });
 
 test("phase and search retain football-season totals, shareable URLs and browser history", async ({ page }) => {
@@ -54,9 +54,10 @@ test("year selection preserves the requested phase and does not attach today's p
 test("game evidence and the historical reporting open their exact destinations", async ({ page }) => {
   await page.goto("/seasons/2010?phase=playoffs");
   await page.locator('[data-season-case="2010_19_NYJ_NE"]').click();
-  await expect(page).toHaveURL(/\/games\/2010_19_NYJ_NE$/);
+  await expect(page).toHaveURL(/\/games\/2010_19_NYJ_NE\?from=/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await page.goBack();
+  await page.locator('[data-season-chapter="media"] > summary').click();
   await page.locator('[data-season-media="espn-2010-divisional-rapid-reaction"] h3 a').click();
   await expect(page.locator("[data-media-room]")).toHaveAttribute("data-media-selected", "espn-2010-divisional-rapid-reaction");
   await expect(page.locator("[data-media-season]")).toHaveValue("2010");
@@ -68,7 +69,7 @@ test("unavailable years return 404 while a no-JavaScript visit retains the seaso
   const page = await context.newPage();
   await page.goto("http://127.0.0.1:" + (process.env.PORT ?? "3107") + "/seasons/2010");
   await expect(page.locator("[data-season-game]")).toHaveCount(19);
-  await expect(page.locator("[data-season-case='2010_19_NYJ_NE']")).toHaveAttribute("href", "/games/2010_19_NYJ_NE");
+  await expect(page.locator("[data-season-case='2010_19_NYJ_NE']")).toHaveAttribute("href", /^\/games\/2010_19_NYJ_NE\?from=/);
   await expect(page.locator("[data-season-media]")).toHaveCount(2);
   await context.close();
 });

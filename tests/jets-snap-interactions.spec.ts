@@ -1,3 +1,4 @@
+import { openPlaybookTools } from "./film-disclosures";
 import { test, expect, type Locator } from "@playwright/test";
 import path from "node:path";
 import { getJetsPlayDesign, jetsPlays } from "../src/lib/jets-playbook";
@@ -20,6 +21,7 @@ test.beforeEach(async ({ page }) => {
 
 test("the full-snap board starts paused and moves all 22 positions with visible illustrative provenance", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   await expect(lab).toHaveAttribute("data-study-mode", "full-snap");
   await expect(lab).toHaveAttribute("data-archive", "wilson-cleveland");
@@ -41,6 +43,7 @@ test("the full-snap board starts paused and moves all 22 positions with visible 
 
 test("every archived play loads full-snap assignments while the source-only mode retains the sparse recorded action", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   for (const play of jetsPlays) {
     await lab.locator(`[data-jets-play="${play.id}"]`).click();
@@ -73,6 +76,7 @@ test("every archived play loads full-snap assignments while the source-only mode
 
 test("the assignment desk explains protection and coverage for the selected player and supports keyboard selection", async ({ page }) => {
   await page.goto("/film-room#jets-play:wilson-cleveland");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   const study = getJetsStudy("wilson-cleveland")!;
   await lab.getByText("All 22 assignments", { exact: true }).click();
@@ -98,6 +102,7 @@ test("the assignment desk explains protection and coverage for the selected play
 
 test("route edits become custom assignments, and undo or restoration recovers the complete study", async ({ page }) => {
   await page.goto("/film-room#jets-play:wilson-cleveland");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   await lab.getByLabel("Selected player", { exact: true }).selectOption("lt");
   await lab.getByRole("button", { name: "Clear assignment", exact: true }).click();
@@ -138,6 +143,7 @@ test("route edits become custom assignments, and undo or restoration recovers th
 
 test("direct anchors preserve the fake-spike perspective and fumble defensive possession with a moving supporting cast", async ({ page }) => {
   await page.goto("/film-room?play=hall-miami#jets-play:fake-spike");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   await expect(lab).toHaveAttribute("data-study-mode", "full-snap");
   await expect(lab).toHaveAttribute("data-archive", "fake-spike");
@@ -145,6 +151,7 @@ test("direct anchors preserve the fake-spike perspective and fumble defensive po
   await expect(lab).toContainText("Miami Dolphins offense");
   await expect(page.locator("#film-room")).toHaveAttribute("data-film", "hall-miami");
   await page.goto("/film-room#jets-play:sanchez-thanksgiving");
+  await openPlaybookTools(page);
   await expect(lab).toHaveAttribute("data-archive", "sanchez-thanksgiving");
   const before = await positions(lab);
   await lab.locator('[data-jets-moment="3"]').click();
@@ -164,6 +171,7 @@ test("direct anchors preserve the fake-spike perspective and fumble defensive po
 test("sharing, saving and JSON import retain all 22 paths, the study mode and the turnover sequence", async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { throw new Error("Clipboard unavailable"); } } }));
   await page.goto("/film-room#jets-play:sanchez-thanksgiving");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   await lab.getByRole("button", { name: "Copy diagram link", exact: true }).click();
   const url = await lab.getByLabel("Diagram link", { exact: true }).inputValue();
@@ -174,9 +182,11 @@ test("sharing, saving and JSON import retain all 22 paths, the study mode and th
   expect(shared.studyMode).toBe("full-snap");
   expect(shared.players.every((player) => player.path.length > 0)).toBe(true);
   await page.goto(url);
+  await openPlaybookTools(page);
   await expect(lab).toHaveAttribute("data-study-original", "true");
   await lab.getByRole("button", { name: "Save in browser", exact: true }).click();
   await page.reload();
+  await openPlaybookTools(page);
   await lab.getByRole("button", { name: "Start a teaching play", exact: true }).click();
   await expect(lab).toHaveAttribute("data-study-mode", "teaching");
   await lab.getByRole("button", { name: "Load saved design", exact: true }).click();
@@ -201,6 +211,7 @@ test("sharing, saving and JSON import retain all 22 paths, the study mode and th
 test("all-position assignment controls reflow at 320 pixels and remain available by keyboard", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 });
   await page.goto("/film-room#jets-play:wilson-cleveland");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   await lab.getByText("All 22 assignments", { exact: true }).click();
   const lineman = lab.locator('[data-study-assignment="lt"]');

@@ -1,3 +1,4 @@
+import { openPlaybookTools } from "./film-disclosures";
 import { test, expect, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -13,6 +14,7 @@ test.beforeEach(async ({ page }) => {
 
 test("formation changes preserve twenty-two editable players and remain independent of historical film", async ({ page }) => {
   await page.goto("/film-room?play=hall-miami#playbook-lab");
+  await openPlaybookTools(page);
   const lab = labFor(page);
   for (const formation of offensiveFormations) {
     await lab.getByLabel("Offensive formation", { exact: true }).selectOption(formation.id);
@@ -31,6 +33,7 @@ test("formation changes preserve twenty-two editable players and remain independ
 
 test("a keyboard edit, route pattern and undo change the diagram rather than its source notebook", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
+  await openPlaybookTools(page);
   const lab = labFor(page);
   await lab.getByRole("button", { name: "Start a teaching play", exact: true }).click();
   const x = lab.getByLabel("Start X", { exact: true });
@@ -57,6 +60,7 @@ test("a keyboard edit, route pattern and undo change the diagram rather than its
 test("field drawing, dragging and defender assignments are real edits with usable undo", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 1000 });
   await page.goto("/film-room#playbook-lab");
+  await openPlaybookTools(page);
   const lab = labFor(page);
   await lab.getByRole("button", { name: "Start a teaching play", exact: true }).click();
   await lab.getByRole("button", { name: "Clear assignment", exact: true }).click();
@@ -96,6 +100,7 @@ test("field drawing, dragging and defender assignments are real edits with usabl
 test("shared UTF-8 diagrams round-trip without sending the payload to the server or losing edits to section anchors", async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { throw new Error("Clipboard unavailable"); } } }));
   await page.goto("/film-room?play=hall-miami&keep=notebook#playbook-lab");
+  await openPlaybookTools(page);
   const lab = labFor(page);
   await lab.getByLabel("Offensive formation", { exact: true }).selectOption("bunch");
   const name = "Jets 🏈 — Third-down design";
@@ -109,13 +114,16 @@ test("shared UTF-8 diagrams round-trip without sending the payload to the server
   expect(url.hash).toMatch(/^#playbook-lab:/);
   await expect(lab.locator('[data-lab-status]')).toContainText("did not grant clipboard access");
   await page.goto(shared);
+  await openPlaybookTools(page);
   await expect(lab.getByLabel("Design name", { exact: true })).toHaveValue(name);
   await expect(lab.getByLabel("Offensive formation", { exact: true })).toHaveValue("bunch");
   await expect(lab).toHaveAttribute("data-time", "0.00");
   await lab.getByLabel("Start X", { exact: true }).fill("230");
   await lab.getByRole("button", { name: "Move to position", exact: true }).click();
-  await page.getByRole("navigation", { name: "Film Room sections" }).getByRole("link", { name: /Study the Jets/ }).click();
+  await page.getByRole("navigation", { name: "Film Room workspaces" }).getByRole("button", { name: "Game studies", exact: true }).click();
+  await page.locator("#film-room summary").filter({ hasText: "Choose a game study" }).click();
   await page.locator('[data-film-case="sanchez-thanksgiving"]').click();
+  await page.getByRole("navigation", { name: "Film Room workspaces" }).getByRole("button", { name: "Playbook", exact: true }).click();
   await expect(lab.getByLabel("Start X", { exact: true })).toHaveValue("230");
   await expect(lab.getByLabel("Design name", { exact: true })).toHaveValue(name);
   await expect(page.locator("#film-room")).toHaveAttribute("data-film", "sanchez-thanksgiving");
@@ -124,6 +132,7 @@ test("shared UTF-8 diagrams round-trip without sending the payload to the server
 test("malformed sharing and unavailable storage leave a usable design with an honest status", async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(window, "localStorage", { configurable: true, get: () => { throw new Error("Storage denied"); } }));
   await page.goto("/film-room#playbook-lab:not-valid-json");
+  await openPlaybookTools(page);
   const lab = labFor(page);
   await expect(lab.locator('[data-lab-status]')).toContainText("invalid or too large");
   await expect(lab.locator('[data-lab-player]')).toHaveCount(22);
@@ -136,6 +145,7 @@ test("malformed sharing and unavailable storage leave a usable design with an ho
 
 test("explicit playback moves the diagram, pauses, scrubs and returns to the snap with reduced motion", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
+  await openPlaybookTools(page);
   const lab = labFor(page);
   await expect(lab).toHaveAttribute("data-running", "false");
   await expect(lab).toHaveAttribute("data-time", "0.00");
@@ -161,11 +171,13 @@ test("explicit playback moves the diagram, pauses, scrubs and returns to the sna
 
 test("saved plays survive reload and explicit load restores an edited formation", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
+  await openPlaybookTools(page);
   const lab = labFor(page);
   const formation = offensiveFormations[4];
   await lab.getByLabel("Offensive formation", { exact: true }).selectOption(formation.id);
   await lab.getByRole("button", { name: "Save in browser", exact: true }).click();
   await page.reload();
+  await openPlaybookTools(page);
   await lab.getByRole("button", { name: "Load saved design", exact: true }).click();
   await expect(lab.getByLabel("Offensive formation", { exact: true })).toHaveValue(formation.id);
   await expect(lab.locator('[data-lab-player]')).toHaveCount(22);
@@ -173,6 +185,7 @@ test("saved plays survive reload and explicit load restores an edited formation"
 
 test("play export and import round-trip a diagram and reject corrupt player data without replacing it", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
+  await openPlaybookTools(page);
   const lab = labFor(page);
   await lab.getByRole("button", { name: "Start a teaching play", exact: true }).click();
   await lab.getByLabel("Offensive formation", { exact: true }).selectOption(offensiveFormations[2].id);
@@ -208,10 +221,11 @@ for (const view of [{ width: 1280, enlarged: false }, { width: 390, enlarged: fa
   test(`playbook controls reflow and remain accessible at ${view.width}px${view.enlarged ? " with doubled text" : ""}`, async ({ page }) => {
     await page.setViewportSize({ width: view.width, height: 1000 });
     await page.goto("/film-room#playbook-lab");
+    await openPlaybookTools(page);
     if (view.enlarged) await page.addStyleTag({ content: "html { font-size: 200% !important; } body { font-size: 32px !important; }" });
     const lab = labFor(page);
-    const geometry = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, viewport: innerWidth }));
-    expect(geometry.width).toBeLessThanOrEqual(geometry.viewport);
+    const geometry = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, viewport: innerWidth, outside: Array.from(document.querySelectorAll("main *")).filter((element) => element.getBoundingClientRect().right > innerWidth + 1).map((element) => `${element.tagName}.${element.className}: ${Math.round(element.getBoundingClientRect().right)}px`).slice(0, 10) }));
+    expect(geometry.width, geometry.outside.join(", ")).toBeLessThanOrEqual(geometry.viewport);
     // Closed native disclosures can expose zero-size layout boxes in Chrome.
     // Touch targets apply to rendered controls; the open assignment ledger is
     // exercised separately in jets-snap-interactions.spec.ts.

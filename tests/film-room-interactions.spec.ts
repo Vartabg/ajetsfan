@@ -1,3 +1,4 @@
+import { openGameStudyDetails } from "./film-disclosures";
 import { test, expect } from "@playwright/test";
 import path from "node:path";
 
@@ -8,8 +9,15 @@ const replaySources: Record<string, { official: string; youtubeId: string }> = {
   "sanchez-thanksgiving": { official: "https://www.nfl.com/videos/mark-sanchez-s-butt-fumble-against-patriots", youtubeId: "82RIfy-gRa4" },
 };
 
+// Layout and interaction checks use a deterministic image. The failure cases
+// below override this route and still exercise the original fallback behavior.
+test.beforeEach(async ({ page }) => {
+  await page.route((url) => url.pathname === "/_next/image", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>' }));
+});
+
 test("case and teaching choices survive back/reload and preserve unrelated URL context", async ({ page }) => {
   await page.goto("/film-room?keep=research#film-room");
+  await openGameStudyDetails(page);
   const room = page.locator("#film-room");
   const board = page.locator("#scouting-board");
   await expect(room).toHaveAttribute("data-film", "wilson-cleveland");
@@ -26,6 +34,7 @@ test("case and teaching choices survive back/reload and preserve unrelated URL c
   await expect(board).toHaveAttribute("data-step", "1");
   await expect(room.locator("[data-film-clock]")).toHaveText("OT");
   await page.reload();
+  await openGameStudyDetails(page);
   await expect(room).toHaveAttribute("data-film", "hall-miami");
   await expect(board).toHaveAttribute("data-coverage", "cover-1");
   await expect(board).toHaveAttribute("data-pressure", "five");
@@ -35,6 +44,7 @@ test("case and teaching choices survive back/reload and preserve unrelated URL c
 
 test("invalid shared combinations resolve to usable choices and the next interaction writes valid state", async ({ page }) => {
   await page.goto("/film-room?play=unpublished&coverage=cover-1&pressure=six&step=999&keep=context");
+  await openGameStudyDetails(page);
   const room = page.locator("#film-room");
   const board = page.locator("#scouting-board");
   await expect(room).toHaveAttribute("data-film", "wilson-cleveland");
@@ -52,7 +62,8 @@ test("invalid shared combinations resolve to usable choices and the next interac
 });
 
 test("category filters keep a selected play visible, including when history changes its category", async ({ page }) => {
-  await page.goto("/film-room");
+  await page.goto("/film-room?workspace=studies");
+  await openGameStudyDetails(page);
   const room = page.locator("#film-room");
   const filters = room.getByRole("group", { name: "Filter film plays" });
   await expect(room.locator("[data-film-case]")).toHaveCount(4);
@@ -77,11 +88,14 @@ test("replay links follow the selected case and history without requesting block
     await route.fulfill({ status: 204 });
   });
   await page.goto("/film-room?play=wilson-cleveland");
+  await openGameStudyDetails(page);
   const room = page.locator("#film-room");
   for (const [id, source] of Object.entries(replaySources)) {
     await room.locator(`[data-film-case="${id}"]`).click();
     await expect(room).toHaveAttribute("data-film", id);
     const viewer = room.locator(`[data-source-viewer="${id}"]`);
+    const replayOptions = viewer.locator("summary").filter({ hasText: "Replay options" });
+    if (!(await replayOptions.evaluate((element) => (element.parentElement as HTMLDetailsElement).open))) await replayOptions.click();
     const official = viewer.getByRole("link", { name: /Open official replay/ });
     const youtube = viewer.getByRole("link", { name: /Watch on YouTube/ });
     await expect(official).toHaveAttribute("href", source.official);
@@ -98,8 +112,10 @@ test("replay links follow the selected case and history without requesting block
   }
   await page.goBack();
   await expect(room).toHaveAttribute("data-film", "hall-miami");
+  await openGameStudyDetails(page);
   await expect(room.locator("[data-source-viewer]").getByRole("link", { name: /Open official replay/ })).toHaveAttribute("href", replaySources["hall-miami"].official);
   await page.reload();
+  await openGameStudyDetails(page);
   await expect(room).toHaveAttribute("data-film", "hall-miami");
   await expect(room.locator("[data-source-viewer]").getByRole("link", { name: /Watch on YouTube/ })).toHaveAttribute("href", "https://www.youtube.com/watch?v=hOfjgr-lC4c");
   await expect(room.locator("iframe")).toHaveCount(0);
@@ -114,6 +130,7 @@ for (const record of [
 ]) {
   test(`${record.id} shows the verified situation without confusing its estimate or clock with the outcome`, async ({ page }) => {
     await page.goto(`/film-room?play=${record.id}`);
+    await openGameStudyDetails(page);
     const room = page.locator("#film-room");
     await expect(room).toHaveAttribute("data-film", record.id);
     await expect(room.locator("[data-film-clock]")).toHaveText(record.clock);
@@ -142,6 +159,7 @@ for (const record of [
 test("keyboard controls expose compatible packages, eleven distinct defenders and manual teaching steps", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/film-room?keep=keyboard#scouting-board");
+  await openGameStudyDetails(page);
   const board = page.locator("#scouting-board");
   const coverages = board.getByRole("group", { name: "Coverage lesson" });
   const packages = [
@@ -204,6 +222,7 @@ for (const fails of [false, true]) {
       } });
     }, { fails });
     await page.goto("/film-room?keep=clipboard&play=wilson-cleveland&coverage=cover-3&pressure=five&step=2#film-room");
+    await openGameStudyDetails(page);
     const room = page.locator("#film-room");
     const copy = room.getByRole("button", { name: /Copy film link/ });
     await copy.click();
@@ -237,6 +256,7 @@ for (const media of [
     await page.setViewportSize({ width: 320, height: 1000 });
     await page.route((url) => url.pathname === "/_next/image", (route) => route.abort("failed"));
     await page.goto(`/film-room?play=${media.id}`);
+    await openGameStudyDetails(page);
     await page.addStyleTag({ content: "html { font-size: 200% !important; } body { font-size: 32px !important; }" });
     const room = page.locator("#film-room");
     const scene = room.locator("[data-source-viewer] figure");
@@ -257,7 +277,8 @@ for (const media of [
     await expect(youtube).toHaveAttribute("href", `https://www.youtube.com/watch?v=${replaySources[media.id].youtubeId}`);
     await expect(room.locator("iframe")).toHaveCount(0);
     await expect(room.locator("[data-film-description]")).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+    const layout = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, outside: Array.from(document.querySelectorAll("body *")).filter((element) => element.getBoundingClientRect().right > innerWidth + 1).map((element) => `${element.tagName}.${element.className}: ${Math.round(element.getBoundingClientRect().right)}px`), overflowing: Array.from(document.querySelectorAll("body *")).filter((element) => element instanceof HTMLElement && element.scrollWidth > element.clientWidth + 1).map((element) => `${element.tagName}.${element.className}: ${element.clientWidth}/${element.scrollWidth} ${element.textContent?.slice(0, 45)}`).slice(0, 20) }));
+    expect(layout.width, JSON.stringify(layout)).toBeLessThanOrEqual(320);
   });
 }
 
@@ -266,6 +287,7 @@ for (const view of [{ width: 1280, enlarged: false }, { width: 320, enlarged: fa
     await page.setViewportSize({ width: view.width, height: 1000 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/film-room?play=elliott-miami&coverage=cover-3&pressure=simulated&step=2");
+    await openGameStudyDetails(page);
     if (view.enlarged) await page.addStyleTag({ content: "html { font-size: 200% !important; } body { font-size: 32px !important; }" });
     const room = page.locator("#film-room");
     const board = page.locator("#scouting-board");
@@ -274,9 +296,9 @@ for (const view of [{ width: 1280, enlarged: false }, { width: 320, enlarged: fa
     await expect(room.locator("[data-film-clock]")).toHaveText("Q4");
     const geometry = await page.evaluate(() => ({
       width: document.documentElement.scrollWidth, viewport: innerWidth,
-      outside: Array.from(document.querySelectorAll("#film-room *")).filter((element) => element.getBoundingClientRect().right > innerWidth + 1)
+      outside: Array.from(document.querySelectorAll("body *")).filter((element) => element.getBoundingClientRect().right > innerWidth + 1)
         .map((element) => `${element.tagName}.${element.className}: ${Math.round(element.getBoundingClientRect().right)}px`).slice(0, 8),
-      smallButtons: Array.from(document.querySelectorAll("#film-room button")).filter((element) => element.getBoundingClientRect().height < 44)
+      smallButtons: Array.from(document.querySelectorAll("#film-room button")).filter((element) => element.getBoundingClientRect().height > 0 && element.getBoundingClientRect().height < 44)
         .map((element) => element.textContent?.trim()),
     }));
     expect(geometry.width, geometry.outside.join(", ")).toBeLessThanOrEqual(geometry.viewport);

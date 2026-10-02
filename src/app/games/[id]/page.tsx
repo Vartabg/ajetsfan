@@ -13,6 +13,7 @@ import { pageMetadata } from "@/lib/site";
 import { buildVisualStory } from "@/lib/visual-story";
 import { buildFilmCases } from "@/lib/film-room";
 import PressChart from "@/components/PressChart";
+import SeasonReturn from "@/components/SeasonReturn";
 import styles from "./page.module.css";
 
 type Props = { params: Promise<{ id: string }> };
@@ -45,7 +46,7 @@ export default async function GamePage({ params }: Props) {
   const filmCase = buildFilmCases([game], { [game.id]: rawPoints })[0];
   const tapeHref = `${gameHref(game.id, board)}#game-case-heading`;
   return <main id="main" className={styles.main}>
-    <nav className={styles.breadcrumb} aria-label="Breadcrumb"><Link href="/">The Back Page</Link><span aria-hidden="true">/</span><Link href="/morgue">The Morgue</Link><span aria-hidden="true">/</span><span>Game case</span></nav>
+    <nav className={styles.breadcrumb} aria-label="Breadcrumb"><Link href="/">The Back Page</Link><span aria-hidden="true">/</span><SeasonReturn year={game.season} /><span aria-hidden="true">/</span><span>Game case</span></nav>
     <article>
       <header className={styles.header}>
         <div className={styles.folio}><span>{game.season} {game.seasonType === "POST" ? "postseason" : "regular season"} · Week {game.week}</span><time dateTime={game.date}>{formatDate(game.date)}</time></div>
@@ -63,11 +64,11 @@ export default async function GamePage({ params }: Props) {
           {memory ? <a className={styles.sourceLink} href={memory.source.url} target="_blank" rel="noreferrer">{memory.source.label} <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : null}
           {hasVisualStory ? <p><Link className={styles.sourceLink} href={`/?story=${encodeURIComponent(game.id)}#visual-story`}>Explore the visual game story <span aria-hidden="true">↗</span></Link></p> : null}
           {filmCase ? <p><Link className={styles.sourceLink} href={`/film-room?play=${filmCase.id}`}>Study this game in the Film Room <span aria-hidden="true">↗</span></Link></p> : null}
-          <section className={styles.play} aria-labelledby="featured-play-heading"><p className={styles.kicker}>From the play-by-play</p><h3 id="featured-play-heading">{keyPlayEvidenceLabel(game)}.</h3>{game.keyPlay.desc ? <><p className={styles.playClock}>{clockLabel(game.keyPlay.qtr, game.keyPlay.secondsLeft) || "Clock unavailable"}</p><p className={styles.playDescription}>{game.keyPlay.desc}</p><p className={styles.playChange}>Jets model win-probability change: <strong>{wpaLabel(game.keyPlay.wpa)}</strong></p></> : <p>No featured play description is available in this edition.</p>}<p className={styles.note}>Selected by Jets-oriented model probability change among recorded plays after halftime, including overtime. The delta measures the model change associated with the play; it does not explain why the game was won or lost.</p></section>
+          <section className={styles.play} aria-labelledby="featured-play-heading"><p className={styles.kicker}>From the play-by-play</p><h3 id="featured-play-heading">{keyPlayEvidenceLabel(game)}.</h3>{game.keyPlay.desc ? <><p className={styles.playClock}>{clockLabel(game.keyPlay.qtr, game.keyPlay.secondsLeft) || "Clock unavailable"}</p><p className={styles.playDescription}>{game.keyPlay.desc}</p><p className={styles.playChange}>Jets model win-probability change: <strong>{wpaLabel(game.keyPlay.wpa)}</strong></p></> : <p>No featured play description is available in this edition.</p>}</section>
         </section>
         <aside className={styles.tape} aria-labelledby="tape-heading"><p className={styles.kicker}>The tape, on paper</p><h2 id="tape-heading">The probability path.</h2>{points.length >= 2 ? <figure><PressChart points={points} board={board} /><figcaption>Model-estimated Jets win probability before each recorded play · play sequence · {points.length} usable points</figcaption></figure> : <p className={styles.note}>A usable probability curve is unavailable in this edition.</p>}<Link className={styles.tapeLink} href={tapeHref}>Open the interactive game tape <span aria-hidden="true">↗</span></Link><p className={styles.note}>Inspect the source description, clock, pre-play estimate and reported change for each play.</p></aside>
       </div>
-      <footer className={styles.sources}><h2>Sources and scope.</h2><p>Final score and play-by-play: <a href="https://github.com/nflverse/nflverse-data" target="_blank" rel="noreferrer">nflverse<span className="sr-only"> (opens in a new tab)</span></a>. Probability is a model estimate. The curve contains usable source points; gaps are not reconstructed. Archive rankings include wins and losses with usable second-half estimates and exclude flagged scores and ties.</p><Link href="/how-made#efficiency">Sources and analysis methods <span aria-hidden="true">↗</span></Link><Link href="/morgue#archive-filters">Find another game <span aria-hidden="true">↗</span></Link></footer>
+      <footer className={styles.sources}><details className={styles.analysisDetails}><summary>About this analysis</summary><p>Final score and play-by-play: <a href="https://github.com/nflverse/nflverse-data" target="_blank" rel="noreferrer">nflverse<span className="sr-only"> (opens in a new tab)</span></a>. Probability is a model estimate. The curve contains usable source points; gaps are not reconstructed. Archive rankings exclude flagged scores and ties.</p><p>The featured play uses Jets-oriented model probability change after halftime, including overtime. The change does not explain why the game was won or lost.</p><Link href="/how-made#efficiency">Sources and analysis methods <span aria-hidden="true">↗</span></Link></details><Link href="/morgue#archive-filters">Find another game <span aria-hidden="true">↗</span></Link></footer>
     </article>
   </main>;
 }

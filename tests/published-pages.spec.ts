@@ -23,7 +23,7 @@ test("the front-page game story opens its published case before the optional int
   const game = lead.analysisStatus === "ready" ? publishedGames(games, current).find((entry) => entry.id === lead.analysis?.id) : undefined;
   test.skip(!game, "This edition's lead is awaiting an eligible analysis.");
   if (!game) return;
-  await page.goto("/");
+  await page.goto("/#postgame");
   const link = page.locator("#postgame").getByRole("link", { name: "Read the game case", exact: true });
   await expect(link).toHaveAttribute("href", `/games/${game.id}`);
   await link.click();

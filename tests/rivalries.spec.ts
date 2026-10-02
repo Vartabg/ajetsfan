@@ -105,7 +105,7 @@ const current = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/cu
 const actual = rivalryLedger(games, current);
 
 test("the rendered rivalry ledger matches the archive sample and opens the intended cases", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/#fan-stand");
   const desk = page.getByRole("region", { name: "AFC East record.", exact: true });
   await expect(desk).toBeVisible();
   await expect(desk.getByRole("article")).toHaveCount(3);
@@ -131,7 +131,7 @@ test("the rendered rivalry ledger matches the archive sample and opens the inten
 for (const view of [{ width: 320, enlarged: false }, { width: 320, enlarged: true }, { width: 768, enlarged: true }]) {
   test(`the rivalry columns reflow at ${view.width}px${view.enlarged ? " with 200% text" : ""}`, async ({ page }) => {
     await page.setViewportSize({ width: view.width, height: 1000 });
-    await page.goto("/");
+    await page.goto("/#fan-stand");
     if (view.enlarged) await page.addStyleTag({ content: "html { font-size: 200% !important; } body { font-size: 32px !important; }" });
     await page.evaluate(() => document.fonts.ready);
     const desk = page.getByRole("region", { name: "AFC East record.", exact: true });

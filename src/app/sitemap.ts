@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [games, current, coverage, seasons] = await Promise.all([loadGames(), loadCurrent(), loadCoverage(), loadSeasonArchive()]);
   const paths = ["/", "/team", "/morgue", "/film-room", "/media", "/seasons", "/how-made",
     ...seasons.map((season) => `/seasons/${season.year}`),
+    ...seasons.map((season) => `/seasons/${season.year}/guide`),
     ...publishedGames(games, current).map((game) => `/games/${encodeURIComponent(game.id)}`),
     ...publishedPlayers(coverage, current?.season ?? coverage?.season ?? null).map((player) => `/players/${encodeURIComponent(player.id)}`),
   ];

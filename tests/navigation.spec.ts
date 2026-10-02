@@ -122,7 +122,10 @@ test("front-page shortcuts land on the complete season header, news, and roster 
     { href: "/team#roster", target: "#roster-heading", pathname: "/team" },
   ]) {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.getByRole("navigation", { name: "In this edition" }).locator(`a[href="${destination.href}"]`).click();
+    if (destination.pathname === "/team") {
+      await page.locator('[data-home-disclosure="around-jets"] > summary').click();
+      await page.getByRole("navigation", { name: "More team coverage" }).locator(`a[href="${destination.href}"]`).click();
+    } else await page.getByRole("navigation", { name: "In this edition" }).locator(`a[href="${destination.href}"]`).click();
     await expect.poll(() => new URL(page.url()).pathname).toBe(destination.pathname);
     await expect.poll(() => new URL(page.url()).hash).toBe(new URL(destination.href, "https://example.com").hash);
     await expectBelowNavigation(page, page.locator(destination.target));

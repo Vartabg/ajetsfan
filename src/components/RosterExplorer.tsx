@@ -71,8 +71,9 @@ export default function RosterExplorer({ roster, stats, editionSeason = roster.s
     }
     const id = next.get("player");
     if (id && !filterRoster(roster.players, rosterFilters(next)).some((player) => player.id === id)) next.delete("player");
-    const query = next.toString();
-    window.history[replace ? "replaceState" : "pushState"](null, "", `/team${query ? `?${query}` : ""}`);
+    const url = new URL(window.location.href);
+    url.search = next.toString();
+    window.history[replace ? "replaceState" : "pushState"](null, "", url);
     copyRequest.current += 1;
     setCopyResult(null);
   }

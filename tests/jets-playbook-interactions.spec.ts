@@ -1,3 +1,4 @@
+import { openPlaybookTools } from "./film-disclosures";
 import { test, expect } from "@playwright/test";
 import { jetsPlays } from "../src/lib/jets-playbook";
 
@@ -8,6 +9,7 @@ test.beforeEach(async ({ page }) => {
 
 test("the board opens on a sourced Jets touchdown without auto-playing or calling its template verified", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   await expect(lab).toHaveAttribute("data-archive", "wilson-cleveland");
   await expect(lab).toHaveAttribute("data-archive-original", "true");
@@ -16,7 +18,7 @@ test("the board opens on a sourced Jets touchdown without auto-playing or callin
   await expect(lab.locator('[data-lab-player="h"]')).toHaveAccessibleName(/G\. Wilson/);
   await expect(lab).toContainText("not verified historical formations");
   await expect(lab).toHaveAttribute("data-study-mode", "full-snap");
-  await expect(lab.locator("[data-study-limit]")).toContainText("Supporting assignments are illustrative");
+  await expect(lab.locator("[data-study-limit]")).toContainText("illustrative supporting assignments");
   await expect(lab.getByRole("group", { name: "Step through Jets play" })).toBeVisible();
   await lab.getByText("What the sources establish", { exact: true }).click();
   await expect(lab).toContainText("15-yard touchdown");
@@ -25,6 +27,7 @@ test("the board opens on a sourced Jets touchdown without auto-playing or callin
 
 test("all six Jets moments load their named actors and remain editable twenty-two-player diagrams", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   for (const play of jetsPlays) {
     await lab.locator(`[data-jets-play="${play.id}"]`).click();
@@ -50,6 +53,7 @@ test("all six Jets moments load their named actors and remain editable twenty-tw
 
 test("the agony filter and fumble moments depict defensive possession and a return instead of a pass", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   await lab.getByRole("button", { name: "The agony", exact: true }).click();
   await expect(lab.locator("[data-jets-play]")).toHaveCount(2);
@@ -77,6 +81,7 @@ test("the agony filter and fumble moments depict defensive possession and a retu
 
 test("a direct fake-spike anchor uses Miami offense and retains the separate film notebook", async ({ page }) => {
   await page.goto("/film-room?play=hall-miami#jets-play:fake-spike");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   await expect(lab).toHaveAttribute("data-archive", "fake-spike");
   await expect(lab).toHaveAttribute("data-archive-original", "true");
@@ -92,6 +97,7 @@ test("a direct fake-spike anchor uses Miami offense and retains the separate fil
 
 test("editing an archive route and its motion window marks a study copy, while undo and restore recover the source", async ({ page }) => {
   await page.goto("/film-room#jets-play:walker-miami");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   await lab.getByLabel("Route pattern", { exact: true }).selectOption("post");
   await lab.getByRole("button", { name: "Apply route pattern", exact: true }).click();
@@ -121,17 +127,20 @@ test("editing an archive route and its motion window marks a study copy, while u
 test("a shared turnover keeps its source association, events and recovery after reload", async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { throw new Error("Clipboard unavailable"); } } }));
   await page.goto("/film-room#jets-play:sanchez-thanksgiving");
+  await openPlaybookTools(page);
   const lab = page.locator("#playbook-lab");
   await lab.getByRole("button", { name: "Copy diagram link", exact: true }).click();
   const url = await lab.getByLabel("Diagram link", { exact: true }).inputValue();
   expect(new URL(url).hash).toMatch(/^#playbook-lab:/);
   await page.goto(url);
+  await openPlaybookTools(page);
   await expect(lab).toHaveAttribute("data-archive", "sanchez-thanksgiving");
   await expect(lab).toHaveAttribute("data-archive-original", "true");
   await lab.locator('[data-jets-moment="6"]').click();
   await expect(lab.locator("[data-lab-ball]")).toHaveAttribute("data-x", (await lab.locator('[data-lab-player="d11"]').getAttribute("data-x"))!);
   await lab.getByRole("button", { name: "Save in browser", exact: true }).click();
   await page.goto("/film-room#playbook-lab");
+  await openPlaybookTools(page);
   await lab.getByRole("button", { name: "Load saved design", exact: true }).click();
   await expect(lab).toHaveAttribute("data-archive", "sanchez-thanksgiving");
   await expect(lab).toHaveAttribute("data-archive-original", "true");

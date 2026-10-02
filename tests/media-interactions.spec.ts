@@ -20,6 +20,70 @@ test.beforeEach(async ({ page }) => {
   await page.route((url) => url.pathname === "/_next/image", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>' }));
 });
 
+test("the entry view starts with stories and keeps extra filters, provider notes and source bars optional", async ({ page }) => {
+  await page.goto("/media");
+  const media = room(page);
+  await expect(media.locator("[data-media-card]")).toHaveCount(items.length);
+  await expect(media.getByLabel("Search Jets media")).toBeVisible();
+  await expect(media.getByRole("group", { name: "Coverage format" })).toBeVisible();
+  await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
+  await expect(media.locator("[data-media-source]")).toBeHidden();
+  await expect(media.locator("[data-media-season]")).toBeHidden();
+  await expect(media.getByRole("group", { name: "Coverage topics" })).toBeHidden();
+  await expect(media.locator("[data-media-coverage]")).toBeHidden();
+  await expect(media.locator("[data-media-source-ledger] > ul")).toBeHidden();
+  const more = media.locator("[data-media-more-filters] > summary");
+  await more.focus();
+  await more.press("Enter");
+  await expect(media.locator("[data-media-source]")).toBeVisible();
+  await expect(media.locator("[data-media-season]")).toBeVisible();
+  await more.press("Space");
+  await expect(media.locator("[data-media-source]")).toBeHidden();
+});
+
+test("Back to results restores the clicked card and its place without clearing filters or comparison", async ({ page }) => {
+  await page.goto("/media?keep=place&type=post&season=2026#media-room");
+  const media = room(page);
+  await media.locator(`[data-media-card-compare="${firstPost.id}"]`).click();
+  await media.locator(`[data-media-card-compare="${secondPost.id}"]`).click();
+  await expect(media.locator("[data-media-compared]")).toHaveCount(2);
+  const origin = media.locator(itemSelector(secondPost.id));
+  await origin.scrollIntoViewIfNeeded();
+  const before = (await origin.boundingBox())!;
+  await origin.click();
+  await expect(page.locator("#media-viewer-heading")).toBeFocused();
+  await expect(media.locator("[data-media-viewer]")).toBeVisible();
+  await expect(media.locator("[data-media-embed-guide] p")).toBeHidden();
+  await media.locator("[data-media-back-results]").click();
+  await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
+  await expect(origin).toBeFocused();
+  expect(Math.abs((await origin.boundingBox())!.y - before.y)).toBeLessThanOrEqual(2);
+  await expect(media.locator("[data-media-compared]")).toHaveCount(2);
+  expect(Object.fromEntries(new URL(page.url()).searchParams)).toEqual({ keep: "place", type: "post", season: "2026" });
+  expect(new URL(page.url()).hash).toBe("#media-room");
+});
+
+test("following a story topic transfers keyboard focus to its filtered results and preserves the browsing context", async ({ page }) => {
+  const topic = firstPost.topics[0];
+  await page.goto(`/media?keep=topic&type=post&season=2026&media=${firstPost.id}#media-room`);
+  const media = room(page);
+  await media.locator(`[data-media-compare="${firstPost.id}"]`).click();
+  const context = media.locator("[data-media-context]");
+  await context.getByText("Related topics", { exact: true }).click();
+  const control = context.getByRole("button", { name: topic, exact: true });
+  await control.focus();
+  await control.press("Enter");
+  await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
+  const heading = page.locator("#media-results-heading");
+  await expect(heading).toBeFocused();
+  await expect(heading).toBeInViewport();
+  await expect(heading).toHaveText(topic);
+  await expect(media.locator("[data-media-card]")).toHaveCount(posts.filter((item) => item.seasons?.includes(2026) && item.topics.includes(topic)).length);
+  await expect(media.locator("[data-media-compared]")).toHaveCount(1);
+  expect(Object.fromEntries(new URL(page.url()).searchParams)).toEqual({ keep: "topic", type: "post", season: "2026", topic });
+  expect(new URL(page.url()).hash).toBe("#media-room");
+});
+
 test("football seasons follow the source content through selection, Back and reload", async ({ page }) => {
   await page.goto("/media?keep=football&season=2010#media-room");
   const media = room(page);
@@ -33,11 +97,17 @@ test("football seasons follow the source content through selection, Back and rel
   expect(new Date(playoffArticle.publishedAt!).getUTCFullYear()).toBe(2011);
   await expect(media.locator("[data-media-context] time")).toHaveAttribute("datetime", playoffArticle.publishedAt!);
   await expect(media.locator("[data-media-context] time")).toHaveText("Jan 16, 2011 ET");
+  await media.locator("[data-media-more-filters] > summary").click();
   await media.locator("[data-media-season]").selectOption("1968");
+  await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
+  await media.locator(itemSelector(namath.id)).click();
   await expect(media).toHaveAttribute("data-media-selected", namath.id);
   await expect(media.locator("[data-media-card]")).toHaveCount(items.filter((item) => item.seasons?.includes(1968)).length);
   await expect(media.locator("[data-media-context]")).toContainText("Football season: 1968");
   expect(new Date(namath.publishedAt!).getUTCFullYear()).toBe(2010);
+  await page.goBack();
+  await expect(media.locator("[data-media-season]")).toHaveValue("1968");
+  await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
   await page.goBack();
   await expect(media).toHaveAttribute("data-media-selected", playoffArticle.id);
   await expect(media.locator("[data-media-season]")).toHaveValue("2010");
@@ -50,12 +120,12 @@ test("football seasons follow the source content through selection, Back and rel
 test("format, source, topic and search filters show an honest empty state and reset only media parameters", async ({ page }) => {
   await page.goto("/media?keep=research#media-room");
   const media = room(page);
-  const defaultItem = items.find((item) => item.context === "current" && item.youtubeId && item.embedAllowed === true) ?? items[0];
-  await expect(media).toHaveAttribute("data-media-selected", defaultItem.id);
-  await expect(media.locator("[data-media-viewer]")).toHaveAttribute("data-embed-requested", "false");
+  await expect(media).toHaveAttribute("data-media-selected", "");
+  await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
   await expect(media.locator("[data-media-card]")).toHaveCount(items.length);
   await media.locator('[data-media-type="post"]').click();
   await expect(media.locator("[data-media-card]")).toHaveCount(posts.length);
+  await media.locator("[data-media-more-filters] > summary").click();
   await media.locator("[data-media-source]").selectOption(firstPost.outletId);
   const bySource = posts.filter((item) => item.outletId === firstPost.outletId);
   await expect(media.locator("[data-media-card]")).toHaveCount(bySource.length);
@@ -99,6 +169,10 @@ test("coverage bars count actual filtered items and provide keyboard outlet expl
     if (count) await expect(bar.locator("strong")).toHaveText(String(count));
     else await expect(bar).toHaveCount(0);
   }
+  await expect(media.locator("[data-media-coverage]")).toBeHidden();
+  const disclosure = media.locator("[data-media-source-bars] > summary");
+  await disclosure.focus();
+  await disclosure.press("Enter");
   const bar = media.locator(`[data-media-coverage-source="${firstPost.outletId}"]`);
   await bar.focus();
   await bar.press("Enter");
@@ -228,7 +302,10 @@ test("source-restricted clips keep their publisher link without offering an unsu
   await expect(media.locator("[data-media-load]")).toHaveCount(0);
   await expect(media.locator("[data-media-viewer] iframe")).toHaveCount(0);
   await expect(media.locator("[data-media-viewer] a")).toHaveAttribute("href", restrictedVideo!.url);
-  await expect(media.locator("[data-media-viewer]")).toContainText("No embedded playback is available");
+  const guide = media.locator("[data-media-embed-guide]");
+  await expect(guide.locator("p")).toBeHidden();
+  await guide.locator("summary").click();
+  await expect(guide.locator("p")).toContainText("No embedded playback is available");
 });
 
 for (const fails of [false, true]) {
@@ -274,6 +351,10 @@ test("the collection reflows at 320px and 200% text with usable targets and acce
   await media.locator(`[data-media-compare="${firstPost.id}"]`).click();
   await media.locator(`[data-media-card-compare="${secondPost.id}"]`).click();
   await media.locator("[data-media-source-ledger] summary").click();
+  await media.locator("[data-media-more-filters] > summary").click();
+  await media.locator("[data-media-source-bars] > summary").click();
+  await media.locator("[data-media-embed-guide] > summary").click();
+
   for (const scale of [100, 200]) {
     await page.evaluate((scale) => { document.documentElement.style.fontSize = `${scale}%`; }, scale);
     const width = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));

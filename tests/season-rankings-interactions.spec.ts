@@ -22,7 +22,7 @@ test.beforeEach(async ({ page }) => {
   await page.route((url) => url.pathname === "/_next/image", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>' }));
 });
 
-test("team ranks show the actual regular-season league population, values and recorded Jets games", async ({ page }) => {
+test("compact team rows show rank, league population, value and sample before opening details", async ({ page }) => {
   await page.goto("/seasons/2010?phase=regular#season-rankings");
   const rankings = root(page);
   await expect(rankings).toHaveAttribute("data-rank-phase", "regular");
@@ -38,13 +38,16 @@ test("team ranks show the actual regular-season league population, values and re
       await expect(rank).toHaveAttribute("data-rank-tied", metric.jets.tied ? "true" : "false");
       await expect(rank).toHaveAttribute("data-rank-of", String(metric.population));
       expectDisplayedValue((await card.locator("[data-team-value]").textContent())!, metric.jets.value, metric);
-      await expect(card).toContainText(`${metric.jets.games} Jets games with recorded stats`);
-      await expect(card).toContainText(metric.populationLabel);
+      await expect(card.locator("summary")).toContainText(`${metric.jets.games} Jets games`);
     }
-    await expect(card).toContainText(metric.note);
+    await expect(card).not.toHaveAttribute("open", "");
+    await expect(card.getByText(metric.note, { exact: true })).toBeHidden();
+    await expect(card.locator("li").first()).toBeHidden();
   }
   const coverage = rankings.locator("[data-rank-coverage]");
-  expect(await coverage.locator("strong").allTextContents()).toEqual([regular.expectedGames, regular.teamGames, regular.playerGames, regular.jetsGames].map(String));
+  await expect(coverage).toContainText(`${regular.jetsGames} Jets games`);
+  await expect(rankings).not.toContainText("League finals expected");
+  await expect(rankings.locator('a[target="_blank"]')).toHaveCount(0);
 });
 
 test("phase changes replace rankings and populations, with combined production labeled separately", async ({ page }) => {
@@ -52,8 +55,7 @@ test("phase changes replace rankings and populations, with combined production l
   const rankings = root(page);
   await page.locator('[data-season-scope="playoffs"]').click();
   await expect(rankings).toHaveAttribute("data-rank-phase", "playoffs");
-  await expect(rankings.getByRole("heading", { name: "Where the Jets stood.", exact: true })).toBeVisible();
-  await expect(rankings).toContainText("Postseason populations include participating teams");
+  await expect(rankings.getByRole("heading", { name: "League rankings", exact: true })).toBeVisible();
   for (const metric of season.phases.playoffs.team) {
     const card = rankings.locator(`[data-team-rank="${metric.id}"]`);
     await expect(card).toHaveAttribute("data-rank-population", String(metric.population));
@@ -61,7 +63,6 @@ test("phase changes replace rankings and populations, with combined production l
   }
   await page.locator('[data-season-scope="all"]').click();
   await expect(rankings).toHaveAttribute("data-rank-phase", "all");
-  await expect(rankings).toContainText("Combined regular-season and playoff production is a separate comparison");
   await page.goBack();
   await expect(rankings).toHaveAttribute("data-rank-phase", "playoffs");
   expect(new URL(page.url()).searchParams.get("keep")).toBe("phase");
@@ -70,24 +71,27 @@ test("phase changes replace rankings and populations, with combined production l
   await expect(rankings).toHaveAttribute("data-rank-phase", "playoffs");
 });
 
-test("league leader disclosures expose sourced top-rank context and tie rules", async ({ page }) => {
+test("keyboard disclosures reveal league leaders while source and calculation depth moves to the guide", async ({ page }) => {
   await page.goto("/seasons/2010?phase=regular#season-rankings");
   const rankings = root(page);
   const metric = regular.team.find((entry) => entry.leaders.length)!;
   const disclosure = rankings.locator(`[data-rank-leaders="${metric.id}"]`);
+  await expect(disclosure.locator("li").first()).toBeHidden();
   await disclosure.locator("summary").focus();
   await disclosure.locator("summary").press("Enter");
   await expect(disclosure).toHaveAttribute("open", "");
   await expect(disclosure.locator("li")).toHaveCount(metric.leaders.length);
   for (const entry of metric.leaders) await expect(disclosure).toContainText(entry.name);
-  await expect(rankings).toContainText("1, 1, 3");
-  await expect(rankings).toContainText("Ranks use unrounded values");
-  const sources = rankings.locator('a[target="_blank"]');
-  expect(await sources.evaluateAll((links) => links.map((link) => (link as HTMLAnchorElement).href))).toEqual([season.sources.schedule, season.sources.teams, season.sources.players]);
-  for (const link of await sources.all()) {
-    await expect(link).toHaveAttribute("rel", "noopener noreferrer");
-    await expect(link).toContainText("opens in a new tab");
-  }
+  await expect(disclosure.getByText(metric.note, { exact: true })).toBeVisible();
+  await disclosure.locator("summary").press("Space");
+  await expect(disclosure).not.toHaveAttribute("open", "");
+  await expect(disclosure.locator("li").first()).toBeHidden();
+  const guide = rankings.locator("[data-rank-guide]");
+  const href = new URL((await guide.getAttribute("href"))!, page.url());
+  expect(href.pathname).toBe("/seasons/2010/guide");
+  expect(href.searchParams.get("phase")).toBe("regular");
+  expect(href.hash).toBe("#rankings");
+  await expect(guide).toBeVisible();
 });
 
 test("Jets contributors show full-league ranks and separate New York contributions", async ({ page }) => {
@@ -96,8 +100,10 @@ test("Jets contributors show full-league ranks and separate New York contributio
   await expect(rankings).toHaveAttribute("data-ranking-view", "players");
   await expect(rankings.locator("[data-rank-metric]")).toHaveValue(playerMetric.id);
   await expect(rankings.locator("[data-rank-player]")).toHaveCount(playerMetric.players!.length);
-  await expect(rankings).toContainText(playerMetric.populationLabel);
-  await expect(rankings).toContainText("League totals include all clubs");
+  const context = rankings.locator("[data-player-rank-context]");
+  await expect(context.locator("summary")).toContainText(`${playerMetric.population} qualifying players`);
+  await expect(context.getByText(`${playerMetric.populationLabel}.`, { exact: true })).toBeHidden();
+  await expect(context.getByText(playerMetric.note, { exact: true })).toBeHidden();
   for (const entry of playerMetric.players!) {
     const row = rankings.locator(`[data-rank-player="${entry.id}"]`);
     await expect(row).toHaveAttribute("data-player-rank", String(entry.rank));
@@ -108,10 +114,14 @@ test("Jets contributors show full-league ranks and separate New York contributio
     if (entry.jetsValue != null) {
       await expect(row).toHaveAttribute("data-player-jets-value", String(entry.jetsValue));
       expectDisplayedValue((await row.locator("dd").nth(2).evaluate((element) => element.childNodes[0].textContent))!, entry.jetsValue, playerMetric);
-      await expect(row).toContainText(`${entry.jetsGames} Jets ${entry.jetsGames === 1 ? "game" : "games"} with stats`);
+      await expect(row).toContainText(`${entry.jetsGames} Jets ${entry.jetsGames === 1 ? "game" : "games"}`);
     }
     if (entry.teams?.length) await expect(row).toContainText(`Clubs: ${entry.teams.join(" · ")}`);
   }
+  await context.locator("summary").focus();
+  await context.locator("summary").press("Enter");
+  await expect(context.getByText(`${playerMetric.populationLabel}.`, { exact: true })).toBeVisible();
+  await expect(context).toContainText("All-club totals determine league rank");
 });
 
 test("metric, player search and ordering preserve unrelated archive filters through history and reload", async ({ page }) => {
@@ -178,17 +188,45 @@ test("a postseason without Jets finals does not invent a Jets league finish", as
 });
 
 const incomplete = collection.seasons.flatMap((entry) => Object.values(entry.phases).map((phase) => ({ season: entry, phase }))).find(({ phase }) => phase.missingTeamGames.length || phase.missingPlayerGames.length);
-test("incomplete league coverage names missing finals and withholds affected metric ranks", async ({ page }) => {
+test("held metrics remain discoverable even when every league final has a statistics row", async ({ page }) => {
+  expect(regular.missingTeamGames).toEqual([]);
+  expect(regular.missingPlayerGames).toEqual([]);
+  expect(regular.notes.length).toBeGreaterThan(0);
+  await page.goto("/seasons/2010?phase=regular#season-rankings");
+  const gap = root(page).locator("[data-rank-gap]");
+  await expect(gap.locator("summary")).toBeVisible();
+  await expect(gap.getByText(regular.notes[0], { exact: true })).toBeHidden();
+  await gap.locator("summary").press("Enter");
+  await expect(gap.getByText(regular.notes[0], { exact: true })).toBeVisible();
+});
+
+test("complete combined and postseason coverage does not imply missing statistics", async ({ page }) => {
+  for (const phase of ["all", "playoffs"] as const) {
+    const complete = collection.seasons.find((entry) => {
+      const sample = entry.phases[phase];
+      return sample.expectedGames > 0 && !sample.missingTeamGames.length && !sample.missingPlayerGames.length && !sample.notes.some((note) => /\b(withheld|missing|unassigned)\b/i.test(note));
+    });
+    expect(complete, `A complete ${phase} sample should be published`).toBeTruthy();
+    await page.goto(`/seasons/${complete!.year}?phase=${phase}#season-rankings`);
+    await expect(root(page)).toHaveAttribute("data-rank-phase", phase);
+    await expect(root(page).locator("[data-rank-gap]")).toHaveCount(0);
+    await expect(root(page).locator("[data-team-rank]")).toHaveCount(complete!.phases[phase].team.length);
+  }
+});
+
+test("incomplete coverage stays visible with withheld-rank details available on demand", async ({ page }) => {
   test.skip(!incomplete, "This published snapshot has no incomplete league phases.");
   const { season: selectedSeason, phase } = incomplete!;
   await page.goto(`/seasons/${selectedSeason.year}?phase=${phase.phase}#season-rankings`);
   const rankings = root(page);
   const gap = rankings.locator("[data-rank-gap]");
   await expect(gap).toBeVisible();
-  await expect(gap).toContainText("Affected rankings are withheld");
+  await expect(gap.locator("summary")).toContainText("Some rankings unavailable");
+  await expect(gap.getByText("Affected rankings are withheld.", { exact: true })).toBeHidden();
   await gap.locator("summary").click();
-  for (const id of phase.missingTeamGames) await expect(gap).toContainText(id);
-  for (const id of phase.missingPlayerGames) await expect(gap).toContainText(id);
+  await expect(gap.getByText("Affected rankings are withheld.", { exact: true })).toBeVisible();
+  for (const note of phase.notes.filter((value) => /\b(withheld|missing|unassigned)\b/i.test(value))) await expect(gap.getByText(note, { exact: true })).toBeVisible();
+  await expect(gap.getByRole("link", { name: /Coverage details/ })).toHaveAttribute("href", /\/guide\?.*#rankings$/);
   await expect(rankings.locator("[data-team-rank]")).toHaveCount(phase.team.length);
   // Final-score comparisons can remain complete when yardage box scores are
   // missing, and individually reconciled player metrics can remain publishable.
@@ -197,7 +235,7 @@ test("incomplete league coverage names missing finals and withholds affected met
   await expect(rankings.locator("[data-rank-metric] option")).toHaveCount(phase.individual.length);
 });
 
-test("rank cards and expanded contributor controls reflow at 320px and 200% text with accessible targets", async ({ page }) => {
+test("compact rankings and expanded contributor controls reflow at 320px and 200% text with accessible targets", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 });
   await page.goto("/seasons/2010?phase=regular#season-rankings");
   const rankings = root(page);
@@ -207,8 +245,8 @@ test("rank cards and expanded contributor controls reflow at 320px and 200% text
       await rankings.locator(`[data-rank-view="${view}"]`).click();
       if (view === "players") await rankings.locator("[data-rank-metric]").selectOption(playerMetric.id);
       await rankings.locator("[data-rank-leaders]").first().locator("summary").click();
-      const notes = rankings.getByText("Coverage and calculation notes", { exact: false });
-      if (await notes.count() && (await notes.locator("..").getAttribute("open")) === null) await notes.click();
+      const context = rankings.locator("[data-player-rank-context]");
+      if (view === "players" && (await context.getAttribute("open")) === null) await context.locator("summary").click();
       const width = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
       expect(width.content, `${scale}% text / ${view}`).toBeLessThanOrEqual(width.viewport + 1);
       for (const target of await rankings.locator("button:visible, input:visible, select:visible, summary:visible, a:visible").all()) {
