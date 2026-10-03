@@ -5,27 +5,28 @@ import { newsCategory } from "@/lib/news-category";
 import FeedStatus from "./FeedStatus";
 import styles from "./NewsDesk.module.css";
 
-export default function NewsDesk({ feed, limit = 8, compact = false }: {
+export default function NewsDesk({ feed, limit = 8, compact = false, externalHeadingId }: {
   feed: CoverageSnapshot["news"];
   limit?: number;
   compact?: boolean;
+  externalHeadingId?: string;
 }) {
   const count = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : 8;
   const items = [...feed.items]
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || a.id.localeCompare(b.id))
     .slice(0, count);
   const [lead, ...headlines] = items;
-  const headingId = compact ? "around-jets-heading" : "news-desk-heading";
+  const headingId = externalHeadingId ?? (compact ? "around-jets-heading" : "news-desk-heading");
 
   return (
     <section id={compact ? "around-jets" : "news"} className={`${styles.desk} ${compact ? styles.compact : ""}`} aria-labelledby={headingId}>
-      <div className={styles.header}>
+      {!externalHeadingId ? <div className={styles.header}>
         <div>
           <p className={styles.kicker}><span className={styles.wireLabel}>The team wire</span>{" "}<span>Official Jets coverage</span></p>
           <h2 id={headingId} className="hed">Meanwhile, in<br className={styles.headingBreak} /> Florham Park.</h2>
         </div>
-        {compact ? <Link className={styles.allNews} href="/team#news">All team news <span aria-hidden="true">→</span></Link> : null}
-      </div>
+        {compact ? <Link className={styles.allNews} href="/team/news">All team news <span aria-hidden="true">→</span></Link> : null}
+      </div> : null}
 
       {lead ? (
         <div className={`${styles.stories} ${headlines.length ? "" : styles.single}`}>

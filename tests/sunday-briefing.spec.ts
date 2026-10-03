@@ -14,9 +14,9 @@ const report = fixture ? selectMatchdayReport(fixture.game) : null;
 const analytics = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/analytics.json"), "utf8")) as SeasonAnalytics;
 const comparisons = fixture && !fixture.overdue ? previewQuestions(fixture.game, analytics) : [];
 
-test("the Sunday briefing shows measured opposing units and season stakes before the film room", async ({ page }) => {
+test("Game Day shows measured opposing units and season stakes", async ({ page }) => {
   test.skip(!fixture || fixture.overdue, "No upcoming fixture in this edition");
-  await page.goto("/#sunday-briefing");
+  await page.goto("/game-day#sunday-briefing");
   const briefing = page.getByRole("region", { name: "The matchup, in numbers." });
   await expect(briefing).toBeVisible();
   if (comparisons.length) {
@@ -45,14 +45,15 @@ test("the Sunday briefing shows measured opposing units and season stakes before
     await expect(briefing).toContainText(`With a loss: ${record.wins}–${record.losses + 1}`);
   }
   await expect(page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "Open league and unit comparisons" }) })).not.toHaveAttribute("open", "");
-  await expect(page.getByRole("link", { name: "Sunday briefing", exact: false })).toHaveAttribute("href", "#sunday-briefing");
+  await expect(page).toHaveURL(/\/game-day#sunday-briefing$/);
+  await expect(page.getByRole("navigation", { name: "Site sections" }).locator('[aria-current="page"]')).toHaveAttribute("href", "/");
 });
 
 for (const width of [320, 768]) {
   test(`unit values and sample labels reflow at ${width}px with 200% text`, async ({ page }) => {
     test.skip(!comparisons.length, "No current validated unit comparison");
     await page.setViewportSize({ width, height: 1000 });
-    await page.goto("/#sunday-briefing");
+    await page.goto("/game-day#sunday-briefing");
     await page.addStyleTag({ content: "html { font-size: 200% !important; } body { font-size: 32px !important; }" });
     await page.evaluate(() => document.fonts.ready);
     const briefing = page.getByRole("region", { name: "The matchup, in numbers." });
@@ -97,7 +98,7 @@ test("dated availability is attributed and opens by keyboard without implying ga
   test.skip(!report, "No current reviewed game-week report");
   await page.clock.install({ time: new Date(Date.parse(report!.reviewedAt) + 60_000) });
   await page.setViewportSize({ width: 320, height: 900 });
-  await page.goto("/#sunday-briefing");
+  await page.goto("/game-day#sunday-briefing");
   const desk = page.getByRole("complementary", { name: "Get your Sunday sorted." });
   await expect(desk).toContainText(report!.watch.network);
   await expect(desk).toContainText(report!.watch.venue);
@@ -116,7 +117,7 @@ test("dated availability is attributed and opens by keyboard without implying ga
     expect(size?.height).toBeGreaterThanOrEqual(44);
   }
   await page.addScriptTag({ path: path.join(process.cwd(), "node_modules/axe-core/axe.min.js") });
-  // Check the opened desk here; homepage.spec.ts scans the complete page.
+  // Check the opened desk here; route-level checks scan the complete page.
   // The focused disclosure may scroll unrelated targets behind the sticky nav.
   const violations = await desk.evaluate(async (element) => {
     const axe = (window as unknown as { axe: { run: (context: unknown, options: unknown) => Promise<{ violations: unknown[] }> } }).axe;
@@ -128,7 +129,7 @@ test("dated availability is attributed and opens by keyboard without implying ga
 test("a static game-day desk warns when old and removes fixture-specific reporting at kickoff", async ({ page }) => {
   test.skip(!report, "No current reviewed game-week report");
   await page.clock.install({ time: new Date(Date.parse(report!.reviewedAt) + 25 * 60 * 60_000) });
-  await page.goto("/#sunday-briefing");
+  await page.goto("/game-day#sunday-briefing");
   await expect(page.getByRole("status", { name: "Game-week reporting update status" })).toContainText("Availability can change");
   await page.clock.setSystemTime(new Date(Date.parse(report!.expiresAt) + 60_000));
   await page.clock.runFor(60_000);

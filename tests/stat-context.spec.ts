@@ -45,16 +45,14 @@ test("probability changes keep a valid zero distinct from an unavailable observa
 
 test("season margins reconcile confirmed scores and leave space for enlarged labels", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/#season-trend");
+  await page.goto("/game-day#season-trend");
   await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-  const film = page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "Open league and unit comparisons" }) });
-  await film.locator(":scope > summary").click();
   await page.evaluate(() => document.fonts.ready);
   const region = page.getByRole("region", { name: "Season margins, scroll to explore every game" });
   const finals = completedGames(snapshot).filter((game) => game.season === snapshot.season && game.seasonType === "REG");
   const scored = finals.reduce((sum, game) => sum + game.jetsScore, 0);
   const allowed = finals.reduce((sum, game) => sum + game.oppScore, 0);
-  await expect(page.locator("#season")).toContainText(`${scored} points scored / ${allowed} allowed across ${finals.length} confirmed`);
+  await expect(page.locator("#season-trend")).toContainText(`${scored} points scored / ${allowed} allowed across ${finals.length} confirmed`);
   for (const [index, game] of finals.entries()) {
     const column = region.getByRole("listitem").nth(index);
     await expect(column).toContainText(`NYJ ${game.jetsScore}–${game.oppScore}`);

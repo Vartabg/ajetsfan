@@ -59,3 +59,21 @@ npx lighthouse http://127.0.0.1:3174/ --only-categories=performance \
 
 Existing Speed Insights remains enabled for real-user measurements. Revisit
 budgets deliberately as content grows; don't silently raise a failed limit.
+
+## Navigation restructure — October 2, 2026
+
+The follow-up replaces the homepage’s feature disclosures with dedicated
+`/game-day`, `/stories`, and `/history` routes and separates the Team overview
+from `/team/roster`, `/team/stats`, and `/team/news`. Game efficiency evidence
+lives on the matching published game case. Old shared section links redirect
+to the content’s new location, retaining their query parameters.
+
+Using the same build-asset gzip measurement as the budget script:
+
+| Route | HTML before | HTML after | Initial JS before | Initial JS after |
+| --- | ---: | ---: | ---: | ---: |
+| Home | 44.9 KiB | 8.2 KiB | 196.6 KiB | 182.9 KiB |
+| Team overview | 20.7 KiB | 6.6 KiB | 186.7 KiB | 183.5 KiB |
+
+These are page-weight changes, not new Lighthouse timing measurements. Budgets
+now protect the smaller landing pages and include all six new destinations.

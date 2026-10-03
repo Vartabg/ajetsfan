@@ -36,7 +36,7 @@ export function filterRoster(players: RosterPlayer[], filters: RosterFilters): R
 }
 
 export function playerHref(id: string): string {
-  return `/team?${new URLSearchParams({ player: id }).toString()}#roster`;
+  return `/team/roster?${new URLSearchParams({ player: id }).toString()}#roster`;
 }
 
 export function playerInitials(name: string): string {

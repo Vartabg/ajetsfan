@@ -15,7 +15,7 @@ const row = (figure: Locator, team: string) => figure.locator("dl > div").filter
 
 async function openLeague(page: Page) {
   test.skip(analytics.season !== current.season || !jets || !eligible("offense").length, "This edition has no current-season league sample.");
-  await page.goto("/");
+  await page.goto("/game-day");
   const summary = page.locator("summary").filter({ hasText: "Open league and unit comparisons" });
   await summary.focus();
   await page.keyboard.press("Enter");

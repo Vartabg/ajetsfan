@@ -1,0 +1,5 @@
+.breadcrumb{display:flex;align-items:center;flex-wrap:wrap;gap:.6rem;font-size:.78rem;color:var(--ink-2)}
+.breadcrumb a{display:inline-flex;align-items:center;min-height:44px;text-underline-offset:4px}
+.header{padding:1.4rem 0 1.6rem;border-bottom:2px solid var(--ink)}
+.header h1{font-size:clamp(2.8rem,6vw,5rem);line-height:1.05;overflow-wrap:anywhere}
+.header p{font-size:1rem;line-height:1.7;max-width:50ch;color:var(--ink-2);margin:1rem 0 0}

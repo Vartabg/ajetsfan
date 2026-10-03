@@ -100,9 +100,9 @@ test("a failed official game image leaves its source and final score usable on m
   await expect(scoreboard).toContainText(`Jets ${latest.jetsScore}, ${latest.opponentDisplay} ${latest.oppScore}`);
   await expect(scoreboard.locator(`time[datetime="${latest.date}"]`)).toBeVisible();
 
-  const postgame = latestGame.locator('a[href="#postgame"]');
+  const postgame = latestGame.getByRole("link", { name: "Read the game report" });
   await postgame.focus();
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/#postgame$/);
-  await expect(page.locator("#postgame h2")).toBeVisible();
+  await expect(page).toHaveURL(/\/games\//);
+  await expect(page.locator("#game-report-heading")).toBeVisible();
 });

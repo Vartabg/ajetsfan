@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 
 test("clear search keeps the selected player and other roster filters, then returns to the field", async ({ page }) => {
   const params = new URLSearchParams({ player: player.id, q: player.name, unit: player.group, position: player.position, status: player.status });
-  await page.goto(`/team?${params}#roster`);
+  await page.goto(`/team/roster?${params}#roster`);
   const search = page.getByLabel("Find a player", { exact: true });
   await expect(search).toHaveValue(player.name);
   await page.getByRole("button", { name: "Clear search", exact: true }).click();
@@ -34,7 +34,7 @@ test("clear search keeps the selected player and other roster filters, then retu
 });
 
 test("Escape is scoped to the profile and returns to the selected card without losing history", async ({ page }) => {
-  await page.goto("/team#roster");
+  await page.goto("/team/roster#roster");
   const card = page.getByRole("button", { name: `View ${player.name},`, exact: false });
   await card.click();
   await expect(card).toHaveAttribute("aria-expanded", "true");

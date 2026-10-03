@@ -204,7 +204,7 @@ export default function MediaRoom({ items, outlets, checkedAt }: { items: MediaI
     writeSelection({ media: id });
     window.requestAnimationFrame(() => {
       document.getElementById("media-viewer-heading")?.focus({ preventScroll: true });
-      document.getElementById("media-selected-coverage")?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+      document.getElementById("media-selected-coverage")?.scrollIntoView({ block: "start", behavior: "instant" });
     });
   }
   function backToResults() {
@@ -216,7 +216,7 @@ export default function MediaRoom({ items, outlets, checkedAt }: { items: MediaI
       const target = card ?? document.getElementById("media-results-heading");
       target?.focus({ preventScroll: true });
       if (card && destination && destination.id === id) window.scrollTo({ top: Math.max(0, window.scrollY + card.getBoundingClientRect().top - destination.viewportTop), behavior: "instant" });
-      else target?.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+      else target?.scrollIntoView({ block: "center", behavior: "instant" });
     });
   }
   function followTopic(topic: string) {
@@ -224,7 +224,7 @@ export default function MediaRoom({ items, outlets, checkedAt }: { items: MediaI
     window.requestAnimationFrame(() => {
       const heading = document.getElementById("media-results-heading");
       heading?.focus({ preventScroll: true });
-      heading?.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+      heading?.scrollIntoView({ block: "center", behavior: "instant" });
     });
   }
   function compare(item: MediaItem) {

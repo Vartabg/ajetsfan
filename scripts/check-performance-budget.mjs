@@ -5,10 +5,16 @@ import { gzipSync } from "node:zlib";
 // Compressed build assets are deterministic guardrails, not field Web Vitals.
 // Check after `next build`; leave room for normal editorial/data growth.
 const budgets = [
-  { route: "/", file: "index", html: 60, js: 215 },
+  { route: "/", file: "index", html: 12, js: 200 },
   { route: "/film-room", file: "film-room", html: 22, js: 220 },
   { route: "/media", file: "media", html: 24, js: 205 },
-  { route: "/team", file: "team", html: 32, js: 205 },
+  { route: "/team", file: "team", html: 12, js: 200 },
+  { route: "/game-day", file: "game-day", html: 28, js: 200 },
+  { route: "/stories", file: "stories", html: 18, js: 200 },
+  { route: "/history", file: "history", html: 14, js: 195 },
+  { route: "/team/roster", file: "team/roster", html: 22, js: 205 },
+  { route: "/team/news", file: "team/news", html: 14, js: 195 },
+  { route: "/team/stats", file: "team/stats", html: 14, js: 200 },
   { route: "/morgue", file: "morgue", html: 90, js: 205 },
   { route: "/seasons/2010", file: "seasons/2010", html: 28, js: 215 },
   { route: "/seasons/2010/guide", file: "seasons/2010/guide", html: 14, js: 195 },

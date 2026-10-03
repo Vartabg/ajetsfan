@@ -1,60 +1,50 @@
-import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/site";
 import { publishedPlayers } from "@/lib/published-pages";
-import Link from "next/link";
-import { Suspense } from "react";
+import Link from "@/components/IntentLink";
 import { leaders } from "@/lib/coverage";
 import { loadCoverage } from "@/lib/load-coverage";
 import { loadCurrent } from "@/lib/load-games";
+import { formatDate } from "@/lib/current";
 import { teamEditorialPhoto } from "@/lib/editorial-photos";
 import EditorialPhoto from "@/components/EditorialPhoto";
-import NewsDesk from "@/components/NewsDesk";
-import PlayerLeaders from "@/components/PlayerLeaders";
-import RosterExplorer from "@/components/RosterExplorer";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = pageMetadata({
+export const metadata = pageMetadata({
   path: "/team",
-  title: "News & Team — The Back Page",
-  description: "The Jets team sheet: current source roster, recorded player production, and dated official team coverage.",
+  title: "The Team — The Back Page",
+  description: "Meet the Jets, check player production, and catch up with the latest official team headlines.",
 });
 
 export default async function TeamPage() {
   const [coverage, current] = await Promise.all([loadCoverage(), loadCurrent()]);
   const season = current?.season ?? coverage?.season;
   const coverPhoto = season != null ? teamEditorialPhoto(season) : null;
-  const active = coverage?.roster.players.filter((player) => player.status === "ACT").length ?? 0;
   const rosterAvailable = !!coverage && coverage.roster.status !== "unavailable";
   const currentRoster = rosterAvailable && coverage.roster.season === season;
+  const profileIds = new Set(coverage ? publishedPlayers(coverage, season ?? coverage.season).map((player) => player.id) : []);
   const featured = coverage && currentRoster ? (["passing", "rushing", "receiving"] as const).flatMap((kind) => {
     const leader = coverage.stats.season === season && coverage.stats.status !== "unavailable" ? leaders(coverage.stats, kind)[0] : undefined;
     const player = leader && coverage.roster.players.find((entry) => entry.id === leader.id);
-    return player ? [player] : [];
-  }).filter((player, index, players) => players.findIndex((entry) => entry.id === player.id) === index) : [];
-  return <main id="main" className={styles.main}>
-    <header className={styles.hero}>
-      <div className={styles.programmeFolio}><b>Team sheet</b>{" "}<span>{season ? `${season} · ` : ""}The player programme</span></div>
-      <div className={`${styles.heroGrid} ${coverPhoto ? "" : styles.solo}`}>
-        <div className={styles.intro}>
-          <p className={styles.kicker}>Roster &amp; production</p>
-          <h1 className="hed">The Jets<br />team<br /><span>sheet.</span></h1>
-          {coverage ? <nav aria-label="Team coverage sections"><Link href="#season-leaders">Season leaders <span aria-hidden="true">↓</span></Link><Link href="#roster">Players &amp; roster <span aria-hidden="true">↓</span></Link><Link href="#news">Team news <span aria-hidden="true">↓</span></Link></nav> : null}
-        </div>
-        {coverPhoto ? <div className={styles.lineup}>
-          <EditorialPhoto photo={coverPhoto} eager className={styles.coverPhoto} sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1288px) calc(58.33vw - 3.2rem), 700px" />
-        </div> : null}
-      </div>
-      {featured.length ? <div className={styles.lineupNames}><p className={styles.lineupKicker}>Season yardage leaders.</p><div className={styles.lineupPlayers}>{featured.map((player) => <Link className={styles.featuredPlayer} href={`/team?${new URLSearchParams({ player: player.id })}#roster`} key={player.id}>
-            {player.jersey !== null ? <span className={styles.jersey} aria-hidden="true">{player.jersey}</span> : null}
-            <span className={styles.featuredName}><strong>{player.name}</strong><span>{player.position}{player.jersey !== null ? ` · No. ${player.jersey}` : ""}</span><span className={styles.profileCue}>View profile <span aria-hidden="true">↗</span></span></span>
-          </Link>)}</div></div> : null}
-      {coverage ? <p className={styles.edition}><b>{season} edition</b><span>{rosterAvailable ? `${coverage.roster.season} roster · ${coverage.roster.players.length} players · ${active} active` : "Roster unavailable"}</span></p> : null}
+    return player && leader ? [{ player, kind, yards: leader[kind].yards }] : [];
+  }).filter((entry, index, players) => players.findIndex((candidate) => candidate.player.id === entry.player.id) === index) : [];
+  const latest = coverage?.news.items.toSorted((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || a.id.localeCompare(b.id))[0];
+
+  return <>
+    <header className={`${styles.overviewHero} ${!coverPhoto ? styles.solo : ""}`}>
+      <div><p className={styles.kicker}>{season ? `${season} Jets` : "New York Jets"}</p><h1 className="hed" tabIndex={-1}>The team.</h1><p>The players. Their production. What’s happening in Florham Park.</p></div>
+      {coverPhoto ? <EditorialPhoto photo={coverPhoto} eager className={styles.coverPhoto} sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1288px) calc(50vw - 2.5rem), 604px" /> : null}
     </header>
-    {coverage ? <>
-      <PlayerLeaders stats={coverage.stats} roster={coverage.roster} editionSeason={season ?? coverage.season} />
-      <NewsDesk feed={coverage.news} />
-      <section id="roster" className={styles.rosterSection} aria-labelledby="roster-heading"><div className={styles.rosterHeading}><div><p className={styles.kicker}>The players</p><h2 id="roster-heading" className="hed">The roster.</h2></div><p>{coverage.roster.season}{coverage.roster.week != null ? ` · Week ${coverage.roster.week}` : ""}</p></div><details className={styles.rosterDetails}><summary>Roster details</summary><p>Roster membership does not establish game-day availability. {coverage.roster.players.length + (coverage.roster.excludedPlayers ?? 0)} source entries supply {coverage.roster.players.length} searchable profiles.{coverage.roster.excludedPlayers ? ` ${coverage.roster.excludedPlayers} entries await player identifiers.` : ""}</p><Link href="/how-made">Sources &amp; roster coverage</Link></details><Suspense fallback={<p>Loading roster controls…</p>}><RosterExplorer roster={coverage.roster} stats={coverage.stats} editionSeason={season ?? coverage.season} profileIds={publishedPlayers(coverage, season ?? coverage.season).map((player) => player.id)} /></Suspense></section>
-    </> : <section className={styles.empty}><h2>Team coverage is being prepared.</h2><p>No verified news, roster, or player-stat snapshot is available in this edition.</p><a href="https://www.newyorkjets.com/news/" target="_blank" rel="noreferrer">Read official Jets coverage <span aria-hidden="true">↗</span></a></section>}
-    <p className={styles.sourceNote}><Link href="/how-made">Sources &amp; definitions</Link></p>
-  </main>;
+    {featured.length ? <section className={styles.featured} aria-labelledby="featured-players-heading">
+      <div className={styles.sectionHeading}><h2 id="featured-players-heading">Leading the way</h2><span>{season} yardage leaders</span></div>
+      <div className={styles.lineupPlayers}>{featured.map(({ player, kind, yards }) => <Link className={styles.featuredPlayer} href={profileIds.has(player.id) ? `/players/${encodeURIComponent(player.id)}` : `/team/roster?${new URLSearchParams({ player: player.id })}#roster`} key={player.id}>
+        <span className={styles.jersey} aria-hidden="true">{player.jersey ?? player.position}</span>
+        <span className={styles.featuredName}><strong>{player.name}</strong><span>{yards.toLocaleString("en-US")} {kind} yards</span><span className={styles.profileCue}>View profile <span aria-hidden="true">→</span></span></span>
+      </Link>)}</div>
+    </section> : null}
+    <div className={styles.destinations}>
+      <Link href="/team/roster" className={styles.destination}><span className={styles.kicker}>The players</span><h2 className="hed">Roster <span aria-hidden="true">→</span></h2><p>{rosterAvailable ? `${coverage.roster.players.length} profiles in the ${coverage.roster.season} roster.` : "Find a player by name, number or position."}</p><span className={styles.destinationCue}>Find your player</span></Link>
+      <Link href="/team/stats" className={styles.destination}><span className={styles.kicker}>On the field</span><h2 className="hed">Player stats <span aria-hidden="true">→</span></h2><p>Passing, rushing and receiving leaders.{coverage && coverage.stats.season === season && coverage.stats.throughWeek != null ? ` Through Week ${coverage.stats.throughWeek}.` : ""}</p><span className={styles.destinationCue}>See the numbers</span></Link>
+      <Link href="/team/news" className={styles.destination}><span className={styles.kicker}>Official team coverage</span><h2 className="hed">News <span aria-hidden="true">→</span></h2><p>{latest?.title ?? "The latest checked headlines from Florham Park."}</p>{latest ? <time dateTime={latest.publishedAt}>{formatDate(latest.publishedAt)}</time> : null}<span className={styles.destinationCue}>Catch up</span></Link>
+    </div>
+  </>;
 }

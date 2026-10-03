@@ -36,7 +36,7 @@ export default function Boards({ heartbreak, miracle, caseIds = [] }: { heartbre
   useEffect(() => {
     if (selected?.id === focusGameId.current && caseHeading.current) {
       caseHeading.current.focus({ preventScroll: true });
-      caseHeading.current.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      caseHeading.current.scrollIntoView({ block: "start", behavior: "instant" });
       focusGameId.current = null;
     }
   }, [selected?.id]);
@@ -52,7 +52,7 @@ export default function Boards({ heartbreak, miracle, caseIds = [] }: { heartbre
     if (row) {
       focusResult.current = null;
       row.focus({ preventScroll: true });
-      row.scrollIntoView({ block: pending.block, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      row.scrollIntoView({ block: pending.block, behavior: "instant" });
     }
   }, [visibleCount, queryKey]);
 
@@ -86,7 +86,7 @@ export default function Boards({ heartbreak, miracle, caseIds = [] }: { heartbre
     if (selected?.id === game.id && caseHeading.current) {
       if (params.get("game") !== game.id) update({ game: game.id });
       caseHeading.current.focus({ preventScroll: true });
-      caseHeading.current.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      caseHeading.current.scrollIntoView({ block: "start", behavior: "instant" });
       return;
     }
     focusGameId.current = game.id;
@@ -95,12 +95,12 @@ export default function Boards({ heartbreak, miracle, caseIds = [] }: { heartbre
 
   function moveTo(element: HTMLElement | null, block: ScrollLogicalPosition = "start") {
     element?.focus({ preventScroll: true });
-    element?.scrollIntoView({ block, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    element?.scrollIntoView({ block, behavior: "instant" });
   }
 
   function findGame() {
     searchInput.current?.focus({ preventScroll: true });
-    archiveHeading.current?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    archiveHeading.current?.scrollIntoView({ block: "start", behavior: "instant" });
   }
 
   function backToResults() {

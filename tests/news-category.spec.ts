@@ -38,18 +38,16 @@ test("player features and statistics do not imply transactions or availability",
   ]) expect(newsCategory(title)).toBe("Team story");
 });
 
-test("news categories accompany original sourced headlines on both pages", async ({ page }) => {
+test("news categories accompany original sourced headlines on the dedicated news page", async ({ page }) => {
   const coverage = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/coverage.json"), "utf8")) as CoverageSnapshot;
   const items = [...coverage.news.items].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || a.id.localeCompare(b.id));
-  for (const route of ["/", "/team"]) {
-    await page.goto(route === "/" ? "/#around-jets" : route);
-    const section = page.locator(route === "/" ? "#around-jets" : "#news");
-    for (const item of items.slice(0, route === "/" ? 3 : 8)) {
-      const link = section.getByRole("link", { name: item.title, exact: false });
-      await expect(link.locator("h3")).toHaveText(item.title);
-      await expect(link).toHaveAttribute("href", item.url);
-      await expect(link).toContainText(newsCategory(item.title));
-      await expect(link.locator(`time[datetime="${item.publishedAt}"]`)).toBeVisible();
-    }
+  await page.goto("/team/news");
+  const section = page.locator("#news");
+  for (const item of items) {
+    const link = section.getByRole("link", { name: item.title, exact: false });
+    await expect(link.locator("h3")).toHaveText(item.title);
+    await expect(link).toHaveAttribute("href", item.url);
+    await expect(link).toContainText(newsCategory(item.title));
+    await expect(link.locator(`time[datetime="${item.publishedAt}"]`)).toBeVisible();
   }
 });

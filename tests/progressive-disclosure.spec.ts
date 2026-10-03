@@ -8,7 +8,7 @@ test("season starts with games and reveals one chapter without losing its phase"
   await expect(page.locator("[data-season-chapter][open]")).toHaveCount(1);
   await expect(page.locator('[data-season-chapter="games"]')).toHaveAttribute("open", "");
   await expect(page.locator("[data-advanced-stats]")).not.toBeVisible();
-  const tracking = page.locator('[data-season-chapter="tracking"] > summary');
+  const tracking = page.locator('[data-season-view="tracking"]');
   await tracking.focus();
   await page.keyboard.press("Enter");
   await expect(page.locator("[data-advanced-stats]")).toBeVisible();
@@ -17,13 +17,37 @@ test("season starts with games and reveals one chapter without losing its phase"
   expect(new URL(page.url()).searchParams.get("keep")).toBe("context");
   expect(new URL(page.url()).searchParams.get("phase")).toBe("regular");
   await expect(tracking).toBeFocused();
-  await page.locator('[data-season-chapter="rankings"] > summary').click();
+  await page.locator('[data-season-view="rankings"]').click();
   await expect(page.locator("[data-season-rankings]")).toBeVisible();
   await expect(page.locator("[data-advanced-stats]")).not.toBeVisible();
   await page.goBack();
   await expect(page.locator("[data-advanced-stats]")).toBeVisible();
   await page.reload();
   await expect(page.locator('[data-season-chapter="tracking"]')).toHaveAttribute("open", "");
+});
+
+test("season navigation and keyboard focus stay in place when switching long and short views", async ({ page }) => {
+  await page.goto("/seasons/2010?phase=regular#season-explore");
+  await expect(page.locator('[data-season-view="games"]')).toHaveAttribute("aria-current", "location");
+  await expect(page.locator("[data-season-game]")).toHaveCount(16);
+  const nav = page.locator("[data-season-navigation]");
+  await page.evaluate(() => document.fonts.ready);
+  await nav.scrollIntoViewIfNeeded();
+  const tracking = page.locator('[data-season-view="tracking"]');
+  await tracking.focus();
+  const top = (await nav.boundingBox())!.y;
+  const scroll = await page.evaluate(() => window.scrollY);
+  await page.keyboard.press("Enter");
+  await expect(tracking).toHaveAttribute("aria-current", "location");
+  await expect(tracking).toBeFocused();
+  await expect(page.locator("[data-nextgen-unavailable]")).toBeVisible();
+  await expect.poll(async () => Math.abs((await nav.boundingBox())!.y - top)).toBeLessThan(3);
+  await expect.poll(async () => Math.abs((await page.evaluate(() => window.scrollY)) - scroll)).toBeLessThan(3);
+  await expect(page.locator("[data-season-chapter]:visible")).toHaveCount(1);
+  await expect(page.locator('[data-season-chapter="tracking"]').getByRole("heading", { name: "Tracking & grades", exact: true }).first()).toBeVisible();
+  await page.locator('[data-season-view="games"]').click();
+  await expect(page.locator("[data-season-game]").first()).toBeVisible();
+  await expect.poll(async () => Math.abs((await nav.boundingBox())!.y - top)).toBeLessThan(3);
 });
 
 test("definitions live on their own page and return to the exact ranking context", async ({ page }) => {
@@ -54,12 +78,12 @@ test("search exposes matches in unopened chapters without changing the selected 
   await page.goto("/seasons/2000?phase=regular");
   await page.locator("[data-season-search]").fill("Elliott");
   await expect(page.locator('[data-season-chapter="games"]')).toHaveAttribute("open", "");
-  await expect(page.locator('[data-season-chapter="games"] > summary')).toContainText("0 matches");
+  await expect(page.locator('[data-season-view="games"]')).toContainText("0 matches");
   const moments = page.locator('[data-season-chapter="moments"]');
   const count = await moments.locator("[data-season-fact]").count();
   expect(count).toBeGreaterThan(0);
-  await expect(moments.locator("summary")).toContainText(`${count} ${count === 1 ? "match" : "matches"}`);
-  await moments.locator("summary").click();
+  await expect(page.locator('[data-season-view="moments"]')).toContainText(`${count} ${count === 1 ? "match" : "matches"}`);
+  await page.locator('[data-season-view="moments"]').click();
   await expect(moments.locator("[data-season-fact]").first()).toBeVisible();
 });
 
@@ -114,7 +138,7 @@ test("chapters and the guide remain readable and keyboard accessible with double
   await page.goto("/seasons/2026?phase=regular#advanced-evidence");
   await page.addStyleTag({ content: "html{font-size:200%!important}body{font-size:32px!important}" });
   await page.evaluate(() => document.fonts.ready);
-  for (const target of await page.locator("[data-season-chapter] > summary").all()) expect((await target.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+  for (const target of await page.locator("[data-season-view]").all()) expect((await target.boundingBox())?.height).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.addScriptTag({ path: path.join(process.cwd(), "node_modules/axe-core/axe.min.js") });
   const violations = await page.evaluate(async () => (await (window as unknown as { axe: { run: (node: Document, options: unknown) => Promise<{ violations: unknown[] }> } }).axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] } })).violations);
