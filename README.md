@@ -13,9 +13,13 @@ The accepted [product vision](docs/product-vision.md) guides future passes: ever
 - `/#visual-story`: an original visual comeback explorer for Cleveland in 2022 and Miami in 2000. Recorded clocks, source descriptions, a probability path and curated chapters share one selected moment. Readers can scrub, play/pause chapters and share a moment URL; motion respects reader preferences and pauses when the story is out of view.
 - `/team`: dated official headlines, passing/rushing/receiving leaders, and roster search by name, jersey, position, unit, and source status. Player selections and filters use shareable URLs, such as `/team?player=00-0033106#roster`.
 - `/morgue`: Heartbreak & Miracles rankings with season/opponent filters, search, sorting, shareable selected-game URLs, and keyboard/pointer play scrubbing. Example: `/morgue?game=2026_03_NYJ_DET&board=heartbreak`.
-- `/games/{game_id}`: a server-rendered final, sourced game context and measured play change, and a probability chart when usable source points exist, with a dedicated share card and a link to the matching interactive tape. Unreliable or unknown cases return HTTP 404.
+- `/games/{game_id}`: a server-rendered final, sourced game context and measured play change, and a probability chart when usable source points exist, with a dedicated share card and a link to the matching interactive tape. A case also lists verified replay links attached to that exact game in the media catalog, and an official photograph when one is selected for it. Unreliable or unknown cases return HTTP 404.
+- `/puzzle`: one published game case per New York day, chosen by a stable hash of the date. Six guesses of opponent and season; each miss opens another recorded clue (when, conditions, margin, score, opponent colours, season). The page revalidates every five minutes; progress and the solved tally stay in the reader's browser.
+- `/history/trades`: every Jets trade in the nflverse trade record (2002 onward), each pick followed to the selection made with it or to the later trade that moved it. A later deal's return is printed once and described as what the deal returned; no valuation is applied.
 - `/players/{gsis_id}`: current source roster profiles, guarded recorded statistics, source check times and dedicated share cards. Historical or unknown player identities return HTTP 404.
 - `/how-made`: the engineering case study, interactive paper comparison, source rules, and visible data exclusions.
+
+Every route generates its own 1200×630 share image through `src/lib/share-image.tsx`; the release spec requests each one.
 
 ## Run locally
 
@@ -58,6 +62,8 @@ Both commands require network access. The season is inferred from the official s
 Passing, rushing, and receiving totals use [nflverse player-stat releases](https://github.com/nflverse/nflverse-data/releases/tag/stats_player), restricted to matching schedule-confirmed Jets regular-season finals. Each game's passing completions, yards, and touchdowns must match its receiving totals. Leaders rank by yards. Recorded-game counts describe source statistics rows; defensive/special-teams production is not shown. Missing data remains missing. A failed coverage feed preserves its previous data and successful-check time with `retained` status, or publishes an `unavailable` empty state if no prior data exists. Other valid feeds and results can still update. Earlier-week roster regressions and lost player-game rows retain the previous feed. Source seasons remain visible after rollover, and player statistics must match the current edition season before they are displayed.
 
 The site uses a committed snapshot and static pages. Building the site does not fetch sports data. The visible edition date comes from the successful data check, rather than the current wall clock. A small reader-side clock displays an overdue warning when that check is more than 24 hours old, even if the deployed page has stopped updating.
+
+`npm run data:trades` rebuilds `public/data/draft-trades.json` from nflverse [`trades.csv`](https://github.com/nflverse/nflverse-data/releases/tag/trades) and [`draft_picks.csv`](https://github.com/nflverse/nflverse-data/releases/tag/draft_picks). Draft club codes are mapped from Pro-Football-Reference to nflverse codes. A malformed row in another club's trade is reported and skipped; one in a Jets trade fails the run. The scheduled refresh does not run it: the record changes a few times a year.
 
 ## Scheduled publication
 

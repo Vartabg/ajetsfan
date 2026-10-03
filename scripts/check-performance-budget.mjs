@@ -13,6 +13,9 @@ const budgets = [
   { route: "/game-day", file: "game-day", html: 28, js: 200 },
   { route: "/stories", file: "stories", html: 18, js: 200 },
   { route: "/history", file: "history", html: 14, js: 195 },
+  // 143 trades with their pick chains measured 39.1 KiB at launch; a few trades are added each year.
+  { route: "/history/trades", file: "history/trades", html: 48, js: 195 },
+  { route: "/puzzle", file: "puzzle", html: 18, js: 200 },
   { route: "/team/roster", file: "team/roster", html: 22, js: 205 },
   { route: "/team/news", file: "team/news", html: 14, js: 195 },
   { route: "/team/stats", file: "team/stats", html: 14, js: 200 },

@@ -17,9 +17,11 @@ their filters and place intact.
 | `/seasons/[year]` | One selected view: games, rankings, tracking, moments or coverage |
 | `/stories` | Recorded games as interactive visual timelines |
 | `/history` | Classic moments and rivalry records |
+| `/history/trades` | Every recorded Jets trade, each pick followed to what it became |
 | `/games/[id]` | One published game report, probability curve and available efficiency |
 | `/film-room` | Play design and sourced game studies |
 | `/morgue` | Explore ranked finishes and the interactive game tape |
+| `/puzzle` | The daily puzzle: guess the recorded game from its clues |
 
 Keep global navigation labels stable and mark the parent destination on detail
 pages. Team pages share one layout and local navigation. Season controls sit
