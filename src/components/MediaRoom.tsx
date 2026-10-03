@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
-import { formatMediaDate, type MediaItem, type MediaOutlet } from "@/lib/media";
+import { formatMediaDate, mediaImage, type MediaItem, type MediaOutlet } from "@/lib/media";
 import { seasonReturn } from "@/lib/season-navigation";
 import SeasonReturn from "./SeasonReturn";
 import styles from "./MediaRoom.module.css";
@@ -14,6 +14,14 @@ const kindLabels: Record<MediaItem["kind"], string> = { video: "Watch", post: "P
 const kindNames: Record<MediaItem["kind"], string> = { video: "Video", post: "X post", article: "Article", audio: "Audio" };
 const outletNames: Record<MediaOutlet["kind"], string> = { beat: "Beat reporting", tv: "Television", radio: "Sports radio", official: "Official team coverage", independent: "Independent coverage" };
 const dateLabel = formatMediaDate;
+const gridClass: Record<MediaItem["kind"], string> = { video: styles.watchGrid, post: styles.postGrid, article: styles.rowGrid, audio: `${styles.rowGrid} ${styles.audioGrid}` };
+const cardSizes: Record<MediaItem["kind"], string> = { video: "(max-width: 699px) 50vw, (max-width: 1099px) 33vw, 250px", post: "36px", article: "(max-width: 699px) 112px, 176px", audio: "(max-width: 699px) 72px, 100px" };
+
+/** Current coverage newest first, then the archive newest first. */
+const byRecency = (a: MediaItem, b: MediaItem) => Number(a.context === "archive") - Number(b.context === "archive")
+  || (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "") || a.id.localeCompare(b.id);
+const handleOf = (item: MediaItem) => new URL(item.url).pathname.split("/")[1];
+const stageOf = (item: MediaItem) => item.kind === "post" ? styles.featuredPost : !mediaImage(item) ? styles.featuredText : item.kind === "audio" ? styles.featuredSquare : "";
 
 function Published({ item }: { item: MediaItem }) {
   return item.publishedAt && Number.isFinite(Date.parse(item.publishedAt))
@@ -44,16 +52,24 @@ function ExternalLink({ item, children, className }: { item: Pick<MediaItem, "ur
   return <a className={className} href={item.url} target="_blank" rel="noopener noreferrer">{children}<span aria-hidden="true"> ↗</span><span className="sr-only"> (opens in a new tab)</span></a>;
 }
 
-function Thumbnail({ item, small = false }: { item: MediaItem; small?: boolean }) {
+/** The publisher's own picture. An item without one shows none: no stand-in artwork. */
+function Preview({ item, sizes, credit }: { item: MediaItem; sizes: string; credit?: string }) {
   const [failed, setFailed] = useState(false);
-  const youtubeId = item.youtubeId && /^[A-Za-z0-9_-]{11}$/.test(item.youtubeId) ? item.youtubeId : null;
-  return <div className={`${styles.thumbnail} ${small ? styles.smallThumbnail : ""}`} data-media-thumbnail={item.id}>
-    {youtubeId && !failed ? <Image src={`https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`} alt={small ? "" : `Publisher video thumbnail for ${item.title}`} fill sizes={small ? "(max-width: 720px) 90vw, 30vw" : "(max-width: 900px) 90vw, 65vw"} onError={() => setFailed(true)} />
-      : <div className={styles.typeArtwork} aria-hidden="true"><span>{kindNames[item.kind]}</span><strong>{item.kind === "post" ? "X" : item.kind === "audio" ? ")))" : item.kind === "article" ? "Aa" : "▶"}</strong><i>{item.topics.slice(0, 2).join(" / ")}</i></div>}
-    <div className={styles.thumbnailShade} aria-hidden="true" />
-    <span className={styles.thumbnailKind}>{kindNames[item.kind]}</span>
-    {youtubeId && !failed && !small ? <span className={styles.thumbnailCredit}>Original publisher thumbnail</span> : null}
-  </div>;
+  const image = mediaImage(item);
+  if (!image) return null;
+  return <span className={`${styles.preview} ${item.kind === "audio" ? styles.squarePreview : ""}`} data-media-thumbnail={item.id}>
+    {failed ? null : <Image src={image.url} alt="" fill sizes={sizes} onError={() => setFailed(true)} />}
+    {credit && !failed ? <span className={styles.previewCredit}>{credit}</span> : null}
+  </span>;
+}
+
+function Avatar({ item, large = false }: { item: MediaItem; large?: boolean }) {
+  const [failed, setFailed] = useState(false);
+  const image = mediaImage(item);
+  const size = large ? 52 : 36;
+  return <span className={`${styles.avatar} ${large ? styles.avatarLarge : ""}`} data-media-thumbnail={item.id}>
+    {image && !failed ? <Image src={image.url} alt="" width={size} height={size} onError={() => setFailed(true)} /> : null}
+  </span>;
 }
 
 type XWidgets = { createTweet: (id: string, element: HTMLElement, options: Record<string, string | boolean>) => Promise<HTMLElement | undefined> };
@@ -148,14 +164,33 @@ function Viewer({ item, outlet }: { item: MediaItem; outlet?: MediaOutlet }) {
   const youtube = item.kind === "video" && item.embedAllowed === true && !!item.youtubeId && /^[A-Za-z0-9_-]{11}$/.test(item.youtubeId);
   const post = item.kind === "post" && !!item.tweetId && /^\d{10,25}$/.test(item.tweetId);
   const embeddable = youtube || post;
+  const source = outlet?.name ?? item.author;
+  const load = embeddable && !requested ? <button className={`${styles.loadButton} ${youtube ? styles.loadOverlay : ""}`} type="button" data-media-load={item.id} onClick={() => setRequested(true)}><span className={styles.loadSymbol} aria-hidden="true">{post ? "X" : "▶"}</span><span>{post ? "Load original X post" : "Load video player"}<small>{post ? "From the publisher’s account" : "YouTube · playback starts when you choose"}</small></span></button> : null;
+  const stage = requested && youtube ? <div className={styles.videoFrame}><iframe src={`https://www.youtube-nocookie.com/embed/${item.youtubeId}?rel=0&playsinline=1`} title={`${item.title} — ${source}`} allow="encrypted-media; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" data-media-youtube={item.youtubeId} /></div>
+    : requested && post ? <XPost key={`${item.id}:${retry}`} item={item} />
+      : item.kind === "post" ? <div className={styles.postCard}><Avatar item={item} large /><span><strong>{item.author}</strong><span>@{handleOf(item)} · {source}</span></span></div>
+        : mediaImage(item) ? <Preview key={item.id} item={item} sizes="(max-width: 899px) calc(100vw - 2rem), 540px" credit={`Image via ${source}`} /> : null;
   return <div className={styles.viewer} data-media-viewer={item.id} data-embed-requested={requested ? "true" : "false"}>
-    <div className={styles.viewerLabel}><span><i aria-hidden="true" />Selected coverage</span><span>{item.context === "archive" ? "From the archive" : "Current collection"}</span></div>
-    {requested && youtube ? <div className={styles.videoFrame}><iframe src={`https://www.youtube-nocookie.com/embed/${item.youtubeId}?rel=0&playsinline=1`} title={`${item.title} — ${outlet?.name ?? item.author}`} allow="encrypted-media; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" data-media-youtube={item.youtubeId} /></div>
-      : requested && post ? <XPost key={`${item.id}:${retry}`} item={item} />
-        : <div className={styles.viewerPoster}><Thumbnail key={item.id} item={item} />{embeddable ? <button className={styles.loadButton} type="button" data-media-load={item.id} onClick={() => setRequested(true)}><span className={styles.loadSymbol} aria-hidden="true">{post ? "X" : "▶"}</span><span>{post ? "Load original X post" : "Load video player"}<small>{post ? "From the publisher’s account" : "YouTube · playback starts when you choose"}</small></span></button> : <div className={styles.sourceOnly}><span>At the source</span><strong>{item.kind === "audio" ? "Hear the conversation." : item.kind === "article" ? "Go beyond the headline." : "See the original coverage."}</strong></div>}</div>}
-    <div className={styles.viewerActions}><ExternalLink item={item} className={styles.sourceButton}>Open original {item.kind === "post" ? "post" : item.kind === "audio" ? "audio" : item.kind === "video" ? "video" : "article"}</ExternalLink>{requested ? <button type="button" onClick={() => { setRequested(false); setRetry((value) => value + 1); }}>Close embed</button> : null}</div>
-    <details className={styles.embedNote} data-media-embed-guide><summary>About this player</summary><p>{embeddable ? "The player or post connects to its provider only when loaded. Availability is controlled by the publisher; the original source stays accessible." : "This item opens at its publisher. No embedded playback is available here."}</p></details>
+    {stage || load ? <div className={styles.stage}>{stage}{load}</div> : null}
+    <div className={styles.viewerActions}><ExternalLink item={item} className={styles.sourceButton}>Open original {item.kind === "post" ? "post" : item.kind === "audio" ? "audio" : item.kind === "video" ? "video" : "article"}</ExternalLink>{requested ? <button type="button" onClick={() => { setRequested(false); setRetry((value) => value + 1); }}>Close embed</button> : null}
+      <details className={styles.embedNote} data-media-embed-guide><summary>About this player</summary><p>{embeddable ? "The player or post connects to its provider only when loaded. Availability is controlled by the publisher; the original source stays accessible." : "This item opens at its publisher. No embedded playback is available here."}</p></details></div>
   </div>;
+}
+
+function Card({ item, outletName, selected, compared, full, onSelect, onCompare }: { item: MediaItem; outletName: string; selected: boolean; compared: boolean; full: boolean; onSelect: () => void; onCompare: () => void }) {
+  const textOnly = item.kind !== "post" && !mediaImage(item);
+  return <li className={`${styles.card} ${textOnly ? styles.textOnly : ""} ${selected ? styles.activeStory : ""}`} data-media-card={item.id}>
+    <button type="button" className={styles.storySelect} onClick={onSelect} aria-pressed={selected} data-media-select={item.id}>
+      {item.kind === "post" ? null : <Preview item={item} sizes={cardSizes[item.kind]} />}
+      <span className={styles.storyText}>
+        {item.kind === "post" ? <span className={styles.postHead}><Avatar item={item} /><span><b>{item.author}</b><span>{outletName}</span></span></span>
+          : <span className={styles.cardMeta}>{outletName}{item.context === "archive" ? <span> · Archive</span> : null}</span>}
+        <strong>{item.title}</strong>
+        {item.kind === "video" ? null : <span className={styles.cardSummary}>{item.summary}</span>}
+      </span>
+    </button>
+    <div className={styles.cardFoot}><span className={styles.cardDate}><Published item={item} /></span><button type="button" className={styles.cardCompare} onClick={onCompare} aria-pressed={compared} disabled={full && !compared} aria-label={`${compared ? "Remove" : "Add"} ${item.title} ${compared ? "from" : "to"} comparison`} data-media-card-compare={item.id}><span>{compared ? "Added −" : "Compare +"}</span></button></div>
+  </li>;
 }
 
 export default function MediaRoom({ items, outlets, checkedAt }: { items: MediaItem[]; outlets: MediaOutlet[]; checkedAt: string }) {
@@ -177,6 +212,7 @@ export default function MediaRoom({ items, outlets, checkedAt }: { items: MediaI
   const [share, setShare] = useState<{ search: string; message: string; url?: string } | null>(null);
   const copyRequest = useRef(0);
   const returnPosition = useRef<{ id: string; viewportTop: number } | null>(null);
+  const groups = kinds.map((kind) => ({ kind, entries: filtered.filter((item) => item.kind === kind).sort(byRecency) })).filter(({ entries }) => entries.length);
   const visibleOutlets = outlets.map((outlet) => ({ outlet, count: filtered.filter((item) => item.outletId === outlet.id).length })).filter(({ count }) => count > 0);
   const largestCount = Math.max(1, ...visibleOutlets.map(({ count }) => count));
   const dated = items.filter((item) => item.publishedAt && Number.isFinite(Date.parse(item.publishedAt))).map((item) => item.publishedAt!).sort((a, b) => Date.parse(a) - Date.parse(b));
@@ -264,29 +300,29 @@ export default function MediaRoom({ items, outlets, checkedAt }: { items: MediaI
       <div className={styles.topicStrip} role="group" aria-label="Coverage topics"><span className={styles.topicLabel}>Topics</span><button type="button" aria-pressed={!topic} onClick={() => chooseFilter({ topic: "" })}>All topics</button>{topicList.map((tag) => <button type="button" key={tag} aria-pressed={topic === tag} onClick={() => chooseFilter({ topic: topic === tag ? "" : tag })} data-media-topic={tag}>{tag}<span>{items.filter((item) => item.topics.includes(tag)).length}</span></button>)}</div>
     </details>
 
-    {selected ? <div id="media-selected-coverage" className={styles.featured}>
-      <div className={styles.selectedNav}><button type="button" onClick={backToResults} data-media-back-results>← Back to results</button></div>
+    {selected ? <div id="media-selected-coverage" className={`${styles.featured} ${stageOf(selected)}`}>
+      <div className={styles.selectedNav}><button type="button" onClick={backToResults} data-media-back-results>← Back to results</button><span>{selected.context === "archive" ? "From the archive" : "Current coverage"}</span></div>
       <Viewer key={selected.id} item={selected} outlet={selectedOutlet} />
       <article className={styles.context} data-media-context={selected.id}>
-        <div className={styles.itemMeta}><span>{selectedOutlet?.name ?? selected.author}</span><span className={styles.archiveTag}>{selected.context === "archive" ? "Archive" : "Current"}</span></div>
+        <p className={styles.itemMeta}><span>{selectedOutlet?.name ?? selected.author}</span><span>{kindNames[selected.kind]}</span></p>
         <h3 id="media-viewer-heading" tabIndex={-1}>{selected.title}</h3>
+        <p className={styles.byline}>{selected.author} · Published <Published item={selected} /></p>
         <p className={styles.seasonContext}>{selected.seasons?.length ? `Football season: ${selected.seasons.join(" / ")}` : "Football season not established by this source"}</p>
-        <p className={styles.byline}>{selected.author}<span>Published <Published item={selected} /></span></p>
         <p className={styles.selectedSummary}>{selected.summary}</p>
-        <details className={styles.storyDetails}><summary>Related topics</summary><div className={styles.selectedTopics}>{selected.topics.map((tag) => <button type="button" key={tag} onClick={() => followTopic(tag)}>{tag}<span aria-hidden="true"> ↗</span></button>)}</div></details>
         <div className={styles.contextActions}><button type="button" onClick={() => compare(selected)} disabled={compared.length === 2 && !compared.includes(selected.id)} aria-pressed={compared.includes(selected.id)} data-media-compare={selected.id}>{compared.includes(selected.id) ? "Remove from comparison" : "Add to comparison"}<span aria-hidden="true"> {compared.includes(selected.id) ? "−" : "+"}</span></button><button type="button" onClick={copyLink} data-media-share>Copy selection link <span aria-hidden="true">↗</span></button></div>
         {share?.search === search ? <div className={styles.shareStatus}><p role="status">{share.message}</p>{share.url ? <label>Selection link<input readOnly value={share.url} onFocus={(event) => event.currentTarget.select()} /></label> : null}</div> : null}
+        <details className={styles.storyDetails}><summary>Related topics</summary><div className={styles.selectedTopics}>{selected.topics.map((tag) => <button type="button" key={tag} onClick={() => followTopic(tag)}>{tag}<span aria-hidden="true"> ↗</span></button>)}</div></details>
       </article>
     </div> : null}
 
-    {comparison.length ? <section className={styles.comparison} aria-labelledby="media-compare-heading" data-media-comparison><header><div><p className={styles.eyebrow}>Two sources. More context.</p><h3 id="media-compare-heading">Put the coverage side by side.</h3></div><button type="button" onClick={() => setCompared([])}>Clear comparison <span aria-hidden="true">×</span></button></header><div className={styles.compareGrid}>{comparison.map((item) => <article key={item.id} data-media-compared={item.id}><p className={styles.itemMeta}><span>{outletById.get(item.outletId)?.name ?? item.author}</span><span>{kindNames[item.kind]}</span></p><h4>{item.title}</h4><p className={styles.byline}>{item.author}<span><Published item={item} /></span></p><p>{item.summary}</p><div className={styles.compareTags}>{item.topics.map((tag) => <span key={tag} data-shared-topic={comparison.length === 2 && comparison.every((entry) => entry.topics.includes(tag)) ? "true" : "false"}>{tag}</span>)}</div><div className={styles.compareActions}><ExternalLink item={item}>Open original</ExternalLink><button type="button" onClick={() => compare(item)} aria-label={`Remove ${item.title} from comparison`}>Remove <span aria-hidden="true">×</span></button></div></article>)}{comparison.length === 1 ? <div className={styles.compareEmpty}><span aria-hidden="true">02</span><p>Select another story and add it to comparison.</p><small>Compare publication dates, summaries and shared topics against both originals.</small></div> : null}</div>{comparison.length === 2 ? <details className={styles.compareNote}><summary>Comparison guide</summary><p>Highlighted tags occur in both items. Matching topics are not proof that the reporting agrees.</p></details> : null}</section> : null}
+    {comparison.length ? <section className={styles.comparison} aria-labelledby="media-compare-heading" data-media-comparison><header><h3 id="media-compare-heading">Compare coverage<span>{comparison.length} of 2</span></h3><button type="button" onClick={() => setCompared([])}>Clear comparison <span aria-hidden="true">×</span></button></header><div className={styles.compareGrid}>{comparison.map((item) => <article key={item.id} data-media-compared={item.id}><p className={styles.itemMeta}><span>{outletById.get(item.outletId)?.name ?? item.author}</span><span>{kindNames[item.kind]}</span></p><h4>{item.title}</h4><p className={styles.byline}>{item.author} · <Published item={item} /></p><p>{item.summary}</p><div className={styles.compareTags}>{item.topics.map((tag) => <span key={tag} data-shared-topic={comparison.length === 2 && comparison.every((entry) => entry.topics.includes(tag)) ? "true" : "false"}>{tag}</span>)}</div><div className={styles.compareActions}><ExternalLink item={item}>Open original</ExternalLink><button type="button" onClick={() => compare(item)} aria-label={`Remove ${item.title} from comparison`}>Remove <span aria-hidden="true">×</span></button></div></article>)}{comparison.length === 1 ? <p className={styles.compareEmpty}>Select another story and add it to comparison to read the two summaries, dates and topics side by side.</p> : null}</div>{comparison.length === 2 ? <details className={styles.compareNote}><summary>Comparison guide</summary><p>Highlighted tags occur in both items. Matching topics are not proof that the reporting agrees.</p></details> : null}</section> : null}
 
     <div className={styles.collectionHeader}><h3 id="media-results-heading" tabIndex={-1}>{topic || (source ? outletById.get(source)?.name : season ? `${season} coverage` : "Browse coverage")}</h3><div className={styles.resultSummary}><p role="status" data-media-results>{filtered.length} {filtered.length === 1 ? "item" : "items"}{activeFilters ? " match your filters" : " in the collection"}</p>{activeFilters ? <button type="button" onClick={resetFilters} data-media-reset>Clear filters <span aria-hidden="true">×</span></button> : null}</div></div>
-    {filtered.length ? <div className={styles.collectionLayout}>
-      <ul className={styles.storyGrid} aria-label="Jets media collection">{filtered.map((item) => <li key={item.id} className={item.id === selected?.id ? styles.activeStory : ""} data-media-card={item.id}>
-        <button type="button" className={styles.storySelect} onClick={() => viewSelection(item.id)} aria-pressed={item.id === selected?.id} data-media-select={item.id}><Thumbnail item={item} small /><span className={styles.storyText}><span className={styles.cardMeta}><span>{outletById.get(item.outletId)?.name ?? item.author}</span><span>{item.context === "archive" ? "Archive" : "Current"}</span></span><strong>{item.title}</strong><span className={styles.cardSummary}>{item.summary}</span><span className={styles.cardDate}><Published item={item} /></span><span className={styles.cardSelectLabel}>{item.id === selected?.id ? "Selected" : "View coverage"}<span aria-hidden="true"> ↗</span></span></span></button>
-        <div className={styles.storyFooter}><span>{item.author}</span><button type="button" onClick={() => compare(item)} aria-pressed={compared.includes(item.id)} disabled={compared.length === 2 && !compared.includes(item.id)} aria-label={`${compared.includes(item.id) ? "Remove" : "Add"} ${item.title} ${compared.includes(item.id) ? "from" : "to"} comparison`} data-media-card-compare={item.id}>{compared.includes(item.id) ? "Added −" : "Compare +"}</button></div>
-      </li>)}</ul>
+    {filtered.length ? <div>
+      {groups.map(({ kind, entries }) => <section key={kind} className={styles.group} aria-labelledby={`media-group-${kind}`} data-media-group={kind}>
+        <h4 id={`media-group-${kind}`} className={styles.groupHead}>{kindLabels[kind]}<span>{entries.length}</span></h4>
+        <ul className={`${styles.cards} ${gridClass[kind]}`} aria-labelledby={`media-group-${kind}`}>{entries.map((item) => <Card key={item.id} item={item} outletName={outletById.get(item.outletId)?.name ?? item.author} selected={item.id === selected?.id} compared={compared.includes(item.id)} full={compared.length === 2} onSelect={() => viewSelection(item.id)} onCompare={() => compare(item)} />)}</ul>
+      </section>)}
       <details className={styles.coverageDisclosure} data-media-source-bars><summary>Explore by source<span>{visibleOutlets.length} outlets</span></summary>
         <aside className={styles.coverageMap} aria-labelledby="coverage-map-heading" data-media-coverage><h4 id="coverage-map-heading">Stories by source</h4><div className={styles.coverageBars}>{visibleOutlets.map(({ outlet, count }) => <button type="button" key={outlet.id} aria-pressed={source === outlet.id} onClick={() => chooseFilter({ source: source === outlet.id ? "" : outlet.id })} data-media-coverage-source={outlet.id} style={{ "--coverage-width": `${count / largestCount * 100}%` } as CSSProperties}><span>{outlet.name}<strong>{count}</strong></span><i aria-hidden="true" /></button>)}</div><p className={styles.coverageNote}>Counts reflect this curated collection. They do not measure audience, activity or reporting quality.</p></aside>
       </details>

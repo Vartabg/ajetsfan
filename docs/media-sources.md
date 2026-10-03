@@ -2,6 +2,8 @@
 
 Checked 2026-10-03T03:05:00.000Z. This is a curated source collection, not a live X feed. Publication dates and football seasons remain separate. Five actual posts were checked through X's official oEmbed and syndication metadata. YouTube title/channel/upload metadata were checked through official oEmbed and watch pages; playback availability is evaluated separately. Articles and non-YouTube clips open at the publisher. No article bodies, copied post text, engagement numbers or imitated voices are published.
 
+Preview pictures, checked 2026-10-03: each card shows the picture its publisher serves for that link, recorded in the catalog's `image` field with the pixel size measured from the downloaded file. Sources are the page's `og:image` (Jets, PFF, NBC Sports, Jets X-Factor, Audacy, Apple Podcasts), the JW Player poster asset SNY's page points to, and for X posts the author's profile picture from X's syndication data, the picture X's own embed shows. YouTube recordings use their standard thumbnail. ESPN's 2010 blog post offers only the ESPN logo, so it has `image: null` and shows no picture. Connor Hughes's camp post carries a TV-show GIF rather than camp footage; his card uses his profile picture like the other posts. `next.config.ts` admits each recorded picture by its exact URL, path and query, so the image optimizer fetches nothing else from those hosts.
+
 Historical content appears as archive coverage. January 2011 playoff reporting is tagged to football season 2010; the 2016 replay upload is not a 2016 game. The Namath retrospective published in 2010 belongs to the 1968 championship season. Older injury reports remain dated reporting, not current availability predictions.
 
 ## jets-titans-highlights-2026-09-13
