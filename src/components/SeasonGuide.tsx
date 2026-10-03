@@ -4,8 +4,7 @@ import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import SeasonReturn from "./SeasonReturn";
 import { formatMediaDate } from "@/lib/media";
-import type { NextGenSeason } from "@/lib/nextgen-stats";
-import type { SeasonRankings } from "@/lib/season-rankings";
+import type { NextGenGuide, SeasonRankingGuide } from "@/lib/season-presentation";
 import { publicPffGrades } from "@/lib/pff-public";
 import styles from "./SeasonGuide.module.css";
 
@@ -15,12 +14,12 @@ const snapshot = () => window.location.search;
 const serverSnapshot = () => "";
 const external = { target: "_blank", rel: "noreferrer" };
 
-export default function SeasonGuide({ year, rankings, nextgen, nextgenCheckedAt }: { year: number; rankings: SeasonRankings | null; nextgen: NextGenSeason | null; nextgenCheckedAt: string | null }) {
+export default function SeasonGuide({ year, rankings, nextgen, nextgenCheckedAt }: { year: number; rankings: SeasonRankingGuide | null; nextgen: NextGenGuide | null; nextgenCheckedAt: string | null }) {
   const search = useSyncExternalStore(subscribe, snapshot, serverSnapshot);
   const requested = new URLSearchParams(search).get("phase");
   const phase = requested === "regular" || requested === "playoffs" ? requested : "all";
   const data = rankings?.phases[phase];
-  const definitions = [...new Map([...(nextgen?.passing ?? []), ...(nextgen?.receiving ?? []), ...(nextgen?.rushing ?? [])].flatMap((player) => player.metrics).map((metric) => [metric.id, metric])).values()];
+  const definitions = nextgen?.definitions ?? [];
   const grades = phase === "playoffs" ? [] : publicPffGrades.filter((grade) => grade.year === year);
   return <div className={styles.guide} data-season-guide={year} data-guide-phase={phase}>
     <div className={styles.return}><SeasonReturn year={year} queryKey="return" fallback={`/seasons/${year}${phase === "all" ? "" : `?phase=${phase}`}`} fallbackLabel={`← Back to ${year}`} /><span>{year} · {names[phase]}</span></div>

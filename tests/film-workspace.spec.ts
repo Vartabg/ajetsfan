@@ -10,7 +10,7 @@ test("the Film Room starts with one board and hides detailed evidence and editin
   const lab = page.locator("#playbook-lab");
   await expect(workspace).toHaveAttribute("data-film-workspace", "playbook");
   await expect(lab).toBeVisible();
-  await expect(page.locator("#film-room")).toBeHidden();
+  await expect(page.locator("#film-room")).toHaveCount(0);
   await expect(lab.getByRole("button", { name: "Run play", exact: true })).toBeVisible();
   await expect(lab.getByLabel("Selected player", { exact: true })).toBeVisible();
   await expect(lab.locator("[data-study-limit]")).toBeVisible();

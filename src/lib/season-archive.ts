@@ -70,7 +70,7 @@ export function buildSeasonArchive(games: Game[], current: CurrentSnapshot | nul
   });
 }
 
-export function phaseResults(season: ArchiveSeason, phase: ArchivePhase) {
+export function phaseResults(season: Pick<ArchiveSeason, "results">, phase: ArchivePhase) {
   return season.results.filter((game) => phase === "all" || game.seasonType === (phase === "playoffs" ? "POST" : "REG"));
 }
 

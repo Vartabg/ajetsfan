@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import SeasonArchive from "@/components/SeasonArchive";
 import { loadSeasonArchive } from "@/lib/load-season-archive";
 import { loadSeasonRankings, loadNextGenSeason } from "@/lib/load-season-statistics";
+import { seasonArchivePresentation } from "@/lib/season-presentation";
 import { mediaCollection } from "@/lib/media-catalog";
 import { pageMetadata } from "@/lib/site";
 import styles from "../page.module.css";
@@ -29,6 +30,6 @@ export default async function SeasonPage({ params }: Props) {
   return <main id="main" className={styles.main}>
     <nav className={styles.breadcrumb} aria-label="Breadcrumb"><Link href="/">The Back Page</Link><span aria-hidden="true">/</span><Link href="/seasons">Seasons</Link><span aria-hidden="true">/</span><span>{season.year}</span></nav>
     <header className={styles.header}><p className={styles.kicker}>{season.current ? "This season" : "The season archive"}</p><h1 className="hed">{season.year}<span>.</span><br />Jets football.</h1></header>
-    <SeasonArchive season={season} years={years} outlets={mediaCollection.outlets} rankings={rankings} nextgen={tracking.nextgen} nextgenCheckedAt={tracking.checkedAt} />
+    <SeasonArchive season={seasonArchivePresentation(season)} years={years} outlets={mediaCollection.outlets} rankings={rankings} nextgen={tracking.nextgen} nextgenCheckedAt={tracking.checkedAt} />
   </main>;
 }

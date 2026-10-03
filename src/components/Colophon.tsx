@@ -1,5 +1,5 @@
 import styles from "./Colophon.module.css";
-import Link from "next/link";
+import Link from "./IntentLink";
 import type { Game } from "@/lib/games";
 import type { CurrentSnapshot } from "@/lib/current";
 import { archiveCoverage, formatDate } from "@/lib/current";

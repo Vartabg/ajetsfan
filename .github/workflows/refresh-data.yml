@@ -53,6 +53,8 @@ jobs:
       - if: steps.snapshot.outputs.changed == 'true'
         run: npm run build
       - if: steps.snapshot.outputs.changed == 'true'
+        run: npm run test:performance
+      - if: steps.snapshot.outputs.changed == 'true'
         run: npx playwright install --with-deps chrome
       - if: steps.snapshot.outputs.changed == 'true'
         run: npm test

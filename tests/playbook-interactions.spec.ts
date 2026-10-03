@@ -26,7 +26,15 @@ test("formation changes preserve twenty-two editable players and remain independ
     await expect(lab.locator('[data-lab-player]')).toHaveCount(22);
     await expect(lab).toContainText(formation.description);
   }
+  await expect(page.locator("#film-room")).toHaveCount(0);
+  const workspace = page.getByRole("navigation", { name: "Film Room workspaces" });
+  await workspace.getByRole("button", { name: "Game studies", exact: true }).click();
+  await expect(page.locator("#film-room")).toBeVisible();
   await expect(page.locator("#film-room")).toHaveAttribute("data-film", "hall-miami");
+  await workspace.getByRole("button", { name: "Playbook", exact: true }).click();
+  await expect(lab).toBeVisible();
+  await expect(lab.getByLabel("Offensive formation", { exact: true })).toHaveValue(offensiveFormations.at(-1)!.id);
+  await expect(lab.getByLabel("Defensive front", { exact: true })).toHaveValue(defensiveFormations.at(-1)!.id);
   await expect(lab).toHaveAttribute("data-running", "false");
   await expect(lab).toHaveAttribute("data-time", "0.00");
 });
@@ -54,7 +62,16 @@ test("a keyboard edit, route pattern and undo change the diagram rather than its
   await lab.getByLabel("Defensive front", { exact: true }).selectOption("three-four");
   await expect(route).toHaveAttribute("points", customRoute!);
   await expect(lab).toHaveAttribute("data-time", "0.00");
+  await expect(page.locator("#film-room")).toHaveCount(0);
+  const workspace = page.getByRole("navigation", { name: "Film Room workspaces" });
+  await workspace.getByRole("button", { name: "Game studies", exact: true }).click();
+  await expect(page.locator("#film-room")).toBeVisible();
   await expect(page.locator("#film-room")).toHaveAttribute("data-film", "wilson-cleveland");
+  await workspace.getByRole("button", { name: "Playbook", exact: true }).click();
+  await expect(lab).toBeVisible();
+  await expect(route).toHaveAttribute("points", customRoute!);
+  await expect(lab.getByLabel("Defensive front", { exact: true })).toHaveValue("three-four");
+  await expect(lab).toHaveAttribute("data-time", "0.00");
 });
 
 test("field drawing, dragging and defender assignments are real edits with usable undo", async ({ page }) => {

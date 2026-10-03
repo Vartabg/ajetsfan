@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useMemo, useReducer, useRef, useState, useSyncExternalStore, type FormEvent, type KeyboardEvent, type PointerEvent } from "react";
+import { memo, useCallback, useEffect, useId, useMemo, useReducer, useRef, useState, useSyncExternalStore, type FormEvent, type KeyboardEvent, type PointerEvent } from "react";
 import { FIELD, concepts, createPlay, defensiveFormations, formationWarnings, offensiveFormations, routeForPlayer, routePatterns, sampleBall, samplePlayer, validatePlayDesign, type PlayDesign, type PlaybookPlayer, type Point } from "@/lib/playbook";
-import { getJetsPlayDesign, jetsPlays } from "@/lib/jets-playbook";
-import { getJetsStudy } from "@/lib/jets-snap-study";
+import { getJetsPlayDesign, jetsPlays, type JetsPlay } from "@/lib/jets-playbook";
+import { getJetsStudy, type JetsStudy } from "@/lib/jets-snap-study";
 import styles from "./PlaybookLab.module.css";
 
 const STORAGE_KEY = "ajetsfan:playbook:v1";
@@ -55,6 +55,14 @@ const samePlayer = (player: PlaybookPlayer, original: PlaybookPlayer) =>
   && player.motionWindow?.from === original.motionWindow?.from && player.motionWindow?.to === original.motionWindow?.to
   && player.path.length === original.path.length && player.path.every((point, index) => point.x === original.path[index].x && point.y === original.path[index].y);
 
+// Reuse the static field while the player and ball positions animate.
+const fieldMarkings = <>
+  <rect x="20" y="20" width="960" height="580" className={styles.boundary} />
+  {[60, 120, 180, 240, 300, 360, 420, 480, 540].map((y, at) => <g key={y}><rect x="20" y={y - 30} width="960" height="60" className={at % 2 ? styles.fieldStripe : styles.fieldStripeQuiet} /><line x1="20" x2="980" y1={y} y2={y} className={styles.yardLine} />{[340, 660].map((x) => <line key={x} x1={x - 7} x2={x + 7} y1={y - 30} y2={y - 30} className={styles.hash} />)}</g>)}
+  <line x1="20" x2="980" y1={FIELD.lineOfScrimmage} y2={FIELD.lineOfScrimmage} className={styles.scrimmage} /><text x="954" y={FIELD.lineOfScrimmage - 12} className={styles.fieldLabel} textAnchor="end">LINE OF SCRIMMAGE</text>
+  <text x="500" y="44" className={styles.fieldLabel} textAnchor="middle">UPFIELD ↑</text><text x="42" y="588" className={styles.fieldLabel}>TEACHING FIELD · COORDINATES, NOT YARDS</text>
+</>;
+
 export default function PlaybookLab() {
   const encoded = useSyncExternalStore(subscribeLocation, diagramSnapshot, serverDiagramSnapshot);
   const [loaded, setLoaded] = useState({ seen: encoded, token: encoded, generation: 0 });
@@ -91,27 +99,34 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
   const study = useMemo(() => archive ? getJetsStudy(archive.id) : null, [archive]);
   const fullSnap = design.studyMode === "full-snap";
   const canonical = fullSnap ? study?.design : archive?.design;
-  const originalArchive = Boolean(canonical && JSON.stringify(validatePlayDesign(canonical)) === JSON.stringify(validatePlayDesign(design)));
+  // Playback changes only the clock. Validate and compare the design after an
+  // edit, rather than cloning and serializing all 22 players on every frame.
+  const originalArchive = useMemo(() => Boolean(canonical && JSON.stringify(validatePlayDesign(canonical)) === JSON.stringify(validatePlayDesign(design))), [canonical, design]);
   const archiveMoment = archive?.moments.filter((moment) => moment.at <= seconds).at(-1);
-  const filteredArchive = jetsPlays.filter((play) => archiveFilter === "all" || play.category === archiveFilter);
+  const filteredArchive = useMemo(() => jetsPlays.filter((play) => archiveFilter === "all" || play.category === archiveFilter), [archiveFilter]);
   const selected = design.players.find((player) => player.id === selectedId) ?? design.players[0];
-  const selectedAssignment = study?.assignments.find((assignment) => assignment.playerId === selected.id);
-  const selectedOriginalPlayer = canonical?.players.find((player) => player.id === selected.id);
-  const selectedAssignmentCustom = Boolean(selectedOriginalPlayer && !samePlayer(selected, selectedOriginalPlayer));
-  const offense = design.players.filter((player) => player.side === "offense");
-  const defense = design.players.filter((player) => player.side === "defense");
-  const eligible = offense.filter((player) => player.eligible);
+  const { offense, defense, eligible, movingPlayers } = useMemo(() => {
+    const offense = design.players.filter((player) => player.side === "offense");
+    return {
+      offense,
+      defense: design.players.filter((player) => player.side === "defense"),
+      eligible: offense.filter((player) => player.eligible),
+      movingPlayers: design.players.filter((player) => player.path.length > 0).length,
+    };
+  }, [design.players]);
   const followTarget = eligible.find((player) => player.id === followId) ?? eligible[0];
   const offensiveFormation = offensiveFormations.find((formation) => formation.id === design.offenseId)!;
   const defensiveFormation = defensiveFormations.find((formation) => formation.id === design.defenseId)!;
   const concept = concepts.find((item) => item.id === design.conceptId)!;
   const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
-  const baseline = createPlay(design.offenseId, design.defenseId, design.conceptId);
-  const customAlignment = design.players.some((player) => {
-    const original = baseline.players.find((item) => item.id === player.id);
-    return !original || original.x !== player.x || original.y !== player.y || original.label !== player.label || original.eligible !== player.eligible;
-  });
-  const alignmentWarnings = formationWarnings(design);
+  const baseline = useMemo(() => createPlay(design.offenseId, design.defenseId, design.conceptId), [design.offenseId, design.defenseId, design.conceptId]);
+  const customAlignment = useMemo(() => {
+    return design.players.some((player) => {
+      const original = baseline.players.find((item) => item.id === player.id);
+      return !original || original.x !== player.x || original.y !== player.y || original.label !== player.label || original.eligible !== player.eligible;
+    });
+  }, [baseline, design.players]);
+  const alignmentWarnings = useMemo(() => formationWarnings(design), [design]);
   const ball = sampleBall(design, seconds);
 
   useEffect(() => {
@@ -223,10 +238,10 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
     return clampPoint({ x: transformed.x, y: transformed.y });
   }
 
-  function selectPlayer(player: PlaybookPlayer) {
+  const selectPlayer = useCallback((player: PlaybookPlayer) => {
     setSelectedId(player.id);
     setNotice("");
-  }
+  }, [setNotice]);
 
   function startDrag(event: PointerEvent<SVGGElement>, player: PlaybookPlayer) {
     event.stopPropagation();
@@ -451,10 +466,7 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
         <svg ref={fieldRef} role="group" viewBox={`0 0 ${FIELD.width} ${FIELD.height}`} className={`${styles.field} ${tool === "draw" ? styles.drawing : ""}`} aria-labelledby={`${id}-field-title ${id}-field-desc`} onClick={drawPoint} onKeyDown={(event) => { if (event.key === "Escape") cancelDrag(); }}>
           <title id={`${id}-field-title`}>Interactive football playbook</title><desc id={`${id}-field-desc`}>Eleven offensive and eleven defensive players. Offense moves upfield. Select a player to move its starting position or draw an assignment. The roster and coordinate forms provide the same controls without dragging.</desc>
           <defs><marker id={`${id}-offense-arrow`} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#d2f66b" /></marker><marker id={`${id}-defense-arrow`} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#9ae5e4" /></marker></defs>
-          <rect x="20" y="20" width="960" height="580" className={styles.boundary} />
-          {[60, 120, 180, 240, 300, 360, 420, 480, 540].map((y, at) => <g key={y}><rect x="20" y={y - 30} width="960" height="60" className={at % 2 ? styles.fieldStripe : styles.fieldStripeQuiet} /><line x1="20" x2="980" y1={y} y2={y} className={styles.yardLine} />{[340, 660].map((x) => <line key={x} x1={x - 7} x2={x + 7} y1={y - 30} y2={y - 30} className={styles.hash} />)}</g>)}
-          <line x1="20" x2="980" y1={FIELD.lineOfScrimmage} y2={FIELD.lineOfScrimmage} className={styles.scrimmage} /><text x="954" y={FIELD.lineOfScrimmage - 12} className={styles.fieldLabel} textAnchor="end">LINE OF SCRIMMAGE</text>
-          <text x="500" y="44" className={styles.fieldLabel} textAnchor="middle">UPFIELD ↑</text><text x="42" y="588" className={styles.fieldLabel}>TEACHING FIELD · COORDINATES, NOT YARDS</text>
+          {fieldMarkings}
           {design.players.map((player) => player.path.length && (pathView === "all" || pathView === player.side || selected.id === player.id) ? <polyline key={`route-${player.id}`} points={pathString(drag?.id === player.id ? { ...player, ...drag.point } : player)} className={`${player.side === "offense" ? styles.offensePath : styles.defensePath} ${selected.id === player.id ? styles.selectedPath : ""}`} markerEnd={`url(#${id}-${player.side}-arrow)`} data-lab-path={player.id} /> : null)}
           {seconds === 0 ? selected.path.map((point, at) => <g key={`${selected.id}-${at}`} data-route-point={at} className={styles.routePoint}><circle cx={point.x} cy={point.y} r="11" /><text x={point.x} y={point.y + 4} textAnchor="middle">{at + 1}</text></g>) : null}
           {design.players.map((player) => {
@@ -480,15 +492,11 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
         <label className={styles.timeline}>Play timeline <output>{seconds.toFixed(1)} / {FIELD.duration.toFixed(1)} sec</output><input type="range" min="0" max={FIELD.duration} step="0.05" value={seconds} aria-label="Play timeline" aria-valuetext={`${seconds.toFixed(2)} seconds of ${FIELD.duration}`} onChange={(event) => scrub(Number(event.target.value))} /></label>
         <label className={styles.speed}>Playback speed<select aria-label="Playback speed" value={speed} onChange={(event) => setSpeed(Number(event.target.value))}><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label>
       </div>
-      <details className={styles.diagramOptions}><summary>Diagram options</summary>{archive && study ? <div className={styles.studyMode}><div role="group" aria-label="Jets diagram mode"><button type="button" aria-pressed={fullSnap} onClick={() => loadJetsPlay(archive.id)}>Full-snap study</button><button type="button" aria-pressed={!fullSnap} onClick={() => loadJetsPlay(archive.id, "source-action")}>Source-supported action</button></div><p>{fullSnap ? `${design.players.filter((player) => player.path.length > 0).length} of 22 moving · illustrative supporting assignments` : "Source action · supporting assignments unknown"}</p></div> : null}
+      <details className={styles.diagramOptions}><summary>Diagram options</summary>{archive && study ? <div className={styles.studyMode}><div role="group" aria-label="Jets diagram mode"><button type="button" aria-pressed={fullSnap} onClick={() => loadJetsPlay(archive.id)}>Full-snap study</button><button type="button" aria-pressed={!fullSnap} onClick={() => loadJetsPlay(archive.id, "source-action")}>Source-supported action</button></div><p>{fullSnap ? `${movingPlayers} of 22 moving · illustrative supporting assignments` : "Source action · supporting assignments unknown"}</p></div> : null}
       <div className={styles.pathTools} role="group" aria-label="Show assignment paths">{(["selected", "all", "offense", "defense"] as const).map((view) => <button key={view} type="button" aria-pressed={pathView === view} onClick={() => setPathView(view)}>{view === "selected" ? "Selected player" : view === "all" ? "All assignments" : view === "offense" ? "Offense paths" : "Defense paths"}</button>)}</div>
       </details>
       {archive && originalArchive ? <div className={styles.moments}><div role="group" aria-label="Step through Jets play">{archive.moments.map((moment, at) => <button type="button" key={moment.at} aria-pressed={archiveMoment?.at === moment.at} onClick={() => scrub(moment.at)} data-jets-moment={moment.at}><span>{String(at + 1).padStart(2, "0")}</span>{moment.label}</button>)}</div><details className={styles.momentDetails}><summary>About this step</summary><p data-jets-moment-detail><strong>{archiveMoment?.label}</strong>{fullSnap ? archiveMoment?.detail.replace("Stationary defensive markers do not reproduce the coverage error.", "The supporting defensive movement is illustrative; each defender’s actual responsibility remains unverified.") : archiveMoment?.detail}</p><small>Steps use illustrative diagram time, not timestamps from the film.</small></details></div> : null}
-      {archive && study ? <details className={styles.assignmentDrawer}><summary>Player assignments</summary><section className={styles.snapDesk} aria-label="Player assignment study"><div className={styles.snapDeskHeading}><div><span>{fullSnap ? "THE COMPLETE SNAP / STUDY PLAN" : "SOURCE ACTION / SUPPORTING ASSIGNMENTS UNKNOWN"}</span><h4>Every position has a job.</h4></div><p>{study.assignments.filter((assignment) => assignment.basis === "source-supported").length} sourced actions <i aria-hidden="true">/</i> {study.assignments.filter((assignment) => assignment.basis === "illustrative").length} illustrative supporting assignments</p></div>
-        {selectedAssignment ? <article className={styles.assignmentRead} data-selected-assignment={selected.id} data-assignment-custom={selectedAssignmentCustom}><div><span>{selectedAssignmentCustom ? "Your edited movement / original study note" : !fullSnap && selectedAssignment.basis === "illustrative" ? "Supporting assignment unknown / optional study choice" : selectedAssignment.basis === "source-supported" ? "Source-supported action / schematic movement" : "Illustrative study choice / actual assignment unverified"}</span><h5>{selected.label} <small>{selectedAssignment.role}</small></h5><strong>{selectedAssignment.action}</strong></div><p>{selectedAssignment.detail}{selectedAssignmentCustom ? " Your edits replace the movement described in this study plan." : ""}</p>{selectedAssignment.sourceLabels?.length ? <div className={styles.assignmentSources}>{selectedAssignment.sourceLabels.map((label) => { const source = archive.sources.find((item) => item.label === label); return source ? <a key={label} href={source.url} target="_blank" rel="noreferrer">{label} ↗<span className="sr-only"> (opens in a new tab)</span></a> : null; })}</div> : null}</article> : null}
-        <details className={styles.snapLedger}><summary>All 22 assignments</summary><p>{fullSnap ? "Choose a position to isolate its path and read the study plan. Actual off-ball assignments have not been verified." : "These supporting study choices are available in Full-snap study. They are not established by the source-action diagram."}</p><div>{(["offense", "defense"] as const).map((side) => <section key={side} aria-label={`${side} study assignments`}><h5>{side === "offense" ? "Offense / protection & releases" : "Defense / rush & reaction"}</h5>{study.assignments.filter((assignment) => design.players.find((player) => player.id === assignment.playerId)?.side === side).map((assignment) => { const player = design.players.find((item) => item.id === assignment.playerId)!; return <button key={assignment.playerId} type="button" aria-pressed={selected.id === assignment.playerId} data-study-assignment={assignment.playerId} onClick={() => selectPlayer(player)}><span>{player.label}</span><strong>{assignment.action}</strong><small>{assignment.basis === "source-supported" ? "Sourced action" : "Study choice"}</small></button>; })}</section>)}</div></details>
-        <details className={styles.snapQuestions}><summary>Questions to take back to the film</summary><p>{study.summary}</p><ol>{study.questions.map((question) => <li key={question}>{question}</li>)}</ol></details>
-      </section></details> : null}
+      {archive && study ? <PlayerAssignments archive={archive} study={study} design={design} selected={selected} fullSnap={fullSnap} onSelect={selectPlayer} /> : null}
       <details className={styles.playbackDetails}><summary>Playback details</summary><p className={styles.playbackNote}>Movement follows the drawn paths over six diagram seconds. {fullSnap ? "Supporting assignments, spacing and timing are illustrative study choices, not verified from All-22 film. " : ""}Ball movement is illustrative. This is assignment playback, not film tracking, collision physics, or a prediction of who wins the play. No animation starts automatically.</p></details>
     </div>
     {archive ? <details className={styles.playFacts}><summary>Play facts &amp; sources</summary><article className={styles.archiveRecord} aria-labelledby="jets-play-heading">
@@ -530,3 +538,23 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
     <details className={styles.methodsDrawer}><summary>How the board works</summary><footer className={styles.methods}><p><strong>Personnel is who. Formation is where.</strong> The same personnel can align in different formations. A defensive front does not establish the coverage or the number of rushers. Presets start with seven offensive players on the line and eligible ends; free editing can change their legality. These diagrams are independent teaching examples.</p><div><a href="https://operations.nfl.com/rules-officiating/nfl-football-basics/formations" target="_blank" rel="noreferrer">NFL formation guide ↗<span className="sr-only"> (opens in a new tab)</span></a><Link href="/how-made#playbook-methods">Playbook methods &amp; limits ↗</Link></div></footer></details>
   </section>;
 }
+
+// The study text and 22-position ledger change with edits or selection, not time.
+const PlayerAssignments = memo(function PlayerAssignments({ archive, study, design, selected, fullSnap, onSelect }: {
+  archive: JetsPlay;
+  study: JetsStudy;
+  design: PlayDesign;
+  selected: PlaybookPlayer;
+  fullSnap: boolean;
+  onSelect: (player: PlaybookPlayer) => void;
+}) {
+  const selectedAssignment = study.assignments.find((assignment) => assignment.playerId === selected.id);
+  const canonical = fullSnap ? study.design : archive.design;
+  const selectedOriginalPlayer = canonical.players.find((player) => player.id === selected.id);
+  const selectedAssignmentCustom = Boolean(selectedOriginalPlayer && !samePlayer(selected, selectedOriginalPlayer));
+  return <details className={styles.assignmentDrawer}><summary>Player assignments</summary><section className={styles.snapDesk} aria-label="Player assignment study"><div className={styles.snapDeskHeading}><div><span>{fullSnap ? "THE COMPLETE SNAP / STUDY PLAN" : "SOURCE ACTION / SUPPORTING ASSIGNMENTS UNKNOWN"}</span><h4>Every position has a job.</h4></div><p>{study.assignments.filter((assignment) => assignment.basis === "source-supported").length} sourced actions <i aria-hidden="true">/</i> {study.assignments.filter((assignment) => assignment.basis === "illustrative").length} illustrative supporting assignments</p></div>
+        {selectedAssignment ? <article className={styles.assignmentRead} data-selected-assignment={selected.id} data-assignment-custom={selectedAssignmentCustom}><div><span>{selectedAssignmentCustom ? "Your edited movement / original study note" : !fullSnap && selectedAssignment.basis === "illustrative" ? "Supporting assignment unknown / optional study choice" : selectedAssignment.basis === "source-supported" ? "Source-supported action / schematic movement" : "Illustrative study choice / actual assignment unverified"}</span><h5>{selected.label} <small>{selectedAssignment.role}</small></h5><strong>{selectedAssignment.action}</strong></div><p>{selectedAssignment.detail}{selectedAssignmentCustom ? " Your edits replace the movement described in this study plan." : ""}</p>{selectedAssignment.sourceLabels?.length ? <div className={styles.assignmentSources}>{selectedAssignment.sourceLabels.map((label) => { const source = archive.sources.find((item) => item.label === label); return source ? <a key={label} href={source.url} target="_blank" rel="noreferrer">{label} ↗<span className="sr-only"> (opens in a new tab)</span></a> : null; })}</div> : null}</article> : null}
+        <details className={styles.snapLedger}><summary>All 22 assignments</summary><p>{fullSnap ? "Choose a position to isolate its path and read the study plan. Actual off-ball assignments have not been verified." : "These supporting study choices are available in Full-snap study. They are not established by the source-action diagram."}</p><div>{(["offense", "defense"] as const).map((side) => <section key={side} aria-label={`${side} study assignments`}><h5>{side === "offense" ? "Offense / protection & releases" : "Defense / rush & reaction"}</h5>{study.assignments.filter((assignment) => design.players.find((player) => player.id === assignment.playerId)?.side === side).map((assignment) => { const player = design.players.find((item) => item.id === assignment.playerId)!; return <button key={assignment.playerId} type="button" aria-pressed={selected.id === assignment.playerId} data-study-assignment={assignment.playerId} onClick={() => onSelect(player)}><span>{player.label}</span><strong>{assignment.action}</strong><small>{assignment.basis === "source-supported" ? "Sourced action" : "Study choice"}</small></button>; })}</section>)}</div></details>
+        <details className={styles.snapQuestions}><summary>Questions to take back to the film</summary><p>{study.summary}</p><ol>{study.questions.map((question) => <li key={question}>{question}</li>)}</ol></details>
+      </section></details>;
+});

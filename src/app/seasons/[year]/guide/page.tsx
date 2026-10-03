@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import SeasonGuide from "@/components/SeasonGuide";
 import { loadSeasonArchive } from "@/lib/load-season-archive";
 import { loadSeasonRankings, loadNextGenSeason } from "@/lib/load-season-statistics";
+import { nextGenGuide, seasonRankingGuide } from "@/lib/season-presentation";
 import { pageMetadata } from "@/lib/site";
 import styles from "./page.module.css";
 
@@ -24,6 +25,6 @@ export default async function GuidePage({ params }: Props) {
   return <main id="main" className={styles.main}>
     <nav className={styles.breadcrumb} aria-label="Breadcrumb"><Link href="/seasons">Seasons</Link><span aria-hidden="true">/</span><span>{year}</span><span aria-hidden="true">/</span><span>Sources &amp; definitions</span></nav>
     <header className={styles.header}><p>{year} Jets football</p><h1 className="hed">The details.</h1></header>
-    <SeasonGuide year={year} rankings={rankings} nextgen={tracking.nextgen} nextgenCheckedAt={tracking.checkedAt} />
+    <SeasonGuide year={year} rankings={seasonRankingGuide(rankings)} nextgen={nextGenGuide(tracking.nextgen)} nextgenCheckedAt={tracking.checkedAt} />
   </main>;
 }
