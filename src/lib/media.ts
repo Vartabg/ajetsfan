@@ -14,6 +14,8 @@ export type MediaItem = {
   context: "archive" | "current";
   /** Football seasons established by the content, not its publication year. */
   seasons?: number[];
+  /** Recorded games this item covers directly, by nflverse game ID; each must fall in a listed season. */
+  gameIds?: string[];
   phase?: "regular" | "playoffs" | "offseason" | "mixed";
 };
 
@@ -70,6 +72,8 @@ export function validateMediaCollection(collection: MediaCollection): MediaColle
       || !/^\d{4}-\d{2}-\d{2}(?:T.*Z)?$/.test(item.publishedAt) || new Date(item.publishedAt).toISOString().slice(0, 10) !== item.publishedAt.slice(0, 10))) throw new Error(`Invalid media date: ${item.id}`);
     if (item.seasons && (!Array.isArray(item.seasons) || !item.seasons.length || new Set(item.seasons).size !== item.seasons.length || item.seasons.some((year) => !Number.isInteger(year) || year < 1960 || year > new Date(checked).getUTCFullYear()))) throw new Error(`Invalid football season: ${item.id}`);
     if (item.phase && !["regular", "playoffs", "offseason", "mixed"].includes(item.phase)) throw new Error(`Invalid media phase: ${item.id}`);
+    if (item.gameIds !== undefined && (!Array.isArray(item.gameIds) || !item.gameIds.length || new Set(item.gameIds).size !== item.gameIds.length
+      || item.gameIds.some((id) => !/^\d{4}_\d{2}_[A-Z]{2,3}_[A-Z]{2,3}$/.test(id) || !id.includes("NYJ") || !item.seasons?.includes(Number(id.slice(0, 4)))))) throw new Error(`Invalid media game: ${item.id}`);
     if (item.tweetId) {
       const url = new URL(item.url);
       if (item.kind !== "post" || !/^\d{15,22}$/.test(item.tweetId) || !["x.com", "twitter.com"].includes(url.hostname)
@@ -90,4 +94,9 @@ export function validateMediaCollection(collection: MediaCollection): MediaColle
 /** Explicit membership keeps January playoff reporting attached to its season. */
 export function mediaForSeason(items: MediaItem[], season: number, phase: "all" | "regular" | "playoffs" = "all") {
   return items.filter((item) => item.seasons?.includes(season) && (phase === "all" || item.phase === phase || item.phase === "mixed"));
+}
+
+/** Items that cover one recorded game directly; season-wide coverage stays on the season pages. */
+export function mediaForGame(items: MediaItem[], gameId: string): MediaItem[] {
+  return items.filter((item) => item.gameIds?.includes(gameId)).sort((a, b) => (a.publishedAt ?? "").localeCompare(b.publishedAt ?? "") || a.id.localeCompare(b.id));
 }

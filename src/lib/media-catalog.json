@@ -1,6 +1,102 @@
 {
-  "checkedAt": "2026-10-02T20:28:00.280Z",
+  "checkedAt": "2026-10-03T03:05:00.000Z",
   "items": [
+    {
+      "id": "jets-titans-highlights-2026-09-13",
+      "title": "New York Jets Defeat Tennessee Titans| 2026 Regular Season Week 1 | Highlights",
+      "kind": "video",
+      "outletId": "jets",
+      "author": "New York Jets",
+      "publishedAt": "2026-09-13T21:13:42Z",
+      "url": "https://www.youtube.com/watch?v=fTq9p0tPljw",
+      "summary": "The team’s official highlight package from the 23–10 win at Tennessee on September 13.",
+      "topics": [
+        "highlights",
+        "Titans",
+        "Week 1"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "youtubeId": "fTq9p0tPljw",
+      "embedAllowed": true,
+      "gameIds": [
+        "2026_01_NYJ_TEN"
+      ]
+    },
+    {
+      "id": "jets-packers-highlights-2026-09-20",
+      "title": "Full Game Highlights | Jets vs. Packers | Week 2",
+      "kind": "video",
+      "outletId": "jets",
+      "author": "New York Jets",
+      "publishedAt": "2026-09-20",
+      "url": "https://www.newyorkjets.com/video/jets-vs-packers-game-highlights-week-2-09-20-2026",
+      "summary": "The team’s highlight package from the 17–20 overtime loss to Green Bay at MetLife Stadium on September 20.",
+      "topics": [
+        "highlights",
+        "Packers",
+        "Week 2"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "gameIds": [
+        "2026_02_GB_NYJ"
+      ]
+    },
+    {
+      "id": "jets-lions-highlights-2026-09-27",
+      "title": "Full Game Highlights | Jets vs. Lions | Week 3",
+      "kind": "video",
+      "outletId": "jets",
+      "author": "New York Jets",
+      "publishedAt": "2026-09-27",
+      "url": "https://www.newyorkjets.com/video/jets-vs-lions-game-highlights-week-3-09-27-2026",
+      "summary": "The team’s highlight package from the 24–31 loss at Detroit on September 27.",
+      "topics": [
+        "highlights",
+        "Lions",
+        "Week 3"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "gameIds": [
+        "2026_03_NYJ_DET"
+      ]
+    },
+    {
+      "id": "lions-jets-highlights-2026-09-27",
+      "title": "2026 Week 3: Lions vs. Jets | Highlights 🎥",
+      "kind": "video",
+      "outletId": "lions",
+      "author": "Detroit Lions",
+      "publishedAt": "2026-09-27T20:11:13Z",
+      "url": "https://www.youtube.com/watch?v=Iy8saaW8rBY",
+      "summary": "The Lions’ official highlights of their 31–24 win over the Jets at Ford Field, from the opponent’s side.",
+      "topics": [
+        "highlights",
+        "Lions",
+        "Week 3"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "youtubeId": "Iy8saaW8rBY",
+      "embedAllowed": true,
+      "gameIds": [
+        "2026_03_NYJ_DET"
+      ]
+    },
     {
       "id": "costello-bears-injuries-2026-10-02",
       "title": "Five Jets ruled out against Chicago",
@@ -526,7 +622,8 @@
         "Quincy Enunwa",
         "Brian Baldinger",
         "Connor Rogers",
-        "Joe Namath / Jets Television Network"
+        "Joe Namath / Jets Television Network",
+        "Full Game Highlights"
       ]
     },
     {
@@ -582,6 +679,15 @@
       "people": [
         "Mason Cameron",
         "Gordon McGuinness"
+      ]
+    },
+    {
+      "id": "lions",
+      "name": "Detroit Lions",
+      "kind": "official",
+      "url": "https://www.youtube.com/watch?v=Iy8saaW8rBY",
+      "people": [
+        "Detroit Lions"
       ]
     }
   ]
