@@ -16,6 +16,22 @@ export type ScheduledGame = {
   status: "final" | "scheduled";
 };
 
+export type StandingsRow = {
+  team: string;
+  games: number;
+  wins: number;
+  losses: number;
+  ties: number;
+  pointsFor: number;
+  pointsAgainst: number;
+  divisionWins: number;
+  divisionLosses: number;
+  divisionTies: number;
+};
+
+/** Rows arrive in display order: win percentage, division win percentage, point differential, team code. */
+export type DivisionStandings = { division: string; teams: StandingsRow[] };
+
 export type CurrentSnapshot = {
   schemaVersion: 1;
   season: number;
@@ -30,6 +46,8 @@ export type CurrentSnapshot = {
   latestAnalyzedGameId: string | null;
   sources: { schedule: string; pbp: string };
   schedule: ScheduledGame[];
+  /** Published by the refresher from the league schedule; absent in older snapshots. */
+  standings?: DivisionStandings;
 };
 
 export type ResultGame = Pick<Game,
@@ -133,6 +151,32 @@ export function archiveCoverage(games: Game[]) {
     seasonLabel: firstSeason === null ? "No analyzed seasons" :
       firstSeason === lastSeason ? `${firstSeason}` : `${firstSeason}–${lastSeason}`,
   };
+}
+
+export function recordLabel(row: Pick<StandingsRow, "wins" | "losses" | "ties">, showTies = row.ties > 0): string {
+  return `${row.wins}–${row.losses}${showTies ? `–${row.ties}` : ""}`;
+}
+
+/** Games behind a leader by the half-game convention; ties do not count. */
+export function gamesBehind(leader: StandingsRow, row: StandingsRow): number {
+  return ((leader.wins - row.wins) + (row.losses - leader.losses)) / 2;
+}
+
+export function gamesBehindLabel(games: number): string {
+  const whole = Math.floor(games);
+  const half = games - whole >= 0.5;
+  const number = whole === 0 ? (half ? "½" : "0") : `${whole}${half ? "½" : ""}`;
+  return `${number} game${games > 1 ? "s" : ""} back`;
+}
+
+/** Where one team stands in its division once anyone in it has a confirmed final. */
+export function divisionPicture(standings: DivisionStandings | null | undefined, team = "NYJ") {
+  const rows = standings?.teams ?? [];
+  const self = rows.find((row) => row.team === team);
+  const leader = rows[0];
+  if (!standings || !self || !leader || !rows.some((row) => row.games > 0)) return null;
+  const back = gamesBehind(leader, self);
+  return { division: standings.division, self, leader, back, leads: back === 0, atTop: rows.filter((row) => gamesBehind(leader, row) === 0).length };
 }
 
 export function formatDate(iso: string): string {

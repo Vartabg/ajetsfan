@@ -3,11 +3,11 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { pageMetadata } from "@/lib/site";
 import { loadGames, loadCurrent, loadCurve } from "@/lib/load-games";
-import { archiveCoverage, currentSeasonSummary, formatCheckedAt, formatDate, nextScheduledGame, selectLead } from "@/lib/current";
+import { archiveCoverage, currentSeasonSummary, divisionPicture, formatCheckedAt, formatDate, gamesBehindLabel, nextScheduledGame, recordLabel, selectLead } from "@/lib/current";
 import { clockLabel, pct, rank } from "@/lib/games";
 import { keyPlayEvidenceLabel } from "@/lib/morgue";
 import { wpaLabel } from "@/lib/analytics-context";
-import { teamColor, teamName } from "@/lib/teams";
+import { teamColor, teamIdentity, teamName } from "@/lib/teams";
 import PressChart from "@/components/PressChart";
 import { publishedGames } from "@/lib/published-pages";
 import EditorialPhoto from "@/components/EditorialPhoto";
@@ -32,6 +32,7 @@ export default async function BackPage() {
   const miracle = rank(games, "miracle")[0];
   const summary = currentSeasonSummary(snapshot);
   const next = nextScheduledGame(snapshot);
+  const division = divisionPicture(snapshot?.standings);
   const lost = result?.outcome === "loss";
   const tied = result?.outcome === "tie";
   const margin = result ? Math.abs(result.jetsScore - result.oppScore) : 0;
@@ -76,8 +77,9 @@ export default async function BackPage() {
           </div> : null}
         </div>
       </article>
-      {snapshot ? <section className={styles.now} aria-label={`The ${snapshot.season} season`}>
+      {snapshot ? <section className={`${styles.now} ${division ? styles.nowFour : ""}`} aria-label={`The ${snapshot.season} season`}>
         <Link href={`/seasons/${snapshot.season}`}><span className={styles.kicker}>{snapshot.season} season</span><strong>{summary.wins}–{summary.losses}{summary.ties ? `–${summary.ties}` : ""}</strong><span>Results & rankings <span aria-hidden="true">→</span></span></Link>
+        {division ? <Link href="/game-day#standings" data-division-tile><span className={styles.kicker}>{division.division}</span><strong>{division.leads ? division.atTop > 1 ? "Tied for first" : "First place" : gamesBehindLabel(division.back)}</strong><span>{division.leads ? `Jets ${recordLabel(division.self)} · ` : `${teamIdentity(division.leader.team)?.nickname ?? division.leader.team} lead at ${recordLabel(division.leader)} · `}Standings <span aria-hidden="true">→</span></span></Link> : null}
         <Link href="/game-day" style={next ? { "--rival": teamColor(next.game.opponentDisplay), "--rival-2": teamColor(next.game.opponentDisplay, 1) } as CSSProperties : undefined}><span className={styles.kicker}>{next ? <i className={styles.swatch} aria-hidden="true" /> : null}Up next</span><strong>{next ? `Jets ${next.game.atHome ? "vs" : "at"} ${next.game.opponentDisplay}` : "Game day"}</strong><span>{next ? `${teamName(next.game.opponentDisplay)} · Week ${next.game.week} · ${formatDate(next.game.date)}` : "Schedule & season form"} <span aria-hidden="true">→</span></span></Link>
         <Link href="/team"><span className={styles.kicker}>The team</span><strong>Who’s making plays?</strong><span>Roster, player stats & news <span aria-hidden="true">→</span></span></Link>
       </section> : null}

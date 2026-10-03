@@ -301,7 +301,7 @@ export async function refreshData({
           if (old !== JSON.stringify(points)) { analysisChanged = true; break; }
         }
       }
-      const current = currentManifest({ season, schedule, games: result.games, now, previous: previous.current, analysisChanged });
+      const current = currentManifest({ season, schedule, league: leagueSchedule, games: result.games, now, previous: previous.current, analysisChanged });
       let analytics = retainAnalytics(analyses.find((analysis) => analysis.analytics?.season === season)?.analytics ?? null, previous.analytics, now);
       if (analytics?.season === season && analysisCheck && analysisCheck.status !== 'ready') {
         // Coverage can advance independently of the retained rates and their cutoff.

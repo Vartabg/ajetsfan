@@ -281,3 +281,23 @@
 @media(max-width:640px){.coverChart{padding:1rem 0 1.3rem}.coverDelta{font-size:2rem}}
 .nextSunday{border-top:7px solid var(--rival,var(--accent));box-shadow:inset 0 3px 0 var(--rival-2,transparent)}
 .nextSunday .rival{margin:.5rem 0 0;font:600 1rem/1.4 var(--font-sans-narrow),sans-serif;color:var(--paper)}
+
+@media(min-width:901px){.nowFour{grid-template-columns:.6fr 1fr 1.2fr 1fr}}
+@media(min-width:641px) and (max-width:900px){.nowFour{grid-template-columns:1fr 1fr;gap:0 1.8rem}.nowFour>a{padding:.9rem 0}.nowFour>a+a{border-left:0;padding-left:0}.nowFour>a:nth-child(even){border-left:1px solid var(--rule-soft);padding-left:1.8rem}.nowFour>a:nth-child(n+3){border-top:1px solid var(--rule-soft)}}
+.standings{margin:1.3rem 0 .4rem;padding-top:1.3rem;border-top:1px solid var(--rule-soft)}
+.standingsHead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.3rem 1rem;margin-bottom:.5rem}
+.standingsHead h3{margin:0;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.standingsHead span{font-size:.72rem;color:var(--ink-2)}
+.standingsScroll{overflow-x:auto}
+.standings table{width:100%;border-collapse:collapse;font:500 .82rem/1.4 var(--font-sans),sans-serif}
+.standings th,.standings td{padding:.6rem .5rem;border-bottom:1px solid var(--rule-soft);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.standings th:first-child,.standings td:first-child{text-align:left}
+.standings thead th{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);border-bottom:2px solid var(--rule)}
+.standings thead abbr{text-decoration:none}
+.standings tbody th{font:700 1.05rem/1.3 var(--font-sans-narrow),sans-serif;padding-left:.6rem;box-shadow:inset 4px 0 0 transparent}
+.standings .us th,.standings .us td{background:var(--paper-2)}
+.standings .us th{box-shadow:inset 4px 0 0 var(--spot)}
+.standingsNote{margin:.7rem 0 0;font-size:.7rem;line-height:1.6;color:var(--ink-2);max-width:62ch}
+.standingsPending{margin:1.3rem 0 .4rem;padding-top:1.3rem;border-top:1px solid var(--rule-soft)}
+@media(max-width:640px){.standings table{font-size:.76rem}.standings th,.standings td{padding:.5rem .35rem}.standings tbody th{font-size:.95rem}}
+@media(max-width:360px){.standings th:nth-child(4),.standings th:nth-child(5),.standings td:nth-child(4),.standings td:nth-child(5){display:none}.standings th,.standings td{padding:.5rem .3rem}}

@@ -7,7 +7,7 @@ their filters and place intact.
 | Destination | Main job |
 | --- | --- |
 | `/` | Latest result, next fixture, and clear routes into the site |
-| `/game-day` | Next matchup, personal score prediction, current schedule and form |
+| `/game-day` | Next matchup, personal score prediction, AFC East standings, current schedule and form |
 | `/team` | Team overview and featured players |
 | `/team/roster` | Find a player and inspect the roster |
 | `/team/stats` | Recorded player production |

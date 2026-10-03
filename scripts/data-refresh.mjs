@@ -126,6 +126,43 @@ export function jetsSchedule(league) {
 
 export const parseSchedule = (csv) => jetsSchedule(parseLeagueSchedule(csv));
 
+/** The Jets' division, in the current nflverse team abbreviations. */
+export const DIVISION = { name: 'AFC East', teams: ['BUF', 'MIA', 'NE', 'NYJ'] };
+
+/**
+ * Division standings from schedule-confirmed regular-season finals dated on or
+ * before the check. Rows are ordered by win percentage, then division win
+ * percentage, then point differential, then team code. That is a stable display
+ * order, not the NFL tiebreaking procedure, and the pages say so.
+ */
+export function divisionStandings(league, season, now, division = DIVISION) {
+  const today = now.toISOString().slice(0, 10);
+  const rows = new Map(division.teams.map((team) => [team, {
+    team, games: 0, wins: 0, losses: 0, ties: 0, pointsFor: 0, pointsAgainst: 0, divisionWins: 0, divisionLosses: 0, divisionTies: 0,
+  }]));
+  for (const game of league) {
+    if (game.season !== season || game.seasonType !== 'REG' || game.status !== 'final' || game.date > today) continue;
+    const divisional = rows.has(game.homeTeam) && rows.has(game.awayTeam);
+    for (const [team, scored, allowed] of [[game.homeTeam, game.homeScore, game.awayScore], [game.awayTeam, game.awayScore, game.homeScore]]) {
+      const row = rows.get(team);
+      if (!row) continue;
+      const outcome = scored > allowed ? 'Wins' : scored < allowed ? 'Losses' : 'Ties';
+      row.games += 1;
+      row.pointsFor += scored;
+      row.pointsAgainst += allowed;
+      row[outcome.toLowerCase()] += 1;
+      if (divisional) row[`division${outcome}`] += 1;
+    }
+  }
+  const pct = (wins, losses, ties) => wins + losses + ties ? (wins + ties / 2) / (wins + losses + ties) : 0;
+  const teams = [...rows.values()].sort((a, b) =>
+    pct(b.wins, b.losses, b.ties) - pct(a.wins, a.losses, a.ties) ||
+    pct(b.divisionWins, b.divisionLosses, b.divisionTies) - pct(a.divisionWins, a.divisionLosses, a.divisionTies) ||
+    (b.pointsFor - b.pointsAgainst) - (a.pointsFor - a.pointsAgainst) ||
+    a.team.localeCompare(b.team));
+  return { division: division.name, teams };
+}
+
 /** January/February belong to the prior NFL season. Spring waits for a published schedule. */
 export function inferSeason(schedule, now = new Date()) {
   const calendarSeason = now.getUTCFullYear() - (now.getUTCMonth() < 2 ? 1 : 0);
@@ -177,7 +214,7 @@ export function mergeAnalysis(previous, analyses, schedule, { full = false } = {
   return { games: [...merged.values()].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id)), curves };
 }
 
-export function currentManifest({ season, schedule, games, now, previous = null, analysisChanged = false }) {
+export function currentManifest({ season, schedule, games, now, previous = null, analysisChanged = false, league = null }) {
   const currentSchedule = schedule.filter((game) => game.season === season);
   const analyzed = new Map(games.filter((game) => !game.dataSuspect).map((game) => [game.id, game]));
   const latest = currentSchedule.filter((game) => {
@@ -189,6 +226,7 @@ export function currentManifest({ season, schedule, games, now, previous = null,
     analysisUpdatedAt: analysisChanged ? now.toISOString() : previous?.analysisUpdatedAt ?? null,
     latestAnalyzedGameId: latest?.id ?? null,
     sources: { schedule: SCHEDULE_SOURCE, pbp: pbpSource(season) }, schedule: currentSchedule,
+    ...(league ? { standings: divisionStandings(league, season, now) } : {}),
   };
 }
 
