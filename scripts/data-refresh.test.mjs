@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { parseCsv, parseSchedule, easternKickoff, inferSeason, mergeAnalysis, currentManifest, publishSnapshot, recoverPublication, withDataLock } from './data-refresh.mjs';
+import { parseCsv, parseSchedule, easternKickoff, inferSeason, mergeAnalysis, currentManifest, divisionStandings, publishSnapshot, recoverPublication, withDataLock } from './data-refresh.mjs';
 import { refreshData, extractSeason, PbpAvailabilityError } from './build-data.mjs';
 import { buildAnalytics } from './season-analytics.mjs';
 import { parseLeagueSchedule } from './data-refresh.mjs';
@@ -114,6 +114,42 @@ test('manifest can show a newer confirmed result while analysis stays on an earl
   assert.equal(value.schedule.at(-1).status, 'final');
   assert.equal(value.checkedAt, now.toISOString());
   assert.equal(value.analysisUpdatedAt, '2026-09-14T12:00:00Z');
+});
+
+test('division standings count confirmed regular-season finals through the check date only', () => {
+  const league = parseLeagueSchedule(csv(
+    HISTORICAL, // another season
+    CURRENT, // Jets 20, Bills 10: a division game
+    '2026_01_MIA_NE,2026,REG,1,2026-09-13,13:00,MIA,17,NE,17', // division tie
+    '2026_02_NE_KC,2026,REG,2,2026-09-14,13:00,NE,24,KC,21',
+    '2026_02_MIA_DEN,2026,REG,2,2026-09-14,13:00,MIA,3,DEN,24',
+    NEXT, // scheduled, no score
+    '2026_03_BUF_KC,2026,REG,3,2026-09-27,13:00,BUF,30,KC,7', // a final dated after the check
+  ));
+  const value = divisionStandings(league, 2026, now);
+  assert.equal(value.division, 'AFC East');
+  assert.deepEqual(value.teams.map((row) => `${row.team} ${row.wins}-${row.losses}-${row.ties}`), ['NYJ 1-0-0', 'NE 1-0-1', 'MIA 0-1-1', 'BUF 0-1-0']);
+  assert.deepEqual(value.teams.map((row) => row.games), [1, 2, 2, 1]);
+  const ne = value.teams.find((row) => row.team === 'NE');
+  assert.deepEqual([ne.pointsFor, ne.pointsAgainst, ne.divisionWins, ne.divisionLosses, ne.divisionTies], [41, 38, 0, 0, 1]);
+  const buf = value.teams.find((row) => row.team === 'BUF');
+  assert.deepEqual([buf.pointsFor, buf.pointsAgainst, buf.divisionLosses], [10, 20, 1]);
+  const manifest = currentManifest({ season: 2026, schedule: parseSchedule(csv(CURRENT, NEXT)), league, games: [], now });
+  assert.deepEqual(JSON.parse(JSON.stringify(manifest)).standings, value);
+  assert.equal('standings' in currentManifest({ season: 2026, schedule: parseSchedule(csv(CURRENT, NEXT)), games: [], now }), false);
+});
+
+test('division standings fall back to division record, point differential and team code in that order', () => {
+  const final = (id, awayScore, homeScore) => {
+    const [season, week, awayTeam, homeTeam] = id.split('_');
+    return { id, season: Number(season), week: Number(week), seasonType: 'REG', date: '2026-09-13', kickoff: null, homeTeam, awayTeam, homeScore, awayScore, status: 'final' };
+  };
+  const league = [
+    final('2026_01_BUF_NYJ', 20, 10), final('2026_01_NE_MIA', 21, 20), // every team 1-1 after these four
+    final('2026_02_NYJ_KC', 30, 0), final('2026_02_BUF_DEN', 0, 30), final('2026_02_NE_LAC', 0, 3), final('2026_02_MIA_ARI', 7, 0),
+  ];
+  assert.deepEqual(divisionStandings(league, 2026, now).teams.map((row) => row.team), ['NE', 'BUF', 'NYJ', 'MIA']);
+  assert.deepEqual(divisionStandings([], 2026, now).teams.map((row) => `${row.team} ${row.games}`), ['BUF 0', 'MIA 0', 'NE 0', 'NYJ 0']);
 });
 
 test('default refresh requests one season and preserves historical curves byte-for-byte', async (t) => {

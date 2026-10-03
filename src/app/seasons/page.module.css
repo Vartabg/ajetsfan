@@ -7,3 +7,5 @@
 .header h1{overflow-wrap:anywhere}
 
 .explore{display:flex;flex-wrap:wrap;gap:.5rem 2rem;padding:.7rem 0;border-bottom:1px solid var(--rule-soft)}.explore a{display:inline-flex;align-items:center;gap:1rem;min-height:44px;font-size:.85rem;font-weight:700;text-underline-offset:4px}
+
+.stripNote{font-size:.72rem;color:var(--ink-2);margin:0;line-height:1.6}

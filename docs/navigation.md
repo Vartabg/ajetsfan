@@ -7,7 +7,7 @@ their filters and place intact.
 | Destination | Main job |
 | --- | --- |
 | `/` | Latest result, next fixture, and clear routes into the site |
-| `/game-day` | Next matchup, personal score prediction, current schedule and form |
+| `/game-day` | Next matchup, personal score prediction, AFC East standings, current schedule and form |
 | `/team` | Team overview and featured players |
 | `/team/roster` | Find a player and inspect the roster |
 | `/team/stats` | Recorded player production |
@@ -17,9 +17,11 @@ their filters and place intact.
 | `/seasons/[year]` | One selected view: games, rankings, tracking, moments or coverage |
 | `/stories` | Recorded games as interactive visual timelines |
 | `/history` | Classic moments and rivalry records |
+| `/history/trades` | Every recorded Jets trade, each pick followed to what it became |
 | `/games/[id]` | One published game report, probability curve and available efficiency |
 | `/film-room` | Play design and sourced game studies |
 | `/morgue` | Explore ranked finishes and the interactive game tape |
+| `/puzzle` | The daily puzzle: guess the recorded game from its clues |
 
 Keep global navigation labels stable and mark the parent destination on detail
 pages. Team pages share one layout and local navigation. Season controls sit

@@ -56,6 +56,7 @@
 .meta { min-width: 0; }
 .date { display: block; color: var(--ink-2); font: .7rem/1.5 var(--font-mono), monospace; }
 .matchup { display: block; margin-top: .4rem; font: 700 1.22rem/1.25 var(--font-serif), Georgia, serif; letter-spacing: -.02em; }
+.opponentName { display: block; margin-top: .15rem; color: var(--ink-2); font: 600 .74rem/1.4 var(--font-sans-narrow), sans-serif; letter-spacing: .02em; }
 .score { display: block; margin-top: .45rem; color: var(--ink-2); font-size: .74rem; line-height: 1.5; }
 .numbers { display: flex; flex-direction: column; justify-content: center; gap: .25rem; text-align: right; padding-left: .9rem; border-left: 1px solid var(--rule-soft); max-width: 8.5rem; }
 .numbers > strong { color: var(--spot); font: 500 1.1rem/1.25 var(--font-mono), monospace; font-variant-numeric: tabular-nums; }

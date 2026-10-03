@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
 import type { Game } from "../src/lib/games";
 import type { CurrentSnapshot, ScheduledGame } from "../src/lib/current";
-import { currentSeasonSummary, mergeResults, nextScheduledGame, selectLead } from "../src/lib/current";
+import { currentSeasonSummary, divisionPicture, gamesBehindLabel, mergeResults, nextScheduledGame, recordLabel, selectLead } from "../src/lib/current";
+import type { StandingsRow } from "../src/lib/current";
 import { currentStreak } from "../src/lib/paper";
 
 const result = (overrides: Partial<ScheduledGame> = {}): ScheduledGame => ({
@@ -70,4 +71,28 @@ test("passed schedule entries show overdue status instead of implying an upcomin
   expect(nextScheduledGame(snapshot([result(), pending, future]))?.overdue).toBe(true);
   expect(nextScheduledGame(snapshot([result(), future]))?.game.id).toBe(future.id);
   expect(nextScheduledGame(snapshot([result(), future]))?.overdue).toBe(false);
+});
+
+const row = (team: string, wins: number, losses: number, ties = 0): StandingsRow => ({
+  team, games: wins + losses + ties, wins, losses, ties, pointsFor: 0, pointsAgainst: 0, divisionWins: 0, divisionLosses: 0, divisionTies: 0,
+});
+
+test("division picture reads games back from the published row order and stays quiet before any final", () => {
+  const behind = divisionPicture({ division: "AFC East", teams: [row("BUF", 3, 0), row("NYJ", 1, 2), row("NE", 1, 2), row("MIA", 0, 3)] });
+  expect(behind).toMatchObject({ back: 2, leads: false, atTop: 1 });
+  expect(behind?.leader.team).toBe("BUF");
+  const tied = divisionPicture({ division: "AFC East", teams: [row("NYJ", 2, 1), row("BUF", 2, 1), row("NE", 1, 2), row("MIA", 1, 2)] });
+  expect(tied).toMatchObject({ back: 0, leads: true, atTop: 2 });
+  expect(divisionPicture({ division: "AFC East", teams: [row("BUF", 0, 0), row("NYJ", 0, 0)] })).toBeNull();
+  expect(divisionPicture({ division: "AFC East", teams: [row("BUF", 1, 0), row("MIA", 0, 1)] })).toBeNull();
+  expect(divisionPicture(undefined)).toBeNull();
+});
+
+test("standings labels keep half games and ties honest", () => {
+  expect(gamesBehindLabel(0.5)).toBe("½ game back");
+  expect(gamesBehindLabel(1)).toBe("1 game back");
+  expect(gamesBehindLabel(2.5)).toBe("2½ games back");
+  expect(recordLabel(row("NYJ", 1, 2))).toBe("1–2");
+  expect(recordLabel(row("NYJ", 1, 2, 1))).toBe("1–2–1");
+  expect(recordLabel(row("NYJ", 1, 2), true)).toBe("1–2–0");
 });

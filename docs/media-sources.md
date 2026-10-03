@@ -1,8 +1,32 @@
 # Jets media collection
 
-Checked 2026-10-02T20:28:00.280Z. This is a curated source collection, not a live X feed. Publication dates and football seasons remain separate. Five actual posts were checked through X's official oEmbed and syndication metadata. YouTube title/channel/upload metadata were checked through official oEmbed and watch pages; playback availability is evaluated separately. Articles and non-YouTube clips open at the publisher. No article bodies, copied post text, engagement numbers or imitated voices are published.
+Checked 2026-10-03T03:05:00.000Z. This is a curated source collection, not a live X feed. Publication dates and football seasons remain separate. Five actual posts were checked through X's official oEmbed and syndication metadata. YouTube title/channel/upload metadata were checked through official oEmbed and watch pages; playback availability is evaluated separately. Articles and non-YouTube clips open at the publisher. No article bodies, copied post text, engagement numbers or imitated voices are published.
 
 Historical content appears as archive coverage. January 2011 playoff reporting is tagged to football season 2010; the 2016 replay upload is not a 2016 game. The Namath retrospective published in 2010 belongs to the 1968 championship season. Older injury reports remain dated reporting, not current availability predictions.
+
+## jets-titans-highlights-2026-09-13
+
+[New York Jets — official highlights](https://www.youtube.com/watch?v=fTq9p0tPljw) · published 2026-09-13T21:13:42Z · football season 2026 · game 2026_01_NYJ_TEN
+
+Official YouTube oEmbed verifies the New York Jets channel (@nyjets) and the exact title; the watch page supplies publishDate 2026-09-13T14:13:42-07:00 and playability status OK. Attached to the Week 1 game case. Two unofficial re-uploads of the same highlights were found and rejected: the publisher is not the rights holder.
+
+## jets-packers-highlights-2026-09-20
+
+[New York Jets — Full Game Highlights](https://www.newyorkjets.com/video/jets-vs-packers-game-highlights-week-2-09-20-2026) · published 2026-09-20 · football season 2026 · game 2026_02_GB_NYJ
+
+First-party publisher page verifies the headline, the September 20 dateline and the description’s overtime result. No official YouTube upload of this package was found; a Sky Sport DE upload was unplayable and a third-party re-upload was rejected. Opens at the publisher.
+
+## jets-lions-highlights-2026-09-27
+
+[New York Jets — Full Game Highlights](https://www.newyorkjets.com/video/jets-vs-lions-game-highlights-week-3-09-27-2026) · published 2026-09-27 · football season 2026 · game 2026_03_NYJ_DET
+
+First-party publisher page verifies the headline, the September 27 dateline and the 31–24 description. Opens at the publisher.
+
+## lions-jets-highlights-2026-09-27
+
+[Detroit Lions — official highlights](https://www.youtube.com/watch?v=Iy8saaW8rBY) · published 2026-09-27T20:11:13Z · football season 2026 · game 2026_03_NYJ_DET
+
+Official YouTube oEmbed verifies the Detroit Lions channel (@detroitlionsnfl) and the exact title; the watch page supplies publishDate 2026-09-27T13:11:13-07:00 and playability status OK. An opponent’s official package, labelled as such. Outlet record added for the Lions’ official channel.
 
 ## costello-bears-injuries-2026-10-02
 

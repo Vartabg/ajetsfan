@@ -31,6 +31,8 @@ export type Game = {
   peakH2Wp: number | null;
   troughH2Wp: number | null;
   wentToOt: boolean;
+  /** Venue and kickoff conditions as recorded by the nflverse schedule; absent in older snapshots. */
+  stadium?: string | null;
   roof: string | null;
   temp: number | null;
   wind: number | null;

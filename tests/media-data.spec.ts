@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { mediaCollection } from "../src/lib/media-catalog";
-import { formatMediaDate, mediaForSeason, safeMediaUrl, validateMediaCollection, type MediaCollection, type MediaItem } from "../src/lib/media";
+import { formatMediaDate, mediaForGame, mediaForSeason, safeMediaUrl, validateMediaCollection, type MediaCollection, type MediaItem } from "../src/lib/media";
 
 function changedItem(id: string, change: Record<string, unknown>): MediaCollection {
   const collection = structuredClone(mediaCollection);
@@ -46,15 +46,17 @@ test("five social entries retain the actual verified writers, status URLs and da
   }
 });
 
-test("video identities refer to the five verified recordings rather than channel search pages", () => {
+test("video identities refer to the seven verified recordings rather than channel search pages", () => {
   const expected = [
     ["s657QMErTG4", "sny", "2026-09-11T15:45:37Z"],
     ["6uVZ4sOzkpQ", "espn-new-york", "2026-05-15T18:14:15Z"],
     ["u9Rh_ulKRPU", "jets", "2026-09-08T22:00:00Z"],
     ["_vHQnprws8w", "wfan", "2026-08-14T12:00:06Z"],
     ["fsJpQCFPK1g", "nfl", "2016-12-23T22:00:03Z"],
+    ["fTq9p0tPljw", "jets", "2026-09-13T21:13:42Z"],
+    ["Iy8saaW8rBY", "lions", "2026-09-27T20:11:13Z"],
   ];
-  expect(mediaCollection.items.filter((item) => item.youtubeId)).toHaveLength(5);
+  expect(mediaCollection.items.filter((item) => item.youtubeId)).toHaveLength(7);
   for (const [youtubeId, outletId, publishedAt] of expected) {
     expect(mediaCollection.items.find((item) => item.youtubeId === youtubeId)).toMatchObject({
       kind: "video", outletId, publishedAt, url: `https://www.youtube.com/watch?v=${youtubeId}`,
@@ -167,4 +169,15 @@ test("invalid football-season tags, phases and duplicate topics cannot contamina
   }
   expect(() => validateMediaCollection(changedItem(postId, { phase: "postseason-ish" }))).toThrow();
   expect(() => validateMediaCollection(changedItem(postId, { topics: ["injuries", "injuries"] }))).toThrow();
+});
+
+test("game-linked media attach to their own game case and stay inside its season", () => {
+  expect(mediaForGame(mediaCollection.items, "2026_03_NYJ_DET").map((item) => item.id)).toEqual(["jets-lions-highlights-2026-09-27", "lions-jets-highlights-2026-09-27"]);
+  expect(mediaForGame(mediaCollection.items, "2026_01_NYJ_TEN").map((item) => item.youtubeId)).toEqual(["fTq9p0tPljw"]);
+  expect(mediaForGame(mediaCollection.items, "2010_19_NYJ_NE")).toEqual([]);
+  const base = mediaCollection.items.find((item) => item.id === "jets-titans-highlights-2026-09-13")!;
+  const collection = (gameIds: string[]) => ({ ...mediaCollection, items: [{ ...base, gameIds }] });
+  expect(() => validateMediaCollection(collection(["2025_01_NYJ_TEN"]))).toThrow(/Invalid media game/);
+  expect(() => validateMediaCollection(collection(["2026_01_BUF_TEN"]))).toThrow(/Invalid media game/);
+  expect(() => validateMediaCollection(collection([]))).toThrow(/Invalid media game/);
 });

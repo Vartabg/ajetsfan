@@ -38,3 +38,9 @@
 .sources a { display: inline-block; min-height: 44px; padding-block: .6rem; color: var(--spot); font-size: .8rem; font-weight: 700; text-underline-offset: 4px; }
 @media (max-width: 800px) { .hero, .hero.withPhoto, .body { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; } .number { border-left: 0; border-top: 1px solid var(--rule-soft); padding: 1.5rem 0 0; text-align: left; } .stats { border-left: 0; border-top: 1px solid var(--rule-soft); padding: 1.5rem 0 0; } }
 @media (max-width: 640px) { .hero, .body { padding-block: 1.5rem; } .identity h1 { font-size: 3.2rem; } .number strong { font-size: 5rem; } .body h2 { font-size: 2rem; } .bio dl > div { grid-template-columns: minmax(0, 1fr); gap: .15rem; } }
+
+.withHeadshot { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 1.5rem; text-align: left; }
+.headshot { position: relative; width: 100%; max-width: 240px; aspect-ratio: 1; border-bottom: 2px solid var(--spot); }
+.withHeadshot .numberCopy strong { font-size: clamp(5rem, 9vw, 8rem); }
+@media (max-width: 800px) { .withHeadshot { grid-template-columns: minmax(0, 200px) auto; align-items: end; } }
+@media (max-width: 480px) { .withHeadshot { grid-template-columns: minmax(0, 150px) auto; gap: 1rem; } .withHeadshot .numberCopy strong { font-size: 4rem; } }

@@ -21,9 +21,33 @@ const DETROIT_GAME: EditorialPhotoAsset = {
   gameId: "2026_03_NYJ_DET",
 };
 
-// An older fixture's photograph must never become the next game's cover.
+const GAME_PHOTOS: EditorialPhotoAsset[] = [
+  {
+    src: "https://static.clubs.nfl.com/image/upload/t_new_photo_album/jets/tyl4sbcsgbemu0motc6s.jpg",
+    alt: "A Jets quarterback in a white number 7 jersey tucks the football and looks downfield while number 20 runs ahead of him in Tennessee.",
+    caption: "At Tennessee · Week 1 · Sep 13, 2026",
+    credit: "Dylan Goodman / New York Jets",
+    sourceHref: "https://www.newyorkjets.com/photos/game-photos-jets-vs-titans-week-1-regular-season-09-13-2026",
+    position: "50% 40%",
+    editionSeason: 2026,
+    gameId: "2026_01_NYJ_TEN",
+  },
+  {
+    src: "https://static.clubs.nfl.com/image/upload/t_new_photo_album/jets/us28qpgmqkbsrei72vv1.jpg",
+    alt: "A Jets ball carrier in a white number 8 jersey cuts between two Packers defenders at MetLife Stadium.",
+    caption: "Vs Green Bay · Week 2 · Sep 20, 2026",
+    credit: "Dylan Goodman / © New York Jets",
+    sourceHref: "https://www.newyorkjets.com/photos/through-the-lens-jets-packers-best-photos-09-21-2026",
+    position: "50% 45%",
+    editionSeason: 2026,
+    gameId: "2026_02_GB_NYJ",
+  },
+  DETROIT_GAME,
+];
+
+// A photograph belongs to one exact game; an older fixture's picture must never become the next game's cover.
 export function gameEditorialPhoto(gameId: string): EditorialPhotoAsset | null {
-  return gameId === DETROIT_GAME.gameId ? DETROIT_GAME : null;
+  return GAME_PHOTOS.find((photo) => photo.gameId === gameId) ?? null;
 }
 
 const PLAYER_PHOTOS: EditorialPhotoAsset[] = [

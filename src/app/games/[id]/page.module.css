@@ -43,3 +43,19 @@
 .analysisDetails>summary{display:flex;align-items:center;justify-content:space-between;min-height:52px;list-style:none;cursor:pointer;color:var(--ink);font-weight:800;font-size:.9rem}.analysisDetails>summary:after{content:"+";font-size:1.4rem}.analysisDetails[open]>summary:after{content:"−"}.analysisDetails>summary::-webkit-details-marker{display:none}.analysisDetails>summary:focus-visible{outline:3px solid var(--spot);outline-offset:4px}.analysisDetails a{display:inline-flex;align-items:center;min-height:44px;text-underline-offset:4px}
 @media (max-width: 800px) { .headline, .body { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; } .scoreboard { max-width: 28rem; } .tape { padding: 1.5rem 0 0; border-left: 0; border-top: 1px solid var(--rule-soft); } }
 @media (max-width: 640px) { .headline, .body { padding-block: 1.5rem; } .headline h1 { font-size: 3.4rem; } .scoreboard { padding: 1.25rem; } .scoreboard span { font-size: 1.2rem; } .scoreboard strong { font-size: 3.1rem; } .evidence { grid-template-columns: minmax(0, 1fr); gap: 1rem; } .evidence > div + div { padding-top: 1rem; border-top: 1px solid var(--rule-soft); } .body h2 { font-size: 2rem; } }
+
+.location strong { color: var(--ink); font-weight: 700; }
+.venue { margin: .4rem 0 0; font-size: .8rem; color: var(--ink-2); }
+.scoreboard { border-top: 7px solid var(--rival, var(--accent)); box-shadow: inset 0 3px 0 var(--rival-2, transparent); }
+
+.replays { margin: 1.4rem 0 .4rem; padding-top: 1.1rem; border-top: 1px solid var(--rule-soft); }
+.replays h3 { margin: 0 0 .6rem; font: 400 1.6rem/1.15 var(--font-serif), Georgia, serif; }
+.replays ul { list-style: none; margin: 0; padding: 0; }
+.replays li { border-bottom: 1px solid var(--rule-soft); }
+.replays a { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: .9rem; align-items: center; min-height: 56px; padding: .7rem 0; text-decoration: none; color: inherit; }
+.replays a:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+.replayMark { display: grid; place-items: center; width: 3rem; height: 3rem; background: var(--forest); color: var(--accent); font-size: 1rem; }
+.replays strong { display: block; font: 700 .95rem/1.35 var(--font-sans-narrow), sans-serif; }
+.replays small { display: block; margin-top: .25rem; color: var(--ink-2); font-size: .72rem; line-height: 1.5; }
+.casePhoto { margin: 0 0 1.4rem; }
+.casePhoto > div { aspect-ratio: 16 / 9; }

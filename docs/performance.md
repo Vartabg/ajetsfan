@@ -77,3 +77,15 @@ Using the same build-asset gzip measurement as the budget script:
 
 These are page-weight changes, not new Lighthouse timing measurements. Budgets
 now protect the smaller landing pages and include all six new destinations.
+
+## Budget change — October 2, 2026
+
+The front page now prints the latest game's win-probability curve as a static
+SVG beside its featured play, and the archive door carries the analyzed-game
+ledger. The curve's path data (about 1.4 KiB raw per path for a 156-play game)
+appears in both the markup and the React server payload, so the `/` build
+artifact measures 12.2 KiB gzip against the previous 12 KiB budget; the live
+page served 8.0 KiB gzip before this change. The budget moves to 14 KiB
+deliberately. Initial JavaScript is unchanged (182.7 KiB gzip, no new client
+bundle) and the chart line draws itself with CSS only. Keep the print static: a
+client-side chart would cost far more than the markup it replaces.
