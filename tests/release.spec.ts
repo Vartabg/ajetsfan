@@ -81,18 +81,21 @@ test("deployed health exposes this edition with live freshness and no-cache diag
   expect(JSON.stringify(health)).not.toMatch(/stack|Users\/|token|password/i);
 });
 
-test("each desk supplies its own share title and the branded image renders as PNG", async ({ page, request }) => {
-  for (const path of ["/", "/team", "/morgue", "/how-made", "/media", "/seasons", "/seasons/2010"]) {
+test("each desk supplies its own share title and a branded 1200×630 PNG", async ({ page, request }) => {
+  for (const path of ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/media", "/stories", "/history", "/film-room", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/seasons/2010/guide"]) {
     await page.goto(path);
     const title = await page.title();
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", title);
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+    // Without a configured site origin the build advertises a localhost base; test the path it points at.
+    const image = new URL((await page.locator('meta[property="og:image"]').getAttribute("content"))!, page.url());
+    expect(image.pathname, `${path} advertises a share image`).toMatch(/\/opengraph-image$/);
+    const response = await request.get(image.pathname + image.search);
+    expect(response.status(), `${path} share image`).toBe(200);
+    expect(response.headers()["content-type"]).toContain("image/png");
+    const png = await response.body();
+    expect(png.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+    expect(png.readUInt32BE(16)).toBe(1200);
+    expect(png.readUInt32BE(20)).toBe(630);
   }
-  const response = await request.get("/opengraph-image");
-  expect(response.status()).toBe(200);
-  expect(response.headers()["content-type"]).toContain("image/png");
-  const png = await response.body();
-  expect(png.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
-  expect(png.readUInt32BE(16)).toBe(1200);
-  expect(png.readUInt32BE(20)).toBe(630);
 });
