@@ -21,7 +21,7 @@ const metrics: { label: string; field: "epaPerPlay" | "successRate" | "passEpaPe
 ];
 
 async function openMatchup(page: Page) {
-  await page.goto("/");
+  await page.goto("/game-day");
   const filmRoom = page.locator("summary").filter({ hasText: "Open league and unit comparisons" });
   await filmRoom.focus();
   await page.keyboard.press("Enter");
@@ -119,7 +119,7 @@ for (const view of [{ width: 320, enlarged: false }, { width: 320, enlarged: tru
 }
 
 test("the full schedule opens by keyboard and includes every current regular-season fixture", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/game-day");
   const summary = page.locator("summary").filter({ hasText: `See the full ${current.season} schedule` });
   await summary.focus();
   await page.keyboard.press("Enter");

@@ -5,22 +5,26 @@ import { usePathname } from "next/navigation";
 import styles from "./Masthead.module.css";
 
 const SECTIONS = [
-  { href: "/", label: "The Back Page" },
-  { href: "/team", label: "Around the Jets" },
+  { href: "/", label: "Home" },
+  { href: "/team", label: "Team" },
   { href: "/film-room", label: "Film Room" },
-  { href: "/media", label: "Media Room" },
+  { href: "/media", label: "Media" },
   { href: "/seasons", label: "Seasons" },
   { href: "/morgue", label: "The Morgue" },
 ];
 
 export default function SectionLinks() {
   const pathname = usePathname();
-  const currentSection = pathname.startsWith("/games/") ? "/morgue" : pathname.startsWith("/players/") ? "/team" : pathname.startsWith("/seasons/") ? "/seasons" : pathname;
-  return SECTIONS.map((section, index) => (
-    <Link key={section.href} href={section.href}
+  const within = (route: string) => pathname === route || pathname.startsWith(`${route}/`);
+  const currentSection = within("/team") || within("/players") ? "/team"
+    : ["/seasons", "/games", "/stories", "/history"].some(within) ? "/seasons"
+    : within("/game-day") ? "/"
+    : pathname;
+  return SECTIONS.map((section) => (
+    <Link key={section.href} href={section.href} pendingHint
       className={`${styles.section} label`}
       aria-current={currentSection === section.href ? "page" : undefined}>
-      <span className={styles.chapter} aria-hidden="true">0{index + 1}</span>{section.label}
+      {section.label}
     </Link>
   ));
 }

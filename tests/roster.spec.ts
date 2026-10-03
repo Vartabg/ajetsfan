@@ -40,6 +40,7 @@ test("name search handles accents and apostrophes, and player links keep stable 
   expect(filterRoster([player], { ...filters, query: "jose oconnor" })).toEqual([player]);
   expect(playerInitials(player.name)).toBe("JO");
   const link = new URL(playerHref(player.id), "https://example.com");
+  expect(link.pathname).toBe("/team/roster");
   expect(link.searchParams.get("player")).toBe(player.id);
   expect(link.hash).toBe("#roster");
   expect(rosterFilters(new URLSearchParams({ unit: "invalid" })).unit).toBe("all");
@@ -145,7 +146,7 @@ test("keyboard selection focuses the inline profile and closing restores the pla
   test.skip(!player, "This edition has no player cards to select with the keyboard.");
   if (!player) return;
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/team");
+  await page.goto("/team/roster");
   const card = page.getByRole("button", { name: `View ${player.name},`, exact: false });
   await card.focus();
   await card.press("Enter");
@@ -197,16 +198,17 @@ test("overdue or unavailable roster and statistics each disclose their own sourc
   const player = profilePlayer();
   const lastChecked = Math.max(...[coverage.roster, coverage.stats].map((feed) => Date.parse(feed.checkedAt ?? feed.attemptedAt)));
   await page.clock.install({ time: new Date(lastChecked + 26 * 60 * 60 * 1000) });
-  await page.goto(player ? playerHref(player.id) : "/team#roster");
+  await page.goto(player ? playerHref(player.id) : "/team/roster#roster");
   await expect(page.getByRole("status", { name: "Roster update status", exact: true })).toBeVisible();
+  if (coverage.roster.status === "unavailable") await expect(page.getByRole("status", { name: "Roster update status", exact: true })).toContainText("This source is unavailable.");
+  if (!player) await page.goto("/team/stats");
   const statsStatus = page.getByRole("status", { name: player ? "Selected player statistics update status" : "Player statistics update status", exact: true });
   await expect(statsStatus).toBeVisible();
-  if (coverage.roster.status === "unavailable") await expect(page.getByRole("status", { name: "Roster update status", exact: true })).toContainText("This source is unavailable.");
   if (coverage.stats.status === "unavailable") await expect(statsStatus).toContainText("This source is unavailable.");
 });
 
 test("this edition shows its verified roster or a real unavailable-roster empty state", async ({ page }) => {
-  await page.goto("/team#roster");
+  await page.goto("/team/roster#roster");
   const explorer = page.getByRole("region", { name: "Roster explorer", exact: true });
   await expect(explorer).toBeVisible();
   if (coverage.roster.players.length) {
@@ -225,7 +227,7 @@ for (const width of [1280, 390, 320]) {
     const player = profilePlayer();
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto(player ? playerHref(player.id) : "/team#roster");
+    await page.goto(player ? playerHref(player.id) : "/team/roster#roster");
     if (player) await expect(page.getByRole("region", { name: player.name, exact: true })).toBeVisible();
     else await expect(page.getByRole("heading", { name: "No players match.", exact: true })).toBeVisible();
     await page.addScriptTag({ path: path.join(process.cwd(), "node_modules/axe-core/axe.min.js") });

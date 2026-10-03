@@ -23,8 +23,8 @@ test("the front-page game story opens its published case before the optional int
   const game = lead.analysisStatus === "ready" ? publishedGames(games, current).find((entry) => entry.id === lead.analysis?.id) : undefined;
   test.skip(!game, "This edition's lead is awaiting an eligible analysis.");
   if (!game) return;
-  await page.goto("/#postgame");
-  const link = page.locator("#postgame").getByRole("link", { name: "Read the game case", exact: true });
+  await page.goto("/");
+  const link = page.getByRole("link", { name: "Read the game report", exact: true });
   await expect(link).toHaveAttribute("href", `/games/${game.id}`);
   await link.click();
   await expect(page.getByLabel(`Final score: Jets ${game.jetsScore}, ${game.opponentDisplay} ${game.oppScore}`, { exact: true })).toBeVisible();
@@ -71,7 +71,7 @@ test("published case and player are readable with JavaScript disabled and retain
   const page = await context.newPage();
   await page.goto(gamePath);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("IND");
-  await expect(page.locator('a[aria-current="page"][href="/morgue"]')).toHaveCount(1);
+  await expect(page.locator('a[aria-current="page"][href="/seasons"]')).toHaveCount(1);
   await expect(page.getByLabel("Final score: Jets 41, IND 0", { exact: true })).toContainText("0");
   await expect(page.getByRole("heading", { name: "Forty-one to nothing", exact: true })).toBeVisible();
   const evidence = page.locator('dl[aria-label="Game evidence"]');

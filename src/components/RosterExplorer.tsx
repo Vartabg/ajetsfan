@@ -52,13 +52,13 @@ export default function RosterExplorer({ roster, stats, editionSeason = roster.s
   useEffect(() => {
     if (focusSelection.current && selected && heading.current) {
       heading.current.focus({ preventScroll: true });
-      heading.current.closest("section")?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      heading.current.closest("section")?.scrollIntoView({ block: "start", behavior: "instant" });
       focusSelection.current = false;
     }
     if (!selected && returnToCard.current) {
       const target = document.getElementById(`roster-player-${returnToCard.current}`) ?? search.current;
       target?.focus({ preventScroll: true });
-      target?.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      target?.scrollIntoView({ block: "nearest", behavior: "instant" });
       returnToCard.current = null;
     }
   }, [selected]);
@@ -81,7 +81,7 @@ export default function RosterExplorer({ roster, stats, editionSeason = roster.s
   function selectPlayer(player: RosterPlayer) {
     if (player.id === selected?.id && heading.current) {
       heading.current.focus({ preventScroll: true });
-      heading.current.closest("section")?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      heading.current.closest("section")?.scrollIntoView({ block: "start", behavior: "instant" });
       return;
     }
     focusSelection.current = true;

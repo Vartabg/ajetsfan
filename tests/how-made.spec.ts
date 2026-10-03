@@ -5,7 +5,7 @@ test("the case study explains the archive and lets a keyboard reader compare pap
   await page.goto("/");
   const sections = page.getByRole("navigation", { name: "Site sections" });
   await page.locator("footer").getByRole("link", { name: "How it is made", exact: true }).click();
-  await expect(sections.getByRole("link", { name: "The Back Page" })).not.toHaveAttribute("aria-current", "page");
+  await expect(sections.getByRole("link", { name: "Home", exact: true })).not.toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(/How the\s*paper is made/);
   const control = page.getByRole("slider", { name: "Paper condition" });
   await control.focus();

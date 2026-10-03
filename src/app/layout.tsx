@@ -4,8 +4,10 @@ import Telemetry from "@/components/Telemetry";
 import { indexableSite, siteOrigin } from "@/lib/site";
 import { Anton, Archivo_Narrow, Source_Serif_4, Geist_Mono, Manrope } from "next/font/google";
 import { loadGames, loadCurrent } from "@/lib/load-games";
-import { mergeResults } from "@/lib/current";
+import { mergeResults, selectLead } from "@/lib/current";
 import { currentStreak, wearLevel } from "@/lib/paper";
+import LegacyNavigation from "@/components/LegacyNavigation";
+import { publishedGames } from "@/lib/published-pages";
 import Masthead from "@/components/Masthead";
 import Colophon from "@/components/Colophon";
 import "./globals.css";
@@ -31,6 +33,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const [games, snapshot] = await Promise.all([loadGames(), loadCurrent()]);
   const streak = currentStreak(mergeResults(games, snapshot));
   const wear = wearLevel(streak);
+  const result = selectLead(games, snapshot).result;
+  const latestReport = result && publishedGames(games, snapshot).some((game) => game.id === result.id) ? `/games/${encodeURIComponent(result.id)}` : `/seasons/${snapshot?.season ?? result?.season ?? 2026}`;
 
   return (
     <html
@@ -41,6 +45,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <a className="skip-link" href="#main">Skip to content</a>
         <Masthead streak={streak} wear={wear} checkedAt={snapshot?.checkedAt ?? null} />
+        <LegacyNavigation latestReport={latestReport} />
         {children}
         <Colophon games={games} snapshot={snapshot} />
         <Telemetry />

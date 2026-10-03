@@ -5,7 +5,7 @@ import type { Game } from "../src/lib/games";
 import { archiveFilters, filterArchive, gameHref } from "../src/lib/explorer";
 
 const imageFixture = '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>';
-const routes = ["/", "/team", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/media"];
+const routes = ["/", "/team", "/team/roster", "/team/stats", "/team/news", "/game-day", "/stories", "/history", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/media"];
 const games = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/games.json"), "utf8")) as Game[];
 
 test.beforeEach(async ({ page }) => {
@@ -25,8 +25,7 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
   if (enlarged) await enlargeText(page);
   await page.evaluate(() => document.fonts.ready);
   await expect(page.locator("main")).toBeVisible();
-  if (route === "/") {
-    await page.locator('[data-home-disclosure="season-trend"] > summary').click();
+  if (route === "/game-day") {
     await page.locator("summary").filter({ hasText: "Open league and unit comparisons" }).click();
     await expect(page.getByText("The season in margins.", { exact: true })).toBeVisible();
   }
@@ -95,13 +94,13 @@ for (const width of [320, 390, 768]) {
 }
 
 for (const view of [{ width: 641, enlarged: false }, { width: 768, enlarged: false }, { width: 390, enlarged: true }]) {
-  test(`section jumps clear the sticky navigation at ${view.width}px${view.enlarged ? " with 200% text" : ""}`, async ({ page }) => {
+  test(`team page changes reveal the heading below the sticky navigation at ${view.width}px${view.enlarged ? " with 200% text" : ""}`, async ({ page }) => {
     await page.setViewportSize({ width: view.width, height: 1000 });
     await page.goto("/team", { waitUntil: "domcontentloaded" });
     if (view.enlarged) await enlargeText(page);
-    await page.getByRole("navigation", { name: "Team coverage sections" }).getByRole("link", { name: "Season leaders", exact: true }).click();
-    await expect(page).toHaveURL(/#season-leaders$/);
-    const heading = page.locator("#leaders-heading");
+    await page.getByRole("navigation", { name: "Team sections" }).getByRole("link", { name: "Player stats", exact: true }).click();
+    await expect(page).toHaveURL(/\/team\/stats$/);
+    const heading = page.getByRole("heading", { level: 1, name: "Player stats.", exact: true });
     await expect(heading).toBeInViewport({ ratio: 1 });
     await expect.poll(async () => {
       const [target, navigation] = await Promise.all([
@@ -117,7 +116,7 @@ for (const width of [320, 768]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.unrouteAll({ behavior: "wait" });
     await page.route((url) => url.pathname === "/_next/image", (route) => route.abort("failed"));
-    await page.goto("/team", { waitUntil: "domcontentloaded" });
+    await page.goto("/team/stats", { waitUntil: "domcontentloaded" });
     await enlargeText(page);
     const figure = page.locator("#season-leaders figure").first();
     test.skip(await figure.count() === 0, "This edition has no verified leader photograph.");
@@ -156,7 +155,7 @@ for (const width of [320, 901, 1440]) {
 
 test("leader photos avoid a desktop-size request in the narrow three-column layout", async ({ page }) => {
   await page.setViewportSize({ width: 901, height: 1000 });
-  await page.goto("/team", { waitUntil: "domcontentloaded" });
+  await page.goto("/team/stats", { waitUntil: "domcontentloaded" });
   const image = page.locator("#season-leaders figure img").first();
   test.skip(await image.count() === 0, "This edition has no verified leader photograph.");
   await image.scrollIntoViewIfNeeded();
@@ -171,7 +170,7 @@ test("leader photos avoid a desktop-size request in the narrow three-column layo
 
 test("leader photos request enough detail when text is enlarged at 768px", async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 1000 });
-  await page.goto("/team", { waitUntil: "domcontentloaded" });
+  await page.goto("/team/stats", { waitUntil: "domcontentloaded" });
   await enlargeText(page);
   const image = page.locator("#season-leaders figure img").first();
   test.skip(await image.count() === 0, "This edition has no verified leader photograph.");

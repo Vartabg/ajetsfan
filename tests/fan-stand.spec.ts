@@ -1,10 +1,9 @@
 import { test, expect } from "@playwright/test";
 
-test("the history shortcut reaches the sourced championship result and selected archive cases", async ({ page }) => {
+test("the history page presents the sourced championship result and selected archive cases", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
-  await page.getByRole("navigation", { name: "In this edition" }).getByRole("link", { name: /^Jets history/ }).click();
-  await expect(page).toHaveURL(/#fan-stand$/);
+  await page.goto("/history#fan-stand");
+  await expect(page).toHaveURL(/\/history#fan-stand$/);
   const stand = page.getByRole("region", { name: "Jets history." });
   const heading = stand.getByRole("heading", { name: "Jets history.", exact: true });
   await expect(heading).toBeInViewport({ ratio: 1 });

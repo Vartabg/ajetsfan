@@ -44,80 +44,58 @@ for (const width of [1280, 390, 320]) {
   });
 }
 
-test("the front page keeps deeper analysis available through keyboard disclosures", async ({ page }) => {
+test("the front page has clear destinations without mounting every experience", async ({ page }) => {
   await page.goto("/");
-  const trend = page.locator('[data-home-disclosure="season-trend"]');
-  await expect(trend).not.toHaveAttribute("open", "");
-  await expect(page.getByText("The season in margins.", { exact: true })).toBeHidden();
-  await trend.locator(":scope > summary").focus();
-  await page.keyboard.press("Enter");
-  await expect(page.getByText("The season in margins.", { exact: true })).toBeVisible();
-  await page.keyboard.press("Enter");
-  await expect(trend).not.toHaveAttribute("open", "");
-  const film = page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "Open league and unit comparisons" }) });
-  await expect(film).not.toHaveAttribute("open", "");
-  await film.locator(":scope > summary").focus();
-  await page.keyboard.press("Enter");
-  await expect(film).toHaveAttribute("open", "");
-  await expect(film.getByRole("region", { name: "Where the Jets sit." })).toBeVisible();
-  await page.keyboard.press("Enter");
-  await expect(film).not.toHaveAttribute("open", "");
-});
-
-test("the first visit offers clear exploration doors with the heavier sections closed", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.locator("#latest-game h1")).toBeVisible();
   const doors = page.getByRole("region", { name: "Explore Jets reporting and seasons" });
-  expect(await doors.locator("a").evaluateAll((links) => links.map((link) => link.getAttribute("href")))).toEqual(["/media", "/seasons", "/film-room#playbook-lab", "/morgue"]);
-  for (const disclosure of await page.locator("[data-home-disclosure]").all()) {
-    await expect(disclosure).not.toHaveAttribute("open", "");
-    await expect(disclosure.locator(":scope > summary")).toBeVisible();
-  }
-  await expect(page.locator("#postgame h2")).toBeHidden();
-  await expect(page.locator("#visual-story-heading")).toBeHidden();
-  await expect(page.locator("#fan-stand-heading")).toBeHidden();
+  expect(await doors.locator("a").evaluateAll((links) => links.map((link) => link.getAttribute("href")))).toEqual(["/media", "/seasons", "/film-room", "/morgue"]);
+  await expect(page.locator("main details, [data-home-disclosure], #visual-story, #fan-stand, #game-evidence")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Read the game report" })).toHaveAttribute("href", /^\/games\//);
+  await expect(page.locator('main a[href="/game-day"]')).toBeVisible();
+  await expect(page.locator('main a[href="/stories"]')).toBeVisible();
+  await expect(page.locator('main a[href="/history"]')).toBeVisible();
 });
 
-test("direct links open the requested section without losing unrelated URL state", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  for (const id of ["postgame", "sunday-briefing", "game-evidence", "visual-story", "fan-stand"]) {
-    await page.goto(`/?keep=orientation#${id}`);
-    await expect(page.locator(`[data-home-disclosure="${id}"]`)).toHaveAttribute("open", "");
-    await expect(page.locator(`#${id}`)).toBeVisible();
+test("old section bookmarks open the new destination and preserve unrelated URL state", async ({ page }) => {
+  for (const [hash, path, target] of [
+    ["postgame", "/games/", "#game-report-heading"],
+    ["game-evidence", "/games/", "#game-evidence"],
+    ["sunday-briefing", "/game-day", "#sunday-briefing"],
+    ["visual-story", "/stories", "#visual-story"],
+    ["fan-stand", "/history", "#fan-stand"],
+    ["remembered-cases", "/history", "#remembered-cases"],
+    ["rivalry-desk", "/history", "#rivalry-desk"],
+  ]) {
+    await page.goto(`/?keep=orientation#${hash}`);
+    await expect.poll(() => new URL(page.url()).pathname).toContain(path);
+    await expect(page.locator(target)).toBeVisible();
     expect(new URL(page.url()).searchParams.get("keep")).toBe("orientation");
-    expect(new URL(page.url()).hash).toBe(`#${id}`);
+    expect(new URL(page.url()).hash).toBe(target);
   }
 });
 
-test("homepage disclosure targets stay usable at 320px with 200% text", async ({ page }) => {
+test("front-page destinations reflow at 320px with 200% text", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 900 });
-  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
-  for (const disclosure of await page.locator("[data-home-disclosure]").all()) {
-    const summary = disclosure.locator(":scope > summary");
-    await summary.focus();
-    await summary.press("Enter");
-    await expect(disclosure).toHaveAttribute("open", "");
-    const rect = await summary.boundingBox();
+  for (const link of await page.locator('main a[href="/game-day"], main a[href="/team"], main a[href="/stories"], main a[href="/history"]').all()) {
+    const rect = await link.boundingBox();
     expect(rect!.width).toBeGreaterThanOrEqual(44);
     expect(rect!.height).toBeGreaterThanOrEqual(44);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await summary.press("Space");
-    await expect(disclosure).not.toHaveAttribute("open", "");
-    await expect(summary).toBeFocused();
   }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test("native exploration still works with JavaScript disabled", async ({ browser }) => {
+test("page exploration still works with JavaScript disabled", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto("/");
-  const breakdown = page.locator('[data-home-disclosure="postgame"]');
-  await expect(breakdown).not.toHaveAttribute("open", "");
-  await breakdown.locator(":scope > summary").click();
-  await expect(page.locator("#postgame h2")).toBeVisible();
-  await expect(page.locator("#postgame").getByRole("link", { name: "Read the game case", exact: true })).toHaveAttribute("href", /^\/games\//);
+  await page.getByRole("link", { name: "Read the game report" }).click();
+  await expect(page).toHaveURL(/\/games\//);
+  await expect(page.locator("#game-report-heading")).toBeVisible();
+  await page.goto("/game-day");
+  const schedule = page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "See the full" }) });
+  await schedule.locator("summary").click();
+  await expect(schedule.locator("ol")).toBeVisible();
   await context.close();
 });
 

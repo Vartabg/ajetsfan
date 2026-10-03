@@ -43,8 +43,10 @@ test("phase and search retain football-season totals, shareable URLs and browser
 
 test("year selection preserves the requested phase and does not attach today's player statistics", async ({ page }) => {
   await page.goto("/seasons/2010?phase=playoffs");
+  await page.evaluate(() => { document.documentElement.dataset.seasonDocument = "same-page"; });
   await page.locator("[data-season-year]").selectOption("2002");
   await expect(page).toHaveURL(/\/seasons\/2002\?phase=playoffs$/);
+  await expect(page.locator("html")).toHaveAttribute("data-season-document", "same-page");
   await expect(page.locator("[data-season-record]")).toHaveText("1–1");
   await expect(page.locator("[data-season-game]")).toHaveCount(2);
   await expect(page.locator("[data-season-fact='2002_18_IND_NYJ']")).toContainText("Chad Pennington");
@@ -57,7 +59,7 @@ test("game evidence and the historical reporting open their exact destinations",
   await expect(page).toHaveURL(/\/games\/2010_19_NYJ_NE\?from=/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await page.goBack();
-  await page.locator('[data-season-chapter="media"] > summary').click();
+  await page.locator('[data-season-view="media"]').click();
   await page.locator('[data-season-media="espn-2010-divisional-rapid-reaction"] h3 a').click();
   await expect(page.locator("[data-media-room]")).toHaveAttribute("data-media-selected", "espn-2010-divisional-rapid-reaction");
   await expect(page.locator("[data-media-season]")).toHaveValue("2010");

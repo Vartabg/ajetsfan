@@ -4,7 +4,6 @@ import path from "node:path";
 import type { CoverageSnapshot } from "../src/lib/coverage";
 import { leaders } from "../src/lib/coverage";
 import type { CurrentSnapshot } from "../src/lib/current";
-import { playerHref } from "../src/lib/roster";
 
 const coverage = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/coverage.json"), "utf8")) as CoverageSnapshot;
 const current = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/current.json"), "utf8")) as CurrentSnapshot;
@@ -49,7 +48,7 @@ for (const width of [320, 390]) {
     const navigation = page.getByRole("navigation", { name: "Site sections" });
     await expect(navigation.getByRole("link")).toHaveCount(6);
     await expectTouchTargets(navigation.getByRole("link"));
-    await expectTouchTargets(page.getByRole("navigation", { name: "In this edition" }).getByRole("link"));
+    await expectTouchTargets(page.getByRole("navigation", { name: "More ways to explore" }).getByRole("link"));
 
     await page.evaluate(() => window.scrollTo(0, 900));
     await expect.poll(async () => (await page.locator("#top").boundingBox())!.y).toBeLessThan(0);
@@ -84,74 +83,38 @@ test("site navigation updates the current section after route changes and browse
   await expectCurrentSection(page, "/");
 });
 
-test("switching sections from a scrolled page reveals the new heading and browser back retains the section being read", async ({ page }) => {
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-  await page.waitForLoadState("networkidle");
+test("a destination opens at its heading and Back restores the front-page card", async ({ page }) => {
+  await page.goto("/");
   await page.evaluate(() => document.fonts.ready);
-  const navigation = page.getByRole("navigation", { name: "Site sections" });
-  await page.getByRole("navigation", { name: "In this edition" }).locator('a[href="#season"]').click();
-  const seasonHeading = page.locator("#season > div:first-child");
-  await expectBelowNavigation(page, seasonHeading);
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
-  const homeUrl = page.url();
-  await navigation.locator('a[href="/team"]').click();
-  await expect(page).toHaveURL(/\/team$/);
-  await expectCurrentSection(page, "/team");
-  await expect(page.getByRole("heading", { level: 1 })).toBeInViewport({ ratio: 1 });
-  const newsHeading = page.locator("#news-desk-heading");
-  await newsHeading.evaluate((heading) => heading.scrollIntoView({ block: "start", behavior: "instant" }));
-  await expectBelowNavigation(page, newsHeading);
-  await navigation.locator('a[href="/morgue"]').click();
-  await expect(page).toHaveURL(/\/morgue$/);
-  await expectCurrentSection(page, "/morgue");
-  await expect(page.getByRole("heading", { level: 1 })).toBeInViewport({ ratio: 1 });
+  const link = page.locator('main a[href="/media"]');
+  await link.scrollIntoViewIfNeeded();
+  const before = await page.evaluate(() => scrollY);
+  expect(before).toBeGreaterThan(500);
+  await link.click();
+  await expectCurrentSection(page, "/media");
+  await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
   await page.goBack();
-  await expect(page).toHaveURL(/\/team$/);
-  await expectCurrentSection(page, "/team");
-  await expect(newsHeading).toBeInViewport({ ratio: 1 });
-  await page.goBack();
-  await expect(page).toHaveURL(homeUrl);
   await expectCurrentSection(page, "/");
-  await expect(seasonHeading).toBeInViewport({ ratio: 1 });
+  await expect(link).toBeInViewport();
+  await expect.poll(async () => Math.abs(await page.evaluate(() => scrollY) - before)).toBeLessThan(30);
 });
 
-test("front-page shortcuts land on the complete season header, news, and roster below the sticky navigation", async ({ page }) => {
-  for (const destination of [
-    { href: "#season", target: "#season > div:first-child", pathname: "/" },
-    { href: "/team#news", target: "#news-desk-heading", pathname: "/team" },
-    { href: "/team#roster", target: "#roster-heading", pathname: "/team" },
+test("legacy Team bookmarks keep filters and lead to a focused page", async ({ page }) => {
+  for (const [hash, destination, heading] of [
+    ["#news", "/team/news", "#news-desk-heading"],
+    ["#roster", "/team/roster", "#roster-heading"],
+    ["#season-leaders", "/team/stats", "#leaders-heading"],
   ]) {
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    if (destination.pathname === "/team") {
-      await page.locator('[data-home-disclosure="around-jets"] > summary').click();
-      await page.getByRole("navigation", { name: "More team coverage" }).locator(`a[href="${destination.href}"]`).click();
-    } else await page.getByRole("navigation", { name: "In this edition" }).locator(`a[href="${destination.href}"]`).click();
-    await expect.poll(() => new URL(page.url()).pathname).toBe(destination.pathname);
-    await expect.poll(() => new URL(page.url()).hash).toBe(new URL(destination.href, "https://example.com").hash);
-    await expectBelowNavigation(page, page.locator(destination.target));
-    await expectCurrentSection(page, destination.pathname);
-  }
-});
-
-test("team section jumps have clear destinations and leave their headings visible", async ({ page }) => {
-  for (const destination of [
-    { name: "Season leaders", href: "#season-leaders", heading: "#leaders-heading" },
-    { name: "Players & roster", href: "#roster", heading: "#roster-heading" },
-    { name: "Team news", href: "#news", heading: "#news-desk-heading" },
-  ]) {
-    await page.goto("/team", { waitUntil: "domcontentloaded" });
-    const navigation = page.getByRole("navigation", { name: "Team coverage sections" });
-    await expectTouchTargets(navigation.getByRole("link"));
-    const link = navigation.getByRole("link", { name: destination.name, exact: true });
-    await expect(link).toHaveAttribute("href", destination.href);
-    await link.click();
-    await expect.poll(() => new URL(page.url()).hash).toBe(destination.href);
-    await expectBelowNavigation(page, page.locator(destination.heading));
+    await page.goto(`/team?keep=context${hash}`);
+    await expect.poll(() => new URL(page.url()).pathname).toBe(destination);
+    expect(new URL(page.url()).searchParams.get("keep")).toBe("context");
+    await expectBelowNavigation(page, page.locator(heading));
+    await expectCurrentSection(page, "/team");
   }
 });
 
 test("native disclosures toggle visible and accessible labels with Space and Enter while keeping focus", async ({ page }) => {
-  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.goto("/game-day", { waitUntil: "domcontentloaded" });
   const summaries = await page.locator("summary.disclosure").filter({ visible: true }).all();
   expect(summaries.length).toBeGreaterThanOrEqual(3);
   for (const summary of summaries) {
@@ -191,13 +154,12 @@ test("a featured player advertises its profile and opens the matching roster ID"
   test.skip(!featured, "No current-season leader has a verified roster profile in this edition.");
   if (!featured) return;
   await page.goto("/team", { waitUntil: "domcontentloaded" });
-  const link = page.locator("main > header").getByRole("link", { name: featured.name, exact: false });
-  await expect(link).toHaveAttribute("href", playerHref(featured.id));
+  const link = page.getByRole("region", { name: "Leading the way" }).getByRole("link", { name: featured.name, exact: false });
+  await expect(link).toHaveAttribute("href", `/players/${featured.id}`);
   await expect(link.getByText("View profile", { exact: false })).toBeVisible();
   await link.focus();
   await page.keyboard.press("Enter");
-  await expect.poll(() => new URL(page.url()).searchParams.get("player")).toBe(featured.id);
-  await expect(page.getByRole("region", { name: featured.name, exact: true })).toBeVisible();
-  await expect(page.locator("#selected-player-heading")).toHaveText(featured.name);
+  await expect(page).toHaveURL(new RegExp(`/players/${featured.id}$`));
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(featured.name);
   await expectCurrentSection(page, "/team");
 });

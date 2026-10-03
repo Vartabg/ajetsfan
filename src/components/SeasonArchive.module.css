@@ -7,3 +7,18 @@
 .explore{margin-top:2rem;scroll-margin-top:8rem}.chapter{border-top:1px solid var(--rule);scroll-margin-top:8rem}.chapter:last-child{border-bottom:1px solid var(--rule)}.chapter>summary{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.15rem 0;min-height:64px;cursor:pointer;list-style:none}.chapter>summary::-webkit-details-marker{display:none}.chapter>summary>span:first-child{display:grid;gap:.3rem;min-width:0}.chapter>summary strong{font:700 clamp(1.3rem,3vw,1.7rem)/1.3 var(--font-serif),serif}.chapter>summary small{font-size:.76rem;line-height:1.5;color:var(--ink-2)}.chapterSymbol{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border:1px solid var(--rule-soft);font-size:1.4rem;color:var(--forest)}.chapter[open]>summary{border-bottom:1px solid var(--rule-soft)}.chapter[open]>summary strong{color:var(--forest)}.chapterContent{padding-bottom:1.5rem}.chapterContent>section{margin-top:1.4rem}.chapterContent .sectionHead{margin-top:1.4rem}.chapter>summary:focus-visible{outline:3px solid var(--spot);outline-offset:4px}.guideLink{display:inline-flex;align-items:center;min-height:44px;font-size:.78rem;font-weight:700;text-underline-offset:4px}.searchContext{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem;font-size:.8rem;line-height:1.5}.searchContext button{min-height:44px;background:transparent;border:1px solid var(--rule);font:inherit;color:inherit;cursor:pointer;padding:.4rem .8rem}
 
 .chapterSymbol::before{content:"+"}.chapter[open]>summary .chapterSymbol::before{content:"−"}
+
+.chapterNav{display:flex;flex-wrap:wrap;gap:.4rem;border-bottom:1px solid var(--rule);padding-bottom:.9rem;margin-bottom:1.5rem;overflow-anchor:none}
+.chapterNav a{display:flex;flex-direction:column;justify-content:center;gap:.25rem;min-height:48px;padding:.65rem 1rem;border:1px solid transparent;color:var(--ink-2);font-size:.86rem;line-height:1.4;font-weight:750;text-decoration:none;max-width:100%;overflow-wrap:anywhere}
+.chapterNav a:hover{background:var(--paper-2);color:var(--ink)}
+.chapterNav a[aria-current]{background:var(--forest);border-color:var(--forest);color:var(--paper)}
+.chapterNav a:focus-visible{outline:3px solid var(--spot);outline-offset:3px}
+.chapterNav small{font-size:.72rem;font-weight:500}
+.chapterHeading{display:none}
+.archive[data-season-enhanced=true] .chapterPane{min-height:75svh}
+.archive[data-season-enhanced=true] .chapter{border:0}
+.archive[data-season-enhanced=true] .chapter:not([open]),.archive[data-season-enhanced=true] .chapter>summary{display:none}
+.archive[data-season-enhanced=true] .chapterHeading{display:block;margin-bottom:1.4rem}
+.chapterHeading p{margin:0 0 .45rem;font-size:.73rem;font-weight:750;letter-spacing:.06em;color:var(--ink-2)}
+.chapterHeading h2{font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.15;margin:0}
+@media(max-width:640px){.chapterNav{gap:.3rem}.chapterNav a{flex:1 1 calc(50% - .3rem);padding:.65rem .75rem;font-size:.8rem}}

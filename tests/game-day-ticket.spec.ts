@@ -116,7 +116,7 @@ test.describe("personal ticket in the current edition", () => {
   });
 
   test("a blank ticket requires explicit scores and conviction, then persists without filling a new draft", async ({ page }) => {
-    await page.goto("/#game-day-ticket");
+    await page.goto("/game-day#game-day-ticket");
     const ticket = page.getByRole("region", { name: "Record your prediction." });
     const summary = ticket.locator("summary");
     await expect(ticket.locator("details")).not.toHaveAttribute("open", "");
@@ -159,7 +159,7 @@ test.describe("personal ticket in the current edition", () => {
     const futureFixture = { ...currentFixture!, season: current.season + 1, id: `${current.season + 1}_04_NYJ_CHI` };
     const futureBook = JSON.stringify(addTicketCall(emptyTicketBook(futureFixture.season), call(futureFixture)));
     await page.addInitScript(({ key, value }) => localStorage.setItem(key, value), { key: TICKET_STORAGE_KEY, value: futureBook });
-    await page.goto("/#game-day-ticket");
+    await page.goto("/game-day#game-day-ticket");
     const ticket = page.getByRole("region", { name: "Record your prediction." });
     await expect(ticket.locator("summary")).toBeVisible();
     expect(await page.evaluate((key) => localStorage.getItem(key), TICKET_STORAGE_KEY)).toBe(futureBook);
@@ -176,7 +176,7 @@ test.describe("personal ticket in the current edition", () => {
   });
 
   test("a missing conviction focuses the required choice and its error without saving a ticket", async ({ page }) => {
-    await page.goto("/#game-day-ticket");
+    await page.goto("/game-day#game-day-ticket");
     const ticket = page.getByRole("region", { name: "Record your prediction." });
     await ticket.locator("summary").click();
     await ticket.getByLabel("Jets score", { exact: true }).fill("0");
@@ -198,7 +198,7 @@ test.describe("personal ticket in the current edition", () => {
   test("invalid scores are rejected and an old fixture never preselects the next game", async ({ page }) => {
     const old = completedGames(current).filter((game) => game.season === current.season && game.seasonType === "REG").at(-1)!;
     await page.addInitScript(({ key, value }) => localStorage.setItem(key, value), { key: TICKET_STORAGE_KEY, value: JSON.stringify(addTicketCall(emptyTicketBook(current.season), call(old))) });
-    await page.goto("/#game-day-ticket");
+    await page.goto("/game-day#game-day-ticket");
     const ticket = page.getByRole("region", { name: "Record your prediction." });
     await expect(ticket).toContainText("Your last receipt");
     await expect(ticket.getByText("Your saved call", { exact: true })).toHaveCount(0);
@@ -216,7 +216,7 @@ test.describe("personal ticket in the current edition", () => {
     const changed = { ...currentFixture!, kickoff: "2026-10-04T20:25:00Z" };
     if (changed.kickoff === currentFixture!.kickoff) changed.kickoff = "2026-10-04T21:00:00Z";
     await page.addInitScript(({ key, value }) => localStorage.setItem(key, value), { key: TICKET_STORAGE_KEY, value: JSON.stringify(addTicketCall(emptyTicketBook(current.season), call(changed))) });
-    await page.goto("/#game-day-ticket");
+    await page.goto("/game-day#game-day-ticket");
     const ticket = page.getByRole("region", { name: "Record your prediction." });
     await expect(ticket).toContainText("Fixture details changed");
     await expect(ticket.getByRole("button", { name: "Copy saved ticket", exact: false })).toHaveCount(0);
@@ -241,7 +241,7 @@ test.describe("personal ticket in the current edition", () => {
         (window as unknown as { copiedTicket: string }).copiedTicket = text;
       } } });
     }, { key: TICKET_STORAGE_KEY, value: JSON.stringify(addTicketCall(emptyTicketBook(current.season), savedCall)) });
-    await page.goto("/#game-day-ticket");
+    await page.goto("/game-day#game-day-ticket");
     const ticket = page.getByRole("region", { name: "Record your prediction." });
     await ticket.getByRole("button", { name: "Copy saved ticket", exact: false }).click();
     await expect(ticket.getByRole("status", { name: "Ticket copy status", exact: true })).toContainText("Saved ticket copied");
@@ -256,7 +256,7 @@ test.describe("personal ticket in the current edition", () => {
 
   test("failed browser storage keeps a ticket for this visit and reports failure honestly", async ({ page }) => {
     await page.addInitScript(() => { Object.defineProperty(Storage.prototype, "setItem", { configurable: true, value: () => { throw new Error("Quota"); } }); });
-    await page.goto("/#game-day-ticket");
+    await page.goto("/game-day#game-day-ticket");
     const ticket = page.getByRole("region", { name: "Record your prediction." });
     await ticket.locator("summary").click();
     await ticket.getByLabel("Jets score", { exact: true }).fill("24");
@@ -277,7 +277,7 @@ test.describe("personal ticket in the current edition", () => {
       localStorage.setItem(key, value);
       Object.defineProperty(Storage.prototype, "removeItem", { configurable: true, value: () => { throw new Error("Blocked"); } });
     }, { key: TICKET_STORAGE_KEY, value: JSON.stringify(savedBook) });
-    await page.goto("/#game-day-ticket");
+    await page.goto("/game-day#game-day-ticket");
     const ticket = page.getByRole("region", { name: "Record your prediction." });
     await ticket.getByRole("button", { name: "Clear my tickets", exact: false }).click();
     await expect(ticket.getByRole("status", { name: "Ticket status", exact: true })).toContainText("couldn’t remove saved tickets");
@@ -289,7 +289,7 @@ test.describe("personal ticket in the current edition", () => {
     test.skip(!currentFixture!.kickoff, "This fixture has no published kickoff time.");
     const savedBook = addTicketCall(emptyTicketBook(current.season), call(currentFixture!));
     await page.addInitScript(({ key, value }) => localStorage.setItem(key, value), { key: TICKET_STORAGE_KEY, value: JSON.stringify(savedBook) });
-    await page.goto("/#game-day-ticket");
+    await page.goto("/game-day#game-day-ticket");
     const ticket = page.getByRole("region", { name: "Record your prediction." });
     await expect(ticket.locator("summary")).toBeVisible();
     await page.clock.setSystemTime(new Date(Date.parse(currentFixture!.kickoff!) + 60_000));
@@ -302,7 +302,7 @@ test.describe("personal ticket in the current edition", () => {
 
   test("the open ticket has usable touch targets and reflows at 320px with doubled text", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 900 });
-    await page.goto("/#game-day-ticket");
+    await page.goto("/game-day#game-day-ticket");
     const ticket = page.getByRole("region", { name: "Record your prediction." });
     await ticket.locator("summary").click();
     for (const control of [ticket.locator("summary"), ticket.getByLabel("Jets score", { exact: true }), ticket.getByLabel(`${currentFixture!.opponentDisplay} score`, { exact: true }), ticket.getByLabel("Sunday ritual", { exact: false }), ticket.getByRole("button", { name: "Save my ticket" })]) {
