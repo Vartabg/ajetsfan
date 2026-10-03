@@ -202,3 +202,5 @@
 .room :is(p,span,summary,label) { overflow-wrap:anywhere; }
 @media(max-width:900px) { .filters { grid-template-columns:minmax(0,1fr); }.storyGrid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { .masthead { padding:.5rem 0;gap:.3rem 1rem; }.extraFilters { grid-template-columns:minmax(0,1fr); }.storyGrid,.coverageBars { grid-template-columns:minmax(0,1fr); }.selectedNav { padding:.5rem .9rem; }.sourceLedger>summary>span:first-child { font-size:1rem; } }
+
+.cardSummary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin: 0 0 .55rem; font-size: .78rem; line-height: 1.6; color: var(--ink-2); }

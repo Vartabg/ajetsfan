@@ -5,7 +5,8 @@ import { gzipSync } from "node:zlib";
 // Compressed build assets are deterministic guardrails, not field Web Vitals.
 // Check after `next build`; leave room for normal editorial/data growth.
 const budgets = [
-  { route: "/", file: "index", html: 12, js: 200 },
+  // 2026-10-02: the front page prints the latest game's probability curve as static SVG; see docs/performance.md.
+  { route: "/", file: "index", html: 14, js: 200 },
   { route: "/film-room", file: "film-room", html: 22, js: 220 },
   { route: "/media", file: "media", html: 24, js: 205 },
   { route: "/team", file: "team", html: 12, js: 200 },

@@ -6,6 +6,7 @@ import { loadSeasonRankings, loadNextGenSeason } from "@/lib/load-season-statist
 import { seasonArchivePresentation } from "@/lib/season-presentation";
 import { mediaCollection } from "@/lib/media-catalog";
 import { pageMetadata } from "@/lib/site";
+import ResultStrip from "@/components/ResultStrip";
 import styles from "../page.module.css";
 
 type Props = { params: Promise<{ year: string }> };
@@ -29,7 +30,7 @@ export default async function SeasonPage({ params }: Props) {
   const [rankings, tracking] = await Promise.all([loadSeasonRankings(season.year), loadNextGenSeason(season.year)]);
   return <main id="main" className={styles.main}>
     <nav className={styles.breadcrumb} aria-label="Breadcrumb"><Link href="/">The Back Page</Link><span aria-hidden="true">/</span><Link href="/seasons">Seasons</Link><span aria-hidden="true">/</span><span>{season.year}</span></nav>
-    <header className={styles.header}><p className={styles.kicker}>{season.current ? "This season" : "The season archive"}</p><h1 className="hed">{season.year}<span>.</span><br />Jets football.</h1></header>
+    <header className={styles.header}><p className={styles.kicker}>{season.current ? "This season" : "The season archive"}</p><h1 className="hed">{season.year}<span>.</span><br />Jets football.</h1>{season.results.length ? <><ResultStrip results={season.results} size="large" /><p className={styles.stripNote}>{season.results.length} recorded {season.results.length === 1 ? "final" : "finals"} in date order · green win, rust loss, ringed playoff</p></> : null}</header>
     <SeasonArchive season={seasonArchivePresentation(season)} years={years} outlets={mediaCollection.outlets} rankings={rankings} nextgen={tracking.nextgen} nextgenCheckedAt={tracking.checkedAt} />
   </main>;
 }

@@ -4,6 +4,8 @@ import { currentSeasonSummary, formatCheckedAt, formatDate, nextScheduledGame } 
 import { publishedGames } from "@/lib/published-pages";
 import { gameHref } from "@/lib/explorer";
 import { pageMetadata } from "@/lib/site";
+import { teamColor, teamName } from "@/lib/teams";
+import type { CSSProperties } from "react";
 import SundayBriefing from "@/components/SundayBriefing";
 import SeasonTrend from "@/components/SeasonTrend";
 import GameDayTicket from "@/components/GameDayTicket";
@@ -32,7 +34,7 @@ export default async function GameDayPage() {
             const analyzed = games.find((item) => item.id === game.id && !item.dataSuspect && item.swing != null && item.date === game.date && item.outcome === game.outcome && item.jetsScore === game.jetsScore && item.oppScore === game.oppScore);
             return <li key={game.id}><span className={`${styles.resultLetter} ${game.outcome === "win" ? styles.win : ""}`}>{game.outcome === "win" ? "W" : game.outcome === "loss" ? "L" : "T"}</span><small>Week {game.week}</small><strong>NYJ {game.jetsScore} <span>—</span> {game.opponentDisplay} {game.oppScore}</strong>{analyzed ? <Link href={caseHref(game.id, game.outcome === "win" ? "miracle" : "heartbreak")} aria-label={`Explore Week ${game.week} against ${game.opponentDisplay}`}>↗</Link> : <small>{game.outcome === "tie" ? "Tie" : "Analysis pending"}</small>}</li>;
           })}</ol> : <p>No regular-season final in this edition.</p>}</div>
-          <div className={styles.nextSunday}><span className={styles.ticketMark} aria-hidden="true">Next fixture</span><span className={styles.kicker}>On the checked schedule</span>{next ? <><h3 className="hed">Jets {next.game.atHome ? "vs" : "at"} {next.game.opponentDisplay}</h3><p>Week {next.game.week} · <time dateTime={next.game.date}>{formatDate(next.game.date)}</time></p><p className={styles.kickoff}>{next.game.kickoff ? formatCheckedAt(next.game.kickoff) : "Kickoff time to be confirmed"}</p>{next.overdue ? <p>Kickoff has passed as of the results check; a final is not confirmed.</p> : null}</> : <><h3 className="hed">Next fixture unavailable.</h3><p>No remaining fixture listed in this edition.</p></>}</div>
+          <div className={styles.nextSunday} style={next ? { "--rival": teamColor(next.game.opponentDisplay), "--rival-2": teamColor(next.game.opponentDisplay, 1) } as CSSProperties : undefined}><span className={styles.ticketMark} aria-hidden="true">Next fixture</span><span className={styles.kicker}>On the checked schedule</span>{next ? <><h3 className="hed">Jets {next.game.atHome ? "vs" : "at"} {next.game.opponentDisplay}</h3><p className={styles.rival}>{teamName(next.game.opponentDisplay)}</p><p>Week {next.game.week} · <time dateTime={next.game.date}>{formatDate(next.game.date)}</time></p><p className={styles.kickoff}>{next.game.kickoff ? formatCheckedAt(next.game.kickoff) : "Kickoff time to be confirmed"}</p>{next.overdue ? <p>Kickoff has passed as of the results check; a final is not confirmed.</p> : null}</> : <><h3 className="hed">Next fixture unavailable.</h3><p>No remaining fixture listed in this edition.</p></>}</div>
         </div>
         <div id="season-trend"><SeasonTrend games={summary.finals} analysisIds={games.filter((game) => !game.dataSuspect && game.swing != null && game.outcome !== "tie").map((game) => game.id)} /></div>
 
