@@ -24,7 +24,7 @@ export default async function FilmRoomPage() {
     <header className={styles.header}>
       <p className={styles.kicker}>The Jets, one snap at a time</p>
       <h1 className="hed">Film Room<span aria-hidden="true">.</span></h1>
-      <p>Run a Jets play. Follow a player. Draw your own answer.</p>
+      <p>Big Jets plays, broken down. Watch one drawn out on a chalkboard, or open the game record: the photo, the official replay and how the win chances swung.</p>
     </header>
     <FilmWorkspace cases={cases} />
     <footer className={styles.footer}><Link href="/how-made#film-sources">Sources &amp; methods <span aria-hidden="true">↗</span></Link></footer>

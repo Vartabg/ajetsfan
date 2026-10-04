@@ -28,10 +28,10 @@ test("formation changes preserve twenty-two editable players and remain independ
   }
   await expect(page.locator("#film-room")).toHaveCount(0);
   const workspace = page.getByRole("navigation", { name: "Film Room workspaces" });
-  await workspace.getByRole("button", { name: "Game studies", exact: true }).click();
+  await workspace.getByRole("button", { name: "Game record", exact: true }).click();
   await expect(page.locator("#film-room")).toBeVisible();
   await expect(page.locator("#film-room")).toHaveAttribute("data-film", "hall-miami");
-  await workspace.getByRole("button", { name: "Playbook", exact: true }).click();
+  await workspace.getByRole("button", { name: "Chalkboard", exact: true }).click();
   await expect(lab).toBeVisible();
   await expect(lab.getByLabel("Offensive formation", { exact: true })).toHaveValue(offensiveFormations.at(-1)!.id);
   await expect(lab.getByLabel("Defensive front", { exact: true })).toHaveValue(defensiveFormations.at(-1)!.id);
@@ -64,10 +64,10 @@ test("a keyboard edit, route pattern and undo change the diagram rather than its
   await expect(lab).toHaveAttribute("data-time", "0.00");
   await expect(page.locator("#film-room")).toHaveCount(0);
   const workspace = page.getByRole("navigation", { name: "Film Room workspaces" });
-  await workspace.getByRole("button", { name: "Game studies", exact: true }).click();
+  await workspace.getByRole("button", { name: "Game record", exact: true }).click();
   await expect(page.locator("#film-room")).toBeVisible();
   await expect(page.locator("#film-room")).toHaveAttribute("data-film", "wilson-cleveland");
-  await workspace.getByRole("button", { name: "Playbook", exact: true }).click();
+  await workspace.getByRole("button", { name: "Chalkboard", exact: true }).click();
   await expect(lab).toBeVisible();
   await expect(route).toHaveAttribute("points", customRoute!);
   await expect(lab.getByLabel("Defensive front", { exact: true })).toHaveValue("three-four");
@@ -137,10 +137,10 @@ test("shared UTF-8 diagrams round-trip without sending the payload to the server
   await expect(lab).toHaveAttribute("data-time", "0.00");
   await lab.getByLabel("Start X", { exact: true }).fill("230");
   await lab.getByRole("button", { name: "Move to position", exact: true }).click();
-  await page.getByRole("navigation", { name: "Film Room workspaces" }).getByRole("button", { name: "Game studies", exact: true }).click();
+  await page.getByRole("navigation", { name: "Film Room workspaces" }).getByRole("button", { name: "Game record", exact: true }).click();
   await page.locator("#film-room summary").filter({ hasText: "Choose a game study" }).click();
   await page.locator('[data-film-case="sanchez-thanksgiving"]').click();
-  await page.getByRole("navigation", { name: "Film Room workspaces" }).getByRole("button", { name: "Playbook", exact: true }).click();
+  await page.getByRole("navigation", { name: "Film Room workspaces" }).getByRole("button", { name: "Chalkboard", exact: true }).click();
   await expect(lab.getByLabel("Start X", { exact: true })).toHaveValue("230");
   await expect(lab.getByLabel("Design name", { exact: true })).toHaveValue(name);
   await expect(page.locator("#film-room")).toHaveAttribute("data-film", "sanchez-thanksgiving");

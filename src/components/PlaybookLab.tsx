@@ -5,6 +5,7 @@ import { memo, useCallback, useEffect, useId, useMemo, useReducer, useRef, useSt
 import { FIELD, concepts, createPlay, defensiveFormations, formationWarnings, offensiveFormations, routeForPlayer, routePatterns, sampleBall, samplePlayer, validatePlayDesign, type PlayDesign, type PlaybookPlayer, type Point } from "@/lib/playbook";
 import { getJetsPlayDesign, jetsPlays, type JetsPlay } from "@/lib/jets-playbook";
 import { getJetsStudy, type JetsStudy } from "@/lib/jets-snap-study";
+import { formatDate } from "@/lib/current";
 import styles from "./PlaybookLab.module.css";
 
 const STORAGE_KEY = "ajetsfan:playbook:v1";
@@ -55,12 +56,21 @@ const samePlayer = (player: PlaybookPlayer, original: PlaybookPlayer) =>
   && player.motionWindow?.from === original.motionWindow?.from && player.motionWindow?.to === original.motionWindow?.to
   && player.path.length === original.path.length && player.path.every((point, index) => point.x === original.path[index].x && point.y === original.path[index].y);
 
+// The letters on the board, in plain words. Covers every code the presets and Jets studies use.
+const positionKey: [string, string][] = [
+  ["QB", "quarterback"], ["RB · FB", "running back · fullback"], ["WR · TE", "wide receiver · tight end (X, Y, Z, H name each receiver’s spot)"],
+  ["LT LG C RG RT", "offensive line: left tackle, left guard, center, right guard, right tackle"], ["REC · DB", "receiver · defensive back, shown when a named player’s label is long"],
+  ["DE · DT · NT", "defensive end · defensive tackle · nose tackle (L or R = left or right)"], ["LB", "linebacker: WLB weak side, MLB middle, SLB strong side, ILB inside, OLB outside"],
+  ["CB · NB", "cornerback · nickel back, a fifth defensive back"], ["FS · SS", "free safety · strong safety"],
+];
+const nameList = (names: string[]) => names.length < 2 ? names.join("") : `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+
 // Reuse the static field while the player and ball positions animate.
 const fieldMarkings = <>
   <rect x="20" y="20" width="960" height="580" className={styles.boundary} />
   {[60, 120, 180, 240, 300, 360, 420, 480, 540].map((y, at) => <g key={y}><rect x="20" y={y - 30} width="960" height="60" className={at % 2 ? styles.fieldStripe : styles.fieldStripeQuiet} /><line x1="20" x2="980" y1={y} y2={y} className={styles.yardLine} />{[340, 660].map((x) => <line key={x} x1={x - 7} x2={x + 7} y1={y - 30} y2={y - 30} className={styles.hash} />)}</g>)}
   <line x1="20" x2="980" y1={FIELD.lineOfScrimmage} y2={FIELD.lineOfScrimmage} className={styles.scrimmage} /><text x="954" y={FIELD.lineOfScrimmage - 12} className={styles.fieldLabel} textAnchor="end">LINE OF SCRIMMAGE</text>
-  <text x="500" y="44" className={styles.fieldLabel} textAnchor="middle">UPFIELD ↑</text><text x="42" y="588" className={styles.fieldLabel}>TEACHING FIELD · COORDINATES, NOT YARDS</text>
+  <text x="500" y="44" className={styles.fieldLabel} textAnchor="middle">UPFIELD ↑</text><text x="42" y="588" className={styles.fieldLabel}>CHALKBOARD · NOT TO SCALE</text>
 </>;
 
 export default function PlaybookLab() {
@@ -103,6 +113,8 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
   // edit, rather than cloning and serializing all 22 players on every frame.
   const originalArchive = useMemo(() => Boolean(canonical && JSON.stringify(validatePlayDesign(canonical)) === JSON.stringify(validatePlayDesign(design))), [canonical, design]);
   const archiveMoment = archive?.moments.filter((moment) => moment.at <= seconds).at(-1);
+  const sourcedNames = study?.assignments.filter((assignment) => assignment.basis === "source-supported").flatMap((assignment) => design.players.find((player) => player.id === assignment.playerId)?.label ?? []) ?? [];
+  const illustrativeCount = study?.assignments.filter((assignment) => assignment.basis === "illustrative").length ?? 0;
   const filteredArchive = useMemo(() => jetsPlays.filter((play) => archiveFilter === "all" || play.category === archiveFilter), [archiveFilter]);
   const selected = design.players.find((player) => player.id === selectedId) ?? design.players[0];
   const { offense, defense, eligible, movingPlayers } = useMemo(() => {
@@ -374,6 +386,15 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
     setRunning(true);
   }
 
+  // The story card's button: run from the snap and bring the board into view.
+  function watchPlay() {
+    replay();
+    const stage = stageRef.current;
+    if (stage && stage.getBoundingClientRect().top > window.innerHeight * .35) {
+      stage.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+    }
+  }
+
   function undoEdit() {
     cancelDrag();
     stopAtSnap();
@@ -453,15 +474,23 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
   }
 
   return <section id="playbook-lab" className={styles.lab} aria-labelledby="playbook-lab-heading" data-offense={design.offenseId} data-defense={design.defenseId} data-concept={design.conceptId} data-time={seconds.toFixed(2)} data-running={running} data-selected={selected.id} data-tool={tool} data-archive={archive?.id ?? ""} data-archive-original={originalArchive} data-study-mode={archive ? fullSnap ? "full-snap" : "source-action" : "teaching"} data-study-original={fullSnap && originalArchive}>
-    <h2 id="playbook-lab-heading" className="sr-only">Playbook</h2>
-    <details className={styles.archivePicker}><summary>Choose a Jets play <span>{archive?.title ?? "Teaching play"}</span></summary><section className={styles.archive} aria-labelledby="jets-archive-heading">
+    <h2 id="playbook-lab-heading" className="sr-only">Chalkboard</h2>
+    {archive ? <div className={styles.story} data-jets-story={archive.id}>
+      <p className={styles.storyMeta}><span>{formatDate(archive.date)} · {archive.opponent}</span><em>{archive.category === "great" ? "Glory" : "Agony"}</em></p>
+      <h3 id="jets-play-heading">{archive.title}</h3>
+      <p className={styles.storySituation}>{archive.situation}</p>
+      <p className={styles.storyResult}>{archive.result}</p>
+      <p className={styles.storySummary}>{archive.summary}</p>
+      <div className={styles.storyActions}><button type="button" className={styles.watchButton} onClick={watchPlay} data-jets-watch><span aria-hidden="true">▶</span>Watch the play</button>{originalArchive ? null : <p>The board shows your edited copy of this play.</p>}</div>
+    </div> : null}
+    <details className={styles.archivePicker}><summary>Choose a Jets play <span>{jetsPlays.length} to pick from, glory and agony</span></summary><section className={styles.archive} aria-labelledby="jets-archive-heading">
       <header className={styles.archiveHeading}><div><span className={styles.kicker}>The Jets archive / {String(jetsPlays.length).padStart(2, "0")} snaps</span><h3 id="jets-archive-heading">Jets moments</h3></div><div className={styles.archiveFilters} role="group" aria-label="Filter Jets archive">{(["all", "great", "painful"] as const).map((filter) => <button key={filter} type="button" aria-pressed={archiveFilter === filter} onClick={() => setArchiveFilter(filter)}>{filter === "all" ? "Every snap" : filter === "great" ? "The glory" : "The agony"}</button>)}</div></header>
       <div className={styles.archiveCards}>{filteredArchive.map((play) => <button key={play.id} type="button" data-jets-play={play.id} aria-pressed={archive?.id === play.id} aria-label={`Load ${play.title}`} onClick={() => loadJetsPlay(play.id)}><span className={styles.archiveMeta}>{play.date.slice(0, 4)} · {play.opponent}<em>{play.category === "great" ? "Glory" : "Agony"}</em></span><strong>{play.title}</strong><span>{play.result}</span><small>{archive?.id === play.id ? originalArchive ? "Loaded / study diagram" : "Loaded / edited copy" : "Draw this play"}<span aria-hidden="true"> ↗</span></small></button>)}</div>
       <div className={styles.archiveFoot}><button type="button" onClick={() => { cancelDrag(); if (edit(createPlay(), "Teaching play loaded. Draw your own assignments; Undo restores the Jets study diagram.")) setSelectedId("x"); }}>Start a teaching play</button></div>
     </section></details>
     <div ref={stageRef} id="jets-play-stage" className={styles.stage}>
-      <div className={styles.stageHeader}><div><span>{archive ? originalArchive ? "Jets study diagram" : "Your edited study copy" : "Assignment playback"} / {seconds === 0 ? "At the snap" : running ? "Running" : "Paused"}</span><strong>{design.name}</strong></div><p><span data-lab-count="offense">{offense.length}</span> {archive?.jetsSide === "offense" ? "Jets" : archive ? archive.opponent : "offense"} <i aria-hidden="true">/</i> <span data-lab-count="defense">{defense.length}</span> {archive?.jetsSide === "defense" ? "Jets" : archive ? archive.opponent : "defense"}</p></div>
-      <p className={styles.studyLabel} data-study-limit>{archive ? fullSnap ? "Full-snap study · illustrative supporting assignments" : "Source action · supporting assignments unknown" : "Teaching diagram"}</p>
+      <div className={styles.stageHeader}><div><span>{archive ? originalArchive ? "Chalkboard" : "Your edited copy" : "Teaching play"} · {seconds === 0 ? "At the snap" : running ? "Running" : "Paused"}</span><strong>{design.name}</strong></div><p><span data-lab-count="offense">{offense.length}</span> {archive?.jetsSide === "offense" ? "Jets" : archive ? archive.opponent : "offense"} <i aria-hidden="true">/</i> <span data-lab-count="defense">{defense.length}</span> {archive?.jetsSide === "defense" ? "Jets" : archive ? archive.opponent : "defense"}</p></div>
+      <p className={styles.studyLabel} data-study-limit>{archive ? fullSnap ? `What ${nameList(sourcedNames)} ${sourcedNames.length === 1 ? "does" : "do"} comes from the record. The other ${illustrativeCount} players’ moves are illustrative supporting assignments, drawn to show the idea.` : `Only the recorded action is drawn. What the other players did on this snap is unknown, so they stand still.` : "A teaching diagram: pick a preset, change it, run it."}</p>
       <figure className={styles.figure}>
         <svg ref={fieldRef} role="group" viewBox={`0 0 ${FIELD.width} ${FIELD.height}`} className={`${styles.field} ${tool === "draw" ? styles.drawing : ""}`} aria-labelledby={`${id}-field-title ${id}-field-desc`} onClick={drawPoint} onKeyDown={(event) => { if (event.key === "Escape") cancelDrag(); }}>
           <title id={`${id}-field-title`}>Interactive football playbook</title><desc id={`${id}-field-desc`}>Eleven offensive and eleven defensive players. Offense moves upfield. Select a player to move its starting position or draw an assignment. The roster and coordinate forms provide the same controls without dragging.</desc>
@@ -484,8 +513,9 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
           })}
           <g transform={`translate(${ball.x} ${ball.y})`} data-lab-ball data-x={ball.x.toFixed(2)} data-y={ball.y.toFixed(2)} className={styles.ball}><g transform="translate(20 -20)"><ellipse rx="10" ry="6" /><path d="M-4 0H4M-2-2V2M1-2V2" /></g></g>
         </svg>
-        <figcaption><span><i className={styles.offenseKey} />{archive?.jetsSide === "offense" ? "Jets offense" : archive ? `${archive.opponent} offense` : "Offense & route"}</span><span><i className={styles.defenseKey} />{archive?.jetsSide === "defense" ? "Jets defense" : archive ? `${archive.opponent} defense` : "Defense & assignment"}</span><span><i className={styles.eligibleKey} />Eligible receiver</span><span data-lab-alignment>{archive ? originalArchive ? "Illustrative alignment" : "Edited study alignment" : customAlignment ? "Custom alignment: check formation legality" : "Preset starting alignment"}</span></figcaption>
+        <figcaption><span><i className={styles.offenseKey} />{archive?.jetsSide === "offense" ? "Jets offense" : archive ? `${archive.opponent} offense` : "Offense & route"}</span><span><i className={styles.defenseKey} />{archive?.jetsSide === "defense" ? "Jets defense" : archive ? `${archive.opponent} defense` : "Defense & assignment"}</span><span><i className={styles.eligibleKey} />Eligible receiver</span><span data-lab-alignment>{archive ? originalArchive ? "Starting spots are approximate" : "Your edited starting spots" : customAlignment ? "Custom alignment: check formation legality" : "Preset starting spots"}</span></figcaption>
       </figure>
+      <details className={styles.positionKey} data-position-key><summary>What the letters mean</summary><dl>{positionKey.map(([code, meaning]) => <div key={code}><dt>{code}</dt><dd>{meaning}</dd></div>)}<div><dt><i className={styles.eligibleKey} /></dt><dd>eligible receiver: allowed to catch a forward pass</dd></div></dl></details>
       <div className={styles.playerSelect}><label>Selected player<select aria-label="Selected player" value={selected.id} onChange={(event) => selectPlayer(design.players.find((player) => player.id === event.target.value)!)}><optgroup label="Offense">{offense.map((player) => <option key={player.id} value={player.id}>{player.label}{player.eligible ? " · eligible" : ""}</option>)}</optgroup><optgroup label="Defense">{defense.map((player) => <option key={player.id} value={player.id}>{player.label}</option>)}</optgroup></select></label></div>
       <div className={styles.transport}>
         <div className={styles.playButtons}><button ref={playButtonRef} type="button" className={styles.playButton} onClick={togglePlayback} aria-label={running ? "Pause play" : "Run play"}><span aria-hidden="true">{running ? "Ⅱ" : "▶"}</span>{running ? "Pause" : "Run play"}</button><button type="button" onClick={replay}>Replay</button><button type="button" onClick={() => { cancelDrag(); stopAtSnap(); }}>Back to snap</button></div>
@@ -495,13 +525,13 @@ function PlaybookWorkspace({ initialDesign, sharedError, sharedLoaded }: { initi
       <details className={styles.diagramOptions}><summary>Diagram options</summary>{archive && study ? <div className={styles.studyMode}><div role="group" aria-label="Jets diagram mode"><button type="button" aria-pressed={fullSnap} onClick={() => loadJetsPlay(archive.id)}>Full-snap study</button><button type="button" aria-pressed={!fullSnap} onClick={() => loadJetsPlay(archive.id, "source-action")}>Source-supported action</button></div><p>{fullSnap ? `${movingPlayers} of 22 moving · illustrative supporting assignments` : "Source action · supporting assignments unknown"}</p></div> : null}
       <div className={styles.pathTools} role="group" aria-label="Show assignment paths">{(["selected", "all", "offense", "defense"] as const).map((view) => <button key={view} type="button" aria-pressed={pathView === view} onClick={() => setPathView(view)}>{view === "selected" ? "Selected player" : view === "all" ? "All assignments" : view === "offense" ? "Offense paths" : "Defense paths"}</button>)}</div>
       </details>
-      {archive && originalArchive ? <div className={styles.moments}><div role="group" aria-label="Step through Jets play">{archive.moments.map((moment, at) => <button type="button" key={moment.at} aria-pressed={archiveMoment?.at === moment.at} onClick={() => scrub(moment.at)} data-jets-moment={moment.at}><span>{String(at + 1).padStart(2, "0")}</span>{moment.label}</button>)}</div><details className={styles.momentDetails}><summary>About this step</summary><p data-jets-moment-detail><strong>{archiveMoment?.label}</strong>{fullSnap ? archiveMoment?.detail.replace("Stationary defensive markers do not reproduce the coverage error.", "The supporting defensive movement is illustrative; each defender’s actual responsibility remains unverified.") : archiveMoment?.detail}</p><small>Steps use illustrative diagram time, not timestamps from the film.</small></details></div> : null}
+      {archive && originalArchive ? <div className={styles.moments}><p className={styles.momentsLabel}>Step through the play</p><div role="group" aria-label="Step through Jets play">{archive.moments.map((moment, at) => <button type="button" key={moment.at} aria-pressed={archiveMoment?.at === moment.at} onClick={() => scrub(moment.at)} data-jets-moment={moment.at}><span>{String(at + 1).padStart(2, "0")}</span>{moment.label}</button>)}</div><details className={styles.momentDetails}><summary>About this step</summary><p data-jets-moment-detail><strong>{archiveMoment?.label}</strong>{fullSnap ? archiveMoment?.detail.replace("Stationary defensive markers do not reproduce the coverage error.", "The supporting defensive movement is illustrative; each defender’s actual responsibility remains unverified.") : archiveMoment?.detail}</p><small>Steps use illustrative diagram time, not timestamps from the film.</small></details></div> : null}
       {archive && study ? <PlayerAssignments archive={archive} study={study} design={design} selected={selected} fullSnap={fullSnap} onSelect={selectPlayer} /> : null}
       <details className={styles.playbackDetails}><summary>Playback details</summary><p className={styles.playbackNote}>Movement follows the drawn paths over six diagram seconds. {fullSnap ? "Supporting assignments, spacing and timing are illustrative study choices, not verified from All-22 film. " : ""}Ball movement is illustrative. This is assignment playback, not film tracking, collision physics, or a prediction of who wins the play. No animation starts automatically.</p></details>
     </div>
-    {archive ? <details className={styles.playFacts}><summary>Play facts &amp; sources</summary><article className={styles.archiveRecord} aria-labelledby="jets-play-heading">
-      <div className={styles.archiveSituation}><span className={styles.kicker}>{originalArchive ? fullSnap ? "22-player study / supporting assignments illustrative" : "Source-supported action / partial diagram" : "Edited study copy / source play below"} · Jets on {archive.jetsSide}</span><h3 id="jets-play-heading">{archive.title}</h3><p>{archive.situation}</p><strong>{archive.result}</strong><p>{archive.summary}</p><a href="#jets-play-stage">Go to the board <span aria-hidden="true">↓</span></a></div>
-      <div className={styles.archiveEvidence}><p>Template formations, routes, spacing and the six-second clock are editing aids. They do not establish the historical play call or actual player tracking.</p><details><summary>What the sources establish</summary><ul>{archive.confirmed.map((fact) => <li key={fact}>{fact}</li>)}</ul>{archive.filmObservations?.length ? <><h4>Observed in the source film</h4><ul>{archive.filmObservations.map((observation) => <li key={observation.offsetLabel}><strong>{observation.offsetLabel}.</strong> {observation.detail}</li>)}</ul></> : null}<h4>What remains illustrative</h4><ul>{archive.illustrative.filter((note) => !fullSnap || !note.includes("stationary")).map((note) => <li key={note}>{note}</li>)}{fullSnap ? <li>All supporting routes, protection, rush and coverage movement are illustrative study choices. No historical protection, coverage or blitz call has been verified.</li> : null}</ul></details><div className={styles.archiveSources}>{archive.sources.map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.label}<span aria-hidden="true"> ↗</span><span className="sr-only"> (opens in a new tab)</span></a>)}</div>{!originalArchive ? <button type="button" onClick={() => loadJetsPlay(archive.id, fullSnap ? "full-snap" : "source-action")}>Restore source diagram</button> : null}</div>
+    <div className={styles.deeper}><h3>Go deeper</h3><p>Sources, every player’s job, and tools to change the play or draw your own.</p></div>
+    {archive ? <details className={styles.playFacts}><summary>Sources &amp; what’s illustrative</summary><article className={styles.archiveRecord} aria-labelledby="jets-play-heading">
+      <div className={styles.archiveEvidence}><span className={styles.kicker}>{originalArchive ? fullSnap ? "22-player study / supporting assignments illustrative" : "Source-supported action / partial diagram" : "Edited study copy / source play below"} · Jets on {archive.jetsSide}</span><p>Template formations, routes, spacing and the six-second clock are editing aids. They do not establish the historical play call or actual player tracking.</p><details><summary>What the sources establish</summary><ul>{archive.confirmed.map((fact) => <li key={fact}>{fact}</li>)}</ul>{archive.filmObservations?.length ? <><h4>Observed in the source film</h4><ul>{archive.filmObservations.map((observation) => <li key={observation.offsetLabel}><strong>{observation.offsetLabel}.</strong> {observation.detail}</li>)}</ul></> : null}<h4>What remains illustrative</h4><ul>{archive.illustrative.filter((note) => !fullSnap || !note.includes("stationary")).map((note) => <li key={note}>{note}</li>)}{fullSnap ? <li>All supporting routes, protection, rush and coverage movement are illustrative study choices. No historical protection, coverage or blitz call has been verified.</li> : null}</ul></details><div className={styles.archiveSources}>{archive.sources.map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.label}<span aria-hidden="true"> ↗</span><span className="sr-only"> (opens in a new tab)</span></a>)}</div>{!originalArchive ? <button type="button" onClick={() => loadJetsPlay(archive.id, fullSnap ? "full-snap" : "source-action")}>Restore source diagram</button> : null}</div>
     </article></details> : null}
     <p className={styles.status} role="status" aria-live="polite" data-lab-status>{notice}</p>
     <details className={styles.formationOptions}><summary>Formations &amp; concepts</summary><div className={styles.presets}>
