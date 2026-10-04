@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test";
+import { matchRemotePattern } from "next/dist/shared/lib/match-remote-pattern";
+import nextConfig from "../next.config";
 import { mediaCollection } from "../src/lib/media-catalog";
-import { formatMediaDate, mediaForGame, mediaForSeason, safeMediaUrl, validateMediaCollection, type MediaCollection, type MediaItem } from "../src/lib/media";
+import { formatMediaDate, mediaForGame, mediaForSeason, mediaImage, safeMediaUrl, validateMediaCollection, type MediaCollection, type MediaItem } from "../src/lib/media";
 
 function changedItem(id: string, change: Record<string, unknown>): MediaCollection {
   const collection = structuredClone(mediaCollection);
@@ -12,6 +14,7 @@ function changedItem(id: string, change: Record<string, unknown>): MediaCollecti
 
 const postId = "costello-bears-injuries-2026-10-02";
 const videoId = "sny-jets-game-plan-2026-09-11";
+const articleId = "pft-bears-injuries-2026-10-02";
 
 test("the dated catalog offers distinct outlets and attributable, bounded coverage", () => {
   expect(validateMediaCollection(mediaCollection)).toBe(mediaCollection);
@@ -180,4 +183,30 @@ test("game-linked media attach to their own game case and stay inside its season
   expect(() => validateMediaCollection(collection(["2025_01_NYJ_TEN"]))).toThrow(/Invalid media game/);
   expect(() => validateMediaCollection(collection(["2026_01_BUF_TEN"]))).toThrow(/Invalid media game/);
   expect(() => validateMediaCollection(collection([]))).toThrow(/Invalid media game/);
+});
+
+test("every item carries its publisher's own picture or a recorded none, and only those exact images pass the optimizer", () => {
+  const patterns = nextConfig.images!.remotePatterns!;
+  const admitted = (href: string) => patterns.some((pattern) => !(pattern instanceof URL) && matchRemotePattern(pattern, new URL(href)));
+  for (const item of mediaCollection.items) {
+    const image = mediaImage(item);
+    if (item.youtubeId) expect(image?.url, item.id).toBe(`https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`);
+    else expect(item.image, `${item.id} records a picture or null`).not.toBeUndefined();
+    if (image) expect(admitted(image.url), item.id).toBe(true);
+  }
+  // A publisher that offers only its logo gets no picture, not a stand-in.
+  expect(mediaCollection.items.filter((item) => !mediaImage(item)).map((item) => item.id)).toEqual(["espn-2010-divisional-rapid-reaction"]);
+  const recorded = mediaCollection.items.find((item) => item.id === articleId)!.image!.url;
+  for (const near of [recorded.replace("1440x810", "1440x811"), recorded.replace(/\?.*/, ""), `${recorded}&w=1`, "https://pbs.twimg.com/profile_images/1/other_400x400.jpg", "https://media.pff.com/2025/10/Garrett-Wilson-scaled.jpg?w=2400&h=1350"]) {
+    expect(admitted(near), near).toBe(false);
+  }
+});
+
+test("a preview picture cannot come from an unlisted host, lose its size or replace a recording's own thumbnail", () => {
+  const good = { url: "https://media.pff.com/2025/10/Garrett-Wilson-scaled.jpg?w=1200&h=675", width: 1200, height: 675 };
+  for (const image of [undefined, { ...good, url: "https://evil.example/x.jpg" }, { ...good, url: "http://media.pff.com/x.jpg" }, { ...good, width: 12.5 }, { ...good, height: 0 }, { url: good.url }, good.url]) {
+    expect(() => validateMediaCollection(changedItem(articleId, { image })), JSON.stringify(image)).toThrow(/Invalid media image/);
+  }
+  for (const image of [good, null]) expect(() => validateMediaCollection(changedItem(videoId, { image }))).toThrow(/Invalid media image/);
+  expect(validateMediaCollection(changedItem(articleId, { image: null })).items.find((item) => item.id === articleId)?.image).toBeNull();
 });

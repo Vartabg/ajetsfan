@@ -1,5 +1,14 @@
 import type { NextConfig } from "next";
 import path from "node:path";
+import mediaCatalog from "./src/lib/media-catalog.json";
+
+// A publisher preview is admitted by its exact recorded URL: same path, same query, nothing else
+// from that host. Glob characters in the path are escaped so they match literally.
+const recordedPreview = (href: string) => {
+  const url = new URL(href);
+  return { protocol: "https" as const, hostname: url.hostname, port: "", pathname: url.pathname.replace(/[\\*?!+@()[\]{}|^$,]/g, "\\$&"), search: url.search };
+};
+const previews = (mediaCatalog.items as { image?: { url: string } | null }[]).flatMap((item) => item.image ? [recordedPreview(item.image.url)] : []);
 
 const nextConfig: NextConfig = {
   // The home directory is itself a git repo with a stray package-lock.json.
@@ -14,6 +23,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "static.www.nfl.com", port: "", pathname: "/image/upload/**", search: "" },
       { protocol: "https", hostname: "static.www.nfl.com", port: "", pathname: "/image/private/**", search: "" },
       { protocol: "https", hostname: "a.espncdn.com", port: "", pathname: "/i/headshots/nfl/players/**", search: "" },
+      ...previews,
     ],
     maximumRedirects: 0,
   },

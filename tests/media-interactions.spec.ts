@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import path from "node:path";
 import { mediaCollection } from "../src/lib/media-catalog";
+import { mediaImage } from "../src/lib/media";
 
 const items = mediaCollection.items;
 const posts = items.filter((item) => item.kind === "post");
@@ -39,6 +40,36 @@ test("the entry view starts with stories and keeps extra filters, provider notes
   await expect(media.locator("[data-media-season]")).toBeVisible();
   await more.press("Space");
   await expect(media.locator("[data-media-source]")).toBeHidden();
+});
+
+test("formats keep their own sections, current coverage leads, and every card shows its publisher's picture or none", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/media");
+  const media = room(page);
+  const groups = media.locator("[data-media-group]");
+  expect(await groups.evaluateAll((sections) => sections.map((section) => section.getAttribute("data-media-group")))).toEqual(["video", "post", "article", "audio"]);
+  for (const kind of ["video", "post", "article", "audio"] as const) {
+    const ids = await media.locator(`[data-media-group="${kind}"] [data-media-card]`).evaluateAll((cards) => cards.map((card) => card.getAttribute("data-media-card")!));
+    const listed = ids.map((id) => items.find((item) => item.id === id)!);
+    expect(listed.every((item) => item.kind === kind)).toBe(true);
+    expect(listed).toHaveLength(items.filter((item) => item.kind === kind).length);
+    const firstArchive = listed.findIndex((item) => item.context === "archive");
+    if (firstArchive >= 0) expect(listed.slice(firstArchive).every((item) => item.context === "archive"), kind).toBe(true);
+    const current = listed.filter((item) => item.context === "current").map((item) => item.publishedAt ?? "");
+    expect(current, kind).toEqual([...current].sort().reverse());
+  }
+  await expect(media.locator("[data-media-card] [data-media-thumbnail] img")).toHaveCount(items.filter((item) => mediaImage(item)).length);
+  await expect(media.locator('[data-media-card="espn-2010-divisional-rapid-reaction"] [data-media-thumbnail]')).toHaveCount(0);
+  const tallest = Math.max(...await media.locator("[data-media-card]").evaluateAll((cards) => cards.map((card) => card.getBoundingClientRect().height)));
+  expect(tallest).toBeLessThan(340);
+  const jetsVideo = items.find((item) => item.kind === "video" && !item.youtubeId && item.image)!;
+  await media.locator(itemSelector(jetsVideo.id)).click();
+  await expect(media.locator("[data-media-viewer] [data-media-thumbnail] img")).toHaveCount(1);
+  await expect(media.locator("[data-media-viewer]")).toContainText("Image via New York Jets");
+  expect((await page.locator("#media-selected-coverage").boundingBox())!.height).toBeLessThan(480);
+  await media.locator(itemSelector(firstPost.id)).click();
+  await expect(media.locator("[data-media-viewer]")).toContainText(firstPost.author);
+  await expect(media.locator("[data-media-viewer]")).toContainText(`@${new URL(firstPost.url).pathname.split("/")[1]}`);
 });
 
 test("Back to results restores the clicked card and its place without clearing filters or comparison", async ({ page }) => {

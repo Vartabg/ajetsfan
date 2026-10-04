@@ -1,3 +1,6 @@
+/** A picture the publisher serves for its own link, recorded with its pixel size. */
+export type MediaImage = { url: string; width: number; height: number };
+
 export type MediaItem = {
   id: string;
   title: string;
@@ -6,6 +9,12 @@ export type MediaItem = {
   author: string;
   publishedAt: string | null;
   url: string;
+  /**
+   * The publisher's preview picture: its og:image, video poster or podcast art; for an X post, the
+   * author's profile picture. null records that the publisher offers only its logo. YouTube videos
+   * omit it and use the recording's own thumbnail.
+   */
+  image?: MediaImage | null;
   summary: string;
   topics: string[];
   youtubeId?: string;
@@ -40,14 +49,25 @@ export function formatMediaDate(value: string | null): string {
 }
 
 const hosts = new Set(["www.newyorkjets.com", "www.nfl.com", "www.espn.com", "espn.com", "sny.tv", "www.sny.tv", "nypost.com", "www.nj.com", "www.newsday.com", "www.nytimes.com", "www.northjersey.com", "www.audacy.com", "www.youtube.com", "youtube.com", "x.com", "twitter.com", "www.cbssports.com", "www.nbcsports.com", "jetswire.usatoday.com", "jetsxfactor.com", "podcasts.apple.com", "www.pff.com"]);
+// Image hosts are checked here; next.config.ts then admits each recorded URL exactly, path and query.
+const imageHosts = new Set(["static.clubs.nfl.com", "assets-jpcust.jwpsrv.com", "www.audacy.com", "is1-ssl.mzstatic.com", "jetsxfactor.com", "nbcsports.brightspotcdn.com", "media.pff.com", "pbs.twimg.com"]);
 const text = (value: unknown, limit: number): value is string => typeof value === "string" && !!value.trim() && value.length <= limit && !/[\u0000-\u001f\u007f]/.test(value);
 
-export function safeMediaUrl(value: unknown): value is string {
+function safeUrl(value: unknown, allowed: Set<string>): value is string {
   if (!text(value, 1500) || value !== value.trim() || /[\s\\]/.test(value)) return false;
   try {
     const url = new URL(value);
-    return url.protocol === "https:" && !url.username && !url.password && !url.port && hosts.has(url.hostname);
+    return url.protocol === "https:" && !url.username && !url.password && !url.port && allowed.has(url.hostname);
   } catch { return false; }
+}
+
+export const safeMediaUrl = (value: unknown): value is string => safeUrl(value, hosts);
+
+/** The picture to show for an item, or null when the publisher has none. */
+export function mediaImage(item: Pick<MediaItem, "youtubeId" | "image">): MediaImage | null {
+  // hqdefault exists for every upload; it is 4:3 with the 16:9 frame letterboxed inside.
+  if (item.youtubeId) return { url: `https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`, width: 480, height: 360 };
+  return item.image ?? null;
 }
 
 /** A bad editorial entry fails publication instead of gaining a trusted label. */
@@ -84,6 +104,8 @@ export function validateMediaCollection(collection: MediaCollection): MediaColle
       const url = new URL(item.url);
       if (!["youtube.com", "www.youtube.com"].includes(url.hostname) || url.pathname !== "/watch" || url.searchParams.getAll("v").length !== 1 || url.searchParams.get("v") !== item.youtubeId) throw new Error(`Mismatched video identity: ${item.id}`);
     }
+    if (item.youtubeId ? item.image !== undefined : item.image !== null && (typeof item.image !== "object" || !safeUrl(item.image.url, imageHosts)
+      || [item.image.width, item.image.height].some((size) => !Number.isInteger(size) || size < 100 || size > 4000))) throw new Error(`Invalid media image: ${item.id}`);
     if (Object.hasOwn(item, "embedAllowed") && typeof item.embedAllowed !== "boolean") throw new Error(`Invalid video embed permission: ${item.id}`);
     if (item.embedAllowed && !item.youtubeId) throw new Error(`Unverified video embed: ${item.id}`);
     ids.add(item.id); urls.add(item.url);
