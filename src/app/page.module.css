@@ -165,11 +165,13 @@
   .coverVisual:has(figure) .scoreRow strong { font-size: 2.7rem; }
   .coverVisual:has(figure) .scoreRow { gap: .4rem; }
   .scoreboard { padding: .75rem 0; }
-  .scoreOnly .scoreboard { display: grid; grid-template-columns: 1fr 1fr; gap: .25rem 1.5rem; }
+  .scoreOnly .scoreboard { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .25rem 1rem; }
   .scoreOnly .finalLabel, .scoreOnly .scoreboard time, .scoreOnly .scoreboard small { grid-column: 1 / -1; }
   .scoreOnly .scoreRow + .scoreRow { border: 0; }
-  .scoreOnly .scoreRow b { font-size: 1.9rem; }
-  .scoreOnly .scoreRow strong { font-size: 3.5rem; }
+  .scoreOnly .scoreRow { flex-wrap: wrap; gap: 0 .4em; min-width: 0; }
+  .scoreOnly .scoreRow b { font-size: min(1.9rem, 11cqi); }
+  /* Sized to the score box, so enlarged text cannot push the scores off a phone screen. */
+  .scoreOnly .scoreRow strong { font-size: min(3.5rem, 20cqi); }
   .postgame { grid-template-columns: 1fr; gap: .9rem; padding: 1.5rem 0; }
   .playHeading h2 { max-width: none; font-size: 2.1rem; }
   .playDescription { font-size: 1.05rem; }
