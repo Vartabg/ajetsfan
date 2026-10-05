@@ -42,7 +42,8 @@ async function checkUnit(table: Locator, offense: TeamAnalytics, defense: TeamAn
       else {
         const displayed = await cells.nth(index).locator("strong").innerText();
         expect(displayed).toMatch(/^[+-]?\d+\.\d{3}$/);
-        expect(Number(displayed)).toBe(Number(value.toFixed(3)));
+        // A rate that rounds to zero prints as 0.000, never -0.000; compare -0 as 0.
+        expect(Number(displayed)).toBe(Number(value.toFixed(3)) || 0);
       }
       await expect(cells.nth(index)).toContainText(`${sample[metric.count].toLocaleString("en-US")} ${metric.unit}`);
     }
