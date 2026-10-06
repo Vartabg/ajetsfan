@@ -10,7 +10,7 @@ test("large sections prefetch on keyboard intent instead of competing with the f
   await page.waitForLoadState("networkidle");
   for (const route of ["/morgue", "/film-room", "/media", "/team", "/seasons"]) expect(prefetched).not.toContain(route);
 
-  const link = page.getByRole("navigation", { name: "Site sections" }).getByRole("link", { name: "The Morgue", exact: false });
+  const link = page.getByRole("navigation", { name: "Site sections" }).getByRole("link", { name: /^Game archive/ });
   await link.focus();
   await expect.poll(() => prefetched).toContain("/morgue");
   await link.press("Enter");
@@ -18,5 +18,5 @@ test("large sections prefetch on keyboard intent instead of competing with the f
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await page.goBack();
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.locator("#latest-game h1")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });

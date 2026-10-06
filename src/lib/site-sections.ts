@@ -1,0 +1,14 @@
+/** Every destination the home page offers, in the order a visitor scans them. */
+export const SECTIONS = [
+  { href: "/game-day", label: "Game Day", note: "Schedule, standings and the matchup" },
+  { href: "/team", label: "Team", note: "Roster, player stats and news" },
+  { href: "/film-room", label: "Film Room", note: "Big plays, drawn out" },
+  { href: "/media", label: "Media", note: "Video, posts, articles and audio" },
+  { href: "/seasons", label: "Seasons", note: "Every season’s results" },
+  { href: "/morgue", label: "Game archive", note: "Every analyzed game, ranked" },
+  { href: "/puzzle", label: "Daily puzzle", note: "Which Jets game is it?" },
+  { href: "/stories", label: "Game stories", note: "How games turned, told visually" },
+  { href: "/history", label: "History", note: "Rivalries and remembered games" },
+  { href: "/history/trades", label: "Trade ledger", note: "Every pick, followed" },
+  { href: "/how-made", label: "How it’s made", note: "Sources and methods" },
+];

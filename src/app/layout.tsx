@@ -10,6 +10,7 @@ import LegacyNavigation from "@/components/LegacyNavigation";
 import { publishedGames } from "@/lib/published-pages";
 import Masthead from "@/components/Masthead";
 import Colophon from "@/components/Colophon";
+import SiteChrome from "@/components/SiteChrome";
 import "./globals.css";
 
 const hed = Anton({ variable: "--font-hed", subsets: ["latin"], weight: "400" });
@@ -44,10 +45,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     >
       <body>
         <a className="skip-link" href="#main">Skip to content</a>
-        <Masthead streak={streak} wear={wear} checkedAt={snapshot?.checkedAt ?? null} />
+        <SiteChrome><Masthead streak={streak} wear={wear} checkedAt={snapshot?.checkedAt ?? null} /></SiteChrome>
         <LegacyNavigation latestReport={latestReport} />
         {children}
-        <Colophon games={games} snapshot={snapshot} />
+        <SiteChrome><Colophon games={games} snapshot={snapshot} /></SiteChrome>
         <Telemetry />
       </body>
     </html>

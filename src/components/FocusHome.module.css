@@ -1,0 +1,161 @@
+/* One focus per screen; everything else recedes. Phones: a stack of full-height moments under a slim bar.
+   Wide screens: a quiet index beside one large stage. Short landscape screens: words beside the shape. */
+:global(html):has([data-focus-home]) {
+  --bg: #f2f4f0; --raise: #e5eae3; --ink: #10201a; --quiet: #55635b; --faint: #c6d0c7;
+  --green: #125740; --loss: #a14b37; --tie: #7d8a83;
+  background: var(--bg); color-scheme: light;
+  scroll-snap-type: y mandatory; scroll-padding-top: 56px;
+}
+@media (prefers-color-scheme: dark) {
+  :global(html):has([data-focus-home]) {
+    --bg: #0e2a20; --raise: #15382a; --ink: #eef3ee; --quiet: #9db7a9; --faint: #2f5848;
+    --green: #8fd3ae; --loss: #eba38d; --tie: #a9bdb2; color-scheme: dark;
+  }
+}
+:global(html):has([data-focus-home]) :global(body) { background: var(--bg); color: var(--ink); }
+
+.app { --display: var(--focus-display), "Avenir Next", system-ui, sans-serif; --text: var(--focus-text), "Helvetica Neue", system-ui, sans-serif; --data: var(--font-mono), ui-monospace, Menlo, monospace;
+  min-height: 100svh; background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--text); -webkit-font-smoothing: antialiased; }
+.app a { color: inherit; }
+.app :is(a, button, [tabindex]):focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; padding: 0 16px; background: var(--bg); }
+.brand { display: inline-flex; align-items: center; min-height: 44px; font: 700 19px/1 var(--display); letter-spacing: -.02em; text-decoration: none; }
+.brand span { color: var(--green); }
+.progress { display: flex; gap: 4px; margin-left: auto; }
+.progress i { width: 14px; height: 3px; border-radius: 2px; background: var(--faint); transition: background .3s; }
+.progress i[data-on] { background: var(--ink); }
+.menu { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px 0 10px; font: 600 14px/1 var(--text); text-decoration: none; }
+.rail { display: none; }
+
+.moment { box-sizing: border-box; min-height: calc(100svh - 56px); scroll-snap-align: start; scroll-snap-stop: always; display: flex; flex-direction: column; gap: 12px; padding: 18px 16px 24px; }
+.label { margin: 0; font: 500 12px/1.4 var(--data); letter-spacing: .06em; text-transform: uppercase; color: var(--quiet); }
+.say { margin: 0; font: 650 clamp(30px, 8.4vw, 64px)/1.04 var(--display); letter-spacing: -.035em; text-wrap: balance; overflow-wrap: anywhere; }
+.say em { font-style: normal; color: var(--quiet); }
+.shape { flex: 1 1 auto; min-height: 0; margin: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+.shape figcaption { max-width: 38em; font-size: 15px; line-height: 1.55; color: var(--quiet); text-wrap: pretty; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.button { min-height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: var(--ink); color: var(--bg); font: 600 15px/1 var(--text); cursor: pointer; }
+.button[aria-pressed="true"] { background: var(--green); }
+.button:disabled { opacity: .6; cursor: default; }
+.go { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 600; text-decoration: underline; text-decoration-color: var(--faint); text-underline-offset: 5px; }
+.go:hover { text-decoration-color: currentColor; }
+.reveal { margin: 0; font: 500 15px/1.5 var(--data); color: var(--ink); }
+.note { margin: 0; font: 400 12px/1.5 var(--data); color: var(--quiet); }
+.stale { margin: 0; padding: 8px 12px; border-left: 3px solid var(--loss); background: var(--raise); font-size: 14px; }
+
+/* Last game: the win-chance line */
+.chart { position: relative; height: clamp(180px, 40svh, 460px); touch-action: pan-y; cursor: crosshair; }
+.chart svg { position: absolute; inset: 0 0 24px; width: 100%; height: calc(100% - 24px); overflow: visible; }
+.tick { stroke: var(--faint); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.even { stroke: var(--faint); stroke-width: 1; stroke-dasharray: 4 6; vector-effect: non-scaling-stroke; }
+.area { fill: var(--ink); opacity: .06; }
+.line { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.axis { position: absolute; left: 0; right: 0; bottom: 0; height: 18px; pointer-events: none; }
+.axis span { position: absolute; top: 0; font: 400 11px/1 var(--data); color: var(--quiet); }
+.keys { position: absolute; inset: 0 0 24px; pointer-events: none; }
+.keys span { position: absolute; transform: translate(-50%, -135%); padding: 3px 7px; border-radius: 6px; background: var(--bg); box-shadow: 0 0 0 1px var(--faint); font: 500 12px/1.2 var(--data); white-space: nowrap; }
+.keys span::after { content: ""; position: absolute; left: 50%; bottom: -10px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: var(--green); }
+.keys span.below { transform: translate(-50%, 60%); }
+.keys span.below::after { bottom: auto; top: -10px; }
+.keys span.start { --shift: 0%; }
+.keys span.end { --shift: -100%; }
+.keys span.start, .keys span.end { transform: translate(var(--shift), -135%); }
+.keys span.start.below, .keys span.end.below { transform: translate(var(--shift), 60%); }
+.keys span.start::after { left: 10px; }
+.keys span.end::after { left: auto; right: 6px; }
+.cursor { position: absolute; top: 0; bottom: 24px; width: 1px; background: var(--quiet); pointer-events: none; }
+.readout { position: absolute; top: -6px; right: 0; padding: 3px 7px; border-radius: 6px; background: var(--raise); font: 500 13px/1.2 var(--data); pointer-events: none; }
+.score { display: grid; gap: 10px; }
+.score span { display: block; min-width: 4.5em; padding: 10px 12px; border-radius: 10px; background: var(--raise); font: 600 18px/1 var(--data); }
+.score span:first-child { background: var(--green); color: var(--bg); }
+
+/* Next game: the week, ending on game day */
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.day { display: grid; justify-items: center; gap: 10px; font: 500 12px/1 var(--data); color: var(--quiet); }
+.day i { display: block; width: min(10vw, 56px); aspect-ratio: 1; border: 2px solid var(--faint); border-radius: 50%; box-sizing: border-box; }
+.past i { background: var(--faint); }
+.today { color: var(--ink); }
+.today i { border-color: var(--ink); }
+.gameDay { color: var(--green); font-weight: 700; }
+.gameDay i { background: var(--green); border-color: var(--green); }
+
+/* Season: one mark per week */
+.marks { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 16px 6px; margin: 0; padding: 0; list-style: none; max-width: 720px; }
+.marks li { display: grid; justify-items: center; gap: 6px; font: 400 11px/1.1 var(--data); color: var(--quiet); }
+.marks i { display: block; width: min(8vw, 40px); aspect-ratio: 1; border: 2px solid var(--faint); border-radius: 50%; box-sizing: border-box; }
+.marks small { display: none; color: var(--ink); font-size: 11px; }
+.scored small { display: block; }
+.win i { background: var(--green); border-color: var(--green); }
+.loss i { background: var(--loss); border-color: var(--loss); }
+.tie i { background: var(--tie); border-color: var(--tie); }
+.next i { border-color: var(--ink); }
+.next { color: var(--ink); }
+.bye i { width: 8px; border: 0; border-radius: 4px; background: var(--faint); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font: 400 13px/1 var(--data); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 6px; border: 2px solid var(--faint); border-radius: 50%; box-sizing: border-box; vertical-align: -1px; }
+.legend .keyWin::before { background: var(--green); border-color: var(--green); }
+.legend .keyLoss::before { background: var(--loss); border-color: var(--loss); }
+
+/* Division: games played, filled with wins */
+.rows { display: grid; gap: 16px; max-width: 720px; }
+.rows > div { display: grid; grid-template-columns: 3.2em minmax(0, 1fr) 3.6em; align-items: center; gap: 4px 12px; font: 500 14px/1 var(--data); color: var(--quiet); }
+.rows b { font-weight: 600; }
+.track { height: 14px; border-radius: 7px; background: var(--raise); overflow: hidden; }
+.track span { display: block; height: 100%; background: var(--quiet); opacity: .5; }
+.rows .us { color: var(--ink); }
+.rows .us .track span { background: var(--green); opacity: 1; }
+.rows small { grid-column: 2 / -1; font-size: 12px; color: var(--quiet); }
+
+/* Film Room: twenty-two dots and one route */
+.field { width: 100%; height: auto; max-height: 48svh; }
+.yard { stroke: var(--faint); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.scrimmage { stroke: var(--quiet); stroke-width: 1; stroke-dasharray: 6 8; vector-effect: non-scaling-stroke; }
+.route { fill: none; stroke: var(--green); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+.offense { fill: var(--ink); }
+.defense { fill: none; stroke: var(--quiet); stroke-width: 3; }
+.star { fill: var(--green); }
+.ball { fill: var(--loss); }
+
+/* Watch & read: the publisher's own picture */
+.picture { position: relative; width: 100%; max-width: 760px; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: var(--raise); }
+.picture img { object-fit: cover; }
+.square { max-width: min(100%, 360px); aspect-ratio: 1; }
+
+/* Everything else */
+.sections ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.sections a { display: grid; gap: 2px; min-height: 44px; padding: 10px 0; border-bottom: 1px solid var(--faint); text-decoration: none; }
+.sections b { font: 600 19px/1.2 var(--display); letter-spacing: -.01em; }
+.sections span { font-size: 14px; color: var(--quiet); }
+.sections a:hover b { color: var(--green); }
+
+@media (min-width: 1024px) {
+  :global(html):has([data-focus-home]) { scroll-padding-top: 0; }
+  .app { display: grid; grid-template-columns: 272px minmax(0, 1fr); }
+  .bar { display: none; }
+  .rail { position: sticky; top: 0; height: 100svh; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px; padding: 32px 24px 28px 32px; border-right: 1px solid var(--faint); }
+  .rail ol { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+  /* Moments out of view recede by color, which keeps their text above 4.5:1. */
+  .rail ol a { display: grid; gap: 3px; margin-left: -12px; padding: 9px 12px; border-radius: 10px; color: var(--quiet); text-decoration: none; transition: color .3s, background .3s; }
+  .rail ol a:hover { color: var(--ink); }
+  .rail ol a[aria-current] { color: var(--ink); background: var(--raise); }
+  .rail ol span { font: 500 11px/1.3 var(--data); letter-spacing: .06em; text-transform: uppercase; color: var(--quiet); }
+  .rail ol b { font: 600 17px/1.25 var(--display); letter-spacing: -.01em; }
+  .rail .note { margin-top: auto; }
+  .moment { min-height: 100svh; gap: 16px; padding: 48px clamp(32px, 5vw, 88px) 44px; }
+  .say { font-size: clamp(44px, 4.4vw, 76px); max-width: 16em; }
+  .chart { height: clamp(240px, 44svh, 520px); }
+  .sections ul { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); column-gap: 32px; max-width: 980px; }
+}
+@media (max-width: 1023px) and (max-height: 520px) and (orientation: landscape) {
+  .moment { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); grid-auto-rows: min-content; column-gap: 24px; align-content: start; }
+  .moment > :not(.shape) { grid-column: 1; }
+  .shape { grid-column: 2; grid-row: 1 / span 4; }
+  .say { font-size: clamp(26px, 5vw, 40px); }
+  .chart { height: 62svh; }
+  .field { max-height: 70svh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :global(html):has([data-focus-home]) { scroll-behavior: auto; }
+  .app * { transition: none !important; }
+}

@@ -24,7 +24,7 @@ test("the front-page game story opens its published case before the optional int
   test.skip(!game, "This edition's lead is awaiting an eligible analysis.");
   if (!game) return;
   await page.goto("/");
-  const link = page.getByRole("link", { name: "Read the game report", exact: true });
+  const link = page.locator("#last").getByRole("link", { name: /^Full game report/ });
   await expect(link).toHaveAttribute("href", `/games/${game.id}`);
   await link.click();
   await expect(page.getByLabel(`Final score: Jets ${game.jetsScore}, ${game.opponentDisplay} ${game.oppScore}`, { exact: true })).toBeVisible();

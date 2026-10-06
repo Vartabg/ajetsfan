@@ -44,11 +44,10 @@ async function expectCurrentSection(page: Page, href: string) {
 for (const width of [320, 390]) {
   test(`site navigation stays available after scrolling and has 44px targets at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
-    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.goto("/game-day", { waitUntil: "domcontentloaded" });
     const navigation = page.getByRole("navigation", { name: "Site sections" });
     await expect(navigation.getByRole("link")).toHaveCount(6);
     await expectTouchTargets(navigation.getByRole("link"));
-    await expectTouchTargets(page.getByRole("navigation", { name: "More ways to explore" }).getByRole("link"));
 
     await page.evaluate(() => window.scrollTo(0, 900));
     await expect.poll(async () => (await page.locator("#top").boundingBox())!.y).toBeLessThan(0);
@@ -67,7 +66,8 @@ for (const width of [320, 390]) {
 }
 
 test("site navigation updates the current section after route changes and browser back", async ({ page }) => {
-  await page.goto("/", { waitUntil: "domcontentloaded" });
+  // Game Day belongs to the Home section; the home page itself is the full-screen focus view.
+  await page.goto("/game-day", { waitUntil: "domcontentloaded" });
   await expectCurrentSection(page, "/");
   const navigation = page.getByRole("navigation", { name: "Site sections" });
   await navigation.locator('a[href="/team"]').click();
@@ -83,10 +83,10 @@ test("site navigation updates the current section after route changes and browse
   await expectCurrentSection(page, "/");
 });
 
-test("a destination opens at its heading and Back restores the front-page card", async ({ page }) => {
+test("a destination opens at its heading and Back restores the home page's place", async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => document.fonts.ready);
-  const link = page.locator('main a[href="/media"]');
+  const link = page.getByRole("navigation", { name: "Site sections" }).locator('a[href="/media"]');
   await link.scrollIntoViewIfNeeded();
   const before = await page.evaluate(() => scrollY);
   expect(before).toBeGreaterThan(500);
@@ -94,7 +94,7 @@ test("a destination opens at its heading and Back restores the front-page card",
   await expectCurrentSection(page, "/media");
   await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
   await page.goBack();
-  await expectCurrentSection(page, "/");
+  await expect(page).toHaveURL(/\/$/);
   await expect(link).toBeInViewport();
   await expect.poll(async () => Math.abs(await page.evaluate(() => scrollY) - before)).toBeLessThan(30);
 });
