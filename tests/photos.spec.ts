@@ -2,12 +2,16 @@ import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { CurrentSnapshot } from "../src/lib/current";
-import { completedGames } from "../src/lib/current";
+import type { Game } from "../src/lib/games";
+import { publishedGames } from "../src/lib/published-pages";
 import { gameEditorialPhoto, playerActionPhoto, teamEditorialPhoto } from "../src/lib/editorial-photos";
 
 const current = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/current.json"), "utf8")) as CurrentSnapshot;
-const latest = completedGames(current).filter((game) => game.season === current.season).at(-1);
-const gamePhoto = latest ? gameEditorialPhoto(latest.id) : null;
+const games = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/games.json"), "utf8")) as Game[];
+// Game photographs render on the game report page, not the home page. The first test verifies this game's photograph.
+const photoGameId = "2026_03_NYJ_DET";
+const photoGame = publishedGames(games, current).find((game) => game.id === photoGameId);
+const gamePhoto = gameEditorialPhoto(photoGameId);
 const teamPhoto = teamEditorialPhoto(current.season);
 
 // Intercept only the optimizer requests for editorial club photographs. Roster
@@ -50,17 +54,20 @@ test("team and player photographs expire with their edition and keep archive or 
 });
 
 for (const view of [
-  { route: "/", container: "#latest-game", photo: gamePhoto },
+  { route: `/games/${photoGameId}`, container: 'section[aria-labelledby="game-report-heading"]', photo: gamePhoto },
   { route: "/team", container: "main > header", photo: teamPhoto },
 ]) {
   test(`${view.route} keeps the photograph's descriptive alt, context, and official source`, async ({ page }) => {
     test.skip(!view.photo, "This edition has no verified editorial photograph for this view.");
     if (!view.photo) return;
     await page.route(officialClubImage, (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: imageFixture }));
-    await page.goto(view.route, { waitUntil: "domcontentloaded" });
+    const response = await page.goto(view.route, { waitUntil: "domcontentloaded" });
+    expect(response?.status(), `${view.route} is a published page`).toBe(200);
 
     const figure = page.locator(`${view.container} figure`).filter({ has: page.getByRole("img", { name: view.photo.alt, exact: true }) });
     const image = figure.getByRole("img", { name: view.photo.alt, exact: true });
+    // The game report's photograph sits below the header and loads lazily.
+    await image.scrollIntoViewIfNeeded();
     await expect(image).toBeVisible();
     await expect(image).toHaveAttribute("alt", view.photo.alt);
     await expect.poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
@@ -73,18 +80,19 @@ for (const view of [
 }
 
 test("a failed official game image leaves its source and final score usable on mobile", async ({ page }) => {
-  test.skip(!gamePhoto || !latest, "This edition has no verified latest-game photograph.");
-  if (!gamePhoto || !latest) return;
+  if (!photoGame || !gamePhoto) throw new Error(`${photoGameId} needs a verified photograph and a published game report.`);
   await page.setViewportSize({ width: 390, height: 844 });
   let failedRequests = 0;
   await page.route(officialClubImage, async (route) => {
     failedRequests += 1;
     await route.abort("failed");
   });
-  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.goto(`/games/${photoGame.id}`, { waitUntil: "domcontentloaded" });
 
-  const latestGame = page.locator("#latest-game");
-  const figure = latestGame.locator("figure").filter({ has: page.locator("figcaption").filter({ hasText: gamePhoto.caption }) });
+  const report = page.locator('section[aria-labelledby="game-report-heading"]');
+  const figure = report.locator("figure").filter({ has: page.locator("figcaption").filter({ hasText: gamePhoto.caption }) });
+  // The photograph loads lazily, so it only requests (and fails) once it nears the viewport.
+  await figure.scrollIntoViewIfNeeded();
   await expect(figure.getByText("Photograph unavailable", { exact: true })).toBeVisible();
   expect(failedRequests).toBeGreaterThan(0);
   await expect(figure.getByRole("img", { name: gamePhoto.alt, exact: true })).toHaveCount(0);
@@ -94,15 +102,10 @@ test("a failed official game image leaves its source and final score usable on m
   await original.focus();
   await expect(original).toBeFocused();
   await expect(figure.locator("figcaption")).toContainText(gamePhoto.caption);
+  await expect(report.locator("#game-report-heading")).toBeVisible();
 
-  const scoreboard = latestGame.locator(`[aria-label="Final score: Jets ${latest.jetsScore}, ${latest.opponentDisplay} ${latest.oppScore}"]`);
+  const scoreboard = page.getByLabel(`Final score: Jets ${photoGame.jetsScore}, ${photoGame.opponentDisplay} ${photoGame.oppScore}`, { exact: true });
   await expect(scoreboard).toBeVisible();
-  await expect(scoreboard).toContainText(`Jets ${latest.jetsScore}, ${latest.opponentDisplay} ${latest.oppScore}`);
-  await expect(scoreboard.locator(`time[datetime="${latest.date}"]`)).toBeVisible();
-
-  const postgame = latestGame.getByRole("link", { name: "Read the game report" });
-  await postgame.focus();
-  await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/\/games\//);
-  await expect(page.locator("#game-report-heading")).toBeVisible();
+  await expect(scoreboard.locator("strong")).toHaveText([String(photoGame.jetsScore), String(photoGame.oppScore)]);
+  await expect(page.locator(`article > header time[datetime="${photoGame.date}"]`)).toBeVisible();
 });
