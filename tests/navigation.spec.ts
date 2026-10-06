@@ -44,7 +44,7 @@ async function expectCurrentSection(page: Page, href: string) {
 for (const width of [320, 390]) {
   test(`site navigation stays available after scrolling and has 44px targets at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
-    await page.goto("/game-day", { waitUntil: "domcontentloaded" });
+    await page.goto("/seasons", { waitUntil: "domcontentloaded" });
     const navigation = page.getByRole("navigation", { name: "Site sections" });
     await expect(navigation.getByRole("link")).toHaveCount(6);
     await expectTouchTargets(navigation.getByRole("link"));
@@ -66,9 +66,9 @@ for (const width of [320, 390]) {
 }
 
 test("site navigation updates the current section after route changes and browser back", async ({ page }) => {
-  // Game Day belongs to the Home section; the home page itself is the full-screen focus view.
-  await page.goto("/game-day", { waitUntil: "domcontentloaded" });
-  await expectCurrentSection(page, "/");
+  // The focus pages carry their own navigation; Seasons still has the site masthead.
+  await page.goto("/seasons", { waitUntil: "domcontentloaded" });
+  await expectCurrentSection(page, "/seasons");
   const navigation = page.getByRole("navigation", { name: "Site sections" });
   await navigation.locator('a[href="/team"]').click();
   await expect(page).toHaveURL(/\/team$/);
@@ -80,7 +80,7 @@ test("site navigation updates the current section after route changes and browse
   await expect(page).toHaveURL(/\/team$/);
   await expectCurrentSection(page, "/team");
   await page.goBack();
-  await expectCurrentSection(page, "/");
+  await expectCurrentSection(page, "/seasons");
 });
 
 test("a destination opens at its heading and Back restores the home page's place", async ({ page }) => {

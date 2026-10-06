@@ -13,7 +13,6 @@ for (const [route, section] of [
   ["/team/roster", "/team"],
   ["/seasons/2010", "/seasons"],
   ["/games/2002_18_IND_NYJ", "/seasons"],
-  ["/game-day", "/"],
   ["/history", "/seasons"],
   ["/stories", "/seasons"],
 ]) {

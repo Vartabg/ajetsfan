@@ -44,9 +44,9 @@ test("Game Day shows measured opposing units and season stakes", async ({ page }
     await expect(briefing).toContainText(`With a win: ${record.wins + 1}–${record.losses}`);
     await expect(briefing).toContainText(`With a loss: ${record.wins}–${record.losses + 1}`);
   }
-  await expect(page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "Open league and unit comparisons" }) })).not.toHaveAttribute("open", "");
+  await expect(page.locator("details").filter({ has: page.locator("summary").filter({ hasText: "See every unit number" }) })).not.toHaveAttribute("open", "");
   await expect(page).toHaveURL(/\/game-day#sunday-briefing$/);
-  await expect(page.getByRole("navigation", { name: "Site sections" }).locator('[aria-current="page"]')).toHaveAttribute("href", "/");
+  await expect(page.getByRole("navigation", { name: "Site sections" }).locator('[aria-current="page"]')).toHaveAttribute("href", "/game-day");
 });
 
 for (const width of [320, 768]) {
