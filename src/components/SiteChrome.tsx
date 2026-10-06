@@ -2,8 +2,9 @@
 
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import { FOCUS_ROUTES } from "@/lib/site-sections";
 
-/** The home page is a full-screen focus view with its own navigation; every other page keeps the site header and footer. */
+/** Focus pages carry their own navigation; the rest keep the site header and footer for now. */
 export default function SiteChrome({ children }: { children: ReactNode }) {
-  return usePathname() === "/" ? null : children;
+  return FOCUS_ROUTES.includes(usePathname()) ? null : children;
 }

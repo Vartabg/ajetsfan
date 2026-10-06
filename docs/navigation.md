@@ -7,7 +7,7 @@ their filters and place intact.
 | Destination | Main job |
 | --- | --- |
 | `/` | One thing at a time: latest result, next game, season, division, a big play, the newest coverage, then every section |
-| `/game-day` | Next matchup, personal score prediction, AFC East standings, current schedule and form |
+| `/game-day` | Focus view: the next game, the matchup in numbers (every unit number in place), your score call, AFC East standings, the season in margins with the full schedule, league context |
 | `/team` | Team overview and featured players |
 | `/team/roster` | Find a player and inspect the roster |
 | `/team/stats` | Recorded player production |

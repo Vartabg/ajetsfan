@@ -22,7 +22,7 @@ const metrics: { label: string; field: "epaPerPlay" | "successRate" | "passEpaPe
 
 async function openMatchup(page: Page) {
   await page.goto("/game-day");
-  const filmRoom = page.locator("summary").filter({ hasText: "Open league and unit comparisons" });
+  const filmRoom = page.locator("summary").filter({ hasText: "See every unit number" });
   await filmRoom.focus();
   await page.keyboard.press("Enter");
   return page.getByRole("region", { name: "Know the matchup.", exact: true });
