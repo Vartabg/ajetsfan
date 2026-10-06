@@ -4,7 +4,7 @@ import path from "node:path";
 import type { CurrentSnapshot } from "../src/lib/current";
 import type { Game } from "../src/lib/games";
 import { publishedGames } from "../src/lib/published-pages";
-import { gameEditorialPhoto, playerActionPhoto, teamEditorialPhoto } from "../src/lib/editorial-photos";
+import { gameEditorialPhoto, playerActionPhoto } from "../src/lib/editorial-photos";
 
 const current = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/current.json"), "utf8")) as CurrentSnapshot;
 const games = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/games.json"), "utf8")) as Game[];
@@ -12,7 +12,6 @@ const games = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/game
 const photoGameId = "2026_03_NYJ_DET";
 const photoGame = publishedGames(games, current).find((game) => game.id === photoGameId);
 const gamePhoto = gameEditorialPhoto(photoGameId);
-const teamPhoto = teamEditorialPhoto(current.season);
 
 // Intercept only the optimizer requests for editorial club photographs. Roster
 // portraits, local assets, and ordinary page requests keep their normal behavior.
@@ -41,10 +40,7 @@ test("a verified game photograph cannot follow a different fixture or season", (
   }
 });
 
-test("team and player photographs expire with their edition and keep archive or practice context", () => {
-  expect(teamEditorialPhoto(2026)?.caption).toContain("Archive photograph");
-  for (const season of [2025, 2027]) expect(teamEditorialPhoto(season)).toBeNull();
-
+test("player photographs expire with their edition and keep practice context", () => {
   for (const playerId of ["00-0030565", "00-0038120", "00-0037740"]) {
     expect(playerActionPhoto(playerId, 2026)?.playerId).toBe(playerId);
     for (const season of [2025, 2027]) expect(playerActionPhoto(playerId, season)).toBeNull();
@@ -55,7 +51,6 @@ test("team and player photographs expire with their edition and keep archive or 
 
 for (const view of [
   { route: `/games/${photoGameId}`, container: 'section[aria-labelledby="game-report-heading"]', photo: gamePhoto },
-  { route: "/team", container: "main > header", photo: teamPhoto },
 ]) {
   test(`${view.route} keeps the photograph's descriptive alt, context, and official source`, async ({ page }) => {
     test.skip(!view.photo, "This edition has no verified editorial photograph for this view.");

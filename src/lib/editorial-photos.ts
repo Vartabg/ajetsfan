@@ -85,21 +85,6 @@ const PLAYER_PHOTOS: EditorialPhotoAsset[] = [
   },
 ];
 
-const TEAM_COVER: EditorialPhotoAsset = {
-  src: "https://static.clubs.nfl.com/image/upload/t_new_photo_album/jets/udgfcm2afq9kjcpofhng.jpg",
-  alt: "Breece Hall, in a grass-stained Jets jersey, shrugs with a phone in one hand on the stadium sideline.",
-  caption: "Breece Hall · Archive photograph",
-  credit: "Source: New York Jets",
-  sourceHref: "https://www.newyorkjets.com/photos/breece-hall-jets-career-photo-gallery",
-  position: "50% 50%",
-  editionSeason: 2026,
-  playerId: "00-0038120",
-};
-
-export function teamEditorialPhoto(season: number): EditorialPhotoAsset | null {
-  return TEAM_COVER.editionSeason === season ? TEAM_COVER : null;
-}
-
 export function playerActionPhoto(playerId: string, season: number): EditorialPhotoAsset | null {
   return PLAYER_PHOTOS.find((photo) => photo.playerId === playerId && photo.editionSeason === season) ?? null;
 }

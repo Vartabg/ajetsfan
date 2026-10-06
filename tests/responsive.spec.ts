@@ -109,7 +109,7 @@ for (const width of [320, 390, 768]) {
 for (const view of [{ width: 641, enlarged: false }, { width: 768, enlarged: false }, { width: 390, enlarged: true }]) {
   test(`team page changes reveal the heading below the sticky navigation at ${view.width}px${view.enlarged ? " with 200% text" : ""}`, async ({ page }) => {
     await page.setViewportSize({ width: view.width, height: 1000 });
-    await page.goto("/team", { waitUntil: "domcontentloaded" });
+    await page.goto("/team/roster", { waitUntil: "domcontentloaded" });
     if (view.enlarged) await enlargeText(page);
     await page.getByRole("navigation", { name: "Team sections" }).getByRole("link", { name: "Player stats", exact: true }).click();
     await expect(page).toHaveURL(/\/team\/stats$/);

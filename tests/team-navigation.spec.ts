@@ -7,19 +7,22 @@ test.beforeEach(async ({ page }) => {
   await page.route((url) => url.pathname === "/_next/image", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: imageFixture }));
 });
 
-test("team overview leads to dedicated pages without rendering every tool at once", async ({ page }) => {
-  await page.goto("/team");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("The team.");
-  await expect(page.locator("#news, #season-leaders, #roster")).toHaveCount(0);
+test("roster, stats and news keep the team tabs, and Overview opens the focus page at its top", async ({ page }) => {
+  await page.goto("/team/roster");
   const navigation = page.getByRole("navigation", { name: "Team sections", exact: true });
   for (const [label, href] of [["Overview", "/team"], ["Roster", "/team/roster"], ["Player stats", "/team/stats"], ["News", "/team/news"]]) {
     await expect(navigation.getByRole("link", { name: label, exact: true })).toHaveAttribute("href", href);
   }
-  await expect(navigation.getByRole("link", { name: "Overview", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(navigation.getByRole("link", { name: "Roster", exact: true })).toHaveAttribute("aria-current", "page");
+  await navigation.getByRole("link", { name: "Overview", exact: true }).click();
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/team");
+  await expect(page.locator("#news, #season-leaders, #roster")).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
 });
 
 test("team navigation keeps the selected page and breadcrumb correct through browser history", async ({ page }) => {
-  await page.goto("/team");
+  await page.goto("/team/news");
   const navigation = page.getByRole("navigation", { name: "Team sections", exact: true });
   for (const [label, path, heading, content] of [
     ["Roster", "/team/roster", "The roster.", "#roster"],
@@ -45,7 +48,7 @@ test("team navigation keeps the selected page and breadcrumb correct through bro
 
 test("team navigation remains usable on a 320px phone with enlarged text", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 844 });
-  for (const path of ["/team", "/team/roster", "/team/stats", "/team/news"]) {
+  for (const path of ["/team/roster", "/team/stats", "/team/news"]) {
     await page.goto(path);
     await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
     const navigation = page.getByRole("navigation", { name: "Team sections", exact: true });
