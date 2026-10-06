@@ -187,8 +187,8 @@ function Film({ film }: { film: NonNullable<FocusData["film"]> }) {
     heading={<>{film.title.split(":")[0]}. <em>{film.result.split(" · ").at(-1)}.</em></>}
     actions={<><button type="button" className={styles.button} onClick={play} disabled={running} data-focus-play>{time >= 6 ? "Play it again" : running ? "Playing…" : "Play it"}</button><Go href="/film-room">Open the Film Room</Go></>}>
     <figure className={styles.shape}>
-      <svg className={styles.field} viewBox="0 130 1000 420" role="img" aria-label="Twenty-two players at the snap; the highlighted route is the play’s key route." data-focus-field data-time={time.toFixed(1)}>
-        {[160, 220, 280, 340, 400, 460, 520].map((line) => <line key={line} className={styles.yard} x1="0" x2="1000" y1={line} y2={line} />)}
+      <svg className={styles.field} viewBox="0 30 1000 540" role="img" aria-label="Twenty-two players at the snap; the highlighted route is the play’s key route." data-focus-field data-time={time.toFixed(1)}>
+        {[60, 120, 180, 240, 300, 420, 480, 540].map((line) => <line key={line} className={styles.yard} x1="0" x2="1000" y1={line} y2={line} />)}
         <line className={styles.scrimmage} x1="0" x2="1000" y1="360" y2="360" />
         {star ? <polyline className={styles.route} points={[star, ...star.path].map((point) => `${point.x},${point.y}`).join(" ")} /> : null}
         {film.design.players.map((player) => { const point = samplePlayer(player, time); return <circle key={player.id} cx={point.x} cy={point.y} r={player.id === film.star ? 15 : 11} className={player.id === film.star ? styles.star : player.side === "offense" ? styles.offense : styles.defense} />; })}
