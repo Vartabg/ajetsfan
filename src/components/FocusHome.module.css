@@ -53,20 +53,10 @@
 .rows .us .track span { background: var(--green); opacity: 1; }
 .rows small { grid-column: 2 / -1; font-size: 12px; color: var(--quiet); }
 
-/* Film Room: twenty-two dots and one route */
-.field { width: 100%; height: auto; max-height: 48svh; }
-.yard { stroke: var(--faint); stroke-width: 1; vector-effect: non-scaling-stroke; }
-.scrimmage { stroke: var(--quiet); stroke-width: 1; stroke-dasharray: 6 8; vector-effect: non-scaling-stroke; }
-.route { fill: none; stroke: var(--green); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
-.offense { fill: var(--ink); }
-.defense { fill: none; stroke: var(--quiet); stroke-width: 3; }
-.star { fill: var(--green); }
-.ball { fill: var(--loss); }
-
 /* Watch & read: the publisher's own picture */
 .picture { position: relative; width: 100%; max-width: 760px; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: var(--raise); }
 .picture img { object-fit: cover; }
 .square { max-width: min(100%, 360px); aspect-ratio: 1; }
 
 @media (min-width: 1024px) { .chart { height: clamp(240px, 44svh, 520px); } }
-@media (max-width: 1023px) and (max-height: 520px) and (orientation: landscape) { .chart { height: 62svh; } .field { max-height: 70svh; } }
+@media (max-width: 1023px) and (max-height: 520px) and (orientation: landscape) { .chart { height: 62svh; } }

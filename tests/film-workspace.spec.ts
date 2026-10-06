@@ -28,7 +28,9 @@ test("a first visit says what the Film Room is and leads with the play's recorde
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/film-room");
   const play = jetsPlays.find((entry) => entry.id === "wilson-cleveland")!;
-  await expect(page.locator("main > header")).toContainText("Big Jets plays, broken down.");
+  // The first screen names the page and lists the plays; the chalkboard below leads with the story.
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Big Jets plays, drawn out.");
+  await expect(page.locator("#reel li").first()).toContainText(play.title.split(":")[0]);
   const nav = page.getByRole("navigation", { name: "Film Room workspaces" });
   await expect(nav.getByRole("button")).toHaveText(["Chalkboard", "Game record"]);
   const story = page.locator("[data-jets-story]");

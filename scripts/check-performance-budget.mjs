@@ -7,7 +7,8 @@ import { gzipSync } from "node:zlib";
 const budgets = [
   // 2026-10-02: the front page prints the latest game's probability curve as static SVG; see docs/performance.md.
   { route: "/", file: "index", html: 14, js: 200 },
-  { route: "/film-room", file: "film-room", html: 22, js: 220 },
+  // 2026-10-06: the focus view adds the frame, a list of the plays and one drawn moment per play (about 2.4 KiB).
+  { route: "/film-room", file: "film-room", html: 24, js: 220 },
   { route: "/media", file: "media", html: 24, js: 205 },
   { route: "/team", file: "team", html: 12, js: 200 },
   { route: "/game-day", file: "game-day", html: 28, js: 200 },

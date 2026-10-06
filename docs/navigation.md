@@ -19,7 +19,7 @@ their filters and place intact.
 | `/history` | Classic moments and rivalry records |
 | `/history/trades` | Every recorded Jets trade, each pick followed to what it became |
 | `/games/[id]` | One published game report, probability curve and available efficiency |
-| `/film-room` | Play design and sourced game studies |
+| `/film-room` | Focus view: the six recorded plays, one moment each, then the chalkboard and the sourced game record |
 | `/morgue` | Explore ranked finishes and the interactive game tape |
 | `/puzzle` | The daily puzzle: guess the recorded game from its clues |
 

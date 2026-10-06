@@ -18,15 +18,20 @@ export default function FocusShell({ page, entries, checkedAt, className = "", c
 
   useEffect(() => {
     const sections = index.map((entry) => document.getElementById(entry.id)).filter((section): section is HTMLElement => section !== null);
+    // The moment crossing the middle of the screen is the one in view, however tall it is.
     const observer = new IntersectionObserver((records) => {
       for (const record of records) if (record.isIntersecting) setActive(sections.indexOf(record.target as HTMLElement));
-    }, { threshold: .55 });
+    }, { rootMargin: "-45% 0px -54% 0px" });
     sections.forEach((section) => observer.observe(section));
     const keys = (event: KeyboardEvent) => {
-      if (event.altKey || event.ctrlKey || event.metaKey || (event.target as HTMLElement).closest("input, select, textarea, [contenteditable], [data-focus-chart]")) return;
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || (event.target as HTMLElement).closest("input, select, textarea, [contenteditable], [data-focus-chart], [data-focus-tools]")) return;
       const step = ["ArrowDown", "j"].includes(event.key) ? 1 : ["ArrowUp", "k"].includes(event.key) ? -1 : 0;
       if (!step) return;
-      const current = sections.findIndex((section) => Math.abs(section.getBoundingClientRect().top) < section.offsetHeight / 2);
+      const middle = innerHeight / 2;
+      const current = sections.findIndex((section) => { const box = section.getBoundingClientRect(); return box.top <= middle && box.bottom > middle; });
+      const box = sections[current]?.getBoundingClientRect();
+      // Inside a moment taller than the screen, the arrow keys scroll it until its far edge is in view.
+      if (box && event.key.startsWith("Arrow") && (step > 0 ? box.bottom > innerHeight + 1 : box.top < -1)) return;
       const target = sections[Math.min(sections.length - 1, Math.max(0, (current < 0 ? 0 : current) + step))];
       if (!target) return;
       event.preventDefault();

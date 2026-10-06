@@ -27,8 +27,9 @@
 .bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; padding: 0 16px; background: var(--bg); }
 .brand { display: inline-flex; align-items: center; min-height: 44px; font: 700 19px/1 var(--display); letter-spacing: -.02em; text-decoration: none; }
 .brand span { color: var(--green); }
-.progress { display: flex; gap: 4px; margin-left: auto; }
-.progress i { width: 14px; height: 3px; border-radius: 2px; background: var(--faint); transition: background .3s; }
+/* The dashes shrink to fit when a page has many moments, so the bar never pushes Menu off a narrow screen. */
+.progress { display: flex; flex: 0 1 auto; min-width: 0; gap: 4px; margin-left: auto; }
+.progress i { flex: 0 1 14px; min-width: 3px; height: 3px; border-radius: 2px; background: var(--faint); transition: background .3s; }
 .progress i[data-on] { background: var(--ink); }
 .menu { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px 0 10px; font: 600 14px/1 var(--text); text-decoration: none; }
 .rail { display: none; }
@@ -64,6 +65,16 @@
 .gameDay { color: var(--green); font-weight: 700; }
 .gameDay i { background: var(--green); border-color: var(--green); }
 
+/* A recorded play: twenty-two dots and one route */
+.field { width: 100%; height: auto; max-height: 48svh; }
+.yard { stroke: var(--faint); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.scrimmage { stroke: var(--quiet); stroke-width: 1; stroke-dasharray: 6 8; vector-effect: non-scaling-stroke; }
+.route { fill: none; stroke: var(--green); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+.offense { fill: var(--ink); }
+.defense { fill: none; stroke: var(--quiet); stroke-width: 3; }
+.star { fill: var(--green); }
+.ball { fill: var(--loss); }
+
 /* Everything else */
 .sections ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
 .sections a { display: grid; gap: 2px; min-height: 44px; padding: 10px 0; border-bottom: 1px solid var(--faint); text-decoration: none; }
@@ -94,6 +105,7 @@
   .moment > :not(.shape) { grid-column: 1; }
   .shape { grid-column: 2; grid-row: 1 / span 4; }
   .say { font-size: clamp(26px, 5vw, 40px); }
+  .field { max-height: 70svh; }
 }
 @media (prefers-reduced-motion: reduce) {
   :global(html):has([data-focus-page]) { scroll-behavior: auto; }
