@@ -1,15 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import { useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import Link from "./IntentLink";
 import FocusMoment from "./FocusMoment";
 import FocusNext from "./FocusNext";
+import FocusPlay from "./FocusPlay";
 import FocusShell from "./FocusShell";
 import type { FocusData, FocusPoint } from "@/lib/focus";
 import { dayOf, halfGames, on, ORDINAL, record } from "@/lib/focus-format";
 import { formatMediaDate } from "@/lib/media";
-import { sampleBall, samplePlayer } from "@/lib/playbook";
 import { useMinuteClock } from "@/lib/use-minute-clock";
 import shared from "./Focus.module.css";
 import styles from "./FocusHome.module.css";
@@ -119,41 +119,6 @@ function Division({ division }: { division: NonNullable<FocusData["division"]> }
   </FocusMoment>;
 }
 
-function Film({ film }: { film: NonNullable<FocusData["film"]> }) {
-  const [time, setTime] = useState(0);
-  const [running, setRunning] = useState(false);
-  const frame = useRef(0);
-  useEffect(() => () => cancelAnimationFrame(frame.current), []);
-  const play = () => {
-    cancelAnimationFrame(frame.current);
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { setTime(6); return; }
-    const start = performance.now();
-    setRunning(true);
-    const tick = (now: number) => {
-      const seconds = Math.min(6, (now - start) / 1000);
-      setTime(seconds);
-      if (seconds < 6) frame.current = requestAnimationFrame(tick); else setRunning(false);
-    };
-    frame.current = requestAnimationFrame(tick);
-  };
-  const star = film.design.players.find((player) => player.id === film.star);
-  const ball = sampleBall(film.design, time);
-  return <FocusMoment id="film" label={`Film Room · ${on(`${film.date}T16:00:00Z`, { month: "short", day: "numeric", year: "numeric" })}`}
-    heading={<>{film.title.split(":")[0]}. <em>{film.result.split(" · ").at(-1)}.</em></>}
-    actions={<><button type="button" className={shared.button} onClick={play} disabled={running} data-focus-play>{time >= 6 ? "Play it again" : running ? "Playing…" : "Play it"}</button><Go href="/film-room">Open the Film Room</Go></>}>
-    <figure className={shared.shape}>
-      <svg className={styles.field} viewBox="0 30 1000 540" role="img" aria-label="Twenty-two players at the snap; the highlighted route is the play’s key route." data-focus-field data-time={time.toFixed(1)}>
-        {[60, 120, 180, 240, 300, 420, 480, 540].map((line) => <line key={line} className={styles.yard} x1="0" x2="1000" y1={line} y2={line} />)}
-        <line className={styles.scrimmage} x1="0" x2="1000" y1="360" y2="360" />
-        {star ? <polyline className={styles.route} points={[star, ...star.path].map((point) => `${point.x},${point.y}`).join(" ")} /> : null}
-        {film.design.players.map((player) => { const point = samplePlayer(player, time); return <circle key={player.id} cx={point.x} cy={point.y} r={player.id === film.star ? 15 : 11} className={player.id === film.star ? styles.star : player.side === "offense" ? styles.offense : styles.defense} />; })}
-        <circle className={styles.ball} cx={ball.x} cy={ball.y - 14} r="7" />
-      </svg>
-      <figcaption>{film.situation.replace(/ · /g, ", ")}. {film.summary.split(". ")[0]}. Drawn to show the idea, not traced from film.</figcaption>
-    </figure>
-  </FocusMoment>;
-}
-
 function Media({ media }: { media: NonNullable<FocusData["media"]> }) {
   return <FocusMoment id="media" label={`Watch & read · ${media.outlet}`} heading={<>{media.title}</>}
     actions={<Go href={`/media?media=${encodeURIComponent(media.id)}`}>Open it in the Media Room</Go>}>
@@ -186,7 +151,7 @@ export default function FocusHome({ data, className = "" }: { data: FocusData; c
     {data.next ? <FocusNext next={data.next} wins={wins} losses={losses} ties={ties} first={!data.last} go={{ href: "/game-day", label: "Game Day" }} /> : null}
     {data.season ? <Season season={data.season} /> : null}
     {data.division ? <Division division={data.division} /> : null}
-    {data.film ? <Film film={data.film} /> : null}
+    {data.film ? <FocusPlay id="film" label={`Film Room · ${on(`${data.film.date}T16:00:00Z`, { month: "short", day: "numeric", year: "numeric" })}`} play={data.film} more={<Go href="/film-room">Open the Film Room</Go>} /> : null}
     {data.media ? <Media media={data.media} /> : null}
   </FocusShell>;
 }
