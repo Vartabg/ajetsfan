@@ -153,10 +153,10 @@ test("direct anchors preserve the fake-spike perspective and fumble defensive po
   const fakeSpikePositions = await positions(lab);
   await expect(page.locator("#film-room")).toHaveCount(0);
   const workspace = page.getByRole("navigation", { name: "Film Room workspaces" });
-  await workspace.getByRole("button", { name: "Game studies", exact: true }).click();
+  await workspace.getByRole("button", { name: "Game record", exact: true }).click();
   await expect(page.locator("#film-room")).toBeVisible();
   await expect(page.locator("#film-room")).toHaveAttribute("data-film", "hall-miami");
-  await workspace.getByRole("button", { name: "Playbook", exact: true }).click();
+  await workspace.getByRole("button", { name: "Chalkboard", exact: true }).click();
   await expect(lab).toBeVisible();
   await expect(lab).toHaveAttribute("data-archive", "fake-spike");
   await expect(lab).toHaveAttribute("data-study-mode", "full-snap");

@@ -94,10 +94,10 @@ test("a direct fake-spike anchor uses Miami offense and retains the separate fil
   await expect(lab.locator("[data-lab-ball]")).toHaveAttribute("data-y", (await ingram.getAttribute("data-y"))!);
   await expect(page.locator("#film-room")).toHaveCount(0);
   const workspace = page.getByRole("navigation", { name: "Film Room workspaces" });
-  await workspace.getByRole("button", { name: "Game studies", exact: true }).click();
+  await workspace.getByRole("button", { name: "Game record", exact: true }).click();
   await expect(page.locator("#film-room")).toBeVisible();
   await expect(page.locator("#film-room")).toHaveAttribute("data-film", "hall-miami");
-  await workspace.getByRole("button", { name: "Playbook", exact: true }).click();
+  await workspace.getByRole("button", { name: "Chalkboard", exact: true }).click();
   await expect(lab).toBeVisible();
   await expect(lab).toHaveAttribute("data-archive", "fake-spike");
   await expect(lab).toHaveAttribute("data-time", "2.60");

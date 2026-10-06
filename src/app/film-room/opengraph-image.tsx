@@ -1,5 +1,4 @@
 import { jetsPlays } from "@/lib/jets-playbook";
-import { defensiveFormations, offensiveFormations } from "@/lib/playbook";
 import { ShareImage } from "@/lib/share-image";
 
 export const alt = "The Film Room from The Back Page: Jets plays on an editable chalkboard";
@@ -8,8 +7,8 @@ export const contentType = "image/png";
 
 export default function Image() {
   return ShareImage({
-    eyebrow: "Plays, sources and scouting concepts",
+    eyebrow: "The Jets, one snap at a time",
     title: "Film Room.",
-    detail: `Run a Jets play. Follow a player. Draw your own answer. ${jetsPlays.length} sourced studies · ${offensiveFormations.length + defensiveFormations.length} formations.`,
+    detail: `Big Jets plays, broken down. Watch ${jetsPlays.length} of them drawn out on a chalkboard, or open the game record.`,
   });
 }

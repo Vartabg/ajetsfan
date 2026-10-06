@@ -3,7 +3,7 @@ import { expect, type Page } from "@playwright/test";
 export async function openPlaybookTools(page: Page) {
   const lab = page.locator("#playbook-lab");
   await expect(lab).toBeVisible();
-  for (const name of ["Choose a Jets play", "Formations & concepts", "Diagram options", "Player assignments", "Play facts & sources", "Edit players & ball", "Save, share & exchange"]) {
+  for (const name of ["Choose a Jets play", "Formations & concepts", "Diagram options", "Player assignments", "Sources & what’s illustrative", "Edit players & ball", "Save, share & exchange"]) {
     const summary = lab.locator("summary").filter({ hasText: name }).first();
     if (await summary.count() && !(await summary.evaluate((element) => (element.parentElement as HTMLDetailsElement).open))) await summary.click();
   }

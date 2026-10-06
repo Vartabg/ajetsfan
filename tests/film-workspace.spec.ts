@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { jetsPlays } from "../src/lib/jets-playbook";
 
 test.beforeEach(async ({ page }) => {
   await page.route((url) => url.pathname === "/_next/image", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>' }));
@@ -22,6 +23,35 @@ test("the Film Room starts with one board and hides detailed evidence and editin
   await expect(lab.locator("[data-selected-assignment]")).toBeVisible();
 });
 
+test("a first visit says what the Film Room is and leads with the play's recorded story and one action", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/film-room");
+  const play = jetsPlays.find((entry) => entry.id === "wilson-cleveland")!;
+  await expect(page.locator("main > header")).toContainText("Big Jets plays, broken down.");
+  const nav = page.getByRole("navigation", { name: "Film Room workspaces" });
+  await expect(nav.getByRole("button")).toHaveText(["Chalkboard", "Game record"]);
+  const story = page.locator("[data-jets-story]");
+  await expect(story).toHaveAttribute("data-jets-story", play.id);
+  for (const fact of [play.title, play.situation, play.result, play.summary, "Sep 18, 2022", play.opponent]) await expect(story).toContainText(fact);
+  // The story comes before the board, the tools and the evidence.
+  const order = await page.evaluate(() => ["[data-jets-story]", "#jets-play-stage", "[data-position-key]"].map((selector) => document.querySelector(selector)!.getBoundingClientRect().top));
+  expect(order).toEqual([...order].sort((a, b) => a - b));
+  await expect(page.locator("#playbook-lab")).toHaveAttribute("data-running", "false");
+  await story.getByRole("button", { name: "Watch the play", exact: true }).click();
+  await expect(page.locator("#playbook-lab")).toHaveAttribute("data-running", "true");
+  await expect(page.locator("#jets-play-stage svg")).toBeInViewport();
+  const limit = page.locator("[data-study-limit]");
+  await expect(limit).toContainText("G. Wilson");
+  await expect(limit).toContainText("comes from the record");
+  await expect(limit).toContainText("illustrative");
+  const key = page.locator("[data-position-key]");
+  await expect(key.locator("dl")).toBeHidden();
+  await key.locator("summary").click();
+  await expect(key).toContainText("quarterback");
+  await expect(key).toContainText("nickel back");
+});
+
 test("workspace navigation preserves a custom diagram and game selection through back and forward", async ({ page }) => {
   await page.goto("/film-room?keep=focus#jets-play:fake-spike");
   const lab = page.locator("#playbook-lab");
@@ -31,7 +61,7 @@ test("workspace navigation preserves a custom diagram and game selection through
   await lab.getByLabel("Design name", { exact: true }).fill("My Miami study");
   await lab.getByLabel("Design name", { exact: true }).press("Tab");
   await lab.getByRole("button", { name: "Run play", exact: true }).click();
-  await nav.getByRole("button", { name: "Game studies", exact: true }).click();
+  await nav.getByRole("button", { name: "Game record", exact: true }).click();
   const room = page.locator("#film-room");
   await expect(room).toBeVisible();
   await expect(lab).toHaveAttribute("data-running", "false");
@@ -39,7 +69,7 @@ test("workspace navigation preserves a custom diagram and game selection through
   await expect(room.locator("#scouting-board")).toBeHidden();
   await room.locator("summary").filter({ hasText: "Choose a game study" }).click();
   await room.locator('[data-film-case="sanchez-thanksgiving"]').click();
-  await nav.getByRole("button", { name: "Playbook", exact: true }).click();
+  await nav.getByRole("button", { name: "Chalkboard", exact: true }).click();
   await expect(lab.getByLabel("Design name", { exact: true })).toHaveValue("My Miami study");
   await expect(lab).toHaveAttribute("data-archive", "fake-spike");
   expect(new URL(page.url()).searchParams.get("keep")).toBe("focus");
