@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { Game } from "../src/lib/games";
 import { archiveFilters, filterArchive, gameHref } from "../src/lib/explorer";
+import { SECTIONS } from "../src/lib/site-sections";
 
 const imageFixture = '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>';
 const routes = ["/", "/team", "/team/roster", "/team/stats", "/team/news", "/game-day", "/stories", "/history", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/media"];
@@ -31,20 +32,32 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
   }
   const navigation = page.getByRole("navigation", { name: "Site sections" });
   const links = navigation.getByRole("link");
-  await expect(links).toHaveCount(6);
-  const boxes = [];
-  for (const link of await links.all()) {
-    const box = await link.boundingBox();
-    expect(box).not.toBeNull();
-    expect.soft(box!.width, `${route}: navigation hit width`).toBeGreaterThanOrEqual(44);
-    expect.soft(box!.height, `${route}: navigation hit height`).toBeGreaterThanOrEqual(44);
-    expect.soft(box!.x, `${route}: navigation remains within the left edge`).toBeGreaterThanOrEqual(0);
-    expect.soft(box!.x + box!.width, `${route}: navigation remains within the right edge`).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
-    boxes.push(box!);
-  }
-  for (let index = 1; index < boxes.length; index += 1) {
-    if (Math.abs(boxes[index].y - boxes[index - 1].y) < 1) expect.soft(boxes[index].x, `${route}: adjacent navigation targets do not overlap`).toBeGreaterThanOrEqual(boxes[index - 1].x + boxes[index - 1].width - 1);
-    else expect.soft(boxes[index].y, `${route}: navigation rows do not overlap`).toBeGreaterThanOrEqual(boxes[index - 1].y + boxes[index - 1].height - 1);
+  if (route === "/") {
+    // The home page is a full-screen focus view: its way in is the Menu (phones) or the moment index (wide screens).
+    const entry = page.viewportSize()!.width >= 1024 ? page.getByRole("navigation", { name: "On this page" }) : page.getByRole("link", { name: "Menu", exact: true });
+    await expect(entry).toBeVisible();
+    await expect(links).toHaveCount(SECTIONS.length);
+    for (const link of await links.all()) {
+      const box = await link.boundingBox();
+      expect.soft(box!.height, `${route}: section link height`).toBeGreaterThanOrEqual(44);
+      expect.soft(box!.x + box!.width, `${route}: section link stays inside the page`).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
+    }
+  } else {
+    await expect(links).toHaveCount(6);
+    const boxes = [];
+    for (const link of await links.all()) {
+      const box = await link.boundingBox();
+      expect(box).not.toBeNull();
+      expect.soft(box!.width, `${route}: navigation hit width`).toBeGreaterThanOrEqual(44);
+      expect.soft(box!.height, `${route}: navigation hit height`).toBeGreaterThanOrEqual(44);
+      expect.soft(box!.x, `${route}: navigation remains within the left edge`).toBeGreaterThanOrEqual(0);
+      expect.soft(box!.x + box!.width, `${route}: navigation remains within the right edge`).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
+      boxes.push(box!);
+    }
+    for (let index = 1; index < boxes.length; index += 1) {
+      if (Math.abs(boxes[index].y - boxes[index - 1].y) < 1) expect.soft(boxes[index].x, `${route}: adjacent navigation targets do not overlap`).toBeGreaterThanOrEqual(boxes[index - 1].x + boxes[index - 1].width - 1);
+      else expect.soft(boxes[index].y, `${route}: navigation rows do not overlap`).toBeGreaterThanOrEqual(boxes[index - 1].y + boxes[index - 1].height - 1);
+    }
   }
   const geometry = await page.evaluate(() => ({
     documentWidth: document.documentElement.scrollWidth,

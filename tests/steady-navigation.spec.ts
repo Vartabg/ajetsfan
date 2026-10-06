@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 
 test("the global navigation uses plain destinations without automatic scrolling animation", async ({ page }) => {
   await page.goto("/");
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe("auto");
+  await page.goto("/team");
   const navigation = page.getByRole("navigation", { name: "Site sections" });
   await expect(navigation.getByRole("link")).toHaveText(["Home", "Team", "Film Room", "Media", "Seasons", "The Morgue"]);
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe("auto");
@@ -23,7 +25,7 @@ for (const [route, section] of [
 }
 
 test("a slow destination acknowledges the click while leaving the current page available", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/team");
   let release!: () => void;
   const destinationReady = new Promise<void>((resolve) => { release = resolve; });
   await page.route((url) => url.pathname === "/media", async (route) => {

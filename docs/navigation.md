@@ -6,7 +6,7 @@ their filters and place intact.
 
 | Destination | Main job |
 | --- | --- |
-| `/` | Latest result, next fixture, and clear routes into the site |
+| `/` | One thing at a time: latest result, next game, season, division, a big play, the newest coverage, then every section |
 | `/game-day` | Next matchup, personal score prediction, AFC East standings, current schedule and form |
 | `/team` | Team overview and featured players |
 | `/team/roster` | Find a player and inspect the roster |
