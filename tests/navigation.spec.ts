@@ -115,14 +115,16 @@ test("legacy Team bookmarks keep filters and lead to a focused page", async ({ p
 
 test("native disclosures toggle visible and accessible labels with Space and Enter while keeping focus", async ({ page }) => {
   await page.goto("/game-day", { waitUntil: "domcontentloaded" });
-  const summaries = await page.locator("summary.disclosure").filter({ visible: true }).all();
-  expect(summaries.length).toBeGreaterThanOrEqual(3);
-  for (const summary of summaries) {
+  // The ticket form renders after hydration, ahead of the schedule: wait for it, then find each summary by its own label.
+  await expect(page.getByText("Checking this fixture’s ticket window…")).toHaveCount(0);
+  const closedLabels = (await page.locator("summary.disclosure").filter({ visible: true }).locator(".when-closed").allTextContents()).map((label) => label.trim());
+  expect(closedLabels.length).toBeGreaterThanOrEqual(3);
+  for (const closedLabel of closedLabels) {
+    const summary = page.locator("summary.disclosure").filter({ hasText: closedLabel });
     const details = summary.locator("..");
     const closed = summary.locator(".when-closed");
     const open = summary.locator(".when-open");
     const content = details.locator(":scope > :not(summary)").first();
-    const closedLabel = (await closed.textContent())!.trim();
     const openLabel = (await open.textContent())!.trim();
     expect(closedLabel).not.toBe(openLabel);
     await expect(details).not.toHaveAttribute("open", "");
