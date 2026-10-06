@@ -149,16 +149,15 @@ test("native disclosures toggle visible and accessible labels with Space and Ent
   }
 });
 
-test("a featured player advertises its profile and opens the matching roster ID", async ({ page }) => {
+test("a leader's name on the Team page opens the matching player page", async ({ page }) => {
   const featured = coverage.roster.season === current.season && coverage.roster.status !== "unavailable" && coverage.stats.season === current.season && coverage.stats.status !== "unavailable"
     ? (["passing", "rushing", "receiving"] as const).map((kind) => leaders(coverage.stats, kind)[0]).find((player) => player && coverage.roster.players.some((entry) => entry.id === player.id))
     : undefined;
   test.skip(!featured, "No current-season leader has a verified roster profile in this edition.");
   if (!featured) return;
   await page.goto("/team", { waitUntil: "domcontentloaded" });
-  const link = page.getByRole("region", { name: "Leading the way" }).getByRole("link", { name: featured.name, exact: false });
+  const link = page.locator("#leaders").getByRole("link", { name: featured.name, exact: true });
   await expect(link).toHaveAttribute("href", `/players/${featured.id}`);
-  await expect(link.getByText("View profile", { exact: false })).toBeVisible();
   await link.focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(new RegExp(`/players/${featured.id}$`));

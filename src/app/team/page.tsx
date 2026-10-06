@@ -1,50 +1,92 @@
-import { pageMetadata } from "@/lib/site";
-import { publishedPlayers } from "@/lib/published-pages";
 import Link from "@/components/IntentLink";
-import { leaders } from "@/lib/coverage";
+import FocusMoment from "@/components/FocusMoment";
+import FocusShell, { type FocusEntry } from "@/components/FocusShell";
+import shared from "@/components/Focus.module.css";
+import { dayOf } from "@/lib/focus-format";
 import { loadCoverage } from "@/lib/load-coverage";
 import { loadCurrent } from "@/lib/load-games";
-import { formatDate } from "@/lib/current";
-import { teamEditorialPhoto } from "@/lib/editorial-photos";
-import EditorialPhoto from "@/components/EditorialPhoto";
-import styles from "./page.module.css";
+import { pageMetadata } from "@/lib/site";
+import { buildTeamFocus } from "@/lib/team-focus";
+import { focusFonts } from "../focus-fonts";
+import styles from "./overview.module.css";
 
 export const metadata = pageMetadata({
   path: "/team",
-  title: "The Team — The Back Page",
-  description: "Meet the Jets, check player production, and catch up with the latest official team headlines.",
+  title: "Jets Team — leaders, roster and news",
+  description: "Who leads the Jets in passing, rushing and receiving, the roster by position, and the latest official team headlines.",
 });
+
+const KIND = { passing: "Passing", rushing: "Rushing", receiving: "Receiving" } as const;
+const NEW_TAB = <span className="sr-only"> (opens in a new tab)</span>;
+
+function host(url: string): string | null {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
 
 export default async function TeamPage() {
   const [coverage, current] = await Promise.all([loadCoverage(), loadCurrent()]);
-  const season = current?.season ?? coverage?.season;
-  const coverPhoto = season != null ? teamEditorialPhoto(season) : null;
-  const rosterAvailable = !!coverage && coverage.roster.status !== "unavailable";
-  const currentRoster = rosterAvailable && coverage.roster.season === season;
-  const profileIds = new Set(coverage ? publishedPlayers(coverage, season ?? coverage.season).map((player) => player.id) : []);
-  const featured = coverage && currentRoster ? (["passing", "rushing", "receiving"] as const).flatMap((kind) => {
-    const leader = coverage.stats.season === season && coverage.stats.status !== "unavailable" ? leaders(coverage.stats, kind)[0] : undefined;
-    const player = leader && coverage.roster.players.find((entry) => entry.id === leader.id);
-    return player && leader ? [{ player, kind, yards: leader[kind].yards }] : [];
-  }).filter((entry, index, players) => players.findIndex((candidate) => candidate.player.id === entry.player.id) === index) : [];
-  const latest = coverage?.news.items.toSorted((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || a.id.localeCompare(b.id))[0];
+  const season = current?.season ?? coverage?.season ?? null;
+  const { stats, roster, news } = buildTeamFocus(coverage, season);
+  const source = news.lead ? host(news.lead.url) : null;
 
-  return <>
-    <header className={`${styles.overviewHero} ${!coverPhoto ? styles.solo : ""}`}>
-      <div><p className={styles.kicker}>{season ? `${season} Jets` : "New York Jets"}</p><h1 className="hed" tabIndex={-1}>The team.</h1><p>The players. Their production. What’s happening in Florham Park.</p></div>
-      {coverPhoto ? <EditorialPhoto photo={coverPhoto} eager className={styles.coverPhoto} sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1288px) calc(50vw - 2.5rem), 604px" /> : null}
-    </header>
-    {featured.length ? <section className={styles.featured} aria-labelledby="featured-players-heading">
-      <div className={styles.sectionHeading}><h2 id="featured-players-heading">Leading the way</h2><span>{season} yardage leaders</span></div>
-      <div className={styles.lineupPlayers}>{featured.map(({ player, kind, yards }) => <Link className={styles.featuredPlayer} href={profileIds.has(player.id) ? `/players/${encodeURIComponent(player.id)}` : `/team/roster?${new URLSearchParams({ player: player.id })}#roster`} key={player.id}>
-        <span className={styles.jersey} aria-hidden="true">{player.jersey ?? player.position}</span>
-        <span className={styles.featuredName}><strong>{player.name}</strong><span>{yards.toLocaleString("en-US")} {kind} yards</span><span className={styles.profileCue}>View profile <span aria-hidden="true">→</span></span></span>
-      </Link>)}</div>
-    </section> : null}
-    <div className={styles.destinations}>
-      <Link href="/team/roster" className={styles.destination}><span className={styles.kicker}>The players</span><h2 className="hed">Roster <span aria-hidden="true">→</span></h2><p>{rosterAvailable ? `${coverage.roster.players.length} profiles in the ${coverage.roster.season} roster.` : "Find a player by name, number or position."}</p><span className={styles.destinationCue}>Find your player</span></Link>
-      <Link href="/team/stats" className={styles.destination}><span className={styles.kicker}>On the field</span><h2 className="hed">Player stats <span aria-hidden="true">→</span></h2><p>Passing, rushing and receiving leaders.{coverage && coverage.stats.season === season && coverage.stats.throughWeek != null ? ` Through Week ${coverage.stats.throughWeek}.` : ""}</p><span className={styles.destinationCue}>See the numbers</span></Link>
-      <Link href="/team/news" className={styles.destination}><span className={styles.kicker}>Official team coverage</span><h2 className="hed">News <span aria-hidden="true">→</span></h2><p>{latest?.title ?? "The latest checked headlines from Florham Park."}</p>{latest ? <time dateTime={latest.publishedAt}>{formatDate(latest.publishedAt)}</time> : null}<span className={styles.destinationCue}>Catch up</span></Link>
-    </div>
-  </>;
+  const entries: FocusEntry[] = [
+    { id: "leaders", title: "Leaders", answer: stats.names || "Not yet" },
+    { id: "players", title: "Roster", answer: roster ? `${roster.count} players` : "Pending" },
+    { id: "headlines", title: "Team news", answer: news.lead ? dayOf(news.lead.publishedAt) : "None yet" },
+  ];
+
+  return <FocusShell page="team" entries={entries} checkedAt={null} className={focusFonts}>
+    <FocusMoment id="leaders" first label={`${season ? `${season} Jets` : "The Jets"}${stats.throughWeek != null ? ` · through Week ${stats.throughWeek}` : ""}`}
+      heading={stats.say ?? "No player numbers yet."}
+      status={stats.retained ? <p className={shared.stale}>The latest stats check failed, so these are the last verified numbers.</p> : null}
+      actions={stats.ready ? <Link href="/team/stats" className={shared.go}>Every player’s numbers <span aria-hidden="true">→</span></Link> : null}>
+      {stats.leaders.length ? <figure className={shared.shape}>
+        <ul className={styles.yards}>{stats.leaders.map((leader) => {
+          const share = leader.team > 0 ? Math.min(1, Math.max(0, leader.yards / leader.team)) : 0;
+          return <li key={leader.kind}>
+            <span className={styles.kind}>{KIND[leader.kind]}</span>
+            {leader.href ? <Link href={leader.href} className={styles.who}>{leader.name}</Link> : <span className={styles.who}>{leader.name}</span>}
+            <span className={styles.count}>{leader.yards.toLocaleString("en-US")} <small>{leader.team >= leader.yards && leader.team > 0 ? `of ${leader.team.toLocaleString("en-US")} yards` : "yards"}</small></span>
+            <span className={styles.bar} aria-hidden="true"><i style={{ width: `${share * 100}%` }} /></span>
+          </li>;
+        })}</ul>
+        <figcaption>Each bar is the team’s total. The green part is the leader’s share.</figcaption>
+      </figure> : <p className={shared.caption}>{stats.unavailable ? "Player statistics will appear after the next successful source check." : `They start with the first confirmed ${season ?? ""} game.`}</p>}
+    </FocusMoment>
+
+    <FocusMoment id="players" label={roster?.week != null ? `Roster · Week ${roster.week}` : "Roster"}
+      heading={roster ? <>{roster.count} players <em>on the roster, by position.</em></> : "The roster is not available yet."}
+      status={roster?.retained ? <p className={shared.stale}>The latest roster check failed, so this is the last verified roster.</p> : null}
+      actions={roster ? <Link href="/team/roster" className={shared.go}>Find a player <span aria-hidden="true">→</span></Link> : null}>
+      {roster ? <figure className={shared.shape}>
+        <div className={styles.units}><div className={styles.unitGrid}>{roster.units.map((unit) => <div key={unit.group} data-unit={unit.group}>
+          <p className={styles.unit}>{unit.label} <b>{unit.count}</b></p>
+          <ul>{unit.rows.map((row) => <li key={row.position}>
+            <Link href={`/team/roster?${new URLSearchParams({ position: row.position })}#roster`}>
+              <span className={styles.position}>{row.label}</span>{" "}
+              <b>{row.count}<span className="sr-only"> {row.count === 1 ? "player" : "players"}</span></b>
+              <span className={styles.dots} aria-hidden="true">{Array.from({ length: row.count }, (_, index) => <i key={index} />)}</span>
+            </Link>
+          </li>)}</ul>
+        </div>)}</div></div>
+        <figcaption>Each dot is one player: {roster.lists}.</figcaption>
+      </figure> : <p className={shared.caption}>The roster will appear after the next successful source check.</p>}
+    </FocusMoment>
+
+    <FocusMoment id="headlines" label={news.lead ? `Team news · ${dayOf(news.lead.publishedAt)}` : "Team news"}
+      heading={news.lead?.title ?? "No team news yet."}
+      status={news.retained ? <p className={shared.stale}>The latest news check failed, so newer headlines may be missing.</p> : null}
+      actions={news.lead ? <>
+        <a href={news.lead.url} target="_blank" rel="noopener noreferrer" className={shared.go}>Read it{source ? ` on ${source}` : ""} <span aria-hidden="true">↗</span>{NEW_TAB}</a>
+        <Link href="/team/news" className={shared.go}>All team news <span aria-hidden="true">→</span></Link>
+      </> : <a href="https://www.newyorkjets.com/news/" target="_blank" rel="noopener noreferrer" className={shared.go}>Official Jets news <span aria-hidden="true">↗</span>{NEW_TAB}</a>}>
+      {news.more.length ? <div className={shared.shape}><ul className={styles.wire} aria-label="More headlines">{news.more.map((item) => <li key={item.id}>
+        <a href={item.url} target="_blank" rel="noopener noreferrer"><time dateTime={item.publishedAt}>{dayOf(item.publishedAt)}</time><span className={styles.headline}>{item.title}</span>{NEW_TAB}</a>
+      </li>)}</ul></div> : !news.lead ? <p className={shared.caption}>{news.unavailable ? "Official team news will appear after a successful source check." : "No articles are available in this edition."}</p> : null}
+    </FocusMoment>
+  </FocusShell>;
 }

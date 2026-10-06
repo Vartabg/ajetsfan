@@ -10,32 +10,6 @@
 .sectionNav a[aria-current="page"] { color: var(--paper); background: var(--forest); }
 .sectionNav a:focus-visible { outline-color: var(--spot); }
 .kicker { color: var(--spot); font-size: .7rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; margin: 0 0 .7rem; }
-.overviewHero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 2rem; padding-bottom: 1.75rem; }
-.overviewHero h1 { font-size: clamp(3rem, 5vw, 4.7rem); }
-.overviewHero > div > p:last-child { color: var(--ink-2); max-width: 34ch; font: 1.1rem/1.65 var(--font-serif), Georgia, serif; margin: 1.1rem 0 0; }
-.solo { grid-template-columns: 1fr; }
-.coverPhoto { margin: 0; }
-.coverPhoto > div { aspect-ratio: 16 / 9; }
-.featured { margin-bottom: 2rem; border-block: 1px solid var(--rule-soft); }
-.sectionHeading { display: flex; flex-wrap: wrap; gap: .5rem 1rem; justify-content: space-between; align-items: baseline; padding: .8rem 0; }
-.sectionHeading h2 { font-size: .9rem; font-weight: 800; }
-.sectionHeading > span { font-size: .72rem; color: var(--ink-2); }
-.lineupPlayers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem 1rem; padding-bottom: .5rem; }
-.featuredPlayer { display: flex; align-items: center; min-width: 0; gap: .85rem; min-height: 44px; padding: .8rem; text-decoration: none; }
-.featuredPlayer:hover { background: var(--paper-2); }
-.jersey { flex: none; color: var(--spot); font: 400 2.8rem/1 var(--font-hed), Impact, sans-serif; }
-.featuredName { min-width: 0; }
-.featuredName strong { display: block; font: 800 1.18rem/1.2 var(--font-sans-narrow), sans-serif; }
-.featuredName > span { display: block; font-size: .72rem; margin-top: .2rem; color: var(--ink-2); }
-.featuredName > .profileCue { color: var(--spot); font-weight: 800; }
-.destinations { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
-.destination { display: flex; flex-direction: column; padding: 1.5rem 0; border-top: 3px solid var(--spot); text-decoration: none; min-width: 0; }
-.destination h2 { display: flex; align-items: center; justify-content: space-between; gap: .5rem; font-size: 2rem; line-height: 1.1; }
-.destination h2 span { font: 1.3rem/1 var(--font-sans), sans-serif; }
-.destination p { margin: 1rem 0 .5rem; color: var(--ink-2); font-size: .88rem; line-height: 1.65; }
-.destination time { color: var(--ink-2); font-size: .72rem; margin-bottom: .75rem; }
-.destinationCue { display: block; padding-top: 1rem; margin-top: auto; color: var(--spot); font-size: .78rem; font-weight: 800; }
-.destination:hover .destinationCue { text-decoration: underline; text-underline-offset: 4px; }
 .pageHeader { margin-bottom: 1.75rem; }
 .pageHeader h1 { font-size: clamp(2.6rem, 4vw, 3.8rem); line-height: 1.05; }
 .pageHeader > p:last-child { margin: .85rem 0 0; color: var(--ink-2); max-width: 62ch; font-size: .9rem; }
@@ -52,24 +26,8 @@
 .rosterDetails p { font-size: .82rem; line-height: 1.7; max-width: 80ch; }
 .rosterDetails a { display: inline-flex; align-items: center; min-height: 44px; font-size: .8rem; text-underline-offset: 4px; }
 .rosterDetails > summary:focus-visible { outline: 3px solid var(--spot); outline-offset: 4px; }
-@media (max-width: 900px) { .lineupPlayers { gap: .5rem; } .featuredPlayer { gap: .5rem; padding-inline: .25rem; } .jersey { font-size: 2.3rem; } }
 @media (max-width: 640px) {
   .navigation { margin-bottom: 1.3rem; }
   .sectionNav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .1rem; }
   .sectionNav a { padding: .5rem .2rem; font-size: .75rem; text-align: center; }
-  .overviewHero { grid-template-columns: 1fr; gap: 1.25rem; }
-  .overviewHero h1 { font-size: 3.4rem; }
-  .overviewHero > div > p:last-child { max-width: none; margin-top: .75rem; font-size: 1rem; }
-  .lineupPlayers { grid-template-columns: 1fr; }
-  .featuredPlayer { padding: .75rem .25rem; gap: 1rem; border-top: 1px solid var(--rule-soft); }
-  .jersey { width: 3rem; font-size: 2.8rem; }
-  .featuredName { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .2rem .5rem; }
-  .featuredName strong { overflow-wrap: anywhere; }
-  .featuredName > span { margin: 0; }
-  .featuredName > .profileCue { grid-column: 2; grid-row: 1 / 3; align-self: center; }
-  .destinations { grid-template-columns: 1fr; gap: .5rem; }
-  .destination { padding-block: 1.25rem; }
-  .destination h2 { font-size: 1.8rem; }
-  .destination p { margin-top: .6rem; }
-  .destinationCue { padding-top: .5rem; }
 }

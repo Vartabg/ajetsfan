@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import Link from "./IntentLink";
+import { FOCUS_ROUTES } from "@/lib/site-sections";
 import styles from "@/app/team/page.module.css";
 
 const sections = [
@@ -12,7 +13,7 @@ const sections = [
   { href: "/team/news", label: "News" },
 ];
 
-/** The same route controls stay in place throughout the team section. */
+/** The same route controls stay in place throughout the team section. The overview is a focus page with its own frame, so it opens at the top. */
 export default function TeamNavigation() {
   const pathname = usePathname();
   const requestedPage = useRef<string | null>(null);
@@ -45,10 +46,10 @@ export default function TeamNavigation() {
   return <div className={styles.navigation}>
     <nav className={styles.breadcrumb} aria-label="Breadcrumb">
       <Link href="/">Home</Link><span aria-hidden="true">/</span>
-      {pathname === "/team" ? <span aria-current="page">Team</span> : <><Link href="/team" scroll={false} onNavigate={() => { requestedPage.current = "/team"; }}>Team</Link><span aria-hidden="true">/</span><span aria-current="page">{current.label}</span></>}
+      <Link href="/team">Team</Link><span aria-hidden="true">/</span><span aria-current="page">{current.label}</span>
     </nav>
     <nav className={styles.sectionNav} aria-label="Team sections">
-      {sections.map((section) => <Link key={section.href} href={section.href} scroll={false} onNavigate={() => { requestedPage.current = section.href; }} aria-current={pathname === section.href ? "page" : undefined}>{section.label}</Link>)}
+      {sections.map((section) => <Link key={section.href} href={section.href} scroll={FOCUS_ROUTES.includes(section.href) ? undefined : false} onNavigate={() => { requestedPage.current = section.href; }} aria-current={pathname === section.href ? "page" : undefined}>{section.label}</Link>)}
     </nav>
   </div>;
 }

@@ -8,7 +8,7 @@ their filters and place intact.
 | --- | --- |
 | `/` | One thing at a time: latest result, next game, season, division, a big play, the newest coverage, then every section |
 | `/game-day` | Focus view: the next game, the matchup in numbers (every unit number in place), your score call, AFC East standings, the season in margins with the full schedule, league context |
-| `/team` | Team overview and featured players |
+| `/team` | Focus view: who leads the passing, rushing and receiving yards, the roster by position (each position opens the roster filtered to it), the newest official headlines |
 | `/team/roster` | Find a player and inspect the roster |
 | `/team/stats` | Recorded player production |
 | `/team/news` | Official team headlines |
@@ -24,7 +24,7 @@ their filters and place intact.
 | `/puzzle` | The daily puzzle: guess the recorded game from its clues |
 
 Keep global navigation labels stable and mark the parent destination on detail
-pages. Team pages share one layout and local navigation. Season controls sit
+pages. Roster, stats and news share the Team tabs (`TeamFrame`); the Team overview is a focus page. Season controls sit
 above the changing content; do not move them below expandable chapters.
 
 Use ordinary routes for separate subjects. Preserve native links, keyboard
