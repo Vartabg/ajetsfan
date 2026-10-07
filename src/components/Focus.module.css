@@ -29,7 +29,7 @@
 .brand span { color: var(--green); }
 /* The dashes shrink to fit when a page has many moments, so the bar never pushes Menu off a narrow screen. */
 .progress { display: flex; flex: 0 1 auto; min-width: 0; gap: 4px; margin-left: auto; }
-.progress i { flex: 0 1 14px; min-width: 3px; height: 3px; border-radius: 2px; background: var(--faint); transition: background .3s; }
+.progress i { flex: 0 1 auto; width: 14px; min-width: 3px; height: 3px; border-radius: 2px; background: var(--faint); transition: background .3s; }
 .progress i[data-on] { background: var(--ink); }
 .menu { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px 0 10px; font: 600 14px/1 var(--text); text-decoration: none; }
 .rail { display: none; }
@@ -74,6 +74,11 @@
 .defense { fill: none; stroke: var(--quiet); stroke-width: 3; }
 .star { fill: var(--green); }
 .ball { fill: var(--loss); }
+
+/* A publisher's own picture */
+.picture { position: relative; width: 100%; max-width: 760px; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: var(--raise); }
+.picture img { object-fit: cover; }
+.square { max-width: min(100%, 360px); aspect-ratio: 1; }
 
 /* Everything else */
 .sections ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }

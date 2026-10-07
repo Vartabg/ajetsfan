@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import Link from "./IntentLink";
 import FocusMoment from "./FocusMoment";
 import FocusNext from "./FocusNext";
+import FocusPicture from "./FocusPicture";
 import FocusPlay from "./FocusPlay";
 import FocusShell from "./FocusShell";
 import type { FocusData, FocusPoint } from "@/lib/focus";
@@ -123,7 +123,7 @@ function Media({ media }: { media: NonNullable<FocusData["media"]> }) {
   return <FocusMoment id="media" label={`Watch & read · ${media.outlet}`} heading={<>{media.title}</>}
     actions={<Go href={`/media?media=${encodeURIComponent(media.id)}`}>Open it in the Media Room</Go>}>
     <figure className={shared.shape}>
-      {media.image ? <div className={`${styles.picture} ${Math.abs(media.image.width / media.image.height - 1) < .2 ? styles.square : ""}`}><Image src={media.image.url} alt="" fill sizes="(max-width: 959px) calc(100vw - 32px), 760px" /></div> : null}
+      {media.image ? <FocusPicture image={media.image} /> : null}
       <figcaption>{formatMediaDate(media.publishedAt)}. The newest item in the Media Room with its publisher’s picture.</figcaption>
     </figure>
   </FocusMoment>;
