@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { Game } from "../src/lib/games";
 import { archiveFilters, filterArchive, gameHref } from "../src/lib/explorer";
+import { gameEditorialPhoto } from "../src/lib/editorial-photos";
 import { FOCUS_ROUTES, SECTIONS } from "../src/lib/site-sections";
 
 const imageFixture = '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>';
@@ -151,12 +152,19 @@ for (const width of [320, 768]) {
   });
 }
 
+// Game photographs render only on the game report page; this game has a verified one.
+const photoGameId = "2026_03_NYJ_DET";
+const gamePhoto = gameEditorialPhoto(photoGameId);
+
 for (const width of [320, 901, 1440]) {
-  test(`the hero requests a sufficiently sized image at ${width}px`, async ({ page }) => {
+  test(`the game report photograph requests a sufficiently sized image at ${width}px`, async ({ page }) => {
+    if (!gamePhoto) throw new Error(`${photoGameId} needs a verified photograph.`);
     await page.setViewportSize({ width, height: 1000 });
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    const image = page.locator("#latest-game figure img").first();
-    test.skip(await image.count() === 0, "This edition has no verified latest-game photograph.");
+    const response = await page.goto(`/games/${photoGameId}`, { waitUntil: "domcontentloaded" });
+    expect(response?.status(), `/games/${photoGameId} is a published page`).toBe(200);
+    const image = page.locator('section[aria-labelledby="game-report-heading"] figure').getByRole("img", { name: gamePhoto.alt, exact: true });
+    // The photograph sits below the report header and loads lazily.
+    await image.scrollIntoViewIfNeeded();
     await expect.poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
     const sizing = await image.evaluate((element) => ({
       requested: Number(new URL((element as HTMLImageElement).currentSrc).searchParams.get("w")),
