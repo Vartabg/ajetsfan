@@ -48,6 +48,26 @@ function writeSelection(patch: Record<string, string>, mode: "push" | "replace" 
   window.dispatchEvent(new Event(ROOM_EVENT));
 }
 
+const CLEAR = { media: "", type: "", q: "", source: "", season: "", topic: "" };
+
+/** A link from outside the room that sets its selection or format, then brings that part of the room into view. */
+export function RoomLink({ media, type, className, children }: { media?: string; type?: MediaItem["kind"]; className?: string; children: React.ReactNode }) {
+  const patch = { ...CLEAR, ...(media ? { media } : {}), ...(type ? { type } : {}) };
+  const target = media ? "media-viewer-heading" : "media-results-heading";
+  const query = new URLSearchParams(Object.entries(patch).filter(([, value]) => value)).toString();
+  return <a className={className} href={`?${query}#${target}`} onClick={(event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    writeSelection(patch);
+    // The room renders the selection on the next frame; then its heading takes focus and the view.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const heading = document.getElementById(target);
+      heading?.focus({ preventScroll: true });
+      heading?.scrollIntoView({ block: "center", behavior: "instant" });
+    }));
+  }}>{children}</a>;
+}
+
 function ExternalLink({ item, children, className }: { item: Pick<MediaItem, "url">; children: React.ReactNode; className?: string }) {
   return <a className={className} href={item.url} target="_blank" rel="noopener noreferrer">{children}<span aria-hidden="true"> ↗</span><span className="sr-only"> (opens in a new tab)</span></a>;
 }
@@ -221,6 +241,16 @@ export default function MediaRoom({ items, outlets, checkedAt }: { items: MediaI
   const advancedFilters = [source, season, topic].filter(Boolean).length;
   const seasonDestination = seasonReturn(params.get("from"));
 
+  // The room sits below the page's opening moments: a link that arrives with a story selected opens at that story.
+  const arrived = useRef(false);
+  useEffect(() => {
+    if (arrived.current || !search) return;
+    arrived.current = true;
+    if (!new URLSearchParams(search).get("media")) return;
+    const hash = window.location.hash.slice(1);
+    if (hash && hash !== "media-viewer-heading" && hash !== "media-selected-coverage" && document.getElementById(hash)) return;
+    document.getElementById("media-selected-coverage")?.scrollIntoView({ block: "start", behavior: "instant" });
+  }, [search]);
   useEffect(() => {
     const invalidate = () => { copyRequest.current += 1; };
     window.addEventListener("popstate", invalidate);

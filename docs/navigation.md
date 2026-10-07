@@ -12,7 +12,7 @@ their filters and place intact.
 | `/team/roster` | Find a player and inspect the roster |
 | `/team/stats` | Recorded player production |
 | `/team/news` | Official team headlines |
-| `/media` | Beat reporting, radio, video and replay |
+| `/media` | Focus view: the newest video, article, show and post, one moment each, then the searchable collection |
 | `/seasons` | Choose a football season; discover history and game stories |
 | `/seasons/[year]` | One selected view: games, rankings, tracking, moments or coverage |
 | `/stories` | Recorded games as interactive visual timelines |
