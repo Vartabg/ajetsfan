@@ -1,0 +1,21 @@
+/* Seasons pieces drawn in the focus palette; the frame and type live in Focus.module.css. */
+
+/* Every season: the year, its record and one square per game */
+.years { display: grid; max-width: 980px; margin: 0; padding: 0; list-style: none; }
+.years a { display: grid; grid-template-columns: 3.4em minmax(0, 1fr); align-items: center; gap: 2px 14px; min-height: 44px; padding: 8px 0; border-top: 1px solid var(--faint); text-decoration: none; }
+.years b { grid-row: 1 / span 2; font: 600 19px/1 var(--display); letter-spacing: -.01em; }
+.record { font-size: 14px; color: var(--quiet); }
+.strip { margin: 2px 0 0; }
+.years a:hover b { color: var(--green); }
+@media (min-width: 1024px) { .years { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; } }
+
+/* The 2010 run: three road games */
+.run { display: grid; grid-template-columns: repeat(auto-fit, minmax(9em, 1fr)); gap: 12px; max-width: 760px; margin: 0; padding: 0; list-style: none; }
+.run li { display: grid; gap: 4px; padding: 14px 16px; border-radius: 12px; background: var(--raise); }
+.run b { font: 600 24px/1.1 var(--data); }
+.run [data-outcome="win"] b { color: var(--green); }
+.run [data-outcome="loss"] b { color: var(--loss); }
+.run span { font-size: 14px; color: var(--quiet); }
+
+.extreme { display: grid; gap: 4px; }
+.extreme b { font: 600 22px/1 var(--display); }

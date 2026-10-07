@@ -1,26 +1,67 @@
 import Link from "@/components/IntentLink";
-import { loadSeasonArchive } from "@/lib/load-season-archive";
-import { phaseResults, seasonNumbers } from "@/lib/season-archive";
-import { pageMetadata } from "@/lib/site";
+import FocusMoment from "@/components/FocusMoment";
+import FocusShell, { type FocusEntry } from "@/components/FocusShell";
 import ResultStrip from "@/components/ResultStrip";
-import styles from "./page.module.css";
+import shared from "@/components/Focus.module.css";
+import { placeName } from "@/lib/focus";
+import { record } from "@/lib/focus-format";
+import { loadSeasonArchive } from "@/lib/load-season-archive";
+import { phaseResults, seasonNumbers, type ArchiveSeason } from "@/lib/season-archive";
+import { pageMetadata } from "@/lib/site";
+import { focusFonts } from "../focus-fonts";
+import styles from "./overview.module.css";
 
 export const metadata = pageMetadata({ path: "/seasons", title: "Jets Season Archive — results, playoffs, stories and film", description: "Explore the Jets by football season: final scores, scoring margins, playoff runs, game evidence, sourced facts, reporting and replays. Historical game coverage begins in 1999 with selected earlier moments." });
 
+const regularRecord = (season: ArchiveSeason) => seasonNumbers(phaseResults(season, "regular"));
+const pct = (n: ReturnType<typeof seasonNumbers>) => (n.wins + n.ties / 2) / n.games;
+
 export default async function SeasonsPage() {
   const seasons = await loadSeasonArchive();
+  const full = seasons.filter((season) => !season.current && regularRecord(season).games >= 14);
+  const ranked = [...full].sort((a, b) => pct(regularRecord(b)) - pct(regularRecord(a)) || b.year - a.year);
+  const best = ranked[0], worst = ranked.at(-1);
   const featured = seasons.find((season) => season.year === 2010);
-  const postseason = featured ? seasonNumbers(phaseResults(featured, "playoffs")) : null;
-  return <main id="main" className={styles.main}>
-    <nav className={styles.breadcrumb} aria-label="Breadcrumb"><Link href="/">The Back Page</Link><span aria-hidden="true">/</span><span>Seasons</span></nav>
-    <header className={styles.header}><p className={styles.kicker}>Every season leaves a record</p><h1 className="hed">Pick a year.<br /><span>Go back in.</span></h1><p>Your year. Your games. Scores, rankings, stories and replays.</p></header>
-    <nav className={styles.explore} aria-label="Explore Jets history"><Link href="/history">Classic games & rivalries <span aria-hidden="true">→</span></Link><Link href="/stories">Visual game stories <span aria-hidden="true">→</span></Link></nav>
-    {featured && postseason?.games ? <section className={styles.feature} aria-labelledby="season-feature-heading"><div><p className={styles.kicker}>Start here · the 2010 playoffs</p><h2 id="season-feature-heading" className="hed">Indianapolis.<br />Foxborough.<br />Pittsburgh.</h2><p>Follow three road playoff games, revisit the 28–21 New England win, and open the original reporting and NFL replay.</p><Link href="/seasons/2010?phase=playoffs">Explore the playoff run <span aria-hidden="true">↗</span></Link></div><div className={styles.featureNumbers}><strong>{postseason.wins}–{postseason.losses}</strong><small>2010 postseason · {postseason.games} recorded games<br />Played in January 2011</small></div></section> : null}
-    <div className={styles.directoryTitle}><h2 className="hed">Available seasons</h2><p>{seasons.length} years · one square per recorded final: green win, rust loss, ringed playoff</p></div>
-    <div className={styles.years}>{seasons.map((season) => {
-      const regular = seasonNumbers(phaseResults(season, "regular")), playoffs = seasonNumbers(phaseResults(season, "playoffs"));
-      return <Link className={styles.season} data-archive-year={season.year} key={season.year} href={`/seasons/${season.year}`}><h3>{season.year}<span aria-hidden="true">↗</span></h3><p>{regular.games ? `${regular.wins}–${regular.losses}${regular.ties ? `–${regular.ties}` : ""} regular season` : "Selected historical moments"}</p><ResultStrip results={season.results} /><small>{season.current ? "Current season · in progress" : `${season.results.length} recorded finals`}{playoffs.games ? ` · ${playoffs.wins}–${playoffs.losses} playoffs` : ""}</small><small>{season.cases.length} game cases · {season.facts.length} sourced moments · {season.media.length} media items</small></Link>;
-    })}</div>
-    <p className={styles.note}>Game results and usable win-probability evidence begin in 1999. Earlier years contain selected verified moments; reporting remains a curated selection. Team and player league comparisons begin in 1999; available Next Gen tracking begins in 2016. The current season includes confirmed finals only. <Link href="/how-made">See sources and methods ↗</Link></p>
-  </main>;
+  const run = featured ? phaseResults(featured, "playoffs") : [];
+  const runNumbers = seasonNumbers(run);
+  const recorded = seasons.filter((season) => season.results.length);
+
+  const entries: FocusEntry[] = [
+    { id: "years", title: "Seasons", answer: `${seasons.length} years` },
+    run.length ? { id: "run", title: "Start here", answer: "The 2010 playoffs" } : null,
+    best && worst && best !== worst ? { id: "extremes", title: "Best and worst", answer: `${best.year} and ${worst.year}` } : null,
+  ].filter((entry): entry is FocusEntry => entry !== null);
+
+  return <FocusShell page="seasons" entries={entries} checkedAt={null} className={focusFonts}>
+    <FocusMoment id="years" first label="Seasons" heading={<>{seasons.length} Jets seasons. <em>Pick one.</em></>}
+      actions={<><Link href="/history" className={shared.go}>Classic games &amp; rivalries <span aria-hidden="true">→</span></Link><Link href="/stories" className={shared.go}>Visual game stories <span aria-hidden="true">→</span></Link></>}>
+      <p className={shared.caption}>One square per game: green a win, rust a loss, ringed in the playoffs. Full results begin in {recorded.at(-1)?.year ?? 1999}; earlier years hold selected moments.</p>
+      <ol className={styles.years}>{seasons.map((season) => {
+        const regular = regularRecord(season), playoffs = seasonNumbers(phaseResults(season, "playoffs"));
+        return <li key={season.year}><Link href={`/seasons/${season.year}`} data-archive-year={season.year}>
+          <b>{season.year}</b>
+          <span className={styles.record}>{regular.games ? `${record(regular.wins, regular.losses, regular.ties)}${playoffs.games ? `, ${record(playoffs.wins, playoffs.losses)} playoffs` : ""}${season.current ? " so far" : ""}` : "Selected moments"}</span>
+          <ResultStrip results={season.results} className={styles.strip} />
+        </Link></li>;
+      })}</ol>
+    </FocusMoment>
+
+    {featured && run.length ? <FocusMoment id="run" label="Start here · the 2010 playoffs"
+      heading={<>{run.map((game, at) => `${at ? (game.outcome === "win" ? "won" : "lost") : (game.outcome === "win" ? "Won" : "Lost")} at ${placeName(game.opponentDisplay)}`).join(", ")}. <em>{record(runNumbers.wins, runNumbers.losses)} in January 2011.</em></>}
+      actions={<Link href="/seasons/2010?phase=playoffs" className={shared.go}>Explore the playoff run <span aria-hidden="true">→</span></Link>}>
+      <figure className={shared.shape}>
+        <ol className={styles.run}>{run.map((game) => <li key={game.id} data-outcome={game.outcome}><b>{game.outcome === "win" ? "W" : "L"} {game.jetsScore}–{game.oppScore}</b><span>at {placeName(game.opponentDisplay)}</span></li>)}</ol>
+        <figcaption>Three road playoff games, with the original reporting and NFL replay on the season page.</figcaption>
+      </figure>
+    </FocusMoment> : null}
+
+    {best && worst && best !== worst ? <FocusMoment id="extremes" label="Best and worst since 1999"
+      heading={<>Best: {best.year}, {record(regularRecord(best).wins, regularRecord(best).losses, regularRecord(best).ties)}. <em>Worst: {worst.year}, {record(regularRecord(worst).wins, regularRecord(worst).losses, regularRecord(worst).ties)}.</em></>}
+      actions={<><Link href={`/seasons/${best.year}`} className={shared.go}>Open {best.year} <span aria-hidden="true">→</span></Link><Link href={`/seasons/${worst.year}`} className={shared.go}>Open {worst.year} <span aria-hidden="true">→</span></Link></>}>
+      <figure className={shared.shape}>
+        {[best, worst].map((season) => <div key={season.year} className={styles.extreme}><b>{season.year}</b><ResultStrip results={season.results} size="large" /></div>)}
+        <figcaption>By regular-season winning percentage among complete seasons.</figcaption>
+      </figure>
+    </FocusMoment> : null}
+  </FocusShell>;
 }

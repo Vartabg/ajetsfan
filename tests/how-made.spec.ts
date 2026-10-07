@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import path from "node:path";
 
 test("the case study explains the archive and lets a keyboard reader compare paper", async ({ page }) => {
-  await page.goto("/seasons");
+  await page.goto("/history");
   const sections = page.getByRole("navigation", { name: "Site sections" });
   await page.locator("footer").getByRole("link", { name: "How it is made", exact: true }).click();
   await expect(sections.getByRole("link", { name: "Home", exact: true })).not.toHaveAttribute("aria-current", "page");

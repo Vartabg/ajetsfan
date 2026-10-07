@@ -13,7 +13,7 @@ their filters and place intact.
 | `/team/stats` | Recorded player production |
 | `/team/news` | Official team headlines |
 | `/media` | Focus view: the newest video, article, show and post, one moment each, then the searchable collection |
-| `/seasons` | Choose a football season; discover history and game stories |
+| `/seasons` | Focus view: every season as its record and one square per game, the 2010 playoff run, the best and worst seasons |
 | `/seasons/[year]` | One selected view: games, rankings, tracking, moments or coverage |
 | `/stories` | Recorded games as interactive visual timelines |
 | `/history` | Classic moments and rivalry records |
