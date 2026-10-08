@@ -4,7 +4,7 @@ import path from "node:path";
 import type { Game } from "../src/lib/games";
 import { archiveFilters, filterArchive, gameHref } from "../src/lib/explorer";
 import { gameEditorialPhoto } from "../src/lib/editorial-photos";
-import { FOCUS_ROUTES, SECTIONS } from "../src/lib/site-sections";
+import { isFocusRoute, SECTIONS } from "../src/lib/site-sections";
 
 const imageFixture = '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>';
 const routes = ["/", "/team", "/team/roster", "/team/stats", "/team/news", "/game-day", "/stories", "/history", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/media"];
@@ -33,7 +33,7 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
   }
   const navigation = page.getByRole("navigation", { name: "Site sections" });
   const links = navigation.getByRole("link");
-  if (FOCUS_ROUTES.includes(route)) {
+  if (isFocusRoute(route)) {
     // Focus pages: the way in is the Menu (phones) or the moment index (wide screens).
     const entry = page.viewportSize()!.width >= 1024 ? page.getByRole("navigation", { name: "On this page" }) : page.getByRole("button", { name: "Menu", exact: true });
     await expect(entry).toBeVisible();

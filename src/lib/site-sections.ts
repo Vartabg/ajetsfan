@@ -1,5 +1,7 @@
 /** Pages rebuilt as focus views; they carry their own navigation instead of the site header and footer. */
 export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/film-room", "/media", "/seasons"];
+/** The listed pages plus every season page (not its guide). */
+export const isFocusRoute = (pathname: string) => FOCUS_ROUTES.includes(pathname) || /^\/seasons\/\d{4}$/.test(pathname);
 
 /** Every destination the home page offers, in the order a visitor scans them. */
 export const SECTIONS = [

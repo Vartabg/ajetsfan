@@ -41,10 +41,23 @@ test("Seasons reflows at 320px with 200% text", async ({ page }) => {
 });
 
 test("Each season page wears the green the Jets wore that year", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
   for (const [year, era, green] of [["1968", "Kelly green", "#007A3D"], ["1986", "Sack Exchange green", "#046A38"], ["2010", "Hunter green", "#003F2D"], ["2026", "Legacy green", "#125740"]]) {
     await page.goto(`/seasons/${year}`);
-    const main = page.locator("main#main");
-    await expect(main).toHaveAttribute("data-era", era);
-    expect(await main.evaluate((node) => getComputedStyle(node).getPropertyValue("--forest").trim())).toBe(green);
+    await expect(page.locator("#year p").first()).toContainText(era);
+    expect(await page.locator('[data-focus-page="season"]').evaluate((node) => getComputedStyle(node).getPropertyValue("--forest").trim())).toBe(green);
   }
+});
+
+test("A season page is a focus page: the record, the best and worst day, a moment to remember, then every game", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/seasons/2010");
+  await expect(page.locator("#top")).toHaveCount(0);
+  const ids = await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.id));
+  expect(ids).toEqual(["year", "swing", "moment", "explore", "more"]);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("11–5. 2–1 in the playoffs.");
+  await expect(page.locator("#explore [data-focus-tools] [data-season-archive]")).toHaveAttribute("data-season-archive", "2010");
+  await page.goto("/seasons/1968");
+  expect(await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.id))).toEqual(["year", "moment", "explore", "more"]);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("1968. Selected moments.");
 });
