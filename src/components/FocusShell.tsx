@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import Link from "./IntentLink";
 import { SECTIONS } from "@/lib/site-sections";
@@ -15,6 +15,25 @@ export default function FocusShell({ page, entries, checkedAt, className = "", c
   const pathname = usePathname();
   const index = [...entries, MORE];
   const [active, setActive] = useState(0);
+  const [open, setOpen] = useState(false);
+  const sheet = useRef<HTMLDialogElement>(null);
+
+  // Menu opens a sheet over the current screen instead of scrolling the page to its last moment:
+  // a long jump through snap points is what iPhone Safari pulls back to the top. Without JavaScript it stays a link to #more.
+  const openMenu = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!sheet.current?.showModal) return;
+    event.preventDefault();
+    sheet.current.showModal();
+    setOpen(true);
+  };
+  const closeMenu = () => sheet.current?.close();
+  // A moment chosen in the sheet: close it, then go there directly, without smooth scrolling through every screen between.
+  const goTo = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    event.preventDefault();
+    closeMenu();
+    history.replaceState(history.state, "", `#${id}`);
+    document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "instant" });
+  };
 
   useEffect(() => {
     const sections = index.map((entry) => document.getElementById(entry.id)).filter((section): section is HTMLElement => section !== null);
@@ -24,7 +43,7 @@ export default function FocusShell({ page, entries, checkedAt, className = "", c
     }, { rootMargin: "-45% 0px -54% 0px" });
     sections.forEach((section) => observer.observe(section));
     const keys = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || (event.target as HTMLElement).closest("input, select, textarea, [contenteditable], [data-focus-chart], [data-focus-tools]")) return;
+      if (event.defaultPrevented || sheet.current?.open || event.altKey || event.ctrlKey || event.metaKey || (event.target as HTMLElement).closest("input, select, textarea, [contenteditable], [data-focus-chart], [data-focus-tools]")) return;
       const step = ["ArrowDown", "j"].includes(event.key) ? 1 : ["ArrowUp", "k"].includes(event.key) ? -1 : 0;
       if (!step) return;
       const middle = innerHeight / 2;
@@ -47,8 +66,16 @@ export default function FocusShell({ page, entries, checkedAt, className = "", c
     <header className={styles.bar}>
       <Link href="/" className={styles.brand}>ajets<span>fan</span></Link>
       <span className={styles.progress} aria-hidden="true">{index.map((entry, at) => <i key={entry.id} data-on={at === active ? "" : undefined} />)}</span>
-      <a href="#more" className={styles.menu}>Menu</a>
+      <a href="#more" role="button" className={styles.menu} aria-haspopup="dialog" aria-expanded={open} aria-controls="focus-menu" onClick={openMenu}>Menu</a>
     </header>
+    <dialog ref={sheet} id="focus-menu" className={styles.sheet} aria-labelledby="focus-menu-heading" onClose={() => setOpen(false)}
+      onClick={(event) => { if (event.target === event.currentTarget) closeMenu(); }}>
+      <div className={styles.sheetHead}><h2 id="focus-menu-heading">Menu</h2><button type="button" className={styles.sheetClose} onClick={closeMenu}>Close</button></div>
+      {entries.length ? <nav aria-label="This page"><p className={styles.label}>On this page</p><ol className={styles.sheetMoments}>{entries.map((entry, at) => <li key={entry.id}>
+        <a href={`#${entry.id}`} aria-current={at === active ? "true" : undefined} onClick={(event) => goTo(event, entry.id)}><span>{entry.title}</span><b>{entry.answer}</b></a>
+      </li>)}</ol></nav> : null}
+      <nav aria-label="All sections" className={styles.sections}><p className={styles.label}>Sections</p><ul>{SECTIONS.map((section) => <li key={section.href}><Link href={section.href} onClick={closeMenu} aria-current={pathname === section.href ? "page" : undefined}><b>{section.label}</b><span>{section.note}</span></Link></li>)}</ul></nav>
+    </dialog>
     <aside className={styles.rail}>
       <Link href="/" className={styles.brand}>ajets<span>fan</span></Link>
       <nav aria-label="On this page"><ol>{index.map((entry, at) => <li key={entry.id}><a href={`#${entry.id}`} aria-current={at === active ? "true" : undefined}><span>{entry.title}</span><b>{entry.answer}</b></a></li>)}</ol></nav>

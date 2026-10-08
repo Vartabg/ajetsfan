@@ -7,7 +7,9 @@
   --paper: var(--bg); --paper-2: var(--raise); --ink-2: var(--quiet); --ink-3: var(--quiet); --rule: var(--ink); --rule-soft: var(--faint);
   --spot: var(--green); --spot-bright: var(--green); --forest: var(--green); --accent: var(--tint); --stamp: var(--loss); --tape: var(--raise);
   background: var(--bg); color-scheme: light;
-  scroll-snap-type: y mandatory; scroll-padding-top: 56px;
+  /* Proximity, not mandatory: screens settle when a swipe ends near one, but a link or the keyboard can still go straight to a screen
+     (mandatory snapping with snap-stop made iPhone Safari pull long jumps back to the top). */
+  scroll-snap-type: y proximity; scroll-padding-top: 56px;
 }
 @media (prefers-color-scheme: dark) {
   :global(html):has([data-focus-page]) {
@@ -34,7 +36,7 @@
 .menu { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px 0 10px; font: 600 14px/1 var(--text); text-decoration: none; }
 .rail { display: none; }
 
-.moment { box-sizing: border-box; min-height: calc(100svh - 56px); scroll-snap-align: start; scroll-snap-stop: always; display: flex; flex-direction: column; gap: 12px; padding: 18px 16px 24px; }
+.moment { box-sizing: border-box; min-height: calc(100svh - 56px); scroll-snap-align: start; display: flex; flex-direction: column; gap: 12px; padding: 18px 16px 24px; }
 .label { margin: 0; font: 500 12px/1.4 var(--data); letter-spacing: .06em; text-transform: uppercase; color: var(--quiet); }
 .say { margin: 0; font: 650 clamp(30px, 8.4vw, 64px)/1.04 var(--display); letter-spacing: -.035em; text-wrap: balance; overflow-wrap: anywhere; }
 .say em { font-style: normal; color: var(--quiet); }
@@ -79,6 +81,24 @@
 .picture { position: relative; width: 100%; max-width: 760px; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: var(--raise); }
 .picture img { object-fit: cover; }
 .square { max-width: min(100%, 360px); aspect-ratio: 1; }
+
+/* The menu sheet: everything one tap away, over the current screen */
+.sheet { box-sizing: border-box; width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0; padding: 0 16px calc(24px + env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); color: var(--ink); overflow-y: auto; overscroll-behavior: contain; font: 400 16px/1.5 var(--text); }
+.sheet::backdrop { background: rgb(0 0 0 / .35); }
+.sheet a { color: inherit; }
+.sheet :is(a, button):focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+.sheetHead { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; height: 56px; padding-top: env(safe-area-inset-top, 0px); background: var(--bg); }
+.sheetHead h2 { margin: 0; font: 700 19px/1 var(--display); letter-spacing: -.02em; }
+.sheetClose { min-height: 44px; padding: 0 4px 0 12px; border: 0; background: none; color: inherit; font: 600 14px/1 var(--text); cursor: pointer; }
+.sheet nav { margin-top: 18px; }
+.sheet nav > .label { margin-bottom: 6px; }
+.sheetMoments { display: grid; margin: 0; padding: 0; list-style: none; }
+.sheetMoments a { display: grid; gap: 2px; min-height: 44px; padding: 10px 0; border-bottom: 1px solid var(--faint); text-decoration: none; }
+.sheetMoments span { font: 500 11px/1.3 var(--data); letter-spacing: .06em; text-transform: uppercase; color: var(--quiet); }
+.sheetMoments b { font: 600 19px/1.2 var(--display); letter-spacing: -.01em; }
+.sheetMoments a[aria-current] b { color: var(--green); }
+@media (prefers-reduced-motion: no-preference) { .sheet[open] { animation: sheet-in .2s ease-out; } }
+@keyframes sheet-in { from { opacity: 0; transform: translateY(12px); } }
 
 /* Everything else */
 .sections ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }

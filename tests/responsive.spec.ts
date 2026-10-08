@@ -35,7 +35,7 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
   const links = navigation.getByRole("link");
   if (FOCUS_ROUTES.includes(route)) {
     // Focus pages: the way in is the Menu (phones) or the moment index (wide screens).
-    const entry = page.viewportSize()!.width >= 1024 ? page.getByRole("navigation", { name: "On this page" }) : page.getByRole("link", { name: "Menu", exact: true });
+    const entry = page.viewportSize()!.width >= 1024 ? page.getByRole("navigation", { name: "On this page" }) : page.getByRole("button", { name: "Menu", exact: true });
     await expect(entry).toBeVisible();
     await expect(links).toHaveCount(SECTIONS.length);
     for (const link of await links.all()) {
