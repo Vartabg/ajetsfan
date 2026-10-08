@@ -1,5 +1,5 @@
 /** Pages rebuilt as focus views; they carry their own navigation instead of the site header and footer. */
-export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/film-room", "/media"];
+export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/film-room", "/media", "/seasons"];
 
 /** Every destination the home page offers, in the order a visitor scans them. */
 export const SECTIONS = [
