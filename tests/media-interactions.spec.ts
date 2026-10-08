@@ -390,11 +390,13 @@ test("the collection reflows at 320px and 200% text with usable targets and acce
     await page.evaluate((scale) => { document.documentElement.style.fontSize = `${scale}%`; }, scale);
     const width = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
     expect(width.content, `${scale}% text`).toBeLessThanOrEqual(width.viewport + 1);
-    for (const target of await media.locator("button:visible, input:visible, select:visible, summary:visible, a:visible").all()) {
-      const rect = await target.boundingBox();
-      expect(rect?.height, `${scale}% ${await target.textContent()}`).toBeGreaterThanOrEqual(44);
-      expect(rect?.width, `${scale}% ${await target.textContent()}`).toBeGreaterThanOrEqual(44);
-    }
+    // Measured in one pass in the page: one round trip per target outgrows the timeout as the catalog grows.
+    const small = await media.evaluate((room) => [...room.querySelectorAll<HTMLElement>("button, input, select, summary, a")]
+      .filter((target) => target.checkVisibility())
+      .map((target) => ({ text: target.textContent?.trim().slice(0, 60), ...target.getBoundingClientRect().toJSON() }))
+      .filter((rect) => rect.height < 44 || rect.width < 44)
+      .map((rect) => `${rect.text} ${Math.round(rect.width)}×${Math.round(rect.height)}`));
+    expect(small, `${scale}% text`).toEqual([]);
   }
   await page.evaluate(() => window.scrollTo({ top: 0, left: 0, behavior: "instant" }));
   await page.addScriptTag({ path: path.join(process.cwd(), "node_modules/axe-core/axe.min.js") });
