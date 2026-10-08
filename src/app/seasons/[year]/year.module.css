@@ -1,0 +1,17 @@
+/* A season page in the focus palette, in the green the Jets wore that year; the frame and type live in Focus.module.css. */
+
+/* The page's tokens are set on <html>; the era green replaces them inside the page. Dark mode keeps its light green for contrast. */
+@media (prefers-color-scheme: light) {
+  .era { --green: var(--era); --spot: var(--era); --spot-bright: var(--era); --forest: var(--era); }
+}
+
+/* Best and worst day: two games side by side */
+.swing { display: grid; grid-template-columns: repeat(auto-fit, minmax(12em, 1fr)); gap: 12px; max-width: 760px; margin: 0; padding: 0; list-style: none; }
+.swing li { display: grid; gap: 4px; padding: 14px 16px; border-radius: 12px; background: var(--raise); }
+.swing b { font: 600 24px/1.1 var(--data); }
+.swing [data-outcome="win"] b { color: var(--green); }
+.swing [data-outcome="loss"] b { color: var(--loss); }
+.swing span { font-size: 14px; color: var(--quiet); }
+
+/* Every game: the season tools, unchanged, at the focus page's width */
+.tools { max-width: 1100px; min-width: 0; }

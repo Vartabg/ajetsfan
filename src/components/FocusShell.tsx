@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import Link from "./IntentLink";
 import { SECTIONS } from "@/lib/site-sections";
@@ -11,9 +11,11 @@ export type FocusEntry = { id: string; title: string; answer: string };
 const MORE: FocusEntry = { id: "more", title: "Everything else", answer: "Team, seasons, archive…" };
 
 /** The frame every focus page shares: a slim bar on phones, an index of moments on wide screens, and the site's sections last. */
-export default function FocusShell({ page, entries, checkedAt, className = "", children }: { page: string; entries: FocusEntry[]; checkedAt: string | null; className?: string; children: ReactNode }) {
+export default function FocusShell({ page, entries, checkedAt, className = "", style, children }: { page: string; entries: FocusEntry[]; checkedAt: string | null; className?: string; style?: CSSProperties; children: ReactNode }) {
   const pathname = usePathname();
   const index = [...entries, MORE];
+  // A season page belongs to Seasons, as a sub-page belongs to its section.
+  const current = (href: string) => pathname === href || pathname.startsWith(`${href}/`) ? "page" : undefined;
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
   const sheet = useRef<HTMLDialogElement>(null);
@@ -62,7 +64,7 @@ export default function FocusShell({ page, entries, checkedAt, className = "", c
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <div className={`${styles.app} ${className}`} data-focus-page={page}>
+  return <div className={`${styles.app} ${className}`} style={style} data-focus-page={page}>
     <header className={styles.bar}>
       <Link href="/" className={styles.brand}>ajets<span>fan</span></Link>
       <span className={styles.progress} aria-hidden="true">{index.map((entry, at) => <i key={entry.id} data-on={at === active ? "" : undefined} />)}</span>
@@ -74,7 +76,7 @@ export default function FocusShell({ page, entries, checkedAt, className = "", c
       {entries.length ? <nav aria-label="This page"><p className={styles.label}>On this page</p><ol className={styles.sheetMoments}>{entries.map((entry, at) => <li key={entry.id}>
         <a href={`#${entry.id}`} aria-current={at === active ? "true" : undefined} onClick={(event) => goTo(event, entry.id)}><span>{entry.title}</span><b>{entry.answer}</b></a>
       </li>)}</ol></nav> : null}
-      <nav aria-label="All sections" className={styles.sections}><p className={styles.label}>Sections</p><ul>{SECTIONS.map((section) => <li key={section.href}><Link href={section.href} onClick={closeMenu} aria-current={pathname === section.href ? "page" : undefined}><b>{section.label}</b><span>{section.note}</span></Link></li>)}</ul></nav>
+      <nav aria-label="All sections" className={styles.sections}><p className={styles.label}>Sections</p><ul>{SECTIONS.map((section) => <li key={section.href}><Link href={section.href} onClick={closeMenu} aria-current={current(section.href)}><b>{section.label}</b><span>{section.note}</span></Link></li>)}</ul></nav>
     </dialog>
     <aside className={styles.rail}>
       <Link href="/" className={styles.brand}>ajets<span>fan</span></Link>
@@ -86,7 +88,7 @@ export default function FocusShell({ page, entries, checkedAt, className = "", c
       <section id="more" className={styles.moment} aria-labelledby="more-heading" data-focus-moment="more">
         <p className={styles.label}>ajetsfan</p>
         {entries.length ? <h2 id="more-heading" className={styles.say}>Everything else.</h2> : <h1 id="more-heading" className={styles.say}>Everything else.</h1>}
-        <nav aria-label="Site sections" className={styles.sections}><ul>{SECTIONS.map((section) => <li key={section.href}><Link href={section.href} pendingHint aria-current={pathname === section.href ? "page" : undefined}><b>{section.label}</b><span>{section.note}</span></Link></li>)}</ul></nav>
+        <nav aria-label="Site sections" className={styles.sections}><ul>{SECTIONS.map((section) => <li key={section.href}><Link href={section.href} pendingHint aria-current={current(section.href)}><b>{section.label}</b><span>{section.note}</span></Link></li>)}</ul></nav>
         {checkedAt ? <p className={styles.note}>Results checked {on(checkedAt, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })} ET.</p> : null}
       </section>
     </main>
