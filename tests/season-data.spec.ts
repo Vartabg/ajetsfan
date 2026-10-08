@@ -67,7 +67,8 @@ test("future, impossible-calendar and contradictory fixture identities enter nei
   const changes: Partial<Game>[] = [
     { date: "2027-09-18" }, { date: "2022-02-30" }, { date: "2022-01-18" }, { date: "2022-05-18" },
     { season: 2050, id: "2050_02_NYJ_CLE" },
-    { season: 2026, id: "2026_02_NYJ_CLE", date: "2026-10-04" },
+    // The day after the catalog was checked, so this stays a future game whenever the catalog is re-dated.
+    { season: 2026, id: "2026_02_NYJ_CLE", date: new Date(Date.parse(checkedAt) + 86_400_000).toISOString().slice(0, 10) },
     { opponent: "BUF" }, { opponent: "NYJ", opponentDisplay: "NYJ", id: "2022_02_NYJ_NYJ" },
     { id: "2022_02_CLE_NYJ" }, { jetsScore: -1 }, { jetsScore: 31.5 }, { outcome: "loss" },
   ];
