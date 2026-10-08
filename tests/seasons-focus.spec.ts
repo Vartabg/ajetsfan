@@ -39,3 +39,12 @@ test("Seasons reflows at 320px with 200% text", async ({ page }) => {
   await page.addStyleTag({ content: "html { font-size: 200% !important; } body { font-size: 32px !important; }" });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test("Each season page wears the green the Jets wore that year", async ({ page }) => {
+  for (const [year, era, green] of [["1968", "Kelly green", "#007A3D"], ["1986", "Sack Exchange green", "#046A38"], ["2010", "Hunter green", "#003F2D"], ["2026", "Legacy green", "#125740"]]) {
+    await page.goto(`/seasons/${year}`);
+    const main = page.locator("main#main");
+    await expect(main).toHaveAttribute("data-era", era);
+    expect(await main.evaluate((node) => getComputedStyle(node).getPropertyValue("--forest").trim())).toBe(green);
+  }
+});
