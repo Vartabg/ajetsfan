@@ -27,9 +27,10 @@ function Go({ href, children }: { href: string; children: ReactNode }) {
 }
 
 /** The game's shape: one point per play, evenly spaced, as the site's other charts do. */
-function WinLine({ line, keys, label }: { line: FocusPoint[]; keys: boolean; label: string }) {
+function WinLine({ line, keys, onKeys, label }: { line: FocusPoint[]; keys: boolean; onKeys: (next: boolean) => void; label: string }) {
   const [at, setAt] = useState<number | null>(null);
   const box = useRef<HTMLDivElement>(null);
+  const down = useRef<number | null>(null);
   const last = line.length - 1;
   const x = (index: number) => index / last * 1000;
   const y = (wp: number) => (1 - wp) * 300;
@@ -44,18 +45,24 @@ function WinLine({ line, keys, label }: { line: FocusPoint[]; keys: boolean; lab
   };
   const move = (event: PointerEvent<HTMLDivElement>) => { if (event.pointerType === "mouse" || event.buttons) read(event.clientX); };
   const step = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onKeys(!keys); return; }
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
     setAt((current) => Math.min(last, Math.max(0, (current ?? (event.key === "ArrowLeft" ? last + 1 : -1)) + (event.key === "ArrowLeft" ? -1 : 1))));
   };
   const reading = at === null ? null : line[at];
-  return <div ref={box} className={styles.chart} role="img" aria-label={label} tabIndex={0} onPointerMove={move} onPointerDown={(event) => read(event.clientX)} onPointerLeave={() => setAt(null)} onKeyDown={step} onBlur={() => setAt(null)} data-focus-chart>
+  // The line is its own control: a tap shows or hides the key moments; a drag reads the line without toggling.
+  return <div ref={box} className={styles.chart} role="button" aria-pressed={keys} aria-label={`Key moments. ${label}`} tabIndex={0} onPointerMove={move}
+    onPointerDown={(event) => { down.current = event.clientX; read(event.clientX); }} onPointerLeave={() => setAt(null)}
+    onClick={(event) => { if (down.current === null || Math.abs(event.clientX - down.current) < 8) onKeys(!keys); down.current = null; }}
+    onKeyDown={step} onBlur={() => setAt(null)} data-focus-chart>
     <svg viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true">
       {quarters.map((quarter) => <line key={quarter.index} className={styles.tick} x1={x(quarter.index)} x2={x(quarter.index)} y1="0" y2="300" />)}
       <line className={styles.even} x1="0" x2="1000" y1="150" y2="150" />
       <path className={styles.area} d={`${path}L1000 300L0 300Z`} />
       <path className={styles.line} d={path} />
     </svg>
+    <i className={styles.final} style={{ top: `calc((100% - 24px) * ${(y(line[last][0]) / 300).toFixed(3)})` }} aria-hidden="true" />
     <div className={styles.axis} aria-hidden="true"><span style={{ left: 0 }}>Q1</span>{quarters.map((quarter) => <span key={quarter.index} style={{ left: `${x(quarter.index) / 10}%` }}>{quarter.label}</span>)}</div>
     {keys ? <div className={styles.keys} data-focus-keys>{marks.map((mark) => {
       // Labels near an edge hang inward so enlarged text cannot push them off the screen.
@@ -74,11 +81,11 @@ function LastGame({ last, first, status }: { last: NonNullable<FocusData["last"]
   return <FocusMoment id="last" first={first} status={status}
     label={`${last.archive ? "From the archive" : "Last game"} · ${last.postseason ? "Playoffs" : `Week ${last.week}`} · ${dayOf(last.date)}`}
     heading={<>{verb} {last.us}–{last.them} <em>{last.home ? "vs" : "at"} {last.place}.</em></>}
-    actions={<>{line ? <Toggle pressed={keys} onChange={setKeys} show="Show the key moments" hide="Hide the key moments" /> : null}<Go href={last.href}>{last.hrefLabel}</Go></>}>
+    actions={<Go href={last.href}>{last.hrefLabel}</Go>}>
     <figure className={shared.shape}>
-      {line && best ? <WinLine line={line} keys={keys} label={`Jets win chance, play by play: ${pct(line[0][0])} at kickoff, best ${pct(best[0])} in the ${quarterName(best[1])}, ${pct(line.at(-1)![0])} at the end.`} />
+      {line && best ? <WinLine line={line} keys={keys} onKeys={setKeys} label={`Jets win chance, play by play: ${pct(line[0][0])} at kickoff, best ${pct(best[0])} in the ${quarterName(best[1])}, ${pct(line.at(-1)![0])} at the end.`} />
         : <div className={styles.score} role="img" aria-label={`Jets ${last.us}, ${last.place} ${last.them}`}><span style={{ width: `${last.us / Math.max(last.us, last.them, 1) * 100}%` }}>NYJ {last.us}</span><span style={{ width: `${last.them / Math.max(last.us, last.them, 1) * 100}%` }}>{last.opponent} {last.them}</span></div>}
-      <figcaption>{line && best ? `The line is the Jets’ chance to win, play by play. It started at ${pct(line[0][0])}. The best it got was ${pct(best[0])}, in the ${quarterName(best[1])}.` : "The play-by-play line appears here once the game’s data is published."}</figcaption>
+      <figcaption>{line && best ? "The Jets’ chance to win, play by play." : "The play-by-play line appears here once the game’s data is published."}</figcaption>
     </figure>
   </FocusMoment>;
 }

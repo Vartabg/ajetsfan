@@ -94,13 +94,21 @@ test("each moment shows one thing and opens its detail in place", async ({ page 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   const heights = await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.getBoundingClientRect().height));
-  expect(Math.min(...heights)).toBeGreaterThanOrEqual(844 - 56 - 1);
+  // Each phone screen stops 28px short so the next one's edge shows.
+  expect(Math.min(...heights)).toBeGreaterThanOrEqual(844 - 56 - 28 - 1);
   if (focus.last && focus.last.line.length >= 2) {
     const chart = page.locator("[data-focus-chart]");
     await expect(chart).toHaveAttribute("aria-label", new RegExp(`${Math.round(focus.last.line[0][0] * 100)}% at kickoff`));
-    await page.getByRole("button", { name: "Show the key moments" }).click();
+    // The line itself is the control: a tap shows the key moments, Enter hides them again.
+    await expect(chart).toHaveAttribute("aria-pressed", "false");
+    const box = (await chart.boundingBox())!;
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
     await expect(page.locator("[data-focus-keys] span")).toHaveCount(3);
+    await expect(chart).toHaveAttribute("aria-pressed", "true");
+    await page.mouse.move(0, 0);
     await chart.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("[data-focus-keys]")).toHaveCount(0);
     await page.keyboard.press("ArrowRight");
     await expect(chart.getByRole("status")).toHaveText(new RegExp(`^Q1 · ${Math.round(focus.last.line[0][0] * 100)}%$`));
   }

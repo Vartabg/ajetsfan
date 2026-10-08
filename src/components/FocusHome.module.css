@@ -1,12 +1,19 @@
 /* Shapes used only on the home page; the frame, type and palette live in Focus.module.css. */
 
 /* Last game: the win-chance line */
-.chart { position: relative; height: clamp(180px, 40svh, 460px); touch-action: pan-y; cursor: crosshair; }
+.chart { position: relative; height: clamp(180px, 40svh, 460px); touch-action: pan-y; cursor: pointer; }
 .chart svg { position: absolute; inset: 0 0 24px; width: 100%; height: calc(100% - 24px); overflow: visible; }
 .tick { stroke: var(--faint); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .even { stroke: var(--faint); stroke-width: 1; stroke-dasharray: 4 6; vector-effect: non-scaling-stroke; }
 .area { fill: var(--ink); opacity: .06; }
 .line { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+/* The line draws itself once, left to right, then its last point breathes: the one moving thing on the screen. */
+.chart svg { animation: draw 1.6s cubic-bezier(.3, .7, .3, 1) both; }
+@keyframes draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.final { position: absolute; right: -5px; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%; background: var(--green); pointer-events: none; animation: arrive .3s 1.5s both, breathe 2.4s 1.8s ease-in-out infinite; }
+@keyframes arrive { from { opacity: 0; } }
+@keyframes breathe { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--green) 25%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .chart svg, .final { animation: none; } }
 .axis { position: absolute; left: 0; right: 0; bottom: 0; height: 18px; pointer-events: none; }
 .axis span { position: absolute; top: 0; font: 400 11px/1 var(--data); color: var(--quiet); }
 .keys { position: absolute; inset: 0 0 24px; pointer-events: none; }
