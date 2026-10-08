@@ -16,5 +16,10 @@ jobs:
       - run: npm run lint
       - run: npm run build
       - run: npm run test:performance
-      - run: npx playwright install --with-deps chrome
+      - name: Use the runner's Chrome for Playwright
+        # The runner image ships Google Chrome. Downloading it again from dl.google.com sometimes cuts off mid-file, so only install when it is missing, with retries.
+        run: |
+          if command -v google-chrome >/dev/null; then google-chrome --version; exit 0; fi
+          for attempt in 1 2 3; do npx playwright install --with-deps chrome && exit 0; sleep 15; done
+          exit 1
       - run: npm run test:a11y
