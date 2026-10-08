@@ -55,8 +55,38 @@ test("every section stays one step away, and the home page mounts none of the he
   expect(await sections.getByRole("link").evaluateAll((links) => links.map((link) => link.getAttribute("href")))).toEqual(SECTIONS.map((section) => section.href));
   await expect(page.locator("#visual-story, #fan-stand, #game-evidence, #playbook-lab, [data-home-disclosure]")).toHaveCount(0);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("link", { name: "Menu", exact: true }).click();
-  await expect(sections).toBeInViewport();
+  await page.getByRole("button", { name: "Menu", exact: true }).click();
+  const menu = page.getByRole("dialog", { name: "Menu" });
+  await expect(menu.getByRole("navigation", { name: "All sections" }).getByRole("link")).toHaveCount(SECTIONS.length);
+});
+
+test("Menu opens a sheet over the current screen and puts the reader back where they were", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const ids = await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.id));
+  await page.locator(`#${ids[1]}`).scrollIntoViewIfNeeded();
+  await page.evaluate((id) => document.getElementById(id)!.scrollIntoView({ block: "start" }), ids[1]);
+  const before = await page.evaluate(() => scrollY);
+  const opener = page.getByRole("button", { name: "Menu", exact: true });
+  // Tap where the button is: a locator click would first scroll the sticky bar "into view" and move the page.
+  const box = (await opener.boundingBox())!;
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  const menu = page.getByRole("dialog", { name: "Menu" });
+  await expect(menu).toBeVisible();
+  await expect(opener).toHaveAttribute("aria-expanded", "true");
+  await expect(menu.getByRole("navigation", { name: "This page" }).getByRole("link")).toHaveCount(ids.length - 1);
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(opener).toBeFocused();
+  expect(await page.evaluate(() => scrollY)).toBe(before);
+  await opener.click();
+  await menu.getByRole("navigation", { name: "This page" }).getByRole("link").last().click();
+  await expect(menu).toBeHidden();
+  await expect(page.locator(`#${ids.at(-2)}`)).toBeInViewport();
+  await opener.click();
+  await menu.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(menu).toBeHidden();
 });
 
 test("each moment shows one thing and opens its detail in place", async ({ page }) => {
@@ -93,7 +123,7 @@ test("wide screens keep an index of the moments that follows the one in view", a
   await page.goto("/");
   const index = page.getByRole("navigation", { name: "On this page" });
   await expect(index).toBeVisible();
-  await expect(page.getByRole("link", { name: "Menu", exact: true })).toBeHidden();
+  await expect(page.getByRole("button", { name: "Menu", exact: true })).toBeHidden();
   const ids = await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.id));
   await expect(index.getByRole("link")).toHaveCount(ids.length);
   await expect(index.locator("a[aria-current]")).toHaveAttribute("href", `#${ids[0]}`);
