@@ -49,7 +49,7 @@ test("five social entries retain the actual verified writers, status URLs and da
   }
 });
 
-test("video identities refer to the seven verified recordings rather than channel search pages", () => {
+test("video identities refer to the twelve verified recordings rather than channel search pages", () => {
   const expected = [
     ["s657QMErTG4", "sny", "2026-09-11T15:45:37Z"],
     ["6uVZ4sOzkpQ", "espn-new-york", "2026-05-15T18:14:15Z"],
@@ -58,8 +58,13 @@ test("video identities refer to the seven verified recordings rather than channe
     ["fsJpQCFPK1g", "nfl", "2016-12-23T22:00:03Z"],
     ["fTq9p0tPljw", "jets", "2026-09-13T21:13:42Z"],
     ["Iy8saaW8rBY", "lions", "2026-09-27T20:11:13Z"],
+    ["Lhp2xZ87YNc", "jake-asman-show", "2026-10-05T16:30:07Z"],
+    ["oVZKAy6OEMk", "mike-francesa-podcast", "2026-10-04T20:52:03Z"],
+    ["4KHPQmrqDUY", "jake-asman-show", "2026-10-05T22:09:24Z"],
+    ["IDNKf7Kikcs", "jake-asman-show", "2026-10-07T16:20:42Z"],
+    ["k-S3aOTJqxg", "bt-unleashed", "2026-10-04T20:58:56Z"],
   ];
-  expect(mediaCollection.items.filter((item) => item.youtubeId)).toHaveLength(7);
+  expect(mediaCollection.items.filter((item) => item.youtubeId)).toHaveLength(12);
   for (const [youtubeId, outletId, publishedAt] of expected) {
     expect(mediaCollection.items.find((item) => item.youtubeId === youtubeId)).toMatchObject({
       kind: "video", outletId, publishedAt, url: `https://www.youtube.com/watch?v=${youtubeId}`,
@@ -175,7 +180,7 @@ test("invalid football-season tags, phases and duplicate topics cannot contamina
 });
 
 test("game-linked media attach to their own game case and stay inside its season", () => {
-  expect(mediaForGame(mediaCollection.items, "2026_03_NYJ_DET").map((item) => item.id)).toEqual(["jets-lions-highlights-2026-09-27", "lions-jets-highlights-2026-09-27"]);
+  expect(mediaForGame(mediaCollection.items, "2026_03_NYJ_DET").map((item) => item.id)).toEqual(["jets-lions-highlights-2026-09-27", "lions-jets-highlights-2026-09-27", "oh-the-pain-detroit-2026-09-28"]);
   expect(mediaForGame(mediaCollection.items, "2026_01_NYJ_TEN").map((item) => item.youtubeId)).toEqual(["fTq9p0tPljw"]);
   expect(mediaForGame(mediaCollection.items, "2010_19_NYJ_NE")).toEqual([]);
   const base = mediaCollection.items.find((item) => item.id === "jets-titans-highlights-2026-09-13")!;

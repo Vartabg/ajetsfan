@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-03T03:05:00.000Z",
+  "checkedAt": "2026-10-08T02:01:00.000Z",
   "items": [
     {
       "id": "jets-titans-highlights-2026-09-13",
@@ -654,6 +654,242 @@
         2026
       ],
       "phase": "offseason"
+    },
+    {
+      "id": "wfan-benigno-glenn-2026-09-22",
+      "title": "Joe Benigno Rips Aaron Glenn's Jets Game Management | Evan & Tiki",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Joe Benigno with Evan Roberts and Tiki Barber",
+      "publishedAt": "2026-09-22T16:00:00Z",
+      "url": "https://www.audacy.com/podcasts/25b5d2554a72264c79052c27fbb94319/episodes/joe_benigno_rips_aaron_glenns_-8682198",
+      "image": {
+        "url": "https://www.audacy.com/media-library/image.png?id=67604330&width=600&height=600&coordinates=0%2C0%2C0%2C0",
+        "width": 600,
+        "height": 600
+      },
+      "summary": "Benigno questions Glenn’s fourth-down calls, overtime choices and late-game management after the Packers loss, while crediting an improved defense and Geno Smith.",
+      "topics": [
+        "Aaron Glenn",
+        "game reaction",
+        "Packers",
+        "radio"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "gameIds": [
+        "2026_02_GB_NYJ"
+      ]
+    },
+    {
+      "id": "oh-the-pain-detroit-2026-09-28",
+      "title": "MOTOWN MELTDOWN!",
+      "kind": "audio",
+      "outletId": "oh-the-pain",
+      "author": "Joe Benigno",
+      "publishedAt": "2026-09-28T15:57:18Z",
+      "url": "https://podcasts.apple.com/us/podcast/motown-meltdown/id1586455556?i=1000792051069",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/6a/40/74/6a407426-2b33-981f-0ce5-2ed4b7d39afc/mza_15447717173454171065.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600
+      },
+      "summary": "Benigno breaks down the Jets’ loss in Detroit and what went wrong.",
+      "topics": [
+        "Lions",
+        "game reaction",
+        "podcast"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "gameIds": [
+        "2026_03_NYJ_DET"
+      ]
+    },
+    {
+      "id": "asman-benigno-glenn-2026-10-05",
+      "title": "Joe Benigno DESTROYS Aaron Glenn & Says Jets Could FIRE Him Soon",
+      "kind": "video",
+      "outletId": "jake-asman-show",
+      "author": "Jake Asman with Joe Benigno",
+      "publishedAt": "2026-10-05T16:30:07Z",
+      "url": "https://www.youtube.com/watch?v=Lhp2xZ87YNc",
+      "summary": "Benigno reacts to the Bears loss and argues Glenn’s job may already be in jeopardy at 1–3.",
+      "topics": [
+        "Aaron Glenn",
+        "game reaction",
+        "Bears"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "youtubeId": "Lhp2xZ87YNc",
+      "embedAllowed": true,
+      "gameIds": [
+        "2026_04_NYJ_CHI"
+      ]
+    },
+    {
+      "id": "francesa-bears-reaction-2026-10-04",
+      "title": "Mike Francesa Reacts: Giants Beat Cardinals, Jets Fall To Bears",
+      "kind": "video",
+      "outletId": "mike-francesa-podcast",
+      "author": "Mike Francesa",
+      "publishedAt": "2026-10-04T20:52:03Z",
+      "url": "https://www.youtube.com/watch?v=oVZKAy6OEMk",
+      "summary": "Francesa’s Sunday reaction leads with the Giants; his Jets segment, about 10 minutes in, covers why the Bears loss was worse than the score.",
+      "topics": [
+        "game reaction",
+        "Bears",
+        "podcast"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "youtubeId": "oVZKAy6OEMk",
+      "embedAllowed": true,
+      "gameIds": [
+        "2026_04_NYJ_CHI"
+      ]
+    },
+    {
+      "id": "francesa-packers-ot-2026-09-20",
+      "title": "Aaron Glenn's Mistakes In Jets Overtime Loss",
+      "kind": "audio",
+      "outletId": "mike-francesa-podcast",
+      "author": "Mike Francesa",
+      "publishedAt": "2026-09-20T23:36:00Z",
+      "url": "https://podcasts.apple.com/us/podcast/aaron-glenns-mistakes-in-jets-overtime-loss/id1615588712?i=1000790850615",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/fe/fe/91/fefe9198-eef9-c635-f0ec-f53bb49e88c9/mza_475508703759044749.jpeg/600x600bb.jpg",
+        "width": 600,
+        "height": 600
+      },
+      "summary": "Francesa’s first reaction to the overtime loss to Green Bay, focused on the head coach’s decisions.",
+      "topics": [
+        "Aaron Glenn",
+        "game reaction",
+        "Packers",
+        "podcast"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "gameIds": [
+        "2026_02_GB_NYJ"
+      ]
+    },
+    {
+      "id": "asman-glenn-excuse-2026-10-05",
+      "title": "Jets Analysts TORCH Aaron Glenn’s LAUGHABLE Excuse For 3 Game Losing Streak",
+      "kind": "video",
+      "outletId": "jake-asman-show",
+      "author": "Jake Asman with Will Parkinson",
+      "publishedAt": "2026-10-05T22:09:24Z",
+      "url": "https://www.youtube.com/watch?v=4KHPQmrqDUY",
+      "summary": "Asman and Turn On The Jets’ Will Parkinson take apart the Bears loss and Glenn’s explanation for the three-game skid.",
+      "topics": [
+        "Aaron Glenn",
+        "game reaction",
+        "Bears"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "youtubeId": "4KHPQmrqDUY",
+      "embedAllowed": true,
+      "gameIds": [
+        "2026_04_NYJ_CHI"
+      ]
+    },
+    {
+      "id": "asman-browns-stakes-2026-10-07",
+      "title": "Jets Analysts Debate If Aaron Glenn’s Future HINGES On Beating Browns",
+      "kind": "video",
+      "outletId": "jake-asman-show",
+      "author": "Jake Asman with Omari Brown",
+      "publishedAt": "2026-10-07T16:20:42Z",
+      "url": "https://www.youtube.com/watch?v=IDNKf7Kikcs",
+      "summary": "Asman and Omari Brown debate whether Glenn is coaching for his job against Cleveland at 1–3.",
+      "topics": [
+        "Aaron Glenn",
+        "Browns",
+        "Week 5"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "youtubeId": "IDNKf7Kikcs",
+      "embedAllowed": true
+    },
+    {
+      "id": "bt-fed-up-2026-10-04",
+      "title": "BT Is FED UP WITH THE JETS!!!",
+      "kind": "video",
+      "outletId": "bt-unleashed",
+      "author": "Brandon Tierney",
+      "publishedAt": "2026-10-04T20:58:56Z",
+      "url": "https://www.youtube.com/watch?v=k-S3aOTJqxg",
+      "summary": "Tierney’s postgame reaction to the Bears loss and the cycle of being a Jets fan.",
+      "topics": [
+        "game reaction",
+        "Bears"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "youtubeId": "k-S3aOTJqxg",
+      "embedAllowed": true,
+      "gameIds": [
+        "2026_04_NYJ_CHI"
+      ]
+    },
+    {
+      "id": "jets-collective-bears-2026-10-06",
+      "title": "Jets Fall to Bears as Pressure Mounts on Aaron Glenn After 1-3 Start",
+      "kind": "audio",
+      "outletId": "jets-collective",
+      "author": "Jake Asman, Brandon Tierney and Rich Cimini",
+      "publishedAt": "2026-10-06T00:18:45Z",
+      "url": "https://podcasts.apple.com/us/podcast/jets-fall-to-bears-as-pressure-mounts-on-aaron-glenn/id1887763130?i=1000793341164",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ef/0a/04/ef0a0436-2a6a-8b70-4a69-2b8048393053/mza_1909685854625774537.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600
+      },
+      "summary": "The weekly roundtable on the Bears loss and the pressure on Glenn after a 1–3 start.",
+      "topics": [
+        "Aaron Glenn",
+        "game reaction",
+        "Bears",
+        "podcast"
+      ],
+      "seasons": [
+        2026
+      ],
+      "phase": "regular",
+      "context": "current",
+      "gameIds": [
+        "2026_04_NYJ_CHI"
+      ]
     }
   ],
   "outlets": [
@@ -723,7 +959,9 @@
       "kind": "radio",
       "url": "https://www.youtube.com/watch?v=_vHQnprws8w",
       "people": [
-        "Boomer Esiason and Gregg Giannotti"
+        "Boomer Esiason and Gregg Giannotti",
+        "Joe Benigno",
+        "Joe Benigno with Evan Roberts and Tiki Barber"
       ]
     },
     {
@@ -779,6 +1017,57 @@
       "url": "https://www.youtube.com/watch?v=Iy8saaW8rBY",
       "people": [
         "Detroit Lions"
+      ]
+    },
+    {
+      "id": "mike-francesa-podcast",
+      "name": "The Mike Francesa Podcast",
+      "kind": "independent",
+      "url": "https://podcasts.apple.com/us/podcast/the-mike-francesa-podcast/id1615588712",
+      "people": [
+        "Mike Francesa"
+      ]
+    },
+    {
+      "id": "oh-the-pain",
+      "name": "Oh the Pain Podcast",
+      "kind": "independent",
+      "url": "https://podcasts.apple.com/us/podcast/oh-the-pain-podcast-with-joe-benigno/id1586455556",
+      "people": [
+        "Joe Benigno"
+      ]
+    },
+    {
+      "id": "jake-asman-show",
+      "name": "The Jake Asman Show",
+      "kind": "independent",
+      "url": "https://www.youtube.com/@JakeAsman",
+      "people": [
+        "Jake Asman",
+        "Jake Asman with Joe Benigno",
+        "Jake Asman with Will Parkinson",
+        "Jake Asman with Omari Brown"
+      ]
+    },
+    {
+      "id": "bt-unleashed",
+      "name": "BT Unleashed",
+      "kind": "independent",
+      "url": "https://www.youtube.com/@BTunleashed",
+      "people": [
+        "Brandon Tierney"
+      ]
+    },
+    {
+      "id": "jets-collective",
+      "name": "Jets Collective",
+      "kind": "independent",
+      "url": "https://podcasts.apple.com/us/podcast/jets-collective/id1887763130",
+      "people": [
+        "Jake Asman",
+        "Brandon Tierney",
+        "Rich Cimini",
+        "Jake Asman, Brandon Tierney and Rich Cimini"
       ]
     }
   ]
