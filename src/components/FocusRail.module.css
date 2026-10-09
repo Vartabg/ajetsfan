@@ -1,0 +1,6 @@
+/* Where a focus page sits: its section to go back to, its own name, and a label that says the list is this page's. */
+.context { display: grid; gap: 2px; }
+.back { display: inline-flex; align-items: center; gap: 6px; width: fit-content; min-height: 44px; font: 600 15px/1.2 var(--text); text-decoration: none; color: var(--quiet); }
+.back:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+.name { margin: 0; font: 650 22px/1.15 var(--display); letter-spacing: -.02em; color: var(--ink); overflow-wrap: anywhere; }
+.label { margin: 0 0 8px; font: 500 11px/1.4 var(--data); letter-spacing: .06em; text-transform: uppercase; color: var(--quiet); }
