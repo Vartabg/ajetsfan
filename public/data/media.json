@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-09T19:33:45.097Z",
+  "checkedAt": "2026-10-09T20:47:57.149Z",
   "curatedCheckedAt": "2026-10-08T02:01:00.000Z",
   "items": [
     {
@@ -894,6 +894,51 @@
       ]
     },
     {
+      "id": "auto-jets-x-factor-bd0c3d0212a7ae8a1fb2f887",
+      "title": "Top 5 NY Jets players who need to step it up after 1-3 start",
+      "kind": "article",
+      "outletId": "jets-x-factor",
+      "author": "Michael Nania",
+      "publishedAt": "2026-10-09T20:39:42.000Z",
+      "url": "https://jetsxfactor.com/2026/10/09/ny-jets-players-step-it-up-1-3-start/",
+      "image": null,
+      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jets-news-7a4f78f8602cd2a689fba09c",
+      "title": "Jets Will be Without 3 Offensive Starters vs. Browns",
+      "kind": "article",
+      "outletId": "jets",
+      "author": "New York Jets news",
+      "publishedAt": "2026-10-09T20:30:00.000Z",
+      "url": "https://www.newyorkjets.com/news/jets-will-be-without-3-offensive-starters-vs-browns-notebook-10-09-2026",
+      "image": null,
+      "summary": "Published by New York Jets news. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Reporting"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jets-news-a73910dcfa8645de187038c1",
+      "title": "Jets Injury Report | Week 5 vs. Browns - Friday",
+      "kind": "article",
+      "outletId": "jets",
+      "author": "New York Jets news",
+      "publishedAt": "2026-10-09T20:00:00.000Z",
+      "url": "https://www.newyorkjets.com/news/jets-injury-report-week-5-vs-browns-friday-10-09-2026",
+      "image": null,
+      "summary": "Published by New York Jets news. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Reporting"
+      ],
+      "context": "current"
+    },
+    {
       "id": "auto-jets-x-factor-d96be7dbbdc5a42caeb83eb5",
       "title": "David Bailey’s learning curve is steep | NY Jets Film (Video)",
       "kind": "video",
@@ -1194,21 +1239,6 @@
       "context": "current"
     },
     {
-      "id": "auto-jets-news-37b903c34bece2e7401d61a9",
-      "title": "Jets Vending Machine Gives Fans Chance to Win Exclusive Prizes",
-      "kind": "article",
-      "outletId": "jets",
-      "author": "New York Jets news",
-      "publishedAt": "2026-10-09T11:45:00.000Z",
-      "url": "https://www.newyorkjets.com/news/jets-vending-machine-gives-fans-chance-to-win-exclusive-prizes-metlife-stadium-2026",
-      "image": null,
-      "summary": "Published by New York Jets news. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Reporting"
-      ],
-      "context": "current"
-    },
-    {
       "id": "auto-jets-x-factor-4819a4ae5d63a7fc5bd2cf77",
       "title": "This matchup could decide Jets-Browns on Sunday",
       "kind": "article",
@@ -1344,21 +1374,6 @@
       "context": "current"
     },
     {
-      "id": "auto-jets-news-9a8058b6447f4de00571813e",
-      "title": "Jets LB Demario Davis: A Disrupter, Communicator and Orchestrator on Defense",
-      "kind": "article",
-      "outletId": "jets",
-      "author": "New York Jets news",
-      "publishedAt": "2026-10-08T20:46:27.000Z",
-      "url": "https://www.newyorkjets.com/news/demario-davis-disruptor-communicator-orchestrator-jets-defense",
-      "image": null,
-      "summary": "Published by New York Jets news. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Reporting"
-      ],
-      "context": "current"
-    },
-    {
       "id": "auto-new-york-post-c2ff28fb473cdc680f204893",
       "title": "Make or Break for Aaron Glenn? Jets vs. Browns Week 5 Preview | Gang’s All Here",
       "kind": "video",
@@ -1385,21 +1400,6 @@
       "summary": "Published by The Jake Asman Show. Open the original for the publisher’s full coverage.",
       "topics": [
         "Fan analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jets-x-factor-51d175d2e0e44a2ff9847637",
-      "title": "NY Jets nab QB of the future in first way-too-early 2027 mock draft",
-      "kind": "article",
-      "outletId": "jets-x-factor",
-      "author": "Michael Nania",
-      "publishedAt": "2026-10-08T19:13:56.000Z",
-      "url": "https://jetsxfactor.com/2026/10/08/ny-jets-qb-future-way-too-early-2027-mock-draft/",
-      "image": null,
-      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Analysis"
       ],
       "context": "current"
     },
@@ -1859,8 +1859,8 @@
       "name": "New York Jets news",
       "url": "https://www.newyorkjets.com/rss/news",
       "status": "ready",
-      "checkedAt": "2026-10-09T19:33:45.097Z",
-      "attemptedAt": "2026-10-09T19:33:45.097Z",
+      "checkedAt": "2026-10-09T20:47:57.149Z",
+      "attemptedAt": "2026-10-09T20:47:57.149Z",
       "itemCount": 6
     },
     {
@@ -1868,8 +1868,8 @@
       "name": "New York Jets videos",
       "url": "https://www.newyorkjets.com/rss/videos",
       "status": "ready",
-      "checkedAt": "2026-10-09T19:33:45.097Z",
-      "attemptedAt": "2026-10-09T19:33:45.097Z",
+      "checkedAt": "2026-10-09T20:47:57.149Z",
+      "attemptedAt": "2026-10-09T20:47:57.149Z",
       "itemCount": 6
     },
     {
@@ -1877,8 +1877,8 @@
       "name": "Jets X-Factor",
       "url": "https://jetsxfactor.com/feed/",
       "status": "ready",
-      "checkedAt": "2026-10-09T19:33:45.097Z",
-      "attemptedAt": "2026-10-09T19:33:45.097Z",
+      "checkedAt": "2026-10-09T20:47:57.149Z",
+      "attemptedAt": "2026-10-09T20:47:57.149Z",
       "itemCount": 6
     },
     {
@@ -1886,8 +1886,8 @@
       "name": "New York Post Jets",
       "url": "https://nypost.com/tag/new-york-jets/feed/",
       "status": "ready",
-      "checkedAt": "2026-10-09T19:33:45.097Z",
-      "attemptedAt": "2026-10-09T19:33:45.097Z",
+      "checkedAt": "2026-10-09T20:47:57.149Z",
+      "attemptedAt": "2026-10-09T20:47:57.149Z",
       "itemCount": 6
     },
     {
@@ -1895,8 +1895,8 @@
       "name": "The Jake Asman Show",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCt8ZeGlv3VM8jLYO_EoDMPw",
       "status": "ready",
-      "checkedAt": "2026-10-09T19:33:45.097Z",
-      "attemptedAt": "2026-10-09T19:33:45.097Z",
+      "checkedAt": "2026-10-09T20:47:57.149Z",
+      "attemptedAt": "2026-10-09T20:47:57.149Z",
       "itemCount": 6
     },
     {
@@ -1904,8 +1904,8 @@
       "name": "BT Unleashed",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLJ2gpZBFl2ytuVlbNo9xAA",
       "status": "ready",
-      "checkedAt": "2026-10-09T19:33:45.097Z",
-      "attemptedAt": "2026-10-09T19:33:45.097Z",
+      "checkedAt": "2026-10-09T20:47:57.149Z",
+      "attemptedAt": "2026-10-09T20:47:57.149Z",
       "itemCount": 1
     },
     {
@@ -1913,8 +1913,8 @@
       "name": "The Mike Francesa Podcast",
       "url": "https://itunes.apple.com/lookup?id=1615588712&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-09T19:33:45.097Z",
-      "attemptedAt": "2026-10-09T19:33:45.097Z",
+      "checkedAt": "2026-10-09T20:47:57.149Z",
+      "attemptedAt": "2026-10-09T20:47:57.149Z",
       "itemCount": 5
     },
     {
@@ -1922,8 +1922,8 @@
       "name": "Oh the Pain Podcast",
       "url": "https://itunes.apple.com/lookup?id=1586455556&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-09T19:33:45.097Z",
-      "attemptedAt": "2026-10-09T19:33:45.097Z",
+      "checkedAt": "2026-10-09T20:47:57.149Z",
+      "attemptedAt": "2026-10-09T20:47:57.149Z",
       "itemCount": 5
     },
     {
@@ -1931,8 +1931,8 @@
       "name": "Let’s Talk Jets Radio",
       "url": "https://itunes.apple.com/lookup?id=863176413&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-09T19:33:45.097Z",
-      "attemptedAt": "2026-10-09T19:33:45.097Z",
+      "checkedAt": "2026-10-09T20:47:57.149Z",
+      "attemptedAt": "2026-10-09T20:47:57.149Z",
       "itemCount": 6
     },
     {
@@ -1940,8 +1940,8 @@
       "name": "Jets Collective",
       "url": "https://itunes.apple.com/lookup?id=1887763130&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-09T19:33:45.097Z",
-      "attemptedAt": "2026-10-09T19:33:45.097Z",
+      "checkedAt": "2026-10-09T20:47:57.149Z",
+      "attemptedAt": "2026-10-09T20:47:57.149Z",
       "itemCount": 5
     }
   ]
