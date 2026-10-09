@@ -11,11 +11,13 @@ export type FocusEntry = { id: string; title: string; answer: string };
 const MORE: FocusEntry = { id: "more", title: "Everything else", answer: "Team, seasons, archive…" };
 
 /** The frame every focus page shares: a slim bar on phones, an index of moments on wide screens, and the site's sections last. */
-export default function FocusShell({ page, entries, checkedAt, className = "", style, children }: { page: string; entries: FocusEntry[]; checkedAt: string | null; className?: string; style?: CSSProperties; children: ReactNode }) {
+/** `section` names the site section a page belongs to when its path does not say so, such as a game under Seasons. */
+export default function FocusShell({ page, entries, checkedAt, section, className = "", style, children }: { page: string; entries: FocusEntry[]; checkedAt: string | null; section?: string; className?: string; style?: CSSProperties; children: ReactNode }) {
   const pathname = usePathname();
   const index = [...entries, MORE];
   // A season page belongs to Seasons, as a sub-page belongs to its section.
-  const current = (href: string) => pathname === href || pathname.startsWith(`${href}/`) ? "page" : undefined;
+  const place = section ?? pathname;
+  const current = (href: string) => place === href || place.startsWith(`${href}/`) ? "page" : undefined;
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
   const sheet = useRef<HTMLDialogElement>(null);
