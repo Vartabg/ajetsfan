@@ -7,7 +7,7 @@
 .evidenceSummary { margin: .7rem 0 0; font: 400 .85rem/1.6 var(--font-sans-narrow), sans-serif; color: var(--ink-2); overflow-wrap: anywhere; }
 .sub { margin: .9rem 0 0; color: var(--ink-2); font-size: .74rem; }
 .scoreBlock { min-width: 0; padding-left: 1.5rem; border-left: 1px dashed var(--rule-soft); }
-.scoreboard { display: flex; align-items: center; gap: 1rem; }
+.scoreboard { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
 .scoreboard > div { text-align: center; }
 .scoreboard > div > span { display: block; color: var(--ink-2); font: .7rem/1.5 var(--font-mono), monospace; letter-spacing: .04em; text-transform: uppercase; }
 .scoreboard strong { display: block; font: 400 clamp(3.1rem, 4.5vw, 4rem)/1.2 var(--font-hed), Impact, sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -.025em; }

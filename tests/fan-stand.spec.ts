@@ -25,7 +25,7 @@ test("Morgue shortcuts keep both the classic cases and full archive easy to reac
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/morgue");
-  const index = page.getByRole("navigation", { name: "In The Morgue" });
+  const index = page.getByRole("navigation", { name: "In the archive" });
   await index.getByRole("link", { name: /^Find a game/ }).click();
   await expect(page).toHaveURL(/#archive-filters$/);
   await expect(page.getByLabel("Search games", { exact: true })).toBeInViewport();
