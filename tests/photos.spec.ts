@@ -50,7 +50,7 @@ test("player photographs expire with their edition and keep practice context", (
 });
 
 for (const view of [
-  { route: `/games/${photoGameId}`, container: 'section[aria-labelledby="game-report-heading"]', photo: gamePhoto },
+  { route: `/games/${photoGameId}`, container: "#final", photo: gamePhoto },
 ]) {
   test(`${view.route} keeps the photograph's descriptive alt, context, and official source`, async ({ page }) => {
     test.skip(!view.photo, "This edition has no verified editorial photograph for this view.");
@@ -61,7 +61,6 @@ for (const view of [
 
     const figure = page.locator(`${view.container} figure`).filter({ has: page.getByRole("img", { name: view.photo.alt, exact: true }) });
     const image = figure.getByRole("img", { name: view.photo.alt, exact: true });
-    // The game report's photograph sits below the header and loads lazily.
     await image.scrollIntoViewIfNeeded();
     await expect(image).toBeVisible();
     await expect(image).toHaveAttribute("alt", view.photo.alt);
@@ -84,9 +83,8 @@ test("a failed official game image leaves its source and final score usable on m
   });
   await page.goto(`/games/${photoGame.id}`, { waitUntil: "domcontentloaded" });
 
-  const report = page.locator('section[aria-labelledby="game-report-heading"]');
-  const figure = report.locator("figure").filter({ has: page.locator("figcaption").filter({ hasText: gamePhoto.caption }) });
-  // The photograph loads lazily, so it only requests (and fails) once it nears the viewport.
+  const final = page.locator("#final");
+  const figure = final.locator("figure").filter({ has: page.locator("figcaption").filter({ hasText: gamePhoto.caption }) });
   await figure.scrollIntoViewIfNeeded();
   await expect(figure.getByText("Photograph unavailable", { exact: true })).toBeVisible();
   expect(failedRequests).toBeGreaterThan(0);
@@ -97,10 +95,10 @@ test("a failed official game image leaves its source and final score usable on m
   await original.focus();
   await expect(original).toBeFocused();
   await expect(figure.locator("figcaption")).toContainText(gamePhoto.caption);
-  await expect(report.locator("#game-report-heading")).toBeVisible();
 
   const scoreboard = page.getByLabel(`Final score: Jets ${photoGame.jetsScore}, ${photoGame.opponentDisplay} ${photoGame.oppScore}`, { exact: true });
   await expect(scoreboard).toBeVisible();
   await expect(scoreboard.locator("strong")).toHaveText([String(photoGame.jetsScore), String(photoGame.oppScore)]);
-  await expect(page.locator(`article > header time[datetime="${photoGame.date}"]`)).toBeVisible();
+  await expect(final.getByRole("heading", { level: 1 })).toContainText(`${photoGame.jetsScore}–${photoGame.oppScore}`);
+  await expect(page.locator("#game-report-heading")).toBeAttached();
 });

@@ -152,7 +152,7 @@ for (const width of [320, 768]) {
   });
 }
 
-// Game photographs render only on the game report page; this game has a verified one.
+// Game photographs render only on the game page, beside the final score; this game has a verified one.
 const photoGameId = "2026_03_NYJ_DET";
 const gamePhoto = gameEditorialPhoto(photoGameId);
 
@@ -162,8 +162,7 @@ for (const width of [320, 901, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     const response = await page.goto(`/games/${photoGameId}`, { waitUntil: "domcontentloaded" });
     expect(response?.status(), `/games/${photoGameId} is a published page`).toBe(200);
-    const image = page.locator('section[aria-labelledby="game-report-heading"] figure').getByRole("img", { name: gamePhoto.alt, exact: true });
-    // The photograph sits below the report header and loads lazily.
+    const image = page.locator("#final figure").getByRole("img", { name: gamePhoto.alt, exact: true });
     await image.scrollIntoViewIfNeeded();
     await expect.poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
     const sizing = await image.evaluate((element) => ({
