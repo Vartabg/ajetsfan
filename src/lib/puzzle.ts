@@ -1,5 +1,5 @@
 import type { Game } from "./games";
-import { venueLine } from "./teams";
+import { teamColor, teamName, venueLine } from "./teams";
 
 export const PUZZLE_GUESSES = 6;
 
@@ -54,3 +54,22 @@ export function judge(game: PuzzleGame, guess: Guess): Verdict {
 }
 
 export const solved = (verdict: Verdict) => verdict.opponent === "right" && verdict.season === "right";
+
+/** What the browser may know after these guesses: verdicts, the clues they opened, and the answer only once the game is over. */
+export type RevealedClue = Clue & { colours?: [string, string] };
+export type PuzzleAnswer = { opponent: string; jetsScore: number; oppScore: number; atHome: boolean; seasonType: string; week: number; date: string; wentToOt: boolean; colours: [string, string]; caseHref: string };
+export type PuzzleProgress = { verdicts: Verdict[]; clues: RevealedClue[]; answer: PuzzleAnswer | null };
+
+export function puzzleProgress(game: PuzzleGame, guesses: Guess[]): PuzzleProgress {
+  const verdicts: Verdict[] = [];
+  for (const guess of guesses.slice(0, PUZZLE_GUESSES)) {
+    const verdict = judge(game, guess);
+    verdicts.push(verdict);
+    if (solved(verdict)) break;
+  }
+  const over = verdicts.some(solved) || verdicts.length >= PUZZLE_GUESSES;
+  const colours: [string, string] = [teamColor(game.opponentDisplay), teamColor(game.opponentDisplay, 1)];
+  const clues = puzzleClues(game).slice(0, over ? undefined : verdicts.length).map((clue) => clue.kind === "colours" ? { ...clue, colours } : clue);
+  const answer = over ? { opponent: teamName(game.opponentDisplay), jetsScore: game.jetsScore, oppScore: game.oppScore, atHome: game.atHome, seasonType: game.seasonType, week: game.week, date: game.date, wentToOt: game.wentToOt, colours, caseHref: `/games/${encodeURIComponent(game.id)}` } : null;
+  return { verdicts, clues, answer };
+}
