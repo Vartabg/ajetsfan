@@ -1,7 +1,7 @@
 /* Shapes used only on the home page; the frame, type and palette live in Focus.module.css. */
 
 /* Last game: the win-chance line */
-.chart { position: relative; height: clamp(180px, 40svh, 460px); touch-action: pan-y; cursor: pointer; }
+.chart { position: relative; height: clamp(180px, 40svh, 460px); touch-action: pan-y; cursor: crosshair; }
 .chart svg { position: absolute; inset: 0 0 24px; width: 100%; height: calc(100% - 24px); overflow: visible; }
 .tick { stroke: var(--faint); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .even { stroke: var(--faint); stroke-width: 1; stroke-dasharray: 4 6; vector-effect: non-scaling-stroke; }
