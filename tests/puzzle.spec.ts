@@ -29,6 +29,20 @@ test("clues and verdicts come straight from the record", () => {
   expect(puzzleClues({ ...game, roof: null, temp: null, wind: null, wentToOt: false })[1].text).toBe("Roof and weather not recorded");
 });
 
+test("the page never carries the answer, and the server refuses a future day", async ({ request }) => {
+  const games = JSON.parse(await readFile("public/data/games.json", "utf8")) as Game[];
+  const current = JSON.parse(await readFile("public/data/current.json", "utf8")) as CurrentSnapshot;
+  const answer = dailyPuzzleGame(publishedGames(games, current), puzzleDay(new Date()))!;
+  const html = await (await request.get("/puzzle")).text();
+  expect(html).not.toContain(answer.id);
+  expect(html).not.toContain("jetsScore");
+  expect(html).not.toMatch(/\\?"desc\\?":/);
+  const future = await request.post("/api/puzzle", { data: { day: "2999-01-01", guesses: [] } });
+  expect(future.status()).toBe(400);
+  const early = await (await request.post("/api/puzzle", { data: { day: puzzleDay(new Date()), guesses: [] } })).json();
+  expect(early).toEqual({ verdicts: [], clues: [], answer: null });
+});
+
 test("a wrong guess opens the next clue, a right one reveals the game, and the state survives a reload", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   const games = JSON.parse(await readFile("public/data/games.json", "utf8")) as Game[];
