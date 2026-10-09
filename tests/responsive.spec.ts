@@ -5,10 +5,18 @@ import type { Game } from "../src/lib/games";
 import { archiveFilters, filterArchive, gameHref } from "../src/lib/explorer";
 import { gameEditorialPhoto } from "../src/lib/editorial-photos";
 import { isFocusRoute, SECTIONS } from "../src/lib/site-sections";
+import { publishedPlayers } from "../src/lib/published-pages";
+import type { CoverageSnapshot } from "../src/lib/coverage";
+import type { CurrentSnapshot } from "../src/lib/current";
 
 const imageFixture = '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>';
-const routes = ["/", "/team", "/team/roster", "/team/stats", "/team/news", "/game-day", "/stories", "/history", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/media"];
 const games = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/games.json"), "utf8")) as Game[];
+const coverage = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/coverage.json"), "utf8")) as CoverageSnapshot;
+const current = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/current.json"), "utf8")) as CurrentSnapshot;
+const profile = publishedPlayers(coverage, current.season)[0];
+// Every section destination plus one representative of each nested-page layout.
+const routes = ["/", ...SECTIONS.map((section) => section.href), "/team/roster", "/team/stats", "/team/news",
+  "/seasons/2010", "/seasons/2010/guide", "/games/2022_02_NYJ_CLE", ...(profile ? [`/players/${profile.id}`] : [])];
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -26,39 +34,34 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
   await page.goto(route, { waitUntil: "domcontentloaded" });
   if (enlarged) await enlargeText(page);
   await page.evaluate(() => document.fonts.ready);
+  await expect(page.locator("main")).toHaveCount(1);
   await expect(page.locator("main")).toBeVisible();
+  await expect(page.locator("[data-focus-page]")).toHaveCount(1);
+  await expect(page.locator("#top")).toHaveCount(0);
+  expect(isFocusRoute(route), `${route}: the published template owns its focus shell`).toBe(true);
   if (route === "/game-day") {
     await page.locator("summary").filter({ hasText: "See every unit number" }).click();
     await expect(page.getByText("The season in margins.", { exact: true })).toBeVisible();
   }
   const navigation = page.getByRole("navigation", { name: "Site sections" });
   const links = navigation.getByRole("link");
-  if (isFocusRoute(route)) {
-    // Focus pages: the way in is the Menu (phones) or the moment index (wide screens).
-    const entry = page.viewportSize()!.width >= 1024 ? page.getByRole("navigation", { name: "On this page" }) : page.getByRole("button", { name: "Menu", exact: true });
-    await expect(entry).toBeVisible();
-    await expect(links).toHaveCount(SECTIONS.length);
-    for (const link of await links.all()) {
-      const box = await link.boundingBox();
-      expect.soft(box!.height, `${route}: section link height`).toBeGreaterThanOrEqual(44);
-      expect.soft(box!.x + box!.width, `${route}: section link stays inside the page`).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
-    }
-  } else {
-    await expect(links).toHaveCount(6);
-    const boxes = [];
-    for (const link of await links.all()) {
-      const box = await link.boundingBox();
-      expect(box).not.toBeNull();
-      expect.soft(box!.width, `${route}: navigation hit width`).toBeGreaterThanOrEqual(44);
-      expect.soft(box!.height, `${route}: navigation hit height`).toBeGreaterThanOrEqual(44);
-      expect.soft(box!.x, `${route}: navigation remains within the left edge`).toBeGreaterThanOrEqual(0);
-      expect.soft(box!.x + box!.width, `${route}: navigation remains within the right edge`).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
-      boxes.push(box!);
-    }
-    for (let index = 1; index < boxes.length; index += 1) {
-      if (Math.abs(boxes[index].y - boxes[index - 1].y) < 1) expect.soft(boxes[index].x, `${route}: adjacent navigation targets do not overlap`).toBeGreaterThanOrEqual(boxes[index - 1].x + boxes[index - 1].width - 1);
-      else expect.soft(boxes[index].y, `${route}: navigation rows do not overlap`).toBeGreaterThanOrEqual(boxes[index - 1].y + boxes[index - 1].height - 1);
-    }
+  // The frame keeps its Menu on phones and its moment index on wide screens.
+  const entry = page.viewportSize()!.width >= 1024 ? page.getByRole("navigation", { name: "On this page" }) : page.getByRole("button", { name: "Menu", exact: true });
+  await expect(entry).toBeVisible();
+  await expect(links).toHaveCount(SECTIONS.length);
+  const boxes = [];
+  for (const link of await links.all()) {
+    const box = await link.boundingBox();
+    expect(box).not.toBeNull();
+    expect.soft(box!.width, `${route}: navigation hit width`).toBeGreaterThanOrEqual(44);
+    expect.soft(box!.height, `${route}: navigation hit height`).toBeGreaterThanOrEqual(44);
+    expect.soft(box!.x, `${route}: navigation remains within the left edge`).toBeGreaterThanOrEqual(0);
+    expect.soft(box!.x + box!.width, `${route}: navigation remains within the right edge`).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
+    boxes.push(box!);
+  }
+  for (let index = 1; index < boxes.length; index += 1) {
+    if (Math.abs(boxes[index].y - boxes[index - 1].y) < 1) expect.soft(boxes[index].x, `${route}: adjacent navigation targets do not overlap`).toBeGreaterThanOrEqual(boxes[index - 1].x + boxes[index - 1].width - 1);
+    else expect.soft(boxes[index].y, `${route}: navigation rows do not overlap`).toBeGreaterThanOrEqual(boxes[index - 1].y + boxes[index - 1].height - 1);
   }
   const geometry = await page.evaluate(() => ({
     documentWidth: document.documentElement.scrollWidth,
@@ -95,15 +98,17 @@ test("three-digit archive positions leave space before the date on narrow phones
 
 for (const width of [641, 768, 900]) {
   test(`all public routes reflow through the tablet transition at ${width}px`, async ({ page }) => {
+    test.setTimeout(120_000); // The full section list and nested templates are sampled on the managed dev server.
     await page.setViewportSize({ width, height: 1000 });
-    for (const route of routes) await checkLayout(page, route);
+    for (const route of routes) await test.step(route, () => checkLayout(page, route));
   });
 }
 
 for (const width of [320, 390, 768]) {
   test(`all public routes preserve navigation and reflow at ${width}px with 200% text`, async ({ page }) => {
+    test.setTimeout(120_000);
     await page.setViewportSize({ width, height: 1000 });
-    for (const route of routes) await checkLayout(page, route, true);
+    for (const route of routes) await test.step(route, () => checkLayout(page, route, true));
   });
 }
 
@@ -118,7 +123,7 @@ for (const view of [{ width: 641, enlarged: false }, { width: 768, enlarged: fal
     await expect(heading).toBeInViewport({ ratio: 1 });
     await expect.poll(async () => {
       const [target, navigation] = await Promise.all([
-        heading.boundingBox(), page.getByRole("navigation", { name: "Site sections" }).boundingBox(),
+        heading.boundingBox(), page.locator("[data-focus-page] > header").boundingBox(),
       ]);
       return target && navigation ? target.y - (navigation.y + navigation.height) : -1;
     }).toBeGreaterThanOrEqual(0);
@@ -152,7 +157,7 @@ for (const width of [320, 768]) {
   });
 }
 
-// Game photographs render only on the game report page; this game has a verified one.
+// Game photographs render only on the game page, beside the final score; this game has a verified one.
 const photoGameId = "2026_03_NYJ_DET";
 const gamePhoto = gameEditorialPhoto(photoGameId);
 
@@ -162,8 +167,7 @@ for (const width of [320, 901, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     const response = await page.goto(`/games/${photoGameId}`, { waitUntil: "domcontentloaded" });
     expect(response?.status(), `/games/${photoGameId} is a published page`).toBe(200);
-    const image = page.locator('section[aria-labelledby="game-report-heading"] figure').getByRole("img", { name: gamePhoto.alt, exact: true });
-    // The photograph sits below the report header and loads lazily.
+    const image = page.locator("#final figure").getByRole("img", { name: gamePhoto.alt, exact: true });
     await image.scrollIntoViewIfNeeded();
     await expect.poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
     const sizing = await image.evaluate((element) => ({

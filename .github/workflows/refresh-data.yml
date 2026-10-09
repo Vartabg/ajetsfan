@@ -3,9 +3,9 @@ name: Refresh Jets data
 on:
   workflow_dispatch:
   schedule:
-    # UTC: daily checks include the Thursday correction pass. Extra checks
+    # UTC: publisher feeds and sports sources every three hours. Extra checks
     # follow Sunday afternoon and Sunday/Monday/Thursday night games.
-    - cron: '23 6,12,18 * * *'
+    - cron: '23 */3 * * *'
     - cron: '23 19-23 * * 0'
     - cron: '23 0-5 * * 1,2,5'
 
@@ -34,9 +34,13 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - name: Require production edition verification
+        run: node --input-type=module -e 'import { publicSiteOrigin } from "./scripts/verify-published-data.mjs"; publicSiteOrigin(process.env.PUBLIC_SITE_URL);'
       - run: npm run test:data
       - run: npm run data:refresh
       - run: npm run data:rankings
+      - run: npm run data:trades
+      - run: npm run data:media
       - name: Detect snapshot changes
         id: snapshot
         run: |
@@ -55,7 +59,12 @@ jobs:
       - if: steps.snapshot.outputs.changed == 'true'
         run: npm run test:performance
       - if: steps.snapshot.outputs.changed == 'true'
-        run: npx playwright install --with-deps chrome
+        name: Use the runner's Chrome for Playwright
+        # The runner image ships Google Chrome. Downloading it again from dl.google.com sometimes cuts off mid-file, so only install when it is missing, with retries.
+        run: |
+          if command -v google-chrome >/dev/null; then google-chrome --version; exit 0; fi
+          for attempt in 1 2 3; do npx playwright install --with-deps chrome && exit 0; sleep 15; done
+          exit 1
       - if: steps.snapshot.outputs.changed == 'true'
         run: npm test
       - name: Publish validated snapshot
@@ -84,8 +93,4 @@ jobs:
       - name: Verify the exact published edition
         if: steps.snapshot.outputs.changed == 'true'
         run: |
-          if [ -z "$PUBLIC_SITE_URL" ]; then
-            echo 'Deployment unverified: PUBLIC_SITE_URL is not configured. A validated commit or deploy-hook request does not confirm that readers received this edition.' >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
           node scripts/verify-published-data.mjs --origin "$PUBLIC_SITE_URL"

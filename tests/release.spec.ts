@@ -17,6 +17,13 @@ const freshCoverage = { ...coverage, season: current.season,
   stats: { ...coverage.stats, checkedAt, season: current.season, status: "ready" as const },
 };
 
+const freshAutomation = {
+  media: [{ id: "jets-news", status: "ready" as const, checkedAt }],
+  rankings: { status: "ready" as const, checkedAt },
+  nextgen: { status: "ready" as const, checkedAt },
+  trades: { status: "ready" as const, checkedAt },
+};
+
 test("canonical home uses approved configuration or the production host, never a preview host", () => {
   expect(siteOrigin({ NEXT_PUBLIC_SITE_URL: "https://example.com" })?.href).toBe("https://example.com/");
   expect(siteOrigin({ VERCEL_PROJECT_PRODUCTION_URL: "paper.vercel.app" })?.href).toBe("https://paper.vercel.app/");
@@ -43,7 +50,7 @@ test("telemetry omits search text, filter state, ticket fragments and URL creden
 });
 
 test("edition health distinguishes a fresh check from old source content", () => {
-  const health = editionHealth(freshCurrent, { ...freshCoverage, news: { ...freshCoverage.news, sourceUpdatedAt: "2026-08-01T12:00:00Z" } }, null, now);
+  const health = editionHealth(freshCurrent, { ...freshCoverage, news: { ...freshCoverage.news, sourceUpdatedAt: "2026-08-01T12:00:00Z" } }, null, now, freshAutomation);
   expect(health.status).toBe("healthy");
   expect(health.feeds.news).toEqual({ status: "ready", checkedAt, ageMinutes: 1 });
   expect(health.feeds.analysis.checkedAt).toBe(checkedAt);
@@ -52,21 +59,43 @@ test("edition health distinguishes a fresh check from old source content", () =>
 });
 
 test("health detects stopped refreshes, unavailable sources and wrong-season roster/stats", () => {
-  const stopped = editionHealth({ ...freshCurrent, checkedAt: new Date(now - 25 * 60 * 60_000).toISOString() }, freshCoverage, null, now);
+  const stopped = editionHealth({ ...freshCurrent, checkedAt: new Date(now - 25 * 60 * 60_000).toISOString() }, freshCoverage, null, now, freshAutomation);
   expect(stopped.status).toBe("degraded");
   expect(stopped.feeds.results.status).toBe("overdue");
-  const wrongSeason = editionHealth(freshCurrent, { ...freshCoverage, season: current.season - 1 }, null, now);
+  const wrongSeason = editionHealth(freshCurrent, { ...freshCoverage, season: current.season - 1 }, null, now, freshAutomation);
   expect(wrongSeason.feeds.roster.status).toBe("unavailable");
   expect(wrongSeason.feeds.stats.status).toBe("unavailable");
-  expect(editionHealth(null, null, null, now).status).toBe("unavailable");
+  expect(editionHealth(null, null, null, now, freshAutomation).status).toBe("unavailable");
+});
+
+test("fresh scores cannot hide stale media, league comparisons, tracking or trades", () => {
+  const old = new Date(now - 24 * 60 * 60_000).toISOString();
+  for (const name of ["rankings", "nextgen", "trades"] as const) {
+    const health = editionHealth(freshCurrent, freshCoverage, null, now, { ...freshAutomation, [name]: { checkedAt: old, status: "retained" } });
+    expect(health.status).toBe("degraded");
+    expect(health.feeds[name].status).toBe("overdue");
+    expect(health.feeds.results.status).toBe("ready");
+  }
+  const media = editionHealth(freshCurrent, freshCoverage, null, now, { ...freshAutomation, media: [
+    ...freshAutomation.media, { id: "old-publisher", status: "retained", checkedAt: old },
+  ] });
+  expect(media.feeds.media.status).toBe("overdue");
+  expect(media.feeds.media.checkedAt).toBe(old);
+  expect(media.mediaSources["jets-news"].status).toBe("ready");
+  expect(media.mediaSources["old-publisher"].status).toBe("overdue");
+  const unavailable = editionHealth(freshCurrent, freshCoverage, null, now, { ...freshAutomation, media: [
+    { id: "retained", status: "retained", checkedAt }, { id: "missing", status: "unavailable", checkedAt: null },
+  ] });
+  expect(unavailable.feeds.media.status).toBe("unavailable");
+  expect(unavailable.feeds.media.checkedAt).toBeNull();
 });
 
 test("retained analysis never receives a fabricated successful check", () => {
-  const retained = editionHealth({ ...freshCurrent, analysisCheck: { attemptedAt: checkedAt, checkedAt: null, status: "retained", reason: "source-unavailable" } }, freshCoverage, null, now);
+  const retained = editionHealth({ ...freshCurrent, analysisCheck: { attemptedAt: checkedAt, checkedAt: null, status: "retained", reason: "source-unavailable" } }, freshCoverage, null, now, freshAutomation);
   expect(retained.status).toBe("degraded");
   expect(retained.feeds.analysis).toEqual({ status: "unknown", checkedAt: null, ageMinutes: null });
-  expect(editionHealth({ ...freshCurrent, checkedAt: "invalid" }, freshCoverage, null, now).status).toBe("unavailable");
-  expect(editionHealth({ ...freshCurrent, checkedAt: new Date(now + 10 * 60_000).toISOString() }, freshCoverage, null, now).status).toBe("unavailable");
+  expect(editionHealth({ ...freshCurrent, checkedAt: "invalid" }, freshCoverage, null, now, freshAutomation).status).toBe("unavailable");
+  expect(editionHealth({ ...freshCurrent, checkedAt: new Date(now + 10 * 60_000).toISOString() }, freshCoverage, null, now, freshAutomation).status).toBe("unavailable");
 });
 
 test("deployed health exposes this edition with live freshness and no-cache diagnostics", async ({ request }) => {
@@ -78,11 +107,13 @@ test("deployed health exposes this edition with live freshness and no-cache diag
   expect(health.season).toBe(current.season);
   expect(health.checkedAt).toBe(current.checkedAt);
   expect(health.feeds.results.checkedAt).toBe(current.checkedAt);
+  for (const name of ["media", "rankings", "nextgen", "trades"]) expect(health.feeds[name]).toBeDefined();
+  expect(Object.keys(health.mediaSources)).toHaveLength(10);
   expect(JSON.stringify(health)).not.toMatch(/stack|Users\/|token|password/i);
 });
 
 test("each desk supplies its own share title and a branded 1200×630 PNG", async ({ page, request }) => {
-  for (const path of ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/media", "/stories", "/history", "/film-room", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/seasons/2010/guide"]) {
+  for (const path of ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/media", "/stories", "/discover", "/history", "/history/trades", "/puzzle", "/film-room", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/seasons/2010/guide"]) {
     await page.goto(path);
     const title = await page.title();
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", title);

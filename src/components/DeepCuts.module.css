@@ -1,0 +1,32 @@
+.pair { display: grid; gap: 24px; width: 100%; max-width: 850px; }
+.pairRow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 8px 20px; }
+.pairRow a { display: flex; align-items: center; min-height: 44px; font: 600 20px/1.2 var(--display); text-underline-offset: 5px; }
+.pairRow time { font: 400 12px/1.5 var(--data); color: var(--quiet); }
+.number { grid-column: 2; grid-row: 1 / span 2; font: 650 clamp(40px, 7vw, 76px)/1 var(--display); letter-spacing: -.04em; color: var(--green); }
+.track { grid-column: 1 / -1; height: 16px; border-radius: 10px; background: var(--raise); overflow: hidden; }
+.track span { display: block; height: 100%; min-width: 2px; background: var(--green); border-radius: inherit; }
+.note { margin: 0; max-width: 72ch; color: var(--quiet); font: 400 13px/1.65 var(--text); }
+.cases { list-style: none; padding: 0; margin: 0; max-width: 850px; }
+.cases li { border-bottom: 1px solid var(--faint); }
+.case { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding: 14px 0; min-height: 44px; text-decoration: none; }
+.case b { font: 600 20px/1.25 var(--display); }
+.case small { font: 400 12px/1.5 var(--data); color: var(--quiet); }
+.case span { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--green); font: 600 24px/1.2 var(--display); }
+.case:hover b { text-decoration: underline; text-underline-offset: 5px; }
+.swing { margin: 0; font: 650 clamp(56px, 10vw, 120px)/1 var(--display); letter-spacing: -.05em; color: var(--green); }
+.excerpt { margin: 0; max-width: 62ch; padding-left: 16px; border-left: 3px solid var(--green); font-size: 16px; line-height: 1.7; }
+.comparison { display: grid; gap: 18px; padding-top: 8px; }
+.control { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; }
+.control input { flex: 1 1 100%; width: 100%; min-height: 44px; accent-color: var(--green); }
+.paths { display: grid; gap: 24px; }
+.path { min-width: 0; margin: 0; }
+.path figcaption { font-weight: 600; }
+.path svg { display: block; width: 100%; height: auto; margin: 12px 0; overflow: visible; }
+.guide { stroke: var(--faint); stroke-dasharray: 5 7; }
+.curve { fill: none; stroke: var(--green); stroke-width: 3; stroke-linejoin: round; }
+.cursor { stroke: var(--quiet); stroke-width: 1; }
+.dot { fill: var(--green); }
+.readout { margin: 0; font-size: 14px; }
+.description { margin: 8px 0 0; font-size: 14px; line-height: 1.65; color: var(--quiet); overflow-wrap: anywhere; }
+@media (min-width: 700px) { .paths { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 380px) { .pairRow { gap: 8px 12px; } .pairRow a, .case b { font-size: 18px; } .number { font-size: 38px; } }

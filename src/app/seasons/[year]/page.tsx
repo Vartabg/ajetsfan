@@ -58,7 +58,7 @@ export default async function SeasonPage({ params }: Props) {
   ].filter((entry): entry is FocusEntry => entry !== null);
 
   // The season wears the green the team wore that year.
-  return <FocusShell page="season" entries={entries} checkedAt={null} className={`${focusFonts} ${styles.era}`} style={{ "--era": era.green } as CSSProperties}>
+  return <FocusShell page="season" name={`${season.year} season`} entries={entries} checkedAt={null} className={`${focusFonts} ${styles.era}`} style={{ "--era": era.green } as CSSProperties}>
     <FocusMoment id="year" first label={`${season.year} season · ${era.name}`}
       heading={regular.games ? <>{record(regular.wins, regular.losses, regular.ties)}{so}. <em>{playoffs.games ? `${record(playoffs.wins, playoffs.losses)} in the playoffs.` : season.current ? "Season in progress." : "No playoff games."}</em></> : <>{season.year}. <em>Selected moments.</em></>}>
       {season.results.length ? <figure className={shared.shape}>

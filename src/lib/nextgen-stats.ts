@@ -30,6 +30,8 @@ export type NextGenSeason = {
 export type NextGenCollection = {
   schemaVersion: 1;
   checkedAt: string;
+  status?: "ready" | "retained";
+  attemptedAt?: string;
   sources: { passing: string; receiving: string; rushing: string };
   sourceUpdatedAt?: string;
   seasons: NextGenSeason[];
@@ -64,6 +66,8 @@ export function isNextGenCollection(value: unknown): value is NextGenCollection 
   if (!record(value) || value.schemaVersion !== 1 || typeof value.checkedAt !== "string" || !/^\d{4}-\d{2}-\d{2}T/.test(value.checkedAt)
       || !Number.isFinite(Date.parse(value.checkedAt)) || !record(value.sources)
       || (value.sourceUpdatedAt !== undefined && !text(value.sourceUpdatedAt)) || !Array.isArray(value.seasons)) return false;
+  if (value.status !== undefined && !["ready", "retained"].includes(String(value.status))) return false;
+  if (value.attemptedAt !== undefined && (typeof value.attemptedAt !== "string" || !Number.isFinite(Date.parse(value.attemptedAt)) || Date.parse(value.attemptedAt) < Date.parse(value.checkedAt))) return false;
   const sources = value.sources;
   if (!["passing", "receiving", "rushing"].every((kind) => url(sources[kind]))) return false;
   const maxYear = new Date(value.checkedAt).getUTCFullYear();

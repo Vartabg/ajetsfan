@@ -26,10 +26,17 @@ test("the dated catalog offers distinct outlets and attributable, bounded covera
   expect(new Set(mediaCollection.items.map((item) => item.author)).size).toBeGreaterThanOrEqual(6);
   for (const item of mediaCollection.items) {
     const outlet = mediaCollection.outlets.find((source) => source.id === item.outletId)!;
-    expect(outlet.people).toContain(item.author);
+    if (item.id.startsWith("auto-")) {
+      expect(item.author.trim().length).toBeGreaterThan(0);
+      expect(item.seasons).toBeUndefined();
+      expect(item.phase).toBeUndefined();
+      expect(item.gameIds).toBeUndefined();
+    } else {
+      expect(outlet.people).toContain(item.author);
+      expect(item.seasons?.length).toBeGreaterThan(0);
+      expect(item.phase).toBeDefined();
+    }
     expect(item.summary.split(/\s+/).length).toBeLessThanOrEqual(30);
-    expect(item.seasons?.length).toBeGreaterThan(0);
-    expect(item.phase).toBeDefined();
     if (item.publishedAt) expect(Date.parse(item.publishedAt)).toBeLessThanOrEqual(Date.parse(mediaCollection.checkedAt));
   }
 });
@@ -64,7 +71,11 @@ test("video identities refer to the twelve verified recordings rather than chann
     ["IDNKf7Kikcs", "jake-asman-show", "2026-10-07T16:20:42Z"],
     ["k-S3aOTJqxg", "bt-unleashed", "2026-10-04T20:58:56Z"],
   ];
-  expect(mediaCollection.items.filter((item) => item.youtubeId)).toHaveLength(12);
+  expect(mediaCollection.items.filter((item) => item.youtubeId && !item.id.startsWith("auto-"))).toHaveLength(12);
+  for (const item of mediaCollection.items.filter((item) => item.youtubeId && item.id.startsWith("auto-"))) {
+    expect(item.url).toBe(`https://www.youtube.com/watch?v=${item.youtubeId}`);
+    expect(item.embedAllowed).toBeUndefined();
+  }
   for (const [youtubeId, outletId, publishedAt] of expected) {
     expect(mediaCollection.items.find((item) => item.youtubeId === youtubeId)).toMatchObject({
       kind: "video", outletId, publishedAt, url: `https://www.youtube.com/watch?v=${youtubeId}`,
@@ -200,7 +211,8 @@ test("every item carries its publisher's own picture or a recorded none, and onl
     if (image) expect(admitted(image.url), item.id).toBe(true);
   }
   // A publisher that offers only its logo gets no picture, not a stand-in.
-  expect(mediaCollection.items.filter((item) => !mediaImage(item)).map((item) => item.id)).toEqual(["espn-2010-divisional-rapid-reaction"]);
+  expect(mediaCollection.items.find((item) => item.id === "espn-2010-divisional-rapid-reaction")?.image).toBeNull();
+  expect(mediaCollection.items.filter((item) => item.id.startsWith("auto-") && !item.youtubeId).every((item) => item.image === null)).toBe(true);
   const recorded = mediaCollection.items.find((item) => item.id === articleId)!.image!.url;
   for (const near of [recorded.replace("1440x810", "1440x811"), recorded.replace(/\?.*/, ""), `${recorded}&w=1`, "https://pbs.twimg.com/profile_images/1/other_400x400.jpg", "https://media.pff.com/2025/10/Garrett-Wilson-scaled.jpg?w=2400&h=1350"]) {
     expect(admitted(near), near).toBe(false);

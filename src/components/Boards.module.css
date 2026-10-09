@@ -3,7 +3,7 @@
 .toggle { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8em), 1fr)); gap: 2rem; }
 .tab { position: relative; display: flex; flex-direction: column; align-items: start; min-width: 0; text-align: left; padding: 1rem 2.5rem 1rem .25rem; border-bottom: 3px solid var(--rule-soft); background: transparent; color: var(--ink); overflow-wrap: anywhere; transition: color .15s ease, border-color .15s ease; }
 .chapterIndex { position: absolute; top: .9rem; right: .35rem; color: var(--ink-3); font: italic 400 1.6rem/1 var(--font-serif), Georgia, serif; }
-.chapterTitle { font: 400 2.1rem/1.1 var(--font-hed), Impact, sans-serif; text-transform: uppercase; }
+.chapterTitle { font: 650 2.1rem/1.1 var(--font-hed), Impact, sans-serif; letter-spacing: -.02em; overflow-wrap: anywhere; }
 .chapterLine { margin-top: .5rem; font: italic 400 1rem/1.45 var(--font-serif), Georgia, serif; color: var(--ink-2); }
 .chapterCount { display: flex; justify-content: space-between; gap: 1rem; width: 100%; margin-top: .9rem; color: var(--ink-2); font: .72rem/1.5 var(--font-mono), monospace; }
 .chapterCount > span { font-size: 1rem; }

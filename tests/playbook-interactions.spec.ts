@@ -202,8 +202,16 @@ test("saved plays survive reload and explicit load restores an edited formation"
 
 test("play export and import round-trip a diagram and reject corrupt player data without replacing it", async ({ page }) => {
   await page.goto("/film-room#playbook-lab");
-  await openPlaybookTools(page);
   const lab = labFor(page);
+  await expect(lab).toBeVisible();
+  // Exercise only the drawers this workflow uses, leaving the unrelated source
+  // notebook and assignment ledger closed throughout the JSON exchange.
+  const openDrawer = async (name: string) => {
+    const summary = lab.locator("summary").filter({ hasText: name }).first();
+    await summary.click();
+    await expect(summary.locator("..")).toHaveAttribute("open", "");
+  };
+  for (const name of ["Choose a Jets play", "Formations & concepts", "Save, share & exchange"]) await openDrawer(name);
   await lab.getByRole("button", { name: "Start a teaching play", exact: true }).click();
   await lab.getByLabel("Offensive formation", { exact: true }).selectOption(offensiveFormations[2].id);
   const downloadPromise = page.waitForEvent("download");
@@ -228,6 +236,7 @@ test("play export and import round-trip a diagram and reject corrupt player data
   portable.ball.targetId = `p-${portable.ball.targetId}`;
   await lab.getByLabel("Import JSON file", { exact: true }).setInputFiles({ name: "portable.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(portable)) });
   await expect(lab.locator('[data-lab-status]')).toContainText("JSON file imported");
+  await openDrawer("Edit players & ball");
   await lab.getByLabel("Selected player", { exact: true }).selectOption("p-d1");
   await expect(lab.getByLabel("Receiver to follow", { exact: true })).toHaveValue("p-x");
   await lab.getByRole("button", { name: "Draw follow assignment", exact: true }).click();

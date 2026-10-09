@@ -9,7 +9,7 @@ export default function PaperSample() {
   return (
     <section aria-labelledby="paper-example">
       <h2 id="paper-example">The season leaves a mark</h2>
-      <p>The page carries a subtle stock tint that follows the streak. Compare the original five paper conditions in this specimen; it does not change the archive or the current streak.</p>
+      <p>The original paper design used five stock conditions driven by the streak. Compare them in this specimen; it does not change the archive or the current streak.</p>
       <label className={styles.control}>
         <span>Paper condition</span>
         <input type="range" min="0" max="4" step="1" value={wear}

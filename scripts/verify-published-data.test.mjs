@@ -4,7 +4,7 @@ import { publicSiteOrigin, verifyPublishedData } from './verify-published-data.m
 
 const expected = { season: 2026, checkedAt: '2026-09-30T12:00:00.000Z' };
 const healthy = (edition = expected) => ({ ...edition, status: 'healthy',
-  feeds: Object.fromEntries(['results', 'news', 'roster', 'stats', 'analysis'].map((name) => [name, { status: 'ready', checkedAt: edition.checkedAt }])) });
+  feeds: Object.fromEntries(['results', 'news', 'roster', 'stats', 'analysis', 'media', 'rankings', 'nextgen', 'trades'].map((name) => [name, { status: 'ready', checkedAt: edition.checkedAt }])) });
 const response = (body, status = 200) => new Response(JSON.stringify(body), { status });
 const options = { origin: 'https://jets-fan.example', expected, intervalMs: 0 };
 
@@ -33,6 +33,21 @@ test('a permanently healthy old edition fails instead of falsely reporting publi
   }), /after 3 attempts: deployed edition differs/);
   assert.equal(calls, 3);
   assert.equal(pauses, 2);
+});
+
+test('fresh scores cannot conceal older deployed media, ranks, tracking or trade snapshots', async () => {
+  const fullExpected = { ...expected, feeds: { media: expected.checkedAt, rankings: expected.checkedAt, nextgen: expected.checkedAt, trades: expected.checkedAt }, mediaSources: { 'jets-news': expected.checkedAt } };
+  for (const name of Object.keys(fullExpected.feeds)) {
+    const health = healthy();
+    health.mediaSources = { 'jets-news': { checkedAt: expected.checkedAt, status: 'ready' } };
+    health.feeds[name].checkedAt = '2026-09-29T12:00:00.000Z';
+    await assert.rejects(verifyPublishedData({ ...options, expected: fullExpected, attempts: 1, fetcher: async () => response(health) }), /source snapshot differs/);
+  }
+  const health = healthy();
+  health.mediaSources = { 'jets-news': { checkedAt: '2026-09-29T12:00:00.000Z', status: 'ready' } };
+  await assert.rejects(verifyPublishedData({ ...options, expected: fullExpected, attempts: 1, fetcher: async () => response(health) }), /source snapshot differs/);
+  health.mediaSources['jets-news'].checkedAt = expected.checkedAt;
+  assert.equal((await verifyPublishedData({ ...options, expected: fullExpected, attempts: 1, fetcher: async () => response(health) })).status, 'healthy');
 });
 
 test('the exact deployed edition with retained analysis is accepted and reports the degraded source', async () => {

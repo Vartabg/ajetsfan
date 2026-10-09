@@ -48,6 +48,11 @@ JavaScript budgets. Both code CI and data publication enforce these limits.
 These asset checks exclude images, dynamic imports and prefetch traffic; use
 Lighthouse/network traces to measure total transfers.
 
+Deep cuts adds a 24 KiB HTML / 200 KiB initial JavaScript budget. Its final
+production build measured 21.0 / 186.2 KiB using this script. The two recorded
+paths also render in the static fallback; the homepage receives only a compact
+same-score finding. These are asset sizes, not load-time measurements.
+
 For timing comparisons, run at least three serial Lighthouse audits of both
 builds with identical settings, without browser tests or builds competing for CPU:
 
@@ -89,3 +94,8 @@ page served 8.0 KiB gzip before this change. The budget moves to 14 KiB
 deliberately. Initial JavaScript is unchanged (182.7 KiB gzip, no new client
 bundle) and the chart line draws itself with CSS only. Keep the print static: a
 client-side chart would cost far more than the markup it replaces.
+
+The automatic media edition keeps six recent links per publisher alongside the
+archive. The Media Room renders eight cards per format initially and reveals more
+on request; filtering and totals still cover every item. This bounds mobile DOM
+growth without increasing the existing 30 KiB HTML / 205 KiB JavaScript budgets.

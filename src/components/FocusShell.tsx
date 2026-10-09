@@ -6,16 +6,28 @@ import Link from "./IntentLink";
 import { SECTIONS } from "@/lib/site-sections";
 import { on } from "@/lib/focus-format";
 import styles from "./Focus.module.css";
+import rail from "./FocusRail.module.css";
 
 export type FocusEntry = { id: string; title: string; answer: string };
 const MORE: FocusEntry = { id: "more", title: "Everything else", answer: "Team, seasons, archive…" };
 
 /** The frame every focus page shares: a slim bar on phones, an index of moments on wide screens, and the site's sections last. */
-export default function FocusShell({ page, entries, checkedAt, className = "", style, children }: { page: string; entries: FocusEntry[]; checkedAt: string | null; className?: string; style?: CSSProperties; children: ReactNode }) {
+/** `section` names the site section a page belongs to when its path does not say so, such as a game under Seasons. `name` titles a page below its section. */
+export default function FocusShell({ page, entries, checkedAt, section, name, className = "", style, children }: { page: string; entries: FocusEntry[]; checkedAt: string | null; section?: string; name?: string; className?: string; style?: CSSProperties; children: ReactNode }) {
   const pathname = usePathname();
   const index = [...entries, MORE];
-  // A season page belongs to Seasons, as a sub-page belongs to its section.
-  const current = (href: string) => pathname === href || pathname.startsWith(`${href}/`) ? "page" : undefined;
+  // Use the most specific destination, and keep player profiles in the Team desk.
+  const place = section ?? (pathname.startsWith("/players/") ? "/team" : pathname);
+  const currentHref = SECTIONS.filter(({ href }) => place === href || place.startsWith(`${href}/`)).sort((a, b) => b.href.length - a.href.length)[0]?.href;
+  const current = (href: string) => href === currentHref ? "page" : undefined;
+  // A page below its section names itself and links back up, so its own list of moments reads as this page's.
+  const home = SECTIONS.find(({ href }) => href === currentHref);
+  const parent = home && pathname !== home.href ? home : null;
+  const title = parent ? name : home?.label ?? name;
+  const context = parent || title ? <div className={rail.context}>
+    {parent ? <Link href={parent.href} className={rail.back}><span aria-hidden="true">←</span> <span className="sr-only">Back to </span>{parent.label}</Link> : null}
+    {title ? <p className={rail.name}>{title}</p> : null}
+  </div> : null;
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
   const sheet = useRef<HTMLDialogElement>(null);
@@ -73,6 +85,7 @@ export default function FocusShell({ page, entries, checkedAt, className = "", s
     <dialog ref={sheet} id="focus-menu" className={styles.sheet} aria-labelledby="focus-menu-heading" onClose={() => setOpen(false)}
       onClick={(event) => { if (event.target === event.currentTarget) closeMenu(); }}>
       <div className={styles.sheetHead}><h2 id="focus-menu-heading">Menu</h2><button type="button" className={styles.sheetClose} onClick={closeMenu}>Close</button></div>
+      {context}
       {entries.length ? <nav aria-label="This page"><p className={styles.label}>On this page</p><ol className={styles.sheetMoments}>{entries.map((entry, at) => <li key={entry.id}>
         <a href={`#${entry.id}`} aria-current={at === active ? "true" : undefined} onClick={(event) => goTo(event, entry.id)}><span>{entry.title}</span><b>{entry.answer}</b></a>
       </li>)}</ol></nav> : null}
@@ -80,7 +93,8 @@ export default function FocusShell({ page, entries, checkedAt, className = "", s
     </dialog>
     <aside className={styles.rail}>
       <Link href="/" className={styles.brand}>ajets<span>fan</span></Link>
-      <nav aria-label="On this page"><ol>{index.map((entry, at) => <li key={entry.id}><a href={`#${entry.id}`} aria-current={at === active ? "true" : undefined}><span>{entry.title}</span><b>{entry.answer}</b></a></li>)}</ol></nav>
+      {context}
+      <nav aria-label="On this page"><p className={rail.label}>On this page</p><ol>{index.map((entry, at) => <li key={entry.id}><a href={`#${entry.id}`} aria-current={at === active ? "true" : undefined}><span>{entry.title}</span><b>{entry.answer}</b></a></li>)}</ol></nav>
       {checkedAt ? <p className={styles.note}>Results checked {on(checkedAt, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} ET.</p> : null}
     </aside>
     <main id="main" className={styles.stack}>

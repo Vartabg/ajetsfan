@@ -69,7 +69,7 @@ test("chapter playback requires a click and stops when the story leaves view", a
   await story.getByRole("button", { name: "Play story", exact: true }).click();
   await expect(story.getByRole("button", { name: "Pause story", exact: true })).toBeVisible();
   await expect(story).toHaveAttribute("data-selected-index", "3", { timeout: 7000 });
-  await page.getByRole("contentinfo").scrollIntoViewIfNeeded();
+  await page.locator("#more").scrollIntoViewIfNeeded();
   await expect(story).not.toBeInViewport();
   await expect(story.getByRole("button", { name: "Play story", exact: true })).toBeAttached();
   const stopped = await story.getAttribute("data-selected-index");

@@ -13,6 +13,8 @@ const budgets = [
   { route: "/team", file: "team", html: 12, js: 200 },
   { route: "/game-day", file: "game-day", html: 28, js: 200 },
   { route: "/stories", file: "stories", html: 18, js: 200 },
+  // Deep cuts carries two recorded paths; their charts also print in the static fallback.
+  { route: "/discover", file: "discover", html: 24, js: 200 },
   { route: "/history", file: "history", html: 14, js: 195 },
   // 143 trades with their pick chains measured 39.1 KiB at launch; a few trades are added each year.
   { route: "/history/trades", file: "history/trades", html: 48, js: 195 },

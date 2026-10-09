@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildTradeLedger, parseDraftPicks, parseTrades, validateLedger } from './draft-trades.mjs';
+import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { buildTradeLedger, DRAFT_SOURCE, parseDraftPicks, parseTrades, refreshTrades, TRADES_SOURCE, validateLedger } from './draft-trades.mjs';
 
 const TRADES = 'trade_id,season,trade_date,gave,received,pick_season,pick_round,pick_number,conditional,pfr_id,pfr_name';
 const DRAFT = 'season,round,pick,team,gsis_id,pfr_player_id,cfb_player_id,pfr_player_name,hof,position,category,side,college';
@@ -77,4 +80,107 @@ test('two picks leaving in the same later deal print that deal once and count wh
   assert.deepEqual([first.became.packagedWith, first.became.repeated, first.became.received.length], [1, false, 1]);
   assert.equal(first.became.received[0].became.player.name, 'Alijah Vera-Tucker');
   assert.deepEqual([second.became.tradeId, second.became.packagedWith, second.became.repeated, second.became.received], ['31', 1, true, []]);
+});
+
+const TRADE_ROWS = [
+  '10,2018,2018-03-17,IND,NYJ,2018,1,3,0,DarnSa00,Sam Darnold',
+  '10,2018,2018-03-17,NYJ,IND,2018,1,6,0,NelsQu00,Quenton Nelson',
+];
+const DRAFT_ROWS = [
+  '2018,1,3,NYJ,00-0034869,DarnSa00,,Sam Darnold,FALSE,QB,QB,O,USC',
+  '2018,1,6,IND,00-0034835,NelsQu00,,Quenton Nelson,FALSE,G,OL,O,Notre Dame',
+];
+const checked = new Date('2026-10-08T12:00:00.000Z');
+const attempted = new Date('2026-10-09T12:00:00.000Z');
+
+function tradeFetcher({ rows = TRADE_ROWS, draftRows = DRAFT_ROWS, fail = null } = {}) {
+  return async (url) => {
+    if (url === fail) return new Response('upstream unavailable', { status: 503 });
+    assert.ok([TRADES_SOURCE, DRAFT_SOURCE].includes(url));
+    return new Response((url === TRADES_SOURCE ? [TRADES, ...rows] : [DRAFT, ...draftRows]).join('\n'));
+  };
+}
+
+async function tradeFile(t) {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'ajetsfan-trades-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  return path.join(directory, 'draft-trades.json');
+}
+
+test('a trade refresh publishes a complete ready snapshot and advances only successful check times', async (t) => {
+  const out = await tradeFile(t);
+  const first = await refreshTrades({ out, now: checked, fetcher: tradeFetcher() });
+  assert.equal(first.status, 'ready');
+  assert.equal(first.checkedAt, checked.toISOString());
+  assert.equal(first.attemptedAt, checked.toISOString());
+  const firstBytes = await readFile(out, 'utf8');
+  const next = await refreshTrades({ out, now: attempted, fetcher: tradeFetcher(), beforePromote: async () => {
+    assert.equal(await readFile(out, 'utf8'), firstBytes, 'the prior publication stays readable until promotion');
+  } });
+  assert.equal(next.checkedAt, attempted.toISOString());
+  assert.equal(next.status, 'ready');
+  assert.deepEqual(JSON.parse(await readFile(out, 'utf8')), next);
+  assert.deepEqual(await readdir(path.dirname(out)), ['draft-trades.json']);
+});
+
+test('independent trade or draft source outages retain validated data and its successful check time', async (t) => {
+  for (const fail of [TRADES_SOURCE, DRAFT_SOURCE]) {
+    const out = await tradeFile(t);
+    const first = await refreshTrades({ out, now: checked, fetcher: tradeFetcher() });
+    const warnings = [];
+    const retained = await refreshTrades({ out, now: attempted, fetcher: tradeFetcher({ fail }), onError: (message) => warnings.push(message) });
+    assert.equal(retained.status, 'retained');
+    assert.equal(retained.checkedAt, first.checkedAt);
+    assert.equal(retained.attemptedAt, attempted.toISOString());
+    assert.deepEqual(retained.trades, first.trades);
+    assert.deepEqual(retained.counts, first.counts);
+    assert.deepEqual(JSON.parse(await readFile(out, 'utf8')), retained);
+    assert.match(warnings[0], /Trade ledger retained: Source HTTP 503/);
+  }
+});
+
+test('malformed replacements and regressions cannot erase previously verified Jets trades', async (t) => {
+  const replacements = [
+    { rows: ['10,2018,2018-03-17,NYJ,NYJ,2018,1,3,0,,'], reason: /Invalid trade teams/ },
+    { draftRows: [DRAFT_ROWS[0], DRAFT_ROWS[0]], reason: /Duplicate draft pick/ },
+    { rows: ['11,2026,2026-03-09,NYJ,MIA,2027,7,,0,,'], reason: /lost previously verified trade IDs/ },
+  ];
+  for (const { reason, ...replacement } of replacements) {
+    const out = await tradeFile(t);
+    const first = await refreshTrades({ out, now: checked, fetcher: tradeFetcher() });
+    const warnings = [];
+    const retained = await refreshTrades({ out, now: attempted, fetcher: tradeFetcher(replacement), onError: (message) => warnings.push(message) });
+    assert.deepEqual(retained, { ...first, attemptedAt: attempted.toISOString(), status: 'retained' });
+    assert.match(warnings[0], reason);
+  }
+});
+
+test('a first refresh failure does not fabricate an empty or successfully checked ledger', async (t) => {
+  const out = await tradeFile(t);
+  await assert.rejects(refreshTrades({ out, now: checked, fetcher: tradeFetcher({ fail: TRADES_SOURCE }) }), /Source HTTP 503/);
+  await assert.rejects(readFile(out), { code: 'ENOENT' });
+  assert.deepEqual(await readdir(path.dirname(out)), []);
+});
+
+test('invalid persisted ledgers are rejected rather than retained as trusted data', async (t) => {
+  const out = await tradeFile(t);
+  const first = await refreshTrades({ out, now: checked, fetcher: tradeFetcher() });
+  first.trades[0].received[0].became.player.name = '';
+  const invalidBytes = JSON.stringify(first);
+  await writeFile(out, invalidBytes);
+  await assert.rejects(refreshTrades({ out, now: attempted, fetcher: tradeFetcher({ fail: TRADES_SOURCE }) }), /Invalid selected pick outcome/);
+  assert.equal(await readFile(out, 'utf8'), invalidBytes);
+});
+
+test('a failed atomic promotion preserves the prior bytes and cleans its temporary file', async (t) => {
+  const out = await tradeFile(t);
+  await refreshTrades({ out, now: checked, fetcher: tradeFetcher() });
+  const firstBytes = await readFile(out, 'utf8');
+  const warnings = [];
+  await assert.rejects(refreshTrades({ out, now: attempted, fetcher: tradeFetcher(), onError: (message) => warnings.push(message),
+    beforePromote: async () => { throw new Error('promotion unavailable'); },
+  }), /promotion unavailable/);
+  assert.equal(await readFile(out, 'utf8'), firstBytes);
+  assert.deepEqual(await readdir(path.dirname(out)), ['draft-trades.json']);
+  assert.deepEqual(warnings, [], 'publication failure is not reported as an upstream source outage');
 });

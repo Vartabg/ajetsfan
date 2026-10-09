@@ -1,1 +1,2 @@
-.main{width:var(--shell);max-width:64rem;margin:auto;padding:1.2rem 0 4rem}.breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:.7rem;font-size:.78rem;color:var(--ink-2)}.breadcrumb a{display:inline-flex;align-items:center;min-height:44px;text-underline-offset:4px}.header{padding:1.5rem 0;border-bottom:3px solid var(--ink)}.header>p{font-size:.78rem;font-weight:800;color:var(--forest)}.header h1{font-size:clamp(3rem,8vw,5rem);line-height:1.1;margin:0;overflow-wrap:anywhere}@media(max-width:640px){.main{width:calc(100% - 2rem)}}
+.breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; font-size: .78rem; color: var(--quiet); }
+.breadcrumb a { display: inline-flex; align-items: center; min-height: 44px; text-underline-offset: 4px; }

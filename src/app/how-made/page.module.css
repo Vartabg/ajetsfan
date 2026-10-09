@@ -41,3 +41,17 @@
 @media (max-width: 900px) { .header { padding-right: 0; } .proofStamp { display: inline-block; position: static; margin: 1.5rem .4rem .3rem; font-size: .92rem; } .main > section { padding-left: 6.5rem; } .main > section::after { max-width: 5rem; } .pipeline li { padding-inline: .85rem; } }
 @media (max-width: 640px) { .main { width: calc(100% - 2rem); padding-top: 1.5rem; } .header { padding-top: 1rem; } .header h1 { font-size: clamp(3rem, 12vw, 4.5rem); } .kicker { font-size: .7rem; } .lede { font-size: 1.15rem; } .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pipeline li { padding: .9rem .65rem; } .pipeline li:first-child, .pipeline li:nth-child(3) { padding-left: 0; } .pipeline li:nth-child(2) { border-right: 0; } .pipeline li:nth-child(-n+2) { border-bottom: 1px solid var(--rule-soft); } .pipeline strong { font-size: 1.15rem; } .main > section { padding: 3.8rem 0 0; margin-top: 2rem; } .main > section::before { top: .9rem; font-size: 2.3rem; } .main > section::after { top: 1.2rem; left: 3.5rem; max-width: none; right: 0; } .main h2 { font-size: 1.75rem; } .main > section > p { font-size: .92rem; } .sampleTitle { font-size: clamp(2.25rem, 9vw, 3.5rem); } .sample { box-shadow: 3px 4px 0 #c9c2b044; } }
 @media (forced-colors: active) { .sample::before { display: none; } .sample { background: Canvas; color: CanvasText; box-shadow: none; } }
+
+/* The methods share the focus frame; the paper specimen keeps its original stock. */
+.methods { display: grid; max-width: 72ch; }
+.method { padding: 12px 0; border-bottom: 1px solid var(--faint); }
+.method summary { display: flex; align-items: center; min-height: 44px; gap: 12px; font: 600 19px/1.3 var(--display); cursor: pointer; }
+.method summary::before { content: "+"; color: var(--green); }
+.method[open] summary::before { content: "−"; }
+.method p, .prose p { max-width: 72ch; line-height: 1.75; overflow-wrap: anywhere; }
+.method a, .prose > a { display: inline-flex; align-items: center; min-height: 44px; }
+.prose { max-width: 74ch; }
+.prose h3 { margin: 16px 0 0; font: 600 24px/1.2 var(--display); }
+.pipeline { margin: 18px 0; border-color: var(--faint); }
+.pipeline strong { font-family: var(--display); }
+.pipeline span { font: 400 14px/1.5 var(--text); }

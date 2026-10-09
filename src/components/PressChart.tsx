@@ -21,7 +21,7 @@ export default function PressChart({
   board,
   size = "compact",
 }: {
-  points: CurvePoint[];
+  points: Pick<CurvePoint, "q" | "wp">[];
   board: "heartbreak" | "miracle";
   size?: keyof typeof SIZES;
 }) {
