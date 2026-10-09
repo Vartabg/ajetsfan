@@ -1,5 +1,5 @@
 /** Pages rebuilt as focus views; they carry their own navigation instead of the site header and footer. */
-export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/film-room", "/media", "/seasons"];
+export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/film-room", "/media", "/seasons", "/morgue"];
 /** The listed pages plus every season page (not its guide) and every game page. */
 export const isFocusRoute = (pathname: string) => FOCUS_ROUTES.includes(pathname) || /^\/seasons\/\d{4}$/.test(pathname) || pathname.startsWith("/games/");
 
