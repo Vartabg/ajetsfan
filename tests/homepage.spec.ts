@@ -94,7 +94,8 @@ test("each moment shows one thing and opens its detail in place", async ({ page 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   const heights = await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.getBoundingClientRect().height));
-  expect(Math.min(...heights)).toBeGreaterThanOrEqual(844 - 56 - 1);
+  // Each phone screen stops 28px short so the next one's edge shows.
+  expect(Math.min(...heights)).toBeGreaterThanOrEqual(844 - 56 - 28 - 1);
   if (focus.last && focus.last.line.length >= 2) {
     const chart = page.locator("[data-focus-chart]");
     await expect(chart).toHaveAttribute("aria-label", new RegExp(`${Math.round(focus.last.line[0][0] * 100)}% at kickoff`));

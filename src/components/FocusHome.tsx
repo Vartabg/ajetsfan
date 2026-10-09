@@ -56,6 +56,7 @@ function WinLine({ line, keys, label }: { line: FocusPoint[]; keys: boolean; lab
       <path className={styles.area} d={`${path}L1000 300L0 300Z`} />
       <path className={styles.line} d={path} />
     </svg>
+    <i className={styles.final} style={{ top: `calc((100% - 24px) * ${(y(line[last][0]) / 300).toFixed(3)})` }} aria-hidden="true" />
     <div className={styles.axis} aria-hidden="true"><span style={{ left: 0 }}>Q1</span>{quarters.map((quarter) => <span key={quarter.index} style={{ left: `${x(quarter.index) / 10}%` }}>{quarter.label}</span>)}</div>
     {keys ? <div className={styles.keys} data-focus-keys>{marks.map((mark) => {
       // Labels near an edge hang inward so enlarged text cannot push them off the screen.

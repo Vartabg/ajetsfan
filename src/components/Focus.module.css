@@ -36,7 +36,9 @@
 .menu { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px 0 10px; font: 600 14px/1 var(--text); text-decoration: none; }
 .rail { display: none; }
 
-.moment { box-sizing: border-box; min-height: calc(100svh - 56px); scroll-snap-align: start; display: flex; flex-direction: column; gap: 12px; padding: 18px 16px 24px; }
+.moment { box-sizing: border-box; min-height: calc(100svh - 56px - 28px); scroll-snap-align: start; display: flex; flex-direction: column; gap: 12px; padding: 18px 16px 24px; }
+/* On phones each screen stops a little short, so the hairline of the next one shows: there is more below, without saying so. */
+.moment + .moment { border-top: 1px solid var(--faint); }
 .label { margin: 0; font: 500 12px/1.4 var(--data); letter-spacing: .06em; text-transform: uppercase; color: var(--quiet); }
 .say { margin: 0; font: 650 clamp(30px, 8.4vw, 64px)/1.04 var(--display); letter-spacing: -.035em; text-wrap: balance; overflow-wrap: anywhere; }
 .say em { font-style: normal; color: var(--quiet); }
@@ -123,6 +125,7 @@
   .rail .note { margin-top: auto; }
   .stack { min-width: 0; }
   .moment { min-height: 100svh; gap: 16px; padding: 48px clamp(32px, 5vw, 88px) 44px; }
+  .moment + .moment { border-top: 0; }
   .say { font-size: clamp(44px, 4.4vw, 76px); max-width: 16em; }
   .sections ul { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); column-gap: 32px; max-width: 980px; }
 }
