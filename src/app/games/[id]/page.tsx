@@ -88,7 +88,7 @@ export default async function GamePage({ params }: Props) {
     ...(hasEvidence ? [{ id: "numbers", title: "Both offenses", answer: "Measured" }] : []),
   ];
 
-  return <FocusShell page="game" entries={entries} checkedAt={null} section="/seasons" className={focusFonts}>
+  return <FocusShell page="game" name={when} entries={entries} checkedAt={null} section="/seasons" className={focusFonts}>
     <FocusMoment id="final" first
       label={`${when} · ${formatDate(game.date)}`}
       heading={<>{verb} {game.jetsScore}–{game.oppScore} <em>{game.atHome ? "vs" : "at"} {placeName(game.opponentDisplay)}{game.wentToOt ? " in overtime" : ""}.</em></>}
