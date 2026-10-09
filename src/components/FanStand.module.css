@@ -1,21 +1,12 @@
-.stand { min-width: 0; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 4px double var(--forest); }
-.header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .7fr); align-items: center; gap: 2rem; padding: .75rem 0 1.5rem; border-bottom: 1px solid var(--rule); }
-.header > div { min-width: 0; }
-.kicker { margin: 0 0 .65rem; font: 800 .7rem/1.5 var(--font-sans-narrow), sans-serif; text-transform: uppercase; letter-spacing: .09em; color: var(--spot); }
-.header h2 { font: italic 600 clamp(2.3rem, 5vw, 4.5rem)/1.1 var(--font-serif), Georgia, serif; letter-spacing: -.045em; }
-.header > div > p:last-child { margin: .7rem 0 0; font: 1rem/1.6 var(--font-serif), Georgia, serif; color: var(--ink-2); }
-.chant { min-width: 0; margin: 0; text-align: right; color: var(--spot); }
-.chant > span { display: block; font: 400 clamp(2.8rem, 5.8vw, 5.3rem)/1 var(--font-hed), Impact, sans-serif; letter-spacing: -.025em; white-space: nowrap; }
-.chant > span > span { font-size: .6em; margin-inline: .04em; }
-.chant small { display: block; margin-top: .6rem; font: 800 .85rem/1.5 var(--font-sans-narrow), sans-serif; text-transform: uppercase; letter-spacing: .14em; }
-.guarantee { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; gap: 2rem; padding: 1.5rem 0; border-bottom: 1px dashed var(--rule-soft); }
-.guarantee > div { min-width: 0; }
-.guarantee h3 { font: 800 1.35rem/1.25 var(--font-sans-narrow), sans-serif; }
-.guarantee > div > p:not(.kicker) { margin: .6rem 0; font-size: .85rem; }
-.guarantee a { display: inline-flex; align-items: center; gap: .6rem; min-height: 44px; font-size: .75rem; color: var(--spot); text-decoration: underline; text-underline-offset: .25em; }
-.originalScore { text-align: right; }
-.originalScore p { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: .5rem; font: 800 .85rem/1.4 var(--font-sans-narrow), sans-serif; }
-.originalScore strong { font: 400 3rem/1.15 var(--font-hed), Impact, sans-serif; font-variant-numeric: tabular-nums; }
-.originalScore small { display: block; color: var(--ink-2); font: .7rem/1.6 var(--font-mono), monospace; }
-@media (max-width: 800px) { .header, .guarantee { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; } .chant, .originalScore { text-align: left; } .originalScore p { justify-content: flex-start; } .chant > span { font-size: clamp(2.4rem, 9vw, 4.2rem); } }
-@media (max-width: 640px) { .stand { margin-top: 1.75rem; padding-top: 1.25rem; } .header h2 { font-size: 2.5rem; } }
+.chant { margin: 0; color: var(--green); font: 600 14px/1.4 var(--display); letter-spacing: .18em; }
+.guarantee { display: flex; flex: 1; flex-direction: column; justify-content: center; align-items: flex-start; gap: 12px; padding: 24px 0; }
+.guarantee h2 { margin: 0; font: 650 clamp(24px, 4vw, 38px)/1.08 var(--display); letter-spacing: -.03em; }
+.originalScore { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 32px; }
+.originalScore p { display: grid; gap: 4px; margin: 0; }
+.originalScore p > span { color: var(--quiet); font-size: 14px; }
+.originalScore strong { font: 650 clamp(64px, 12vw, 144px)/1 var(--display); letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.originalScore > span { margin-top: 24px; color: var(--quiet); font-size: 32px; }
+.content { min-width: 0; }
+.content > section { margin: 0; padding-top: 0; border-top: 0; }
+.content h2 { font: 650 clamp(30px, 4.4vw, 64px)/1.04 var(--display); letter-spacing: -.035em; }
+.content h3 { text-transform: none; }

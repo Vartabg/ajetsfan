@@ -9,6 +9,9 @@ test.beforeEach(async ({ page }) => {
 
 test("roster, stats and news keep the team tabs, and Overview opens the focus page at its top", async ({ page }) => {
   await page.goto("/team/roster");
+  await expect(page.locator('[data-focus-page="team-roster"]')).toHaveCount(1);
+  await expect(page.getByRole("main")).toHaveCount(1);
+  await expect(page.locator("#top")).toHaveCount(0);
   const navigation = page.getByRole("navigation", { name: "Team sections", exact: true });
   for (const [label, href] of [["Overview", "/team"], ["Roster", "/team/roster"], ["Player stats", "/team/stats"], ["News", "/team/news"]]) {
     await expect(navigation.getByRole("link", { name: label, exact: true })).toHaveAttribute("href", href);
@@ -32,6 +35,9 @@ test("team navigation keeps the selected page and breadcrumb correct through bro
     await navigation.getByRole("link", { name: label, exact: true }).click();
     await expect.poll(() => new URL(page.url()).pathname).toBe(path);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
+    await expect(page.locator("[data-focus-page]")).toHaveCount(1);
+    await expect(page.getByRole("main")).toHaveCount(1);
+    await expect(page.locator("#top")).toHaveCount(0);
     await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
     await expect(page.locator(content)).toBeVisible();
     await expect(navigation.locator('[aria-current="page"]')).toHaveText(label);
@@ -44,6 +50,23 @@ test("team navigation keeps the selected page and breadcrumb correct through bro
   await page.goBack();
   await expect.poll(() => new URL(page.url()).pathname).toBe("/team/roster");
   await expect(navigation.locator('[aria-current="page"]')).toHaveText("Roster");
+});
+
+test("player pages use the same focus layout and retain particulars, statistics and sources", async ({ page }) => {
+  await page.goto("/team/roster");
+  await page.getByRole("list", { name: "Roster players" }).getByRole("button").first().click();
+  const playerLink = page.getByRole("link", { name: "Read the player page", exact: false });
+  test.skip(await playerLink.count() === 0, "This source roster has no published profile for its first player.");
+  await playerLink.click();
+  await expect(page.locator('[data-focus-page="player"]')).toHaveCount(1);
+  await expect(page.getByRole("main")).toHaveCount(1);
+  await expect(page.locator("#top")).toHaveCount(0);
+  await expect(page.locator("#profile-details-heading")).toHaveText("The particulars.");
+  await expect(page.locator("#profile-stats-heading")).toContainText("on the record.");
+  await expect(page.getByRole("navigation", { name: "Player sources and next steps" }).getByRole("link", { name: "Roster source" })).toHaveAttribute("target", "_blank");
+  expect(await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.id))).toEqual(["player", "profile-details", "profile-stats", "profile-sources", "more"]);
+  await page.setViewportSize({ width: 320, height: 900 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 test("team navigation remains usable on a 320px phone with enlarged text", async ({ page }) => {

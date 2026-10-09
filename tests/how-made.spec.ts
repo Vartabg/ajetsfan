@@ -1,11 +1,17 @@
 import { test, expect } from "@playwright/test";
 import path from "node:path";
+import { SECTIONS } from "../src/lib/site-sections";
 
 test("the case study explains the archive and lets a keyboard reader compare paper", async ({ page }) => {
   await page.goto("/history");
   const sections = page.getByRole("navigation", { name: "Site sections" });
-  await page.locator("footer").getByRole("link", { name: "How it is made", exact: true }).click();
-  await expect(sections.getByRole("link", { name: "Home", exact: true })).not.toHaveAttribute("aria-current", "page");
+  await expect(sections.getByRole("link")).toHaveCount(SECTIONS.length);
+  await sections.locator('a[href="/how-made"]').click();
+  await expect(page).toHaveURL(/\/how-made$/);
+  await expect(page.locator('[data-focus-page="how-made"]')).toHaveCount(1);
+  await expect(sections.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(sections.locator('[aria-current="page"]')).toHaveAttribute("href", "/how-made");
+  await expect(page.locator("#top")).toHaveCount(0);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(/How the\s*paper is made/);
   const control = page.getByRole("slider", { name: "Paper condition" });
   await control.focus();
@@ -30,6 +36,8 @@ for (const width of [1280, 390, 320]) {
     expect(violations).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await expect(page.locator("main")).toHaveCount(1);
+    await expect(page.locator('[data-focus-page="how-made"]')).toHaveCount(1);
+    await expect(page.getByRole("navigation", { name: "Site sections" }).getByRole("link")).toHaveCount(SECTIONS.length);
     await expect(page.getByRole("link", { name: "Skip to content" })).toHaveAttribute("href", "#main");
   });
 }

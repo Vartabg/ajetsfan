@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/IntentLink";
 import { notFound } from "next/navigation";
 import { loadPlayerEdition, loadPublishedPlayer } from "@/lib/load-published-pages";
 import { formatDate } from "@/lib/current";
@@ -9,6 +9,11 @@ import { pageMetadata } from "@/lib/site";
 import EditorialPhoto from "@/components/EditorialPhoto";
 import FeedStatus from "@/components/FeedStatus";
 import PlayerPortrait from "@/components/PlayerPortrait";
+import FocusMoment from "@/components/FocusMoment";
+import FocusShell, { type FocusEntry } from "@/components/FocusShell";
+import TeamFocusNavigation from "@/components/TeamFocusNavigation";
+import shared from "@/components/Focus.module.css";
+import { focusFonts } from "../../focus-fonts";
 import styles from "./page.module.css";
 
 type Props = { params: Promise<{ id: string }> };
@@ -37,18 +42,64 @@ export default async function PlayerPage({ params }: Props) {
   const statsMessage = playerStatsMessage(coverage.stats, player, season);
   const photo = playerActionPhoto(player.id, season);
   const rosterHref = `/team/roster?${new URLSearchParams({ player: player.id })}#roster`;
-  return <main id="main" className={styles.main}>
-    <nav className={styles.breadcrumb} aria-label="Breadcrumb"><Link href="/">The Back Page</Link><span aria-hidden="true">/</span><Link href="/team">Team</Link><span aria-hidden="true">/</span><span>Player profile</span></nav>
-    <article>
-      <header className={styles.header}>
-        <div className={styles.folio}><span>{season} edition · The player programme</span><span>Source roster{coverage.roster.week !== null ? ` · Week ${coverage.roster.week}` : ""}</span></div>
-        <div className={`${styles.hero} ${photo ? styles.withPhoto : ""}`}><div className={styles.identity}><p className={styles.kicker}>The name on the jersey</p><h1 className="hed">{player.name}</h1><p className={styles.position}>{player.position}{player.jersey !== null ? ` · No. ${player.jersey}` : ""} · New York Jets</p><p className={styles.status}>Source roster status: <strong>{player.statusLabel}</strong> ({player.status})</p><Link className={styles.rosterLink} href={rosterHref}>Find {player.name.split(" ")[0]} in the roster <span aria-hidden="true">↗</span></Link></div>{photo ? <EditorialPhoto photo={photo} eager sizes="(max-width: 800px) calc(100vw - 2rem), (max-width: 1288px) calc(50vw - 3rem), 580px" className={styles.photo} /> : <div className={`${styles.number} ${player.headshot ? styles.withHeadshot : ""}`} aria-hidden="true">{player.headshot ? <div className={styles.headshot}><PlayerPortrait src={player.headshot} name={player.name} sizes="(max-width: 800px) 45vw, 240px" /></div> : null}<div className={styles.numberCopy}><span>Green &amp; white</span><strong>{player.jersey !== null ? player.jersey : player.position}</strong><span>{season} source roster</span></div></div>}</div>
-      </header>
-      <div className={styles.body}>
-        <section className={styles.bio} aria-labelledby="profile-details-heading"><p className={styles.kicker}>From the team sheet</p><h2 id="profile-details-heading">The particulars.</h2><dl><div><dt>Position</dt><dd>{player.position}</dd></div>{player.jersey !== null ? <div><dt>Jersey</dt><dd>No. {player.jersey}</dd></div> : null}<div><dt>Height</dt><dd>{player.height ?? "Not listed"}</dd></div><div><dt>Weight</dt><dd>{player.weight !== null ? `${player.weight} lb` : "Not listed"}</dd></div><div><dt>College</dt><dd>{player.college ?? "Not listed"}</dd></div><div><dt>Experience</dt><dd>{player.experience !== null ? `${player.experience} ${player.experience === 1 ? "year" : "years"} in source roster` : "Not listed"}</dd></div></dl><p className={styles.note}>Roster listing describes this source snapshot. It does not establish game-day availability or an injury designation.</p><FeedStatus feed={coverage.roster} label="Player roster" /></section>
-        <section className={styles.stats} aria-labelledby="profile-stats-heading"><p className={styles.kicker}>The work on Sunday</p><h2 id="profile-stats-heading">{season} on the record.</h2><p className={styles.statsScope}>{statsMessage.scope}{coverage.stats.season === season && coverage.stats.throughWeek !== null ? ` · through Week ${coverage.stats.throughWeek}` : ""}{coverage.stats.season === season && coverage.stats.throughDate ? ` · ${formatDate(coverage.stats.throughDate)}` : ""}</p>{lines.length ? <><dl className={styles.statLines}>{lines.map((line) => <div key={line.label}><dt>{line.label}</dt><dd>{line.value}</dd></div>)}</dl><p className={styles.note}>{coverage.stats.pendingGameIds.length ? `${coverage.stats.pendingGameIds.length} confirmed ${coverage.stats.pendingGameIds.length === 1 ? "result is" : "results are"} awaiting player statistics. ` : ""}These are recorded totals from the checked feed.</p><FeedStatus feed={coverage.stats} label="Player statistics" /></> : <div className={styles.pending}><p>{statsMessage.empty}</p><p className={styles.note}>An absent offensive line does not mean the player has not contributed.</p><FeedStatus feed={coverage.stats} label="Player statistics" /></div>}</section>
+  const entries: FocusEntry[] = [
+    { id: "player", title: "The player", answer: player.name },
+    { id: "profile-details", title: "The particulars", answer: player.college ?? player.position },
+    { id: "profile-stats", title: "On the record", answer: `${season} production` },
+    { id: "profile-sources", title: "Sources", answer: "Read the source" },
+  ];
+
+  return <FocusShell page="player" section="/team" entries={entries} checkedAt={coverage.roster.checkedAt} className={focusFonts}>
+    <FocusMoment id="player" first heading={player.name} status={<TeamFocusNavigation />}
+      label={`${season} source roster${coverage.roster.week !== null ? ` · Week ${coverage.roster.week}` : ""}`}
+      actions={<Link className={shared.go} href={rosterHref}>Find {player.name.split(" ")[0]} in the roster <span aria-hidden="true">→</span></Link>}>
+      <p className={styles.position}>{player.position}{player.jersey !== null ? ` · No. ${player.jersey}` : ""} · New York Jets</p>
+      <p className={shared.caption}>Source roster status: <strong>{player.statusLabel}</strong> ({player.status})</p>
+      <div className={shared.shape}>{photo
+        ? <EditorialPhoto photo={photo} eager sizes="(max-width: 1023px) calc(100vw - 32px), (max-width: 1400px) calc(100vw - 400px), 760px" className={styles.photo} />
+        : <div className={styles.number} aria-hidden="true">
+          {player.headshot ? <div className={styles.headshot}><PlayerPortrait src={player.headshot} name={player.name} sizes="(max-width: 640px) 40vw, 240px" /></div> : null}
+          <div><span className={shared.label}>Green &amp; white</span><strong>{player.jersey !== null ? player.jersey : player.position}</strong><span className={shared.label}>{season} source roster</span></div>
+        </div>}
       </div>
-      <footer className={styles.sources}><h2>Read the source. Follow the team.</h2><p>Profile details come from the {coverage.roster.season} nflverse roster snapshot. Newer roster changes may be missing until the next successful check.</p><nav aria-label="Player sources and next steps"><a href={coverage.roster.source} target="_blank" rel="noreferrer">Roster source <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a>{lines.length ? <a href={coverage.stats.source} target="_blank" rel="noreferrer">Recorded stats source <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : null}{player.profileUrl ? <a href={player.profileUrl} target="_blank" rel="noreferrer">ESPN player profile <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : null}<Link href="/team/news">Latest Jets coverage <span aria-hidden="true">↗</span></Link><Link href="/team/roster">Find another player <span aria-hidden="true">↗</span></Link></nav></footer>
-    </article>
-  </main>;
+    </FocusMoment>
+
+    <FocusMoment id="profile-details" label="From the team sheet" heading="The particulars.">
+      <div className={shared.shape}>
+        <dl className={styles.bio}>
+          <div><dt>Position</dt><dd>{player.position}</dd></div>
+          {player.jersey !== null ? <div><dt>Jersey</dt><dd>No. {player.jersey}</dd></div> : null}
+          <div><dt>Height</dt><dd>{player.height ?? "Not listed"}</dd></div>
+          <div><dt>Weight</dt><dd>{player.weight !== null ? `${player.weight} lb` : "Not listed"}</dd></div>
+          <div><dt>College</dt><dd>{player.college ?? "Not listed"}</dd></div>
+          <div><dt>Experience</dt><dd>{player.experience !== null ? `${player.experience} ${player.experience === 1 ? "year" : "years"} in source roster` : "Not listed"}</dd></div>
+        </dl>
+        <p className={shared.caption}>Roster listing describes this source snapshot. It does not establish game-day availability or an injury designation.</p>
+        <FeedStatus feed={coverage.roster} label="Player roster" />
+      </div>
+    </FocusMoment>
+
+    <FocusMoment id="profile-stats" label="The work on Sunday" heading={`${season} on the record.`}>
+      <p className={shared.caption}>{statsMessage.scope}{coverage.stats.season === season && coverage.stats.throughWeek !== null ? ` · through Week ${coverage.stats.throughWeek}` : ""}{coverage.stats.season === season && coverage.stats.throughDate ? ` · ${formatDate(coverage.stats.throughDate)}` : ""}</p>
+      <div className={shared.shape}>{lines.length ? <>
+        <dl className={styles.statLines}>{lines.map((line) => <div key={line.label}><dt>{line.label}</dt><dd>{line.value}</dd></div>)}</dl>
+        <p className={shared.caption}>{coverage.stats.pendingGameIds.length ? `${coverage.stats.pendingGameIds.length} confirmed ${coverage.stats.pendingGameIds.length === 1 ? "result is" : "results are"} awaiting player statistics. ` : ""}These are recorded totals from the checked feed.</p>
+      </> : <>
+        <p className={styles.pending}>{statsMessage.empty}</p>
+        <p className={shared.caption}>An absent offensive line does not mean the player has not contributed.</p>
+      </>}
+      <FeedStatus feed={coverage.stats} label="Player statistics" /></div>
+    </FocusMoment>
+
+    <FocusMoment id="profile-sources" label="Follow the record" heading="Read the source. Follow the team.">
+      <p className={shared.caption}>Profile details come from the {coverage.roster.season} nflverse roster snapshot. Newer roster changes may be missing until the next successful check.</p>
+      <nav className={styles.sources} aria-label="Player sources and next steps">
+        <a href={coverage.roster.source} target="_blank" rel="noopener noreferrer">Roster source <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a>
+        {lines.length ? <a href={coverage.stats.source} target="_blank" rel="noopener noreferrer">Recorded stats source <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : null}
+        {player.profileUrl ? <a href={player.profileUrl} target="_blank" rel="noopener noreferrer">ESPN player profile <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : null}
+        <Link href="/team/news">Latest Jets coverage <span aria-hidden="true">→</span></Link>
+        <Link href="/team/roster">Find another player <span aria-hidden="true">→</span></Link>
+      </nav>
+    </FocusMoment>
+  </FocusShell>;
 }

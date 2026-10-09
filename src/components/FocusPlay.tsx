@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import FocusMoment from "./FocusMoment";
-import { sampleBall, samplePlayer, type PlayDesign } from "@/lib/playbook";
+import { sampleBall, samplePlayer } from "@/lib/playbook-sampling";
+import type { PlayDesign } from "@/lib/playbook";
 import shared from "./Focus.module.css";
 
 export type FocusPlayData = { title: string; date: string; situation: string; result: string; summary: string; star: string; design: PlayDesign };

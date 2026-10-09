@@ -53,7 +53,7 @@
 .stale { margin: 0; padding: 8px 12px; border-left: 3px solid var(--loss); background: var(--raise); font-size: 14px; }
 
 /* An in-place disclosure styled as the moment's action; the summary keeps the site's .disclosure pattern. */
-.unfold > summary { display: inline-flex; width: fit-content; max-width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 20px; border-radius: 999px; background: var(--ink); color: var(--bg); font: 600 15px/1.2 var(--text); cursor: pointer; }
+.unfold > summary { display: inline-flex; align-items: center; width: fit-content; max-width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 20px; border-radius: 999px; background: var(--ink); color: var(--bg); font: 600 15px/1.2 var(--text); cursor: pointer; }
 .unfold[open] > summary { background: var(--green); }
 .unfold > :not(summary) { margin-top: 18px; }
 
@@ -113,6 +113,7 @@
   .bar { display: none; }
   .rail { position: sticky; top: 0; height: 100svh; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px; padding: 32px 24px 28px 32px; border-right: 1px solid var(--faint); }
   .rail ol { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+  .rail > nav { min-height: 0; overflow-y: auto; margin-left: -12px; padding-left: 12px; }
   /* Moments out of view recede by color, which keeps their text above 4.5:1. */
   .rail ol a { display: grid; gap: 3px; margin-left: -12px; padding: 9px 12px; border-radius: 10px; color: var(--quiet); text-decoration: none; transition: color .3s, background .3s; }
   .rail ol a:hover { color: var(--ink); }

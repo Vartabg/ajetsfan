@@ -129,6 +129,19 @@ function Media({ media }: { media: NonNullable<FocusData["media"]> }) {
   </FocusMoment>;
 }
 
+function Discovery({ discovery }: { discovery: NonNullable<FocusData["discovery"]> }) {
+  return <FocusMoment id="discovery" label="Deep cuts · Beyond the box score" heading={<>Two {discovery.score} wins. <em>Two different stories.</em></>}
+    actions={<Go href="/discover">See what the score hides</Go>}>
+    <figure className={shared.shape}>
+      <div className={styles.discovery}>{[discovery.low, discovery.high].map((game) => <div key={game.label}>
+        <span>{game.label}</span><strong>{(game.chance * 100).toFixed(1)}%</strong>
+        <i aria-hidden="true"><i style={{ width: `${game.chance * 100}%` }} /></i>
+      </div>)}</div>
+      <figcaption>Their lowest second-half Jets win chances, estimated by the model. The largest gap between two same-score games in {discovery.wins} eligible wins, from {discovery.firstSeason} through {dayOf(discovery.lastDate)} {discovery.lastDate.slice(0, 4)}. Open the paths, improbable finishes and play evidence.</figcaption>
+    </figure>
+  </FocusMoment>;
+}
+
 export default function FocusHome({ data, className = "" }: { data: FocusData; className?: string }) {
   const now = useMinuteClock();
   const verb = (outcome: "win" | "loss" | "tie") => outcome === "win" ? "Won" : outcome === "loss" ? "Lost" : "Tied";
@@ -138,6 +151,7 @@ export default function FocusHome({ data, className = "" }: { data: FocusData; c
     data.season ? { id: "season", title: `${data.season.year} season`, answer: record(data.season.wins, data.season.losses, data.season.ties) } : null,
     data.division ? { id: "division", title: data.division.name, answer: data.division.place === 1 ? "First" : `${ORDINAL[data.division.place - 1] ?? data.division.place}, ${halfGames(data.division.back)} back` } : null,
     data.film ? { id: "film", title: "Film Room", answer: data.film.title.split(":")[0] } : null,
+    data.discovery ? { id: "discovery", title: "Deep cuts", answer: `Two ${data.discovery.score} wins` } : null,
     data.media ? { id: "media", title: "Watch & read", answer: data.media.outlet } : null,
   ].filter((entry): entry is { id: string; title: string; answer: string } => entry !== null);
 
@@ -152,6 +166,7 @@ export default function FocusHome({ data, className = "" }: { data: FocusData; c
     {data.season ? <Season season={data.season} /> : null}
     {data.division ? <Division division={data.division} /> : null}
     {data.film ? <FocusPlay id="film" label={`Film Room · ${on(`${data.film.date}T16:00:00Z`, { month: "short", day: "numeric", year: "numeric" })}`} play={data.film} more={<Go href="/film-room">Open the Film Room</Go>} /> : null}
+    {data.discovery ? <Discovery discovery={data.discovery} /> : null}
     {data.media ? <Media media={data.media} /> : null}
   </FocusShell>;
 }
