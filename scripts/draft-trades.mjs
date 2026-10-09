@@ -7,7 +7,7 @@
  *
  * Run: node scripts/draft-trades.mjs  →  public/data/draft-trades.json
  */
-import { writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { TEAM, parseCsv, fetchText } from './data-refresh.mjs';
@@ -154,26 +154,93 @@ export function buildTradeLedger(trades, picks, { team = TEAM } = {}) {
 const countPicks = (assets) => assets.reduce((total, item) => total + (item.kind === 'pick' ? 1 + (item.became.type === 'traded' ? countPicks(item.became.received) : 0) : 0), 0);
 
 export function validateLedger(snapshot) {
-  if (snapshot.schemaVersion !== 1 || !Array.isArray(snapshot.trades) || !snapshot.trades.length) throw new Error('Invalid trade ledger');
+  if (!snapshot || snapshot.schemaVersion !== 1 || snapshot.team !== TEAM || !Array.isArray(snapshot.trades) || !snapshot.trades.length) throw new Error('Invalid trade ledger');
   if (!Number.isFinite(Date.parse(snapshot.checkedAt))) throw new Error('Invalid trade ledger check time');
+  if (snapshot.status !== undefined && !['ready', 'retained'].includes(snapshot.status)) throw new Error('Invalid trade ledger status');
+  if (snapshot.attemptedAt !== undefined && (!Number.isFinite(Date.parse(snapshot.attemptedAt)) || Date.parse(snapshot.attemptedAt) < Date.parse(snapshot.checkedAt))) throw new Error('Invalid trade ledger attempt time');
+  if (snapshot.sources?.trades !== TRADES_SOURCE || snapshot.sources?.draft !== DRAFT_SOURCE) throw new Error('Invalid trade ledger sources');
+  const text = (value) => typeof value === 'string' && value.trim() && !/[\u0000-\u001f\u007f]/.test(value);
+  const positive = (value) => Number.isSafeInteger(value) && value > 0;
+  const player = (value) => value && text(value.name) && (value.id === null || text(value.id));
+  const assets = (items, depth = 0) => {
+    if (!Array.isArray(items) || depth > MAX_DEPTH + 1) throw new Error('Invalid trade assets');
+    for (const item of items) {
+      if (!item || !['player', 'pick'].includes(item.kind)) throw new Error('Invalid trade asset');
+      if (item.kind === 'player') {
+        if (!player(item)) throw new Error('Invalid traded player');
+        continue;
+      }
+      if (!positive(item.season) || item.season < 1936 || (item.round !== null && !positive(item.round)) ||
+        (item.number !== null && !positive(item.number)) || typeof item.conditional !== 'boolean') throw new Error('Invalid traded pick');
+      const outcome = item.became;
+      if (!outcome || !['named', 'unnumbered', 'selected', 'pending', 'traded'].includes(outcome.type)) throw new Error('Invalid traded pick outcome');
+      if (outcome.type === 'named' && !text(outcome.player)) throw new Error('Invalid named pick outcome');
+      if (outcome.type === 'selected' && (!CODE.test(outcome.team) || !positive(outcome.round) || !positive(outcome.pick) ||
+        typeof outcome.agreed !== 'boolean' || (outcome.player !== null && !player(outcome.player)))) throw new Error('Invalid selected pick outcome');
+      if (outcome.type === 'traded') {
+        if (!/^\d+$/.test(outcome.tradeId) || !CODE.test(outcome.to) || !Number.isSafeInteger(outcome.packagedWith) ||
+          outcome.packagedWith < 0 || typeof outcome.repeated !== 'boolean') throw new Error('Invalid later trade outcome');
+        validDate(outcome.date);
+        assets(outcome.received, depth + 1);
+      }
+    }
+  };
   const ids = new Set();
   for (const trade of snapshot.trades) {
-    if (ids.has(trade.id) || !/^\d+$/.test(trade.id) || !trade.partners.length || (!trade.gave.length && !trade.received.length)) throw new Error(`Invalid trade: ${trade.id}`);
+    if (!trade || ids.has(trade.id) || !/^\d+$/.test(trade.id) || !positive(trade.season) || trade.season < FIRST_SEASON ||
+      !Array.isArray(trade.partners) || !trade.partners.length || new Set(trade.partners).size !== trade.partners.length ||
+      trade.partners.some((code) => !CODE.test(code) || code === TEAM) || !Array.isArray(trade.gave) || !Array.isArray(trade.received) ||
+      (!trade.gave.length && !trade.received.length)) throw new Error(`Invalid trade: ${trade?.id}`);
+    validDate(trade.date);
+    assets(trade.gave);
+    assets(trade.received);
     ids.add(trade.id);
   }
+  if (snapshot.firstSeason !== Math.min(...snapshot.trades.map((trade) => trade.season)) ||
+    snapshot.lastSeason !== Math.max(...snapshot.trades.map((trade) => trade.season)) || snapshot.counts?.trades !== snapshot.trades.length ||
+    snapshot.counts?.picksGiven !== snapshot.trades.reduce((total, trade) => total + countPicks(trade.gave), 0) ||
+    snapshot.counts?.picksReceived !== snapshot.trades.reduce((total, trade) => total + countPicks(trade.received), 0)) throw new Error('Invalid trade ledger counts');
   return snapshot;
 }
 
-export async function refreshTrades({ out = path.join(process.cwd(), 'public', 'data', 'draft-trades.json'), now = new Date(), fetcher = fetch, onReject = console.warn } = {}) {
-  const [tradesCsv, draftCsv] = await Promise.all([fetchText(TRADES_SOURCE, fetcher), fetchText(DRAFT_SOURCE, fetcher)]);
-  const trades = buildTradeLedger(parseTrades(tradesCsv, { onReject }), parseDraftPicks(draftCsv));
-  const snapshot = validateLedger({
-    schemaVersion: 1, team: TEAM, checkedAt: now.toISOString(), sources: { trades: TRADES_SOURCE, draft: DRAFT_SOURCE },
-    firstSeason: Math.min(...trades.map((trade) => trade.season)), lastSeason: Math.max(...trades.map((trade) => trade.season)),
-    counts: { trades: trades.length, picksGiven: trades.reduce((total, trade) => total + countPicks(trade.gave), 0), picksReceived: trades.reduce((total, trade) => total + countPicks(trade.received), 0) },
-    trades,
-  });
-  await writeFile(out, JSON.stringify(snapshot));
+/** A complete validated file replaces the prior edition in a single rename. */
+async function publishLedger(out, snapshot, beforePromote) {
+  const temporary = `${out}.${process.pid}.tmp`;
+  await mkdir(path.dirname(out), { recursive: true });
+  try {
+    await writeFile(temporary, JSON.stringify(snapshot));
+    validateLedger(JSON.parse(await readFile(temporary, 'utf8')));
+    if (beforePromote) await beforePromote();
+    await rename(temporary, out);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
+
+export async function refreshTrades({ out = path.join(process.cwd(), 'public', 'data', 'draft-trades.json'), now = new Date(), fetcher = fetch,
+  onReject = console.warn, onError = console.warn, beforePromote } = {}) {
+  let previous = null;
+  try { previous = validateLedger(JSON.parse(await readFile(out, 'utf8'))); }
+  catch (error) { if (error.code !== 'ENOENT') throw error; }
+  const attemptedAt = now.toISOString();
+  let snapshot;
+  try {
+    const [tradesCsv, draftCsv] = await Promise.all([fetchText(TRADES_SOURCE, fetcher), fetchText(DRAFT_SOURCE, fetcher)]);
+    const trades = buildTradeLedger(parseTrades(tradesCsv, { onReject }), parseDraftPicks(draftCsv));
+    snapshot = validateLedger({
+      schemaVersion: 1, team: TEAM, checkedAt: attemptedAt, attemptedAt, status: 'ready', sources: { trades: TRADES_SOURCE, draft: DRAFT_SOURCE },
+      firstSeason: Math.min(...trades.map((trade) => trade.season)), lastSeason: Math.max(...trades.map((trade) => trade.season)),
+      counts: { trades: trades.length, picksGiven: trades.reduce((total, trade) => total + countPicks(trade.gave), 0), picksReceived: trades.reduce((total, trade) => total + countPicks(trade.received), 0) },
+      trades,
+    });
+    const nextIds = new Set(snapshot.trades.map((trade) => trade.id));
+    if (previous?.trades.some((trade) => !nextIds.has(trade.id))) throw new Error('Trade source lost previously verified trade IDs');
+  } catch (error) {
+    if (!previous) throw error;
+    onError(`Trade ledger retained: ${error.message}`);
+    snapshot = validateLedger({ ...previous, attemptedAt, status: 'retained' });
+  }
+  await publishLedger(out, snapshot, beforePromote);
   return snapshot;
 }
 

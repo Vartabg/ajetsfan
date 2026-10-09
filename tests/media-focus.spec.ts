@@ -1,10 +1,9 @@
 import { test, expect } from "@playwright/test";
 import path from "node:path";
-import { mediaImage } from "../src/lib/media";
 import { mediaCollection } from "../src/lib/media-catalog";
 
 const newest = [...mediaCollection.items].filter((item) => item.publishedAt).sort((a, b) => b.publishedAt!.localeCompare(a.publishedAt!) || a.id.localeCompare(b.id));
-const video = newest.find((item) => item.kind === "video" && mediaImage(item));
+const video = newest.find((item) => item.kind === "video");
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -28,7 +27,7 @@ test("Media is a focus page: what it is, the newest story of each format, then t
 });
 
 test("a story opens in the collection below, and a format filters it", async ({ page }) => {
-  test.skip(!video, "This edition has no pictured video.");
+  test.skip(!video, "This edition has no video.");
   await page.goto("/media#watch");
   await page.locator("#watch").getByRole("link", { name: /^Open it here/ }).click();
   await expect(page.locator("#media-viewer-heading")).toHaveText(video!.title);

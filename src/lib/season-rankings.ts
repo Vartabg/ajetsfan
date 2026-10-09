@@ -41,6 +41,8 @@ export type RankingPhase = {
 export type SeasonRankings = {
   year: number;
   checkedAt: string;
+  status?: "ready" | "retained";
+  attemptedAt?: string;
   sources: { schedule: string; teams: string; players: string };
   phases: Record<"all" | "regular" | "playoffs", RankingPhase>;
 };

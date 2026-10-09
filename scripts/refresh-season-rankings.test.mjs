@@ -98,7 +98,7 @@ test('an existing season keeps its original checkedAt and data during an upstrea
   const { fetcher } = rankingsFetcher({ fail: () => true });
   const result = await refreshSeasonRankings({ outDir, now, fetcher, onError: (message) => errors.push(message) });
   assert.equal(result.checkedAt, now.toISOString());
-  assert.deepEqual(result.seasons[0], previous.seasons[0]);
+  assert.deepEqual(result.seasons[0], { ...previous.seasons[0], status: 'retained', attemptedAt: now.toISOString() });
   assert.equal(result.seasons[0].checkedAt, oldCheckedAt);
   assert.match(errors[0], /retaining rankings checked 2026-09-29/);
 });
@@ -121,6 +121,31 @@ test('first-run invalid compressed statistics do not leave a partial public snap
   assert.deepEqual(await readdir(outDir), []);
 });
 
+test('a new season awaiting weekly statistics does not block independent score/media publication', async (t) => {
+  const { outDir } = await sandbox(t);
+  const previous = { schemaVersion: 1, checkedAt: oldCheckedAt, seasons: [rankingRecord(2010)] };
+  const file = path.join(outDir, 'season-rankings.json');
+  await writeFile(file, JSON.stringify(previous));
+  const { fetcher } = rankingsFetcher({ years: [2010, 2026], fail: (url) => url.includes('_2026.csv.gz') });
+  const result = await refreshSeasonRankings({ outDir, now, fetcher, onError: () => {} });
+  assert.deepEqual(result.seasons, previous.seasons);
+  assert.deepEqual(result.unavailableSeasons, [{ year: 2026, attemptedAt: now.toISOString() }]);
+  assert.deepEqual(JSON.parse(await readFile(file, 'utf8')), result);
+});
+
+test('the secondary schedule outage retains rankings so independently checked scores can publish', async (t) => {
+  const { outDir } = await sandbox(t);
+  const previous = { schemaVersion: 1, checkedAt: oldCheckedAt, seasons: [rankingRecord(2026)] };
+  const file = path.join(outDir, 'season-rankings.json');
+  await writeFile(file, JSON.stringify(previous));
+  const result = await refreshSeasonRankings({ outDir, now, fetcher: async () => new Response('Unavailable', { status: 503 }), onError: () => {} });
+  assert.equal(result.seasons[0].checkedAt, oldCheckedAt);
+  assert.equal(result.seasons[0].status, 'retained');
+  assert.equal(result.seasons[0].attemptedAt, now.toISOString());
+  assert.deepEqual(result.seasons[0].phases, previous.seasons[0].phases);
+  assert.deepEqual(JSON.parse(await readFile(file, 'utf8')), result);
+});
+
 test('NextGen refresh decodes three compressed feeds and publishes measured values', async (t) => {
   const { outDir } = await sandbox(t);
   const result = await refreshNextGen({ outDir, now, fetcher: nextgenFetcher() });
@@ -139,9 +164,9 @@ test('NextGen outage, corrupt or empty feeds retain prior measurements without f
   for (const options of [{ fail: true }, { corrupt: true }, { empty: true }, { missingKind: 'receiving' }]) {
     const errors = [];
     const result = await refreshNextGen({ outDir, now, fetcher: nextgenFetcher(options), onError: (message) => errors.push(message) });
-    assert.deepEqual(result, previous);
+    assert.deepEqual(result, { ...previous, status: 'retained', attemptedAt: now.toISOString() });
     assert.equal(result.checkedAt, oldCheckedAt);
-    assert.equal(await readFile(file, 'utf8'), previousBytes);
+    assert.deepEqual(JSON.parse(await readFile(file, 'utf8')), result);
     assert.match(errors[0], /Retaining Next Gen measurements checked/);
   }
 });
@@ -151,4 +176,95 @@ test('first-run empty NextGen season collection fails without publishing an empt
   await assert.rejects(refreshNextGen({ outDir, now, fetcher: nextgenFetcher({ empty: true }) }), /Empty Next Gen season collection/);
   await assert.rejects(readFile(path.join(outDir, 'nextgen-stats.json')), { code: 'ENOENT' });
   assert.deepEqual(await readdir(outDir), []);
+});
+
+test('malformed cached ranking records and source-check metadata cannot become retained publications', async (t) => {
+  for (const corrupt of [
+    (season) => { season.phases.regular.teamGames = 999; },
+    (season) => { season.phases.regular.team[0].leaders[0].value = 'ten'; },
+    (season) => { season.status = 'successful'; },
+    (season) => { season.attemptedAt = 'yesterday'; },
+    (season) => { season.attemptedAt = '2026-09-28T12:00:00.000Z'; },
+  ]) {
+    const { outDir } = await sandbox(t);
+    const season = rankingRecord(2026);
+    corrupt(season);
+    const file = path.join(outDir, 'season-rankings.json');
+    const bytes = JSON.stringify({ schemaVersion: 1, checkedAt: oldCheckedAt, seasons: [season] });
+    await writeFile(file, bytes);
+    const { fetcher, calls } = rankingsFetcher({ fail: () => true });
+    const errors = [];
+    await assert.rejects(refreshSeasonRankings({ outDir, now, fetcher, onError: (message) => errors.push(message) }), /Invalid prior season rankings/);
+    assert.deepEqual(calls, [], 'invalid retained candidates fail before any source is fetched');
+    assert.deepEqual(errors, []);
+    assert.equal(await readFile(file, 'utf8'), bytes);
+    assert.deepEqual(await readdir(outDir), ['season-rankings.json']);
+  }
+});
+
+test('cached ranking collections reject duplicate seasons rather than choosing an arbitrary retained record', async (t) => {
+  const { outDir } = await sandbox(t);
+  const file = path.join(outDir, 'season-rankings.json');
+  const bytes = JSON.stringify({ schemaVersion: 1, checkedAt: oldCheckedAt, seasons: [rankingRecord(2026), rankingRecord(2026)] });
+  await writeFile(file, bytes);
+  await assert.rejects(refreshSeasonRankings({ outDir, now, fetcher: rankingsFetcher({ fail: () => true }).fetcher }), /Unsupported prior rankings snapshot/);
+  assert.equal(await readFile(file, 'utf8'), bytes);
+});
+
+test('malformed cached NextGen players and source-check metadata fail before source access or publication', async (t) => {
+  for (const corrupt of [
+    (collection) => { collection.seasons[0].passing[0].metrics[0].value = 'fast'; },
+    (collection) => { collection.seasons[0].passing[0].name = ''; },
+    (collection) => { collection.status = 'successful'; },
+    (collection) => { collection.attemptedAt = 'yesterday'; },
+    (collection) => { collection.attemptedAt = '2026-09-28T12:00:00.000Z'; },
+  ]) {
+    const { outDir } = await sandbox(t);
+    const previous = nextgenRecord();
+    corrupt(previous);
+    const file = path.join(outDir, 'nextgen-stats.json');
+    const bytes = JSON.stringify(previous);
+    await writeFile(file, bytes);
+    let calls = 0;
+    const errors = [];
+    await assert.rejects(refreshNextGen({ outDir, now, fetcher: async () => { calls++; return new Response('Unavailable', { status: 503 }); },
+      onError: (message) => errors.push(message),
+    }), /Invalid prior Next Gen snapshot/);
+    assert.equal(calls, 0);
+    assert.deepEqual(errors, []);
+    assert.equal(await readFile(file, 'utf8'), bytes);
+    assert.deepEqual(await readdir(outDir), ['nextgen-stats.json']);
+  }
+});
+
+test('a NextGen promotion failure is fatal and preserves prior bytes without becoming an upstream outage', async (t) => {
+  const { outDir } = await sandbox(t);
+  const file = path.join(outDir, 'nextgen-stats.json');
+  const bytes = JSON.stringify(nextgenRecord());
+  await writeFile(file, bytes);
+  const errors = [];
+  await assert.rejects(refreshNextGen({ outDir, now, fetcher: nextgenFetcher(), onError: (message) => errors.push(message),
+    beforePromote: async () => {
+      assert.equal(await readFile(file, 'utf8'), bytes, 'the previous publication stays readable until promotion');
+      throw new Error('promotion unavailable');
+    },
+  }), /promotion unavailable/);
+  assert.deepEqual(errors, [], 'local publication failures are not disguised as upstream retention');
+  assert.equal(await readFile(file, 'utf8'), bytes);
+  assert.deepEqual(await readdir(outDir), ['nextgen-stats.json']);
+});
+
+test('a failed retained NextGen promotion preserves original bytes and removes its temporary artifact', async (t) => {
+  const { outDir } = await sandbox(t);
+  const file = path.join(outDir, 'nextgen-stats.json');
+  const bytes = JSON.stringify(nextgenRecord());
+  await writeFile(file, bytes);
+  const errors = [];
+  await assert.rejects(refreshNextGen({ outDir, now, fetcher: nextgenFetcher({ fail: true }), onError: (message) => errors.push(message),
+    beforePromote: async () => { throw new Error('promotion unavailable'); },
+  }), /promotion unavailable/);
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /passing NGS HTTP 503/);
+  assert.equal(await readFile(file, 'utf8'), bytes);
+  assert.deepEqual(await readdir(outDir), ['nextgen-stats.json']);
 });

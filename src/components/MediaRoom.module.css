@@ -127,6 +127,8 @@
 .group + .group { margin-top: 1.6rem; }
 .groupHead { display: flex; align-items: baseline; gap: .45rem; margin-bottom: .7rem; font: 700 .7rem/1.4 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; }
 .groupHead span { font-weight: 400; color: var(--ink-2); }
+.moreStories { margin-top: .8rem; padding: .6rem .8rem; border: 1px solid var(--quiet); font-size: .8rem; }
+.moreStories span { color: var(--ink-2); }
 .cards { display: grid; gap: 1.1rem .9rem; margin: 0; padding: 0; list-style: none; }
 .watchGrid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .postGrid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); gap: .9rem; }

@@ -14,6 +14,7 @@
     "test:a11y": "playwright test",
     "test": "playwright test",
     "data:rankings": "node scripts/refresh-season-rankings.mjs",
+    "data:media": "node scripts/refresh-media.mjs",
     "data:trades": "node scripts/draft-trades.mjs"
   },
   "dependencies": {

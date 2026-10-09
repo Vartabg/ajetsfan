@@ -94,3 +94,8 @@ page served 8.0 KiB gzip before this change. The budget moves to 14 KiB
 deliberately. Initial JavaScript is unchanged (182.7 KiB gzip, no new client
 bundle) and the chart line draws itself with CSS only. Keep the print static: a
 client-side chart would cost far more than the markup it replaces.
+
+The automatic media edition keeps six recent links per publisher alongside the
+archive. The Media Room renders eight cards per format initially and reveals more
+on request; filtering and totals still cover every item. This bounds mobile DOM
+growth without increasing the existing 30 KiB HTML / 205 KiB JavaScript budgets.
