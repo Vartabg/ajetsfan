@@ -84,7 +84,7 @@ test("published case and player are readable with JavaScript disabled and retain
   await expect(page.locator('meta[property="og:image"]').first()).toHaveAttribute("content", /\/games\/2002_18_IND_NYJ\/opengraph-image/);
   await page.goto(playerPath);
   await expect(page.getByRole("heading", { level: 1, name: player.name })).toBeVisible();
-  await expect(page.locator('a[aria-current="page"][href="/team"]')).toHaveCount(1);
+  await expect(page.getByRole("navigation", { name: "Site sections", exact: true }).locator('a[aria-current="page"][href="/team"]')).toHaveCount(1);
   await expect(page.locator("main")).toContainText(player.college!);
   for (const line of playerStatLines(statsForPlayer(coverage.stats, player.id, current.season))) {
     await expect(page.locator("main")).toContainText(line.value);

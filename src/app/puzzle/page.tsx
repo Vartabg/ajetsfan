@@ -1,5 +1,6 @@
 import DailyPuzzle from "@/components/DailyPuzzle";
-import ExploreHeader from "@/components/ExploreHeader";
+import FocusShell from "@/components/FocusShell";
+import FocusMoment from "@/components/FocusMoment";
 import { loadCurrent, loadCurve, loadGames } from "@/lib/load-games";
 import { publishedGames } from "@/lib/published-pages";
 import { dailyPuzzleGame, puzzleDay } from "@/lib/puzzle";
@@ -7,6 +8,8 @@ import { pageMetadata } from "@/lib/site";
 import { teamName } from "@/lib/teams";
 import { formatDate } from "@/lib/current";
 import styles from "./page.module.css";
+import shared from "@/components/Focus.module.css";
+import { focusFonts } from "../focus-fonts";
 
 // The day's game is chosen on the server; the page refreshes itself every five minutes so the turnover at midnight New York time needs no client clock.
 export const revalidate = 300;
@@ -20,11 +23,13 @@ export default async function PuzzlePage() {
   const points = game ? (await loadCurve(game.id)).filter((point) => Number.isFinite(point.wp) && point.wp >= 0 && point.wp <= 1) : [];
   const opponents = [...new Set(pool.map((entry) => entry.opponentDisplay))].map((code) => ({ code, name: teamName(code) })).sort((a, b) => a.name.localeCompare(b.name));
   const seasons = [...new Set(pool.map((entry) => entry.season))].sort((a, b) => a - b);
-  return <main id="main" className={styles.main}>
-    <ExploreHeader title="Which Jets game?" description="One recorded game a day. Six guesses. Each miss opens another clue from the record." />
+  return <FocusShell page="puzzle" entries={[{ id: "puzzle", title: "The daily puzzle", answer: "Which Jets game?" }]} checkedAt={null} className={focusFonts}>
+    <FocusMoment id="puzzle" first label="One game a day · six guesses" heading="Which Jets game?">
+    <p className={shared.caption}>Each miss opens another clue from the record. Follow the probability line, then name the opponent and season.</p>
     {game ? <>
       <p className={styles.day}>Puzzle for <time dateTime={day}>{formatDate(day)}</time> · {pool.length} games in the pool, {seasons[0]}–{seasons.at(-1)} · progress is kept in this browser only</p>
       <DailyPuzzle key={day} day={day} game={{ id: game.id, season: game.season, week: game.week, seasonType: game.seasonType, date: game.date, opponentDisplay: game.opponentDisplay, atHome: game.atHome, jetsScore: game.jetsScore, oppScore: game.oppScore, outcome: game.outcome, wentToOt: game.wentToOt, stadium: game.stadium ?? null, roof: game.roof, temp: game.temp, wind: game.wind }} points={points} opponents={opponents} seasons={seasons} caseHref={`/games/${encodeURIComponent(game.id)}`} />
     </> : <p className={styles.day}>No puzzle in this edition: the archive has no published game.</p>}
-  </main>;
+    </FocusMoment>
+  </FocusShell>;
 }

@@ -1,0 +1,12 @@
+.navigation { min-width: 0; }
+.breadcrumb { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; color: var(--quiet); font: 400 12px/1.4 var(--text); }
+.breadcrumb a { display: inline-flex; align-items: center; min-height: 44px; text-underline-offset: 4px; }
+.breadcrumb [aria-current] { color: var(--ink); }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; padding-block: 4px 12px; border-bottom: 1px solid var(--faint); }
+.tabs a { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; max-width: 100%; padding: 8px 14px; border-radius: 999px; color: var(--quiet); font: 600 14px/1.3 var(--text); text-align: center; text-decoration: none; overflow-wrap: anywhere; }
+.tabs a:hover { background: var(--raise); color: var(--ink); }
+.tabs a[aria-current="page"] { color: var(--bg); background: var(--ink); }
+@media (max-width: 360px) {
+  .tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tabs a { min-width: 0; padding-inline: 8px; }
+}

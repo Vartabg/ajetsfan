@@ -1,5 +1,8 @@
 import Link from "@/components/IntentLink";
-import ExploreHeader from "@/components/ExploreHeader";
+import FocusShell from "@/components/FocusShell";
+import FocusMoment from "@/components/FocusMoment";
+import shared from "@/components/Focus.module.css";
+import { focusFonts } from "../../focus-fonts";
 import { formatCheckedAt, formatDate } from "@/lib/current";
 import { playerLine, pickLabel, tradesBySeason, type TradeAsset } from "@/lib/draft-trades";
 import { loadTradeLedger } from "@/lib/load-trades";
@@ -29,11 +32,20 @@ function Asset({ asset }: { asset: TradeAsset }) {
 export default async function TradesPage() {
   const ledger = await loadTradeLedger();
   const seasons = ledger ? tradesBySeason(ledger.trades) : [];
-  return <main id="main" className={styles.main}>
-    <ExploreHeader title="The trade ledger." description="Every pick, followed to what it became." parent={{ href: "/history", label: "Jets history" }} />
-    {ledger ? <>
+  return <FocusShell page="trades" entries={[
+    { id: "ledger", title: "The trade ledger", answer: "Every pick, followed" },
+    ...(ledger ? [{ id: "trades-ledger", title: "Recorded deals", answer: `${ledger.counts.trades} trades` }, { id: "trade-sources", title: "Sources", answer: "Trace every connection" }] : []),
+  ]} checkedAt={null} className={focusFonts}>
+    <FocusMoment id="ledger" first label="Jets history · trade record" heading="The trade ledger."
+      actions={<Link href="/history" className={shared.go}>Jets history <span aria-hidden="true">→</span></Link>}>
+      <p className={shared.caption}>Every pick, followed to what it became. See the player selected with it, or the later deal that moved it again.</p>
+      {ledger ? <>
       <p className={styles.standfirst}><strong>{ledger.counts.trades} recorded trades, {ledger.firstSeason}–{ledger.lastSeason}.</strong> {ledger.counts.picksGiven} picks sent and {ledger.counts.picksReceived} received, counting picks that moved again. Checked <time dateTime={ledger.checkedAt}>{formatCheckedAt(ledger.checkedAt)}</time>.</p>
       <nav className={styles.seasonNav} aria-label="Trade seasons">{seasons.map(({ season, trades }) => <a key={season} href={`#trades-${season}`}>{season}<small>{trades.length}</small></a>)}</nav>
+      </> : <p className={styles.standfirst}>The trade ledger is unavailable in this edition.</p>}
+    </FocusMoment>
+    {ledger ? <>
+      <FocusMoment id="trades-ledger" hosts>
       {seasons.map(({ season, trades }) => <section key={season} id={`trades-${season}`} className={styles.season} aria-labelledby={`trades-${season}-heading`}>
         <h2 id={`trades-${season}-heading`} className="hed">{season}</h2>
         {trades.map((trade) => <article key={trade.id} className={styles.trade} data-trade={trade.id} style={{ "--rival": teamColor(trade.partners[0]), "--rival-2": teamColor(trade.partners[0], 1) } as CSSProperties}>
@@ -44,10 +56,13 @@ export default async function TradesPage() {
           </div>
         </article>)}
       </section>)}
+      </FocusMoment>
+      <FocusMoment id="trade-sources" label="The trade ledger" heading="Every connection, sourced.">
       <footer className={styles.sources}>
         <p>Trades and the players named with picks come from the <a href={ledger.sources.trades} target="_blank" rel="noreferrer">nflverse trade record</a>; selections come from the <a href={ledger.sources.draft} target="_blank" rel="noreferrer">nflverse draft record</a>. The trade record begins in 2002. A pick is followed to the selection made with it, or to the later trade that moved it; the assets that came back in that later deal are listed as the deal returned them, not as the value of one pick. When the draft record shows a different club selecting, the pick changed hands by a route the trade record does not contain, and the line says so. Conditional picks and picks without a recorded number appear as recorded. No valuation is applied.</p>
         <p><Link href="/history">Jets history <span aria-hidden="true">→</span></Link> <Link href="/how-made">Sources &amp; how it works <span aria-hidden="true">→</span></Link></p>
       </footer>
-    </> : <p className={styles.standfirst}>The trade ledger is unavailable in this edition.</p>}
-  </main>;
+      </FocusMoment>
+    </> : null}
+  </FocusShell>;
 }

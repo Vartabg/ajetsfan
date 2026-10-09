@@ -1,7 +1,16 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import path from "node:path";
 
 test.beforeEach(async ({ page }) => { await page.emulateMedia({ reducedMotion: "reduce" }); });
+
+async function expectSeasonFocus(page: Page) {
+  await expect(page.locator('[data-focus-page="season"]')).toHaveCount(1);
+  await expect(page.getByRole("main")).toHaveCount(1);
+  await expect(page.locator("#top")).toHaveCount(0);
+  const selected = page.getByRole("navigation", { name: "Site sections" }).locator('[aria-current="page"]');
+  await expect(selected).toHaveCount(1);
+  await expect(selected).toHaveAttribute("href", "/seasons");
+}
 
 test("season directory links the 2010 playoff run and marks earlier coverage as selected", async ({ page }) => {
   await page.goto("/seasons");
@@ -12,7 +21,7 @@ test("season directory links the 2010 playoff run and marks earlier coverage as 
   await expect(page.locator("[data-season-game]")).toHaveCount(3);
   await expect(page.locator("[data-season-game='2010_19_NYJ_NE']")).toContainText("Jan 16, 2011");
   await expect(page.locator("[data-season-media]")).toHaveCount(2);
-  await expect(page.getByRole("navigation", { name: "Site sections" }).locator('[aria-current="page"]')).toHaveAttribute("href", "/seasons");
+  await expectSeasonFocus(page);
   await page.goto("/seasons/1968?phase=playoffs");
   await expect(page.locator("[data-season-record]")).toHaveText("—");
   await expect(page.locator("[data-season-game]")).toHaveCount(0);
@@ -37,6 +46,7 @@ test("phase and search retain football-season totals, shareable URLs and browser
   await expect(archive.locator("[data-season-search]")).toHaveValue("NE");
   await expect(archive.locator("[data-season-game]")).toHaveCount(1);
   await page.goBack();
+  await expectSeasonFocus(page);
   await expect(archive).toHaveAttribute("data-season-phase", "regular");
   await expect(archive.locator("[data-season-game]")).toHaveCount(16);
 });
@@ -58,9 +68,17 @@ test("game evidence and the historical reporting open their exact destinations",
   await page.locator('[data-season-case="2010_19_NYJ_NE"]').click();
   await expect(page).toHaveURL(/\/games\/2010_19_NYJ_NE\?from=/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.locator('[data-focus-page="game"]')).toHaveCount(1);
+  await expect(page.getByRole("main")).toHaveCount(1);
   await page.goBack();
+  await expect(page).toHaveURL(/\/seasons\/2010\?phase=playoffs$/);
+  await expectSeasonFocus(page);
+  await expect(page.locator("[data-season-record]")).toHaveText("2–1");
   await page.locator('[data-season-view="media"]').click();
   await page.locator('[data-season-media="espn-2010-divisional-rapid-reaction"] h3 a').click();
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/media");
+  await expect(page.locator('[data-focus-page="media"]')).toHaveCount(1);
+  await expect(page.getByRole("main")).toHaveCount(1);
   await expect(page.locator("[data-media-room]")).toHaveAttribute("data-media-selected", "espn-2010-divisional-rapid-reaction");
   await expect(page.locator("[data-media-season]")).toHaveValue("2010");
 });

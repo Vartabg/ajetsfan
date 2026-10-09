@@ -48,6 +48,11 @@ JavaScript budgets. Both code CI and data publication enforce these limits.
 These asset checks exclude images, dynamic imports and prefetch traffic; use
 Lighthouse/network traces to measure total transfers.
 
+Deep cuts adds a 24 KiB HTML / 200 KiB initial JavaScript budget. Its final
+production build measured 21.0 / 186.2 KiB using this script. The two recorded
+paths also render in the static fallback; the homepage receives only a compact
+same-score finding. These are asset sizes, not load-time measurements.
+
 For timing comparisons, run at least three serial Lighthouse audits of both
 builds with identical settings, without browser tests or builds competing for CPU:
 

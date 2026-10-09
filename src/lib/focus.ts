@@ -7,6 +7,7 @@ import { mediaImage, type MediaCollection, type MediaImage } from "./media";
 import type { PlayDesign } from "./playbook";
 import { publishedGames } from "./published-pages";
 import { teamIdentity } from "./teams";
+import { buildDiscoveries } from "./discoveries";
 
 /** One play of a game's line: the Jets' pre-play win chance and the quarter (5+ is overtime). */
 export type FocusPoint = [wp: number, quarter: number];
@@ -24,6 +25,7 @@ export type FocusData = {
   division: { name: string; place: number; back: number; leader: string; tiedAtTop: number; teams: { team: string; place: string; wins: number; losses: number; ties: number; games: number; pointsFor: number; pointsAgainst: number; us: boolean }[] } | null;
   film: { title: string; date: string; situation: string; result: string; summary: string; star: string; design: PlayDesign } | null;
   media: { id: string; title: string; outlet: string; publishedAt: string | null; image: MediaImage | null } | null;
+  discovery: { score: string; wins: number; firstSeason: number; lastDate: string; low: { label: string; chance: number }; high: { label: string; chance: number } } | null;
 };
 
 // Two teams share Los Angeles and two share New York; they go by nickname in a sentence.
@@ -92,5 +94,13 @@ export function buildFocus({ games, snapshot, curve, media }: { games: Game[]; s
   const featured = pictured[0];
   const mediaMoment = featured ? { id: featured.id, title: featured.title, outlet: outletName.get(featured.outletId) ?? featured.author, publishedAt: featured.publishedAt, image: mediaImage(featured) } : null;
 
-  return { checkedAt: snapshot?.checkedAt ?? null, last, next, season, division, film, media: mediaMoment };
+  const discoveries = buildDiscoveries(games.filter((game) => published.has(game.id)));
+  const pair = discoveries.sameScore;
+  const discovery = pair ? {
+    score: `${pair.jetsScore}–${pair.oppScore}`, wins: discoveries.scope.wins, firstSeason: discoveries.scope.firstSeason!, lastDate: discoveries.scope.lastDate!,
+    low: { label: `${pair.low.season} ${pair.low.atHome ? "vs" : "at"} ${placeName(pair.low.opponentDisplay)}`, chance: pair.low.troughH2Wp! },
+    high: { label: `${pair.high.season} ${pair.high.atHome ? "vs" : "at"} ${placeName(pair.high.opponentDisplay)}`, chance: pair.high.troughH2Wp! },
+  } : null;
+
+  return { checkedAt: snapshot?.checkedAt ?? null, last, next, season, division, film, media: mediaMoment, discovery };
 }

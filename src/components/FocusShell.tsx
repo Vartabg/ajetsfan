@@ -15,9 +15,10 @@ const MORE: FocusEntry = { id: "more", title: "Everything else", answer: "Team, 
 export default function FocusShell({ page, entries, checkedAt, section, className = "", style, children }: { page: string; entries: FocusEntry[]; checkedAt: string | null; section?: string; className?: string; style?: CSSProperties; children: ReactNode }) {
   const pathname = usePathname();
   const index = [...entries, MORE];
-  // A season page belongs to Seasons, as a sub-page belongs to its section.
-  const place = section ?? pathname;
-  const current = (href: string) => place === href || place.startsWith(`${href}/`) ? "page" : undefined;
+  // Use the most specific destination, and keep player profiles in the Team desk.
+  const place = section ?? (pathname.startsWith("/players/") ? "/team" : pathname);
+  const currentHref = SECTIONS.filter(({ href }) => place === href || place.startsWith(`${href}/`)).sort((a, b) => b.href.length - a.href.length)[0]?.href;
+  const current = (href: string) => href === currentHref ? "page" : undefined;
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
   const sheet = useRef<HTMLDialogElement>(null);

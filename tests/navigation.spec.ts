@@ -4,6 +4,7 @@ import path from "node:path";
 import type { CoverageSnapshot } from "../src/lib/coverage";
 import { leaders } from "../src/lib/coverage";
 import type { CurrentSnapshot } from "../src/lib/current";
+import { SECTIONS } from "../src/lib/site-sections";
 
 const coverage = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/coverage.json"), "utf8")) as CoverageSnapshot;
 const current = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/current.json"), "utf8")) as CurrentSnapshot;
@@ -29,9 +30,10 @@ async function expectBelowNavigation(page: Page, target: Locator) {
   await expect(target).toBeInViewport({ ratio: 1 });
   await expect.poll(async () => {
     const [content, navigation] = await Promise.all([
-      target.boundingBox(), page.getByRole("navigation", { name: "Site sections" }).boundingBox(),
+      target.boundingBox(), page.locator("[data-focus-page] > header").boundingBox(),
     ]);
-    return content && navigation ? content.y - (navigation.y + navigation.height) : -1;
+    // Hash-target offsets can round to a fractional CSS pixel beneath the bar.
+    return content && navigation ? Math.round(content.y - (navigation.y + navigation.height)) : -1;
   }).toBeGreaterThanOrEqual(0);
 }
 
@@ -42,34 +44,61 @@ async function expectCurrentSection(page: Page, href: string) {
 }
 
 for (const width of [320, 390]) {
-  test(`site navigation stays available after scrolling and has 44px targets at ${width}px`, async ({ page }) => {
+  test(`the focus menu stays available after scrolling and has 44px targets at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/history", { waitUntil: "domcontentloaded" });
     const navigation = page.getByRole("navigation", { name: "Site sections" });
-    await expect(navigation.getByRole("link")).toHaveCount(6);
+    await expect(navigation.getByRole("link")).toHaveCount(SECTIONS.length);
     await expectTouchTargets(navigation.getByRole("link"));
 
     await page.evaluate(() => window.scrollTo(0, 900));
-    await expect.poll(async () => (await page.locator("#top").boundingBox())!.y).toBeLessThan(0);
-    await expect.poll(async () => (await navigation.boundingBox())!.y).toBeGreaterThanOrEqual(0);
-    await expect.poll(async () => (await navigation.boundingBox())!.y).toBeLessThanOrEqual(2);
-    await expect(navigation).toBeInViewport({ ratio: 1 });
+    await expect.poll(async () => (await page.locator("#fan-stand").boundingBox())!.y).toBeLessThan(0);
+    const bar = page.locator("[data-focus-page] > header");
+    await expect.poll(async () => (await bar.boundingBox())!.y).toBeGreaterThanOrEqual(0);
+    await expect.poll(async () => (await bar.boundingBox())!.y).toBeLessThanOrEqual(2);
+    await expect(bar).toBeInViewport({ ratio: 1 });
+    const opener = page.getByRole("button", { name: "Menu", exact: true });
+    await expectTouchTargets(opener);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 
-    const backToTop = page.locator('footer a[href="#top"]');
-    await expectTouchTargets(backToTop);
-    await backToTop.click();
-    await expect(page).toHaveURL(/#top$/);
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
-    await expect(page.locator("#top")).toBeInViewport({ ratio: 1 });
+    const before = await page.evaluate(() => scrollY);
+    // Click the fixed on-screen hit area without asking Playwright to scroll the sticky bar.
+    const button = (await opener.boundingBox())!;
+    await page.mouse.click(button.x + button.width / 2, button.y + button.height / 2);
+    const menu = page.getByRole("dialog", { name: "Menu" });
+    await expect(menu).toBeVisible();
+    await expect(opener).toHaveAttribute("aria-expanded", "true");
+    const menuSections = menu.getByRole("navigation", { name: "All sections" }).getByRole("link");
+    await expect(menuSections).toHaveCount(SECTIONS.length);
+    await expectTouchTargets(menuSections);
+    await expectTouchTargets(menu.getByRole("button", { name: "Close", exact: true }));
+    await page.keyboard.press("Escape");
+    await expect(menu).toBeHidden();
+    await expect(opener).toHaveAttribute("aria-expanded", "false");
+    await expect(opener).toBeFocused();
+    expect(await page.evaluate(() => scrollY)).toBe(before);
+
+    await page.mouse.click(button.x + button.width / 2, button.y + button.height / 2);
+    const firstMoment = menu.getByRole("navigation", { name: "This page" }).getByRole("link").first();
+    await expectTouchTargets(firstMoment);
+    await firstMoment.click();
+    await expect(menu).toBeHidden();
+    await expect(page).toHaveURL(/#fan-stand$/);
+    await expect(page.getByRole("heading", { level: 1 })).toBeInViewport({ ratio: 1 });
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThanOrEqual(56);
   });
 }
 
 test("site navigation updates the current section after route changes and browser back", async ({ page }) => {
-  // The focus pages carry their own navigation; History still has the site masthead.
   await page.goto("/history", { waitUntil: "domcontentloaded" });
-  await expectCurrentSection(page, "/seasons");
+  await expectCurrentSection(page, "/history");
   const navigation = page.getByRole("navigation", { name: "Site sections" });
+  await navigation.locator('a[href="/history/trades"]').click();
+  await expect(page).toHaveURL(/\/history\/trades$/);
+  await expectCurrentSection(page, "/history/trades");
+  await page.goBack();
+  await expect(page).toHaveURL(/\/history$/);
+  await expectCurrentSection(page, "/history");
   await navigation.locator('a[href="/team"]').click();
   await expect(page).toHaveURL(/\/team$/);
   await expectCurrentSection(page, "/team");
@@ -80,7 +109,7 @@ test("site navigation updates the current section after route changes and browse
   await expect(page).toHaveURL(/\/team$/);
   await expectCurrentSection(page, "/team");
   await page.goBack();
-  await expectCurrentSection(page, "/seasons");
+  await expectCurrentSection(page, "/history");
 });
 
 test("a destination opens at its heading and Back restores the home page's place", async ({ page }) => {
@@ -162,5 +191,8 @@ test("a leader's name on the Team page opens the matching player page", async ({
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(new RegExp(`/players/${featured.id}$`));
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(featured.name);
+  await expect(page.locator('[data-focus-page="player"]')).toHaveCount(1);
+  await expect(page.getByRole("main")).toHaveCount(1);
+  await expect(page.locator("#top")).toHaveCount(0);
   await expectCurrentSection(page, "/team");
 });

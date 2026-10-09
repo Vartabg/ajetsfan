@@ -197,14 +197,18 @@ test("a missing or failed headshot shows accessible initials without losing prof
 test("overdue or unavailable roster and statistics each disclose their own source state", async ({ page }) => {
   const player = profilePlayer();
   const lastChecked = Math.max(...[coverage.roster, coverage.stats].map((feed) => Date.parse(feed.checkedAt ?? feed.attemptedAt)));
-  await page.clock.install({ time: new Date(lastChecked + 26 * 60 * 60 * 1000) });
-  await page.goto(player ? playerHref(player.id) : "/team/roster#roster");
-  await expect(page.getByRole("status", { name: "Roster update status", exact: true })).toBeVisible();
-  if (coverage.roster.status === "unavailable") await expect(page.getByRole("status", { name: "Roster update status", exact: true })).toContainText("This source is unavailable.");
+  // Source age needs a fixed Date, while animation frames and timers can remain real.
+  await page.clock.setFixedTime(new Date(lastChecked + 26 * 60 * 60 * 1000));
+  await page.goto(player ? playerHref(player.id) : "/team/roster#roster", { waitUntil: "domcontentloaded" });
+  const sourceMessage = (status: CoverageSnapshot["roster"]["status"]) => status === "unavailable" ? "This source is unavailable."
+    : status === "retained" ? "The latest source check failed." : "This source check is over 24 hours old.";
+  const rosterStatus = page.getByRole("status", { name: "Roster update status", exact: true });
+  await expect(rosterStatus).toBeVisible();
+  await expect(rosterStatus).toContainText(sourceMessage(coverage.roster.status));
   if (!player) await page.goto("/team/stats");
   const statsStatus = page.getByRole("status", { name: player ? "Selected player statistics update status" : "Player statistics update status", exact: true });
   await expect(statsStatus).toBeVisible();
-  if (coverage.stats.status === "unavailable") await expect(statsStatus).toContainText("This source is unavailable.");
+  await expect(statsStatus).toContainText(sourceMessage(coverage.stats.status));
 });
 
 test("this edition shows its verified roster or a real unavailable-roster empty state", async ({ page }) => {

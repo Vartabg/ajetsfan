@@ -1,0 +1,21 @@
+.content { width: 100%; min-width: 0; }
+.content > section { margin-top: 0; }
+.content :global(#season-leaders), .content :global(#news) { margin: 0; padding: 12px 0 0; border-top: 0; }
+.content :global(#season-leaders > div:first-child) { gap: 24px; }
+.content :global(#season-leaders h3), .content :global(#news h3) { font-family: var(--display); font-weight: 650; letter-spacing: -.025em; }
+.content :global(#season-leaders > div:first-child > div > div:first-child) { border-radius: 8px; background: var(--raise); color: var(--ink); }
+.content :global(#season-leaders strong) { font-family: var(--display); }
+.content :global(#news > div:first-child > a) { border: 0; padding-right: 0; }
+.content :global(#news > div:first-child) { gap: 28px; }
+.content :global(#roster-player-profile) { border-radius: 14px; }
+.content :global(#roster-player-profile > div:first-child) { color: var(--bg); }
+.content :global(#roster-player-profile > div:first-child button) { border-color: currentColor; }
+.content :global(#roster-player-profile h2) { font-family: var(--display); font-weight: 650; text-transform: none; }
+.details { margin-top: 12px; border-top: 1px solid var(--faint); }
+.details > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font: 600 15px/1.4 var(--text); }
+.details p { max-width: 52em; color: var(--quiet); font-size: 15px; line-height: 1.6; }
+@media (max-width: 800px) {
+  .content :global(#season-leaders > div:first-child) { grid-template-columns: minmax(0, 1fr); }
+  .content :global(#season-leaders > div:first-child > div) { border-right: 0; padding-right: 0; }
+  .content :global(#news > div:first-child) { grid-template-columns: minmax(0, 1fr); }
+}

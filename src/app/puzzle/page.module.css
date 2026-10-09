@@ -1,2 +1,1 @@
-.main { width: var(--shell); margin: 1rem auto 0; }
-.day { margin: 1rem 0 0; color: var(--ink-2); font-size: .8rem; line-height: 1.6; }
+.day { max-width: 70ch; margin: 0; color: var(--quiet); font-size: .8rem; line-height: 1.6; }

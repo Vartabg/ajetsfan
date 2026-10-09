@@ -8,7 +8,7 @@ import { focusFonts } from "./focus-fonts";
 
 export const metadata = pageMetadata({
   path: "/", title: "ajetsfan · the Jets, one thing at a time",
-  description: "The latest Jets result, the next game, the season, the division, a big play and the newest coverage, one at a time, with every section a tap away.",
+  description: "The latest Jets result, the next game, the season, the division, a big play, surprising archive discoveries and the newest coverage, one at a time.",
 });
 
 export default async function Home() {
