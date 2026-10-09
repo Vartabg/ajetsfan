@@ -25,7 +25,7 @@ export default async function PuzzlePage() {
   const seasons = [...new Set(pool.map((entry) => entry.season))].sort((a, b) => a - b);
   return <FocusShell page="puzzle" entries={[{ id: "puzzle", title: "The daily puzzle", answer: "Which Jets game?" }]} checkedAt={null} className={focusFonts}>
     <FocusMoment id="puzzle" first label="One game a day · six guesses" heading="Which Jets game?">
-    <p className={shared.caption}>Each miss opens another clue from the record. Follow the probability line, then name the opponent and season.</p>
+    <p className={shared.caption}>Guess a past Jets game. The chart shows how likely the Jets were to win at each point of it. Pick the opponent and the year. Each wrong guess unlocks another clue.</p>
     {game ? <>
       <p className={styles.day}>Puzzle for <time dateTime={day}>{formatDate(day)}</time> · {pool.length} games in the pool, {seasons[0]}–{seasons.at(-1)} · progress is kept in this browser only</p>
       <DailyPuzzle key={day} day={day} game={{ id: game.id, season: game.season, week: game.week, seasonType: game.seasonType, date: game.date, opponentDisplay: game.opponentDisplay, atHome: game.atHome, jetsScore: game.jetsScore, oppScore: game.oppScore, outcome: game.outcome, wentToOt: game.wentToOt, stadium: game.stadium ?? null, roof: game.roof, temp: game.temp, wind: game.wind }} points={points} opponents={opponents} seasons={seasons} caseHref={`/games/${encodeURIComponent(game.id)}`} />

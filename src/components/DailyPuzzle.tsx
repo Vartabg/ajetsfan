@@ -73,7 +73,7 @@ export default function DailyPuzzle({ day, game, points, opponents, seasons, cas
 
   return <div className={styles.puzzle} data-puzzle={day} data-puzzle-state={!restored ? "loading" : won ? "won" : over ? "lost" : "open"}>
     <figure className={styles.chart}>
-      <figcaption><strong>Clue 1 · The probability line.</strong><span>Jets win probability, play by play · a model estimate from the play-by-play, not a record of the score</span></figcaption>
+      <figcaption><strong>Clue 1 · The Jets&rsquo; chance of winning.</strong><span>Higher means the Jets were more likely to win. The circle marks their {game.outcome === "win" ? "lowest" : "highest"} point after halftime. Quarters are spaced by number of plays, not by time.</span></figcaption>
       {points.length >= 2 ? <PressChart points={points} board={game.outcome === "win" ? "miracle" : "heartbreak"} size="wide" /> : <p>The chart for this game is unavailable.</p>}
     </figure>
     <ol className={styles.clues} aria-label="Clues from the record">
