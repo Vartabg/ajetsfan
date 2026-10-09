@@ -3,7 +3,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 
-const FEEDS = ['results', 'news', 'roster', 'stats', 'analysis'];
+const FEEDS = ['results', 'news', 'roster', 'stats', 'analysis', 'media', 'rankings', 'nextgen', 'trades'];
 const FEED_STATES = new Set(['ready', 'retained', 'unavailable', 'overdue', 'unknown']);
 const HEALTH_STATES = new Set(['healthy', 'degraded', 'unavailable']);
 const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -67,6 +67,13 @@ export async function verifyPublishedData({
       }
     } catch { issue = 'health endpoint unavailable'; }
     if (health && validHealth(health, response.status) && health.season === expected.season && health.checkedAt === expected.checkedAt) {
+      if (expected.feeds && Object.entries(expected.feeds).some(([name, checkedAt]) => health.feeds[name]?.checkedAt !== checkedAt)
+        || expected.mediaSources && Object.entries(expected.mediaSources).some(([name, checkedAt]) => health.mediaSources?.[name]?.checkedAt !== checkedAt)) {
+        issue = 'a deployed source snapshot differs from the local publication';
+        onAttempt({ attempt, attempts, issue });
+        if (attempt < attempts) await pause(intervalMs);
+        continue;
+      }
       if (health.feeds.results.status === 'ready' && health.feeds.results.checkedAt === expected.checkedAt) {
         return { attempts: attempt, season: health.season, checkedAt: health.checkedAt, status: health.status,
           degradedFeeds: FEEDS.filter((name) => health.feeds[name].status !== 'ready').map((name) => ({ name, status: health.feeds[name].status })) };
@@ -82,6 +89,15 @@ export async function verifyPublishedData({
 async function main() {
   const { values } = parseArgs({ options: { origin: { type: 'string' } }, allowPositionals: false });
   const expected = JSON.parse(await readFile(path.join(process.cwd(), 'public', 'data', 'current.json'), 'utf8'));
+  const [media, rankings, nextgen, trades] = await Promise.all(['media', 'season-rankings', 'nextgen-stats', 'draft-trades'].map(async (name) =>
+    JSON.parse(await readFile(path.join(process.cwd(), 'public/data', `${name}.json`), 'utf8'))));
+  const mediaChecks = media.sources.map((source) => source.checkedAt);
+  expected.feeds = {
+    media: mediaChecks.some((check) => check === null) ? null : mediaChecks.sort()[0],
+    rankings: rankings.seasons.find((season) => season.year === expected.season)?.checkedAt ?? null,
+    nextgen: nextgen.checkedAt, trades: trades.checkedAt,
+  };
+  expected.mediaSources = Object.fromEntries(media.sources.map((source) => [source.id, source.checkedAt]));
   const result = await verifyPublishedData({ origin: values.origin, expected,
     onAttempt: ({ attempt, attempts, issue }) => console.log(`Deployment check ${attempt}/${attempts}: ${issue}.`),
   });
@@ -91,6 +107,9 @@ async function main() {
   const message = `Published ${result.season} edition verified at ${result.checkedAt}. ${sourceHealth}`;
   console.log(message);
   if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, `${message}\n`);
+  if (result.degradedFeeds.some(({ name, status }) => status === 'overdue' || ['media', 'rankings', 'nextgen', 'trades'].includes(name) && ['unavailable', 'unknown'].includes(status))) {
+    throw new DeploymentVerificationError('Edition deployed, but an automatic source is unavailable or overdue. See the source-health summary.');
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

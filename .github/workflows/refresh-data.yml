@@ -3,9 +3,9 @@ name: Refresh Jets data
 on:
   workflow_dispatch:
   schedule:
-    # UTC: daily checks include the Thursday correction pass. Extra checks
+    # UTC: publisher feeds and sports sources every three hours. Extra checks
     # follow Sunday afternoon and Sunday/Monday/Thursday night games.
-    - cron: '23 6,12,18 * * *'
+    - cron: '23 */3 * * *'
     - cron: '23 19-23 * * 0'
     - cron: '23 0-5 * * 1,2,5'
 
@@ -34,9 +34,13 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - name: Require production edition verification
+        run: node --input-type=module -e 'import { publicSiteOrigin } from "./scripts/verify-published-data.mjs"; publicSiteOrigin(process.env.PUBLIC_SITE_URL);'
       - run: npm run test:data
       - run: npm run data:refresh
       - run: npm run data:rankings
+      - run: npm run data:trades
+      - run: npm run data:media
       - name: Detect snapshot changes
         id: snapshot
         run: |
@@ -89,8 +93,4 @@ jobs:
       - name: Verify the exact published edition
         if: steps.snapshot.outputs.changed == 'true'
         run: |
-          if [ -z "$PUBLIC_SITE_URL" ]; then
-            echo 'Deployment unverified: PUBLIC_SITE_URL is not configured. A validated commit or deploy-hook request does not confirm that readers received this edition.' >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
           node scripts/verify-published-data.mjs --origin "$PUBLIC_SITE_URL"

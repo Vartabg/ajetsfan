@@ -4,6 +4,7 @@ import { mediaCollection } from "../src/lib/media-catalog";
 import { mediaImage } from "../src/lib/media";
 
 const items = mediaCollection.items;
+const visibleCount = (rows: typeof items) => ["video", "post", "article", "audio"].reduce((count, kind) => count + Math.min(8, rows.filter((item) => item.kind === kind).length), 0);
 const posts = items.filter((item) => item.kind === "post");
 const firstPost = posts[0];
 const secondPost = posts[1];
@@ -24,7 +25,7 @@ test.beforeEach(async ({ page }) => {
 test("the entry view starts with stories and keeps extra filters, provider notes and source bars optional", async ({ page }) => {
   await page.goto("/media");
   const media = room(page);
-  await expect(media.locator("[data-media-card]")).toHaveCount(items.length);
+  await expect(media.locator("[data-media-card]")).toHaveCount(visibleCount(items));
   await expect(media.getByLabel("Search Jets media")).toBeVisible();
   await expect(media.getByRole("group", { name: "Coverage format" })).toBeVisible();
   await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
@@ -42,10 +43,48 @@ test("the entry view starts with stories and keeps extra filters, provider notes
   await expect(media.locator("[data-media-source]")).toBeHidden();
 });
 
+test("more stories remain searchable and a reloaded deep link returns to its own card", async ({ page }) => {
+  const articles = items.filter((item) => item.kind === "article").sort((a, b) => Number(a.context === "archive") - Number(b.context === "archive") || (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "") || a.id.localeCompare(b.id));
+  test.skip(articles.length <= 8, "This edition has no additional articles.");
+  const deep = articles[8];
+  await page.goto("/media?type=article#collection");
+  const media = room(page);
+  await expect(media.locator("[data-media-card]")).toHaveCount(8);
+  await media.locator('[data-media-more="article"]').click();
+  await expect(media.locator("[data-media-card]")).toHaveCount(Math.min(16, articles.length));
+  await media.locator(itemSelector(deep.id)).click();
+  await page.reload();
+  await expect(page.locator("#media-viewer-heading")).toHaveText(deep.title);
+  await media.locator("[data-media-back-results]").click();
+  await expect(media.locator(itemSelector(deep.id))).toBeVisible();
+  await expect(media.locator(itemSelector(deep.id))).toBeFocused();
+  await expect(media.locator(itemSelector(deep.id))).toBeInViewport();
+  await media.getByLabel("Search Jets media").fill("no-matching-story-zzzz");
+  await expect(media.locator("[data-media-card]")).toHaveCount(0);
+  await media.getByLabel("Search Jets media").fill("");
+  await expect(media.locator("[data-media-card]")).toHaveCount(Math.min(16, articles.length));
+});
+
+test("the automatic source directory exposes real checks alongside the dated archive", async ({ page }) => {
+  await page.goto("/media#collection");
+  const media = room(page);
+  await media.locator("[data-media-source-ledger] > summary").click();
+  await expect(media.locator("[data-media-feed-status] li")).toHaveCount(mediaCollection.sources!.length);
+  await expect(media.locator("[data-media-source-ledger]")).toContainText("Publisher feeds refresh automatically");
+  await expect(media.locator("[data-media-source-ledger]")).toContainText("Archive selections reviewed");
+  expect(items.some((item) => item.id.startsWith("auto-") && item.kind === "article")).toBe(true);
+  expect(items.some((item) => item.id.startsWith("auto-") && item.kind === "audio")).toBe(true);
+  expect(items.some((item) => item.id.startsWith("auto-") && item.youtubeId)).toBe(true);
+});
+
 test("formats keep their own sections, current coverage leads, and every card shows its publisher's picture or none", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/media");
   const media = room(page);
+  for (const kind of ["video", "article", "audio"]) {
+    const more = media.locator(`[data-media-more="${kind}"]`);
+    while (await more.count()) await more.click();
+  }
   const groups = media.locator("[data-media-group]");
   expect(await groups.evaluateAll((sections) => sections.map((section) => section.getAttribute("data-media-group")))).toEqual(["video", "post", "article", "audio"]);
   for (const kind of ["video", "post", "article", "audio"] as const) {
@@ -153,13 +192,13 @@ test("format, source, topic and search filters show an honest empty state and re
   const media = room(page);
   await expect(media).toHaveAttribute("data-media-selected", "");
   await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
-  await expect(media.locator("[data-media-card]")).toHaveCount(items.length);
+  await expect(media.locator("[data-media-card]")).toHaveCount(visibleCount(items));
   await media.locator('[data-media-type="post"]').click();
   await expect(media.locator("[data-media-card]")).toHaveCount(posts.length);
   await media.locator("[data-media-more-filters] > summary").click();
   await media.locator("[data-media-source]").selectOption(firstPost.outletId);
   const bySource = posts.filter((item) => item.outletId === firstPost.outletId);
-  await expect(media.locator("[data-media-card]")).toHaveCount(bySource.length);
+  await expect(media.locator("[data-media-card]")).toHaveCount(visibleCount(bySource));
   const topic = firstPost.topics[0];
   await media.locator(`[data-media-topic="${topic}"]`).click();
   await expect(media.locator("[data-media-card]")).toHaveCount(bySource.filter((item) => item.topics.includes(topic)).length);
@@ -171,7 +210,7 @@ test("format, source, topic and search filters show an honest empty state and re
   await page.reload();
   await expect(media.locator("[data-media-empty]")).toBeVisible();
   await media.locator("[data-media-reset]").click();
-  await expect(media.locator("[data-media-card]")).toHaveCount(items.length);
+  await expect(media.locator("[data-media-card]")).toHaveCount(visibleCount(items));
   expect(Object.fromEntries(new URL(page.url()).searchParams)).toEqual({ keep: "research" });
   expect(new URL(page.url()).hash).toBe("#media-room");
   await media.locator("[data-media-search]").fill(firstPost.author);
@@ -186,7 +225,7 @@ test("an unavailable football season stays empty instead of silently opening the
   await expect(media.locator("[data-media-card]")).toHaveCount(0);
   await expect(media).toHaveAttribute("data-media-selected", "");
   await media.getByRole("button", { name: /Reset the collection/ }).click();
-  await expect(media.locator("[data-media-card]")).toHaveCount(items.length);
+  await expect(media.locator("[data-media-card]")).toHaveCount(visibleCount(items));
   expect(new URL(page.url()).searchParams.get("keep")).toBe("history");
   expect(new URL(page.url()).searchParams.has("season")).toBe(false);
 });

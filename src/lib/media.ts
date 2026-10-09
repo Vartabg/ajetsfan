@@ -36,7 +36,18 @@ export type MediaOutlet = {
   people: string[];
 };
 
-export type MediaCollection = { checkedAt: string; items: MediaItem[]; outlets: MediaOutlet[] };
+export type MediaSource = {
+  id: string; name: string; url: string;
+  status: "ready" | "retained" | "unavailable";
+  checkedAt: string | null; attemptedAt: string; itemCount: number;
+};
+export type MediaCollection = {
+  schemaVersion?: 1;
+  checkedAt: string;
+  curatedCheckedAt?: string;
+  sources?: MediaSource[];
+  items: MediaItem[]; outlets: MediaOutlet[];
+};
 
 /** Preserve date-only publisher datelines; timestamped reporting uses New York time. */
 export function formatMediaDate(value: string | null): string {
@@ -62,6 +73,7 @@ function safeUrl(value: unknown, allowed: Set<string>): value is string {
 }
 
 export const safeMediaUrl = (value: unknown): value is string => safeUrl(value, hosts);
+const sourceHosts = new Set([...hosts, "itunes.apple.com"]);
 
 /** The picture to show for an item, or null when the publisher has none. */
 export function mediaImage(item: Pick<MediaItem, "youtubeId" | "image">): MediaImage | null {
@@ -74,6 +86,20 @@ export function mediaImage(item: Pick<MediaItem, "youtubeId" | "image">): MediaI
 export function validateMediaCollection(collection: MediaCollection): MediaCollection {
   const checked = Date.parse(collection.checkedAt);
   if (!Number.isFinite(checked) || !Array.isArray(collection.items) || !Array.isArray(collection.outlets)) throw new Error("Invalid media collection");
+  if (collection.schemaVersion !== undefined && collection.schemaVersion !== 1) throw new Error("Unsupported media snapshot");
+  if (collection.curatedCheckedAt !== undefined && (!Number.isFinite(Date.parse(collection.curatedCheckedAt)) || Date.parse(collection.curatedCheckedAt) > checked)) throw new Error("Invalid curated media check");
+  if (collection.sources !== undefined) {
+    if (!Array.isArray(collection.sources) || !collection.sources.length) throw new Error("Invalid media sources");
+    const sourceIds = new Set<string>();
+    for (const source of collection.sources) {
+      if (!text(source.id, 60) || !/^[a-z0-9-]+$/.test(source.id) || sourceIds.has(source.id) || !text(source.name, 120)
+        || !safeUrl(source.url, sourceHosts) || !["ready", "retained", "unavailable"].includes(source.status)
+        || !Number.isFinite(Date.parse(source.attemptedAt)) || !Number.isInteger(source.itemCount) || source.itemCount < 0
+        || (source.checkedAt !== null && (!Number.isFinite(Date.parse(source.checkedAt)) || Date.parse(source.checkedAt) > Date.parse(source.attemptedAt) || Date.parse(source.checkedAt) > checked))
+        || (source.status === "unavailable" ? source.checkedAt !== null || source.itemCount !== 0 : source.checkedAt === null)) throw new Error("Invalid media source state");
+      sourceIds.add(source.id);
+    }
+  }
   const outletIds = new Set<string>();
   for (const outlet of collection.outlets) {
     if (!text(outlet.id, 60) || !/^[a-z0-9-]+$/.test(outlet.id) || outletIds.has(outlet.id) || !text(outlet.name, 120)

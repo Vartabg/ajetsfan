@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
-import { formatMediaDate, mediaImage, type MediaItem, type MediaOutlet } from "@/lib/media";
+import { formatMediaDate, mediaImage, type MediaItem, type MediaOutlet, type MediaSource } from "@/lib/media";
 import { seasonReturn } from "@/lib/season-navigation";
 import SeasonReturn from "./SeasonReturn";
 import styles from "./MediaRoom.module.css";
@@ -213,7 +213,7 @@ function Card({ item, outletName, selected, compared, full, onSelect, onCompare 
   </li>;
 }
 
-export default function MediaRoom({ items, outlets, checkedAt }: { items: MediaItem[]; outlets: MediaOutlet[]; checkedAt: string }) {
+export default function MediaRoom({ items, outlets, checkedAt, sources, curatedCheckedAt }: { items: MediaItem[]; outlets: MediaOutlet[]; checkedAt: string; sources?: MediaSource[]; curatedCheckedAt?: string }) {
   const search = useSyncExternalStore(subscribeLocation, locationSnapshot, serverLocationSnapshot);
   const params = useMemo(() => new URLSearchParams(search), [search]);
   const topicList = useMemo(() => [...new Set(items.flatMap((item) => item.topics))].sort((a, b) => a.localeCompare(b)), [items]);
@@ -223,6 +223,9 @@ export default function MediaRoom({ items, outlets, checkedAt }: { items: MediaI
   const source = outlets.some((outlet) => outlet.id === params.get("source")) ? params.get("source")! : "";
   const type = kinds.includes(params.get("type") as MediaItem["kind"]) ? params.get("type")! : "";
   const query = (params.get("q") ?? "").slice(0, 160);
+  const filterKey = `${season}\n${topic}\n${source}\n${type}\n${query}`;
+  const [expanded, setExpanded] = useState<{ filters: string; counts: Partial<Record<MediaItem["kind"], number>> }>({ filters: "", counts: {} });
+  const shown = (kind: MediaItem["kind"]) => expanded.filters === filterKey ? expanded.counts[kind] ?? 8 : 8;
   const outletById = useMemo(() => new Map(outlets.map((outlet) => [outlet.id, outlet])), [outlets]);
   const filtered = useMemo(() => items.filter((item) => (!topic || item.topics.includes(topic)) && (!source || item.outletId === source) && (!type || item.kind === type) && (!season || item.seasons?.some((year) => String(year) === season)) && (!query || `${item.title} ${item.summary} ${item.author} ${outletById.get(item.outletId)?.name ?? ""} ${item.topics.join(" ")}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()))), [items, topic, source, type, season, query, outletById]);
   const selected = filtered.find((item) => item.id === params.get("media"));
@@ -275,7 +278,12 @@ export default function MediaRoom({ items, outlets, checkedAt }: { items: MediaI
   }
   function backToResults() {
     const destination = returnPosition.current;
-    const id = destination?.id ?? selected?.id;
+    const id = selected?.id ?? destination?.id;
+    const group = groups.find(({ entries }) => entries.some((item) => item.id === id));
+    if (group) {
+      const required = group.entries.findIndex((item) => item.id === id) + 1;
+      if (required > shown(group.kind)) setExpanded({ filters: filterKey, counts: { ...(expanded.filters === filterKey ? expanded.counts : {}), [group.kind]: Math.ceil(required / 8) * 8 } });
+    }
     writeSelection({ media: "" });
     window.requestAnimationFrame(() => {
       const card = id ? document.querySelector<HTMLElement>(`[data-media-select="${CSS.escape(id)}"]`) : null;
@@ -351,13 +359,14 @@ export default function MediaRoom({ items, outlets, checkedAt }: { items: MediaI
     {filtered.length ? <div>
       {groups.map(({ kind, entries }) => <section key={kind} className={styles.group} aria-labelledby={`media-group-${kind}`} data-media-group={kind}>
         <h4 id={`media-group-${kind}`} className={styles.groupHead}>{kindLabels[kind]}<span>{entries.length}</span></h4>
-        <ul className={`${styles.cards} ${gridClass[kind]}`} aria-labelledby={`media-group-${kind}`}>{entries.map((item) => <Card key={item.id} item={item} outletName={outletById.get(item.outletId)?.name ?? item.author} selected={item.id === selected?.id} compared={compared.includes(item.id)} full={compared.length === 2} onSelect={() => viewSelection(item.id)} onCompare={() => compare(item)} />)}</ul>
+        <ul className={`${styles.cards} ${gridClass[kind]}`} aria-labelledby={`media-group-${kind}`}>{entries.slice(0, shown(kind)).map((item) => <Card key={item.id} item={item} outletName={outletById.get(item.outletId)?.name ?? item.author} selected={item.id === selected?.id} compared={compared.includes(item.id)} full={compared.length === 2} onSelect={() => viewSelection(item.id)} onCompare={() => compare(item)} />)}</ul>
+        {entries.length > shown(kind) ? <button type="button" className={styles.moreStories} data-media-more={kind} onClick={() => setExpanded({ filters: filterKey, counts: { ...(expanded.filters === filterKey ? expanded.counts : {}), [kind]: shown(kind) + 8 } })}>Show more {kindLabels[kind].toLowerCase()} stories <span>({entries.length - shown(kind)} remaining)</span></button> : null}
       </section>)}
       <details className={styles.coverageDisclosure} data-media-source-bars><summary>Explore by source<span>{visibleOutlets.length} outlets</span></summary>
-        <aside className={styles.coverageMap} aria-labelledby="coverage-map-heading" data-media-coverage><h4 id="coverage-map-heading">Stories by source</h4><div className={styles.coverageBars}>{visibleOutlets.map(({ outlet, count }) => <button type="button" key={outlet.id} aria-pressed={source === outlet.id} onClick={() => chooseFilter({ source: source === outlet.id ? "" : outlet.id })} data-media-coverage-source={outlet.id} style={{ "--coverage-width": `${count / largestCount * 100}%` } as CSSProperties}><span>{outlet.name}<strong>{count}</strong></span><i aria-hidden="true" /></button>)}</div><p className={styles.coverageNote}>Counts reflect this curated collection. They do not measure audience, activity or reporting quality.</p></aside>
+        <aside className={styles.coverageMap} aria-labelledby="coverage-map-heading" data-media-coverage><h4 id="coverage-map-heading">Stories by source</h4><div className={styles.coverageBars}>{visibleOutlets.map(({ outlet, count }) => <button type="button" key={outlet.id} aria-pressed={source === outlet.id} onClick={() => chooseFilter({ source: source === outlet.id ? "" : outlet.id })} data-media-coverage-source={outlet.id} style={{ "--coverage-width": `${count / largestCount * 100}%` } as CSSProperties}><span>{outlet.name}<strong>{count}</strong></span><i aria-hidden="true" /></button>)}</div><p className={styles.coverageNote}>Counts reflect this collection. They do not measure audience, activity or reporting quality.</p></aside>
       </details>
     </div> : <div className={styles.empty} data-media-empty><span aria-hidden="true">∅</span><h3>No coverage matches.</h3><p>{season ? `No selected stories for the ${season} football season with these filters.` : "Try another topic, source or search term."}</p><button type="button" onClick={resetFilters}>Reset the collection <span aria-hidden="true">↗</span></button></div>}
 
-    <details className={styles.sourceLedger} data-media-source-ledger><summary><span>The source directory</span><span>{usedOutlets} outlets <span aria-hidden="true">+</span></span></summary><p>Original publishers and the people represented in this curated collection. It is not a complete or continuously updated feed. Sources checked {dateLabel(checkedAt)}.</p><p>{dated.length ? `Published ${dateLabel(dated[0])} – ${dateLabel(dated.at(-1)!)}` : "Dates shown when available"}. Tags describe subjects; they do not establish agreement or verify claims. Inclusion is attribution, not endorsement.</p><ul>{outlets.filter((outlet) => items.some((item) => item.outletId === outlet.id)).map((outlet) => <li key={outlet.id}><span>{outletNames[outlet.kind]}</span><ExternalLink item={outlet}><strong>{outlet.name}</strong></ExternalLink><p>{outlet.people.join(" · ") || "Publisher editorial team"}</p></li>)}</ul></details>
+    <details className={styles.sourceLedger} data-media-source-ledger><summary><span>The source directory</span><span>{usedOutlets} outlets <span aria-hidden="true">+</span></span></summary><p>Publisher feeds refresh automatically alongside the selected archive. Feeds last checked {dateLabel(checkedAt)}.{curatedCheckedAt ? ` Archive selections reviewed ${dateLabel(curatedCheckedAt)}.` : ""} Social posts remain dated archive selections.</p><div data-media-feed-status><ul>{sources?.map((source) => <li key={source.id}><strong>{source.name}</strong><p>{source.status === "ready" ? "Checked" : source.status === "retained" ? "Keeping the last available feed" : "Feed unavailable"}{source.checkedAt ? ` · ${dateLabel(source.checkedAt)}` : ""}</p></li>)}</ul></div><p>{dated.length ? `Published ${dateLabel(dated[0])} – ${dateLabel(dated.at(-1)!)}` : "Dates shown when available"}. Tags describe subjects; they do not establish agreement or verify claims. Inclusion is attribution, not endorsement.</p><ul>{outlets.filter((outlet) => items.some((item) => item.outletId === outlet.id)).map((outlet) => <li key={outlet.id}><span>{outletNames[outlet.kind]}</span><ExternalLink item={outlet}><strong>{outlet.name}</strong></ExternalLink><p>{outlet.people.join(" · ") || "Publisher editorial team"}</p></li>)}</ul></details>
   </section>;
 }

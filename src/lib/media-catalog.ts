@@ -1,5 +1,5 @@
-import catalog from "./media-catalog.json";
+import catalog from "../../public/data/media.json";
 import { validateMediaCollection, type MediaCollection } from "./media";
 
-/** Curated, dated links; source checks are not live social-feed access. */
+/** A validated edition of publisher feeds plus the dated editorial archive. */
 export const mediaCollection = validateMediaCollection(catalog as MediaCollection);

@@ -26,7 +26,7 @@ export default function MediaPage() {
   const outletById = new Map(outlets.map((outlet) => [outlet.id, outlet]));
   const used = outlets.filter((outlet) => items.some((item) => item.outletId === outlet.id));
   const newest = [...items].filter((item) => item.publishedAt).sort((a, b) => b.publishedAt!.localeCompare(a.publishedAt!) || a.id.localeCompare(b.id));
-  const formats = FORMATS.map((format) => ({ ...format, count: items.filter((item) => item.kind === format.kind).length, lead: newest.find((item) => item.kind === format.kind && (format.kind === "post" || mediaImage(item))) ?? newest.find((item) => item.kind === format.kind) }))
+  const formats = FORMATS.map((format) => ({ ...format, count: items.filter((item) => item.kind === format.kind).length, lead: newest.find((item) => item.kind === format.kind) }))
     .filter((format) => format.lead);
   const [opener] = formats;
 
@@ -43,7 +43,7 @@ export default function MediaPage() {
         <ul className={styles.formats}>{formats.map((format) => <li key={format.kind}>
           <a href={`#${format.id}`}><b>{format.title}</b><span>{format.count} {format.count === 1 ? format.one : format.many}</span></a>
         </li>)}</ul>
-        <p className={shared.caption}>{items.length} selected stories from {used.length} outlets: {list([...new Set(used.map((outlet) => VOICES[outlet.kind]))])}. Every story opens its original source.</p>
+        <p className={shared.caption}>{items.length} selected stories from {used.length} outlets: {list([...new Set(used.map((outlet) => VOICES[outlet.kind]))])}. Fresh publisher feeds join the archive automatically. Every story opens its original source.</p>
       </div>
     </FocusMoment>
 
@@ -64,7 +64,7 @@ export default function MediaPage() {
     })}
 
     <FocusMoment id="collection" label="The collection" heading={<>Search every story. <em>Filter by source, season or topic.</em></>}>
-      <div className={styles.room} data-focus-tools><MediaRoom items={items} outlets={outlets} checkedAt={mediaCollection.checkedAt} /></div>
+      <div className={styles.room} data-focus-tools><MediaRoom items={items} outlets={outlets} checkedAt={mediaCollection.checkedAt} sources={mediaCollection.sources} curatedCheckedAt={mediaCollection.curatedCheckedAt} /></div>
     </FocusMoment>
   </FocusShell>;
 }
