@@ -7,9 +7,9 @@
   --paper: var(--bg); --paper-2: var(--raise); --ink-2: var(--quiet); --ink-3: var(--quiet); --rule: var(--ink); --rule-soft: var(--faint);
   --spot: var(--green); --spot-bright: var(--green); --forest: var(--green); --accent: var(--tint); --stamp: var(--loss); --tape: var(--raise);
   background: var(--bg); color-scheme: light;
-  /* Proximity, not mandatory: screens settle when a swipe ends near one, but a link or the keyboard can still go straight to a screen
-     (mandatory snapping with snap-stop made iPhone Safari pull long jumps back to the top). */
-  scroll-snap-type: y proximity; scroll-padding-top: 56px;
+  /* Let short swipes stop where the reader leaves them. Mobile proximity snapping
+     can pull the page back to the previous moment, especially in iPhone Safari. */
+  scroll-snap-type: none; scroll-padding-top: 56px;
 }
 @media (prefers-color-scheme: dark) {
   :global(html):has([data-focus-page]) {
@@ -108,7 +108,7 @@
 .sections a:hover b, .sections a[aria-current="page"] b { color: var(--green); }
 
 @media (min-width: 1024px) {
-  :global(html):has([data-focus-page]) { scroll-padding-top: 0; }
+  :global(html):has([data-focus-page]) { scroll-snap-type: y proximity; scroll-padding-top: 0; }
   .app { display: grid; grid-template-columns: 272px minmax(0, 1fr); }
   .bar { display: none; }
   .rail { position: sticky; top: 0; height: 100svh; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px; padding: 32px 24px 28px 32px; border-right: 1px solid var(--faint); }
