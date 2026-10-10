@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-09T20:47:57.149Z",
+  "checkedAt": "2026-10-10T01:01:43.249Z",
   "curatedCheckedAt": "2026-10-08T02:01:00.000Z",
   "items": [
     {
@@ -894,6 +894,66 @@
       ]
     },
     {
+      "id": "auto-new-york-post-81445cfdb32007a02ab6655f",
+      "title": "Jets still waiting for David Bailey’s pass-rushing potential to take off",
+      "kind": "article",
+      "outletId": "new-york-post",
+      "author": "Howie Kussoy",
+      "publishedAt": "2026-10-10T00:17:45.000Z",
+      "url": "https://nypost.com/2026/10/09/sports/jets-still-waiting-for-david-baileys-pass-rushing-potential-to-take-off/",
+      "image": null,
+      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Beat reporting"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-new-york-post-b9dadbaab190702f170e8b0c",
+      "title": "Todd Monken reveals the ‘Lexus’ advice he got from Jets after going for 2019 head coaching job",
+      "kind": "article",
+      "outletId": "new-york-post",
+      "author": "Thomas Gamba-Ellis",
+      "publishedAt": "2026-10-09T23:05:47.000Z",
+      "url": "https://nypost.com/2026/10/09/sports/todd-monken-reveals-the-lexus-advice-he-got-from-jets-in-2019/",
+      "image": null,
+      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Beat reporting"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jake-asman-0822c779df95daff187297e5",
+      "title": "It’s NOW OR NEVER for the Jets to Prove They’re Headed the Right Way",
+      "kind": "video",
+      "outletId": "jake-asman-show",
+      "author": "Jake Asman",
+      "publishedAt": "2026-10-09T22:10:59.000Z",
+      "url": "https://www.youtube.com/watch?v=HmOJ7SKfQLk",
+      "youtubeId": "HmOJ7SKfQLk",
+      "summary": "Published by The Jake Asman Show. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jake-asman-594fb3cecffceb205aa1cfed",
+      "title": "The Jets CANNOT Afford To Lose To The Browns!",
+      "kind": "video",
+      "outletId": "jake-asman-show",
+      "author": "Jake Asman",
+      "publishedAt": "2026-10-09T21:00:28.000Z",
+      "url": "https://www.youtube.com/watch?v=WlBWfRjXPI4",
+      "youtubeId": "WlBWfRjXPI4",
+      "summary": "Published by The Jake Asman Show. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current"
+    },
+    {
       "id": "auto-jets-x-factor-bd0c3d0212a7ae8a1fb2f887",
       "title": "Top 5 NY Jets players who need to step it up after 1-3 start",
       "kind": "article",
@@ -1340,66 +1400,6 @@
       "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
       "topics": [
         "Beat reporting"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-new-york-post-d2d70569a3cf3d9594b22385",
-      "title": "Deshaun Watson’s Browns comeback presents latest test for reeling Jets",
-      "kind": "article",
-      "outletId": "new-york-post",
-      "author": "Howie Kussoy",
-      "publishedAt": "2026-10-08T23:29:01.000Z",
-      "url": "https://nypost.com/2026/10/08/sports/deshaun-watsons-browns-comeback-presents-latest-test-for-reeling-jets/",
-      "image": null,
-      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Beat reporting"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jake-asman-2155665f9c7c8096b4c8f236",
-      "title": "Jets Analyst Explains Why Browns Game Could DEFINE Glenn & Mougey's Future",
-      "kind": "video",
-      "outletId": "jake-asman-show",
-      "author": "Jake Asman",
-      "publishedAt": "2026-10-08T22:29:21.000Z",
-      "url": "https://www.youtube.com/watch?v=WZb-1x4SPyM",
-      "youtubeId": "WZb-1x4SPyM",
-      "summary": "Published by The Jake Asman Show. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-new-york-post-c2ff28fb473cdc680f204893",
-      "title": "Make or Break for Aaron Glenn? Jets vs. Browns Week 5 Preview | Gang’s All Here",
-      "kind": "video",
-      "outletId": "new-york-post",
-      "author": "NY Post Video",
-      "publishedAt": "2026-10-08T20:00:00.000Z",
-      "url": "https://nypost.com/video/make-or-break-for-aaron-glenn-jets-vs-browns-week-5-preview-gangs-all-here/",
-      "image": null,
-      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Beat reporting"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jake-asman-a1c8b2e880ed4eee33eb9768",
-      "title": "Browns Game Is the BIGGEST Test of Aaron Glenn’s Jets Era",
-      "kind": "video",
-      "outletId": "jake-asman-show",
-      "author": "Jake Asman",
-      "publishedAt": "2026-10-08T19:31:43.000Z",
-      "url": "https://www.youtube.com/watch?v=Wb5t2KGxAfs",
-      "youtubeId": "Wb5t2KGxAfs",
-      "summary": "Published by The Jake Asman Show. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Fan analysis"
       ],
       "context": "current"
     },
@@ -1859,8 +1859,8 @@
       "name": "New York Jets news",
       "url": "https://www.newyorkjets.com/rss/news",
       "status": "ready",
-      "checkedAt": "2026-10-09T20:47:57.149Z",
-      "attemptedAt": "2026-10-09T20:47:57.149Z",
+      "checkedAt": "2026-10-10T01:01:43.249Z",
+      "attemptedAt": "2026-10-10T01:01:43.249Z",
       "itemCount": 6
     },
     {
@@ -1868,8 +1868,8 @@
       "name": "New York Jets videos",
       "url": "https://www.newyorkjets.com/rss/videos",
       "status": "ready",
-      "checkedAt": "2026-10-09T20:47:57.149Z",
-      "attemptedAt": "2026-10-09T20:47:57.149Z",
+      "checkedAt": "2026-10-10T01:01:43.249Z",
+      "attemptedAt": "2026-10-10T01:01:43.249Z",
       "itemCount": 6
     },
     {
@@ -1877,8 +1877,8 @@
       "name": "Jets X-Factor",
       "url": "https://jetsxfactor.com/feed/",
       "status": "ready",
-      "checkedAt": "2026-10-09T20:47:57.149Z",
-      "attemptedAt": "2026-10-09T20:47:57.149Z",
+      "checkedAt": "2026-10-10T01:01:43.249Z",
+      "attemptedAt": "2026-10-10T01:01:43.249Z",
       "itemCount": 6
     },
     {
@@ -1886,8 +1886,8 @@
       "name": "New York Post Jets",
       "url": "https://nypost.com/tag/new-york-jets/feed/",
       "status": "ready",
-      "checkedAt": "2026-10-09T20:47:57.149Z",
-      "attemptedAt": "2026-10-09T20:47:57.149Z",
+      "checkedAt": "2026-10-10T01:01:43.249Z",
+      "attemptedAt": "2026-10-10T01:01:43.249Z",
       "itemCount": 6
     },
     {
@@ -1895,8 +1895,8 @@
       "name": "The Jake Asman Show",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCt8ZeGlv3VM8jLYO_EoDMPw",
       "status": "ready",
-      "checkedAt": "2026-10-09T20:47:57.149Z",
-      "attemptedAt": "2026-10-09T20:47:57.149Z",
+      "checkedAt": "2026-10-10T01:01:43.249Z",
+      "attemptedAt": "2026-10-10T01:01:43.249Z",
       "itemCount": 6
     },
     {
@@ -1904,8 +1904,8 @@
       "name": "BT Unleashed",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLJ2gpZBFl2ytuVlbNo9xAA",
       "status": "ready",
-      "checkedAt": "2026-10-09T20:47:57.149Z",
-      "attemptedAt": "2026-10-09T20:47:57.149Z",
+      "checkedAt": "2026-10-10T01:01:43.249Z",
+      "attemptedAt": "2026-10-10T01:01:43.249Z",
       "itemCount": 1
     },
     {
@@ -1913,8 +1913,8 @@
       "name": "The Mike Francesa Podcast",
       "url": "https://itunes.apple.com/lookup?id=1615588712&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-09T20:47:57.149Z",
-      "attemptedAt": "2026-10-09T20:47:57.149Z",
+      "checkedAt": "2026-10-10T01:01:43.249Z",
+      "attemptedAt": "2026-10-10T01:01:43.249Z",
       "itemCount": 5
     },
     {
@@ -1922,8 +1922,8 @@
       "name": "Oh the Pain Podcast",
       "url": "https://itunes.apple.com/lookup?id=1586455556&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-09T20:47:57.149Z",
-      "attemptedAt": "2026-10-09T20:47:57.149Z",
+      "checkedAt": "2026-10-10T01:01:43.249Z",
+      "attemptedAt": "2026-10-10T01:01:43.249Z",
       "itemCount": 5
     },
     {
@@ -1931,8 +1931,8 @@
       "name": "Let’s Talk Jets Radio",
       "url": "https://itunes.apple.com/lookup?id=863176413&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-09T20:47:57.149Z",
-      "attemptedAt": "2026-10-09T20:47:57.149Z",
+      "checkedAt": "2026-10-10T01:01:43.249Z",
+      "attemptedAt": "2026-10-10T01:01:43.249Z",
       "itemCount": 6
     },
     {
@@ -1940,8 +1940,8 @@
       "name": "Jets Collective",
       "url": "https://itunes.apple.com/lookup?id=1887763130&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-09T20:47:57.149Z",
-      "attemptedAt": "2026-10-09T20:47:57.149Z",
+      "checkedAt": "2026-10-10T01:01:43.249Z",
+      "attemptedAt": "2026-10-10T01:01:43.249Z",
       "itemCount": 5
     }
   ]
