@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-10T01:01:43.249Z",
+  "checkedAt": "2026-10-10T10:00:06.731Z",
   "curatedCheckedAt": "2026-10-08T02:01:00.000Z",
   "items": [
     {
@@ -1859,8 +1859,8 @@
       "name": "New York Jets news",
       "url": "https://www.newyorkjets.com/rss/news",
       "status": "ready",
-      "checkedAt": "2026-10-10T01:01:43.249Z",
-      "attemptedAt": "2026-10-10T01:01:43.249Z",
+      "checkedAt": "2026-10-10T10:00:06.731Z",
+      "attemptedAt": "2026-10-10T10:00:06.731Z",
       "itemCount": 6
     },
     {
@@ -1868,8 +1868,8 @@
       "name": "New York Jets videos",
       "url": "https://www.newyorkjets.com/rss/videos",
       "status": "ready",
-      "checkedAt": "2026-10-10T01:01:43.249Z",
-      "attemptedAt": "2026-10-10T01:01:43.249Z",
+      "checkedAt": "2026-10-10T10:00:06.731Z",
+      "attemptedAt": "2026-10-10T10:00:06.731Z",
       "itemCount": 6
     },
     {
@@ -1877,8 +1877,8 @@
       "name": "Jets X-Factor",
       "url": "https://jetsxfactor.com/feed/",
       "status": "ready",
-      "checkedAt": "2026-10-10T01:01:43.249Z",
-      "attemptedAt": "2026-10-10T01:01:43.249Z",
+      "checkedAt": "2026-10-10T10:00:06.731Z",
+      "attemptedAt": "2026-10-10T10:00:06.731Z",
       "itemCount": 6
     },
     {
@@ -1886,8 +1886,8 @@
       "name": "New York Post Jets",
       "url": "https://nypost.com/tag/new-york-jets/feed/",
       "status": "ready",
-      "checkedAt": "2026-10-10T01:01:43.249Z",
-      "attemptedAt": "2026-10-10T01:01:43.249Z",
+      "checkedAt": "2026-10-10T10:00:06.731Z",
+      "attemptedAt": "2026-10-10T10:00:06.731Z",
       "itemCount": 6
     },
     {
@@ -1895,8 +1895,8 @@
       "name": "The Jake Asman Show",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCt8ZeGlv3VM8jLYO_EoDMPw",
       "status": "ready",
-      "checkedAt": "2026-10-10T01:01:43.249Z",
-      "attemptedAt": "2026-10-10T01:01:43.249Z",
+      "checkedAt": "2026-10-10T10:00:06.731Z",
+      "attemptedAt": "2026-10-10T10:00:06.731Z",
       "itemCount": 6
     },
     {
@@ -1904,8 +1904,8 @@
       "name": "BT Unleashed",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLJ2gpZBFl2ytuVlbNo9xAA",
       "status": "ready",
-      "checkedAt": "2026-10-10T01:01:43.249Z",
-      "attemptedAt": "2026-10-10T01:01:43.249Z",
+      "checkedAt": "2026-10-10T10:00:06.731Z",
+      "attemptedAt": "2026-10-10T10:00:06.731Z",
       "itemCount": 1
     },
     {
@@ -1913,8 +1913,8 @@
       "name": "The Mike Francesa Podcast",
       "url": "https://itunes.apple.com/lookup?id=1615588712&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-10T01:01:43.249Z",
-      "attemptedAt": "2026-10-10T01:01:43.249Z",
+      "checkedAt": "2026-10-10T10:00:06.731Z",
+      "attemptedAt": "2026-10-10T10:00:06.731Z",
       "itemCount": 5
     },
     {
@@ -1922,8 +1922,8 @@
       "name": "Oh the Pain Podcast",
       "url": "https://itunes.apple.com/lookup?id=1586455556&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-10T01:01:43.249Z",
-      "attemptedAt": "2026-10-10T01:01:43.249Z",
+      "checkedAt": "2026-10-10T10:00:06.731Z",
+      "attemptedAt": "2026-10-10T10:00:06.731Z",
       "itemCount": 5
     },
     {
@@ -1931,8 +1931,8 @@
       "name": "Let’s Talk Jets Radio",
       "url": "https://itunes.apple.com/lookup?id=863176413&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-10T01:01:43.249Z",
-      "attemptedAt": "2026-10-10T01:01:43.249Z",
+      "checkedAt": "2026-10-10T10:00:06.731Z",
+      "attemptedAt": "2026-10-10T10:00:06.731Z",
       "itemCount": 6
     },
     {
@@ -1940,8 +1940,8 @@
       "name": "Jets Collective",
       "url": "https://itunes.apple.com/lookup?id=1887763130&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-10T01:01:43.249Z",
-      "attemptedAt": "2026-10-10T01:01:43.249Z",
+      "checkedAt": "2026-10-10T10:00:06.731Z",
+      "attemptedAt": "2026-10-10T10:00:06.731Z",
       "itemCount": 5
     }
   ]
