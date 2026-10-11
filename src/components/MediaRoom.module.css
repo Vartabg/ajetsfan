@@ -226,3 +226,22 @@
   .coverageBars, .sourceLedger > ul { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) { .room *, .room *::before, .room *::after { transition: none !important; animation: none !important; } }
+
+/* Playback stays in the tile. Columns have room for the publisher's real controls. */
+.room { overflow-anchor: none; }
+.watchGrid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 1.4rem 1rem; }
+.rowGrid .card { display: flex; padding-top: .85rem; }
+.rowGrid .storySelect { display: grid; grid-template-columns: 176px minmax(0, 1fr); gap: .85rem; align-items: start; }
+.audioGrid .storySelect { grid-template-columns: 100px minmax(0, 1fr); }
+.rowGrid .activeStory .storySelect { display: block; margin-top: .5rem; }
+.rowGrid .cardFoot { align-self: end; }
+.card .context { padding: .5rem 0; gap: .35rem; }
+.card .context h3 { font-size: 1.05rem; line-height: 1.25; }
+.card .context .selectedSummary { font-size: .78rem; }
+.card .contextActions button { padding-inline: .5rem; }
+.activeStory::after { border-width: 1px; }
+.watchGrid .activeStory .cardCompare { position: static; padding: 0; }
+@media (max-width: 699px) {
+  .rowGrid .storySelect { grid-template-columns: 112px minmax(0, 1fr); gap: .7rem; }
+  .audioGrid .storySelect { grid-template-columns: 72px minmax(0, 1fr); }
+}

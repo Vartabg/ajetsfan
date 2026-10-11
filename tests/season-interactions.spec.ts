@@ -63,7 +63,7 @@ test("year selection preserves the requested phase and does not attach today's p
   await expect(page.getByRole("link", { name: "Current-season player statistics", exact: false })).toHaveCount(0);
 });
 
-test("game evidence and the historical reporting open their exact destinations", async ({ page }) => {
+test("game evidence opens its case and historical reporting stays in its season", async ({ page }) => {
   await page.goto("/seasons/2010?phase=playoffs");
   await page.locator('[data-season-case="2010_19_NYJ_NE"]').click();
   await expect(page).toHaveURL(/\/games\/2010_19_NYJ_NE\?from=/);
@@ -75,12 +75,12 @@ test("game evidence and the historical reporting open their exact destinations",
   await expectSeasonFocus(page);
   await expect(page.locator("[data-season-record]")).toHaveText("2–1");
   await page.locator('[data-season-view="media"]').click();
-  await page.locator('[data-season-media="espn-2010-divisional-rapid-reaction"] h3 a').click();
-  await expect.poll(() => new URL(page.url()).pathname).toBe("/media");
-  await expect(page.locator('[data-focus-page="media"]')).toHaveCount(1);
-  await expect(page.getByRole("main")).toHaveCount(1);
-  await expect(page.locator("[data-media-room]")).toHaveAttribute("data-media-selected", "espn-2010-divisional-rapid-reaction");
-  await expect(page.locator("[data-media-season]")).toHaveValue("2010");
+  const story = page.locator('[data-season-media="espn-2010-divisional-rapid-reaction"]');
+  await story.locator('[data-media-open]').click();
+  await expect(story.locator('[data-media-viewer]')).toContainText('Cimini analyzes the Jets’ divisional win');
+  expect(new URL(page.url()).pathname).toBe('/seasons/2010');
+  await story.locator('[data-media-close]').click();
+  await expect(story.locator('[data-media-open]')).toBeFocused();
 });
 
 test("unavailable years return 404 while a no-JavaScript visit retains the season evidence", async ({ browser, request }) => {

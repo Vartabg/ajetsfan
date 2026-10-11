@@ -85,7 +85,7 @@ test.describe("the Team page", () => {
     await expect(page.getByRole("list", { name: "Roster players" }).getByRole("listitem")).toHaveCount(row.count);
   });
 
-  test("leads with the newest official headline and links to every headline", async ({ page }) => {
+  test("leads with the newest official headline and expands its details in place", async ({ page }) => {
     await page.goto("/team");
     const news = page.locator("#headlines");
     if (!headlines.length) {
@@ -93,12 +93,30 @@ test.describe("the Team page", () => {
       return;
     }
     await expect(news.locator("#headlines-heading")).toHaveText(headlines[0].title);
-    const read = news.getByRole("link", { name: /^Read it/ });
+    const address = page.url();
+    const lead = news.locator(`[data-inline-news="${headlines[0].id}"]`);
+    const trigger = lead.locator(":scope > summary");
+    const read = lead.getByRole("link", { name: /^Read the full article/ });
+    await expect(read).toBeHidden();
+    await trigger.click();
+    await expect(lead.locator("[data-news-details]")).toBeVisible();
+    await expect(read).toBeHidden();
+    await lead.locator("[data-news-details] > details > summary").click();
+    await expect(read).toBeVisible();
     await expect(read).toHaveAttribute("href", headlines[0].url);
     await expect(read).toHaveAttribute("target", "_blank");
     await expect(read).toHaveAttribute("rel", /noreferrer/);
+    expect(page.url()).toBe(address);
     await expect(news.getByRole("list", { name: "More headlines" }).getByRole("listitem")).toHaveCount(Math.min(3, headlines.length - 1));
     await expect(news.getByRole("link", { name: /^All team news/ })).toHaveAttribute("href", "/team/news");
+    await trigger.click();
+    await expect(lead.locator("[data-news-details]")).toBeHidden();
+    const more = news.getByRole("list", { name: "More headlines" }).locator("details[data-inline-news]").first();
+    if (headlines.length > 1) {
+      await more.locator(":scope > summary").click();
+      await expect(more.locator("[data-news-details]")).toBeVisible();
+      expect(page.url()).toBe(address);
+    }
   });
 
   for (const width of [1280, 390, 320]) {

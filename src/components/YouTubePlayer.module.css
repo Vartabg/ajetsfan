@@ -1,0 +1,11 @@
+.stage { position: relative; isolation: isolate; width: 100%; aspect-ratio: 16 / 9; min-height: 200px; overflow: hidden; background: #091b15; color: #f3f8f5; border-radius: 6px; }
+.frame { position: absolute; inset: 0; }
+.frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+.loading, .fallback { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; font-size: 13px; line-height: 1.5; background: #091b15; }
+.loading { pointer-events: none; }
+.spinner { width: 24px; height: 24px; border: 2px solid #ffffff30; border-top-color: #b1d5bc; border-radius: 50%; animation: spin 900ms linear infinite; }
+.notice { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 24px); margin: 0; padding: 7px 12px; border: 1px solid #ffffff25; border-radius: 6px; color: #f3f8f5; background: #091b15e8; font-size: 12px; line-height: 1.5; pointer-events: none; }
+.fallback > span { color: #b1d5bc; font-size: 26px; }
+.fallback p { max-width: 44ch; margin: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }

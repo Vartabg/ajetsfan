@@ -35,6 +35,44 @@ test('a permanently healthy old edition fails instead of falsely reporting publi
   assert.equal(pauses, 2);
 });
 
+test('a media publication with unchanged successful timestamps waits for its exact pushed commit', async () => {
+  const commit = '0123456789abcdef0123456789abcdef01234567';
+  const olderCommit = 'abcdef0123456789abcdef0123456789abcdef0123';
+  const publication = { ...expected, commit, feeds: { media: expected.checkedAt }, mediaSources: { 'wfan-videos': expected.checkedAt } };
+  const health = (deployedCommit) => ({ ...healthy(), ...(deployedCommit !== undefined ? { commit: deployedCommit } : {}),
+    mediaSources: { 'wfan-videos': { checkedAt: expected.checkedAt, status: 'ready' } },
+  });
+  // A failed refresh still changes attemptedAt/status and creates a new commit.
+  // Successful-check timestamps alone cannot identify that published snapshot.
+  for (const deployedCommit of [undefined, null, olderCommit]) {
+    await assert.rejects(verifyPublishedData({ ...options, expected: publication, attempts: 1,
+      fetcher: async () => response(health(deployedCommit)),
+    }), /deployed commit differs/);
+  }
+  const retained = health(commit);
+  retained.status = 'degraded';
+  retained.feeds.media.status = 'retained';
+  retained.mediaSources['wfan-videos'].status = 'retained';
+  const replies = [response(health(olderCommit)), response(retained, 503)];
+  const attempts = [], pauses = [];
+  const result = await verifyPublishedData({ ...options, expected: publication, attempts: 2,
+    fetcher: async () => replies.shift(), pause: async (ms) => pauses.push(ms), onAttempt: (value) => attempts.push(value),
+  });
+  assert.equal(result.attempts, 2);
+  assert.equal(result.checkedAt, expected.checkedAt);
+  assert.deepEqual(result.degradedFeeds, [{ name: 'media', status: 'retained' }]);
+  assert.equal(attempts.length, 1);
+  assert.match(attempts[0].issue, /deployed commit differs/);
+  assert.equal(pauses.length, 1);
+});
+
+test('optional expected commits require a full Git SHA without exposing invalid values', async () => {
+  for (const commit of [null, 1, '', 'abc123', 'secret-invalid-commit', 'g'.repeat(40)]) {
+    await assert.rejects(verifyPublishedData({ ...options, expected: { ...expected, commit }, attempts: 1 }),
+      (error) => /full Git SHA/.test(error.message) && !/secret-invalid-commit/.test(error.message));
+  }
+});
+
 test('fresh scores cannot conceal older deployed media, ranks, tracking or trade snapshots', async () => {
   const fullExpected = { ...expected, feeds: { media: expected.checkedAt, rankings: expected.checkedAt, nextgen: expected.checkedAt, trades: expected.checkedAt }, mediaSources: { 'jets-news': expected.checkedAt } };
   for (const name of Object.keys(fullExpected.feeds)) {

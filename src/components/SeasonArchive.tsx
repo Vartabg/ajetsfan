@@ -11,6 +11,7 @@ import type { SeasonRankings as SeasonRankingsData } from "@/lib/season-rankings
 import type { NextGenSeason } from "@/lib/nextgen-stats";
 import SeasonRankings from "./SeasonRankings";
 import AdvancedSeasonStats from "./AdvancedSeasonStats";
+import InlineMedia from "./InlineMedia";
 import styles from "./SeasonArchive.module.css";
 
 const eventName = "ajetsfan:season-filter";
@@ -174,7 +175,7 @@ export default function SeasonArchive({ season, years, outlets, rankings = null,
     <section className={styles.memories} aria-labelledby="season-memories-heading"><header className={styles.sectionHead}><div><p className={styles.kicker}>Plays, moments and sourced facts</p><h2 id="season-memories-heading" className="hed">Memorable moments</h2></div></header>{facts.length ? <div className={styles.facts}>{facts.map((fact) => <article key={fact.id} data-season-fact={fact.id}><span>{fact.phase === "playoffs" ? "Playoffs" : "Regular season"}</span><h3>{fact.title}</h3><p>{fact.text}</p><a href={fact.url} target="_blank" rel="noreferrer">{fact.source}<span className="sr-only"> (opens in a new tab)</span> ↗</a>{fact.href ? <Link href={studyHref(fact.href)}>Study the evidence ↗</Link> : null}</article>)}</div> : <p className={styles.gap}>No editorial facts match this selection yet. Try another search or explore Games.</p>}</section>
     </SeasonChapter>
     <SeasonChapter id="media" label="Watch & read" hint={`${media.length} selections`} matchCount={query ? media.length : undefined} {...chapterProps}>
-    <section className={styles.media} aria-labelledby="season-media-heading"><header className={styles.sectionHead}><div><p className={styles.kicker}>{season.year} coverage</p><h2 id="season-media-heading" className="hed">Watch &amp; read</h2></div><Link href={`/media?season=${season.year}&from=${encodeURIComponent(returnHref)}`}>Open Media Room ↗</Link></header>{media.length ? <div className={styles.mediaList}>{media.map((item) => <article key={item.id} data-season-media={item.id}><p>{outlets.find((outlet) => outlet.id === item.outletId)?.name} · {item.author}</p><h3><Link href={`/media?season=${season.year}&media=${encodeURIComponent(item.id)}&from=${encodeURIComponent(returnHref)}`}>{item.title} ↗</Link></h3><small>{item.publishedAt ? formatMediaDate(item.publishedAt) : "Date unavailable"}</small></article>)}</div> : <p className={styles.gap}>No reporting matches this selection.</p>}</section>
+    <section className={styles.media} aria-labelledby="season-media-heading"><header className={styles.sectionHead}><div><p className={styles.kicker}>{season.year} coverage</p><h2 id="season-media-heading" className="hed">Watch &amp; read</h2></div><Link href={`/media?season=${season.year}&from=${encodeURIComponent(returnHref)}`}>Open Media Room ↗</Link></header>{media.length ? <div className={styles.mediaList}>{media.map((item) => <article key={item.id} data-season-media={item.id}><p>{outlets.find((outlet) => outlet.id === item.outletId)?.name} · {item.author}</p><InlineMedia item={item} outletName={outlets.find((outlet) => outlet.id === item.outletId)?.name}><h3>{item.title}</h3></InlineMedia><small>{item.publishedAt ? formatMediaDate(item.publishedAt) : "Date unavailable"}</small></article>)}</div> : <p className={styles.gap}>No reporting matches this selection.</p>}</section>
     </SeasonChapter>
     </div>
     </div>

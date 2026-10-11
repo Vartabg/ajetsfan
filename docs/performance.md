@@ -99,3 +99,31 @@ The automatic media edition keeps six recent links per publisher alongside the
 archive. The Media Room renders eight cards per format initially and reveals more
 on request; filtering and totals still cover every item. This bounds mobile DOM
 growth without increasing the existing 30 KiB HTML / 205 KiB JavaScript budgets.
+
+
+## Inline playback and artwork — October 10, 2026
+
+Players and publisher SDKs load only after a media request. The initial scripts
+contain no YouTube iframe/API or X widget loader; the deferred player chunk is
+2.45 KiB gzip. Shared trigger, recording validation and asset-version controls
+add a small initial cost. The measured build is 201.2 KiB initial home JS and
+215.6 KiB for the 2010 archive; those budgets move deliberately to 203 and 217
+KiB. The Media Room remains at 201.0 / 205 KiB initial JS.
+
+The 88-item edition now includes measured publisher artwork, local versioned
+asset identities and pictures in each playable card. The complete collection
+stays available for client filtering; eight cards per format still render first.
+Media HTML measures 32.9 KiB gzip, so its budget moves from 30 to 34 KiB. The
+image proxy resolves only validated item/version pairs and avoids a per-picture
+remote-pattern list that would eventually exceed Next's 50-pattern limit. This
+is an explicit artwork/interaction cost, not a claim of faster field loading.
+
+The fan-source expansion adds 24 automatic sources and a separate rant archive,
+with the complete Media Room capped at 60 automatic entries plus the curated
+collection. With 96 items, its HTML measures 35.3 KiB gzip and initial JavaScript
+remains 201.0 KiB. The expanded collection's HTML budget is 38 KiB; the first
+render still shows eight entries per format. The new `/media/rants` route has
+an 18 KiB HTML / 200 KiB initial JavaScript budget. Its nine-clip archive and
+fresh podcast selection measure 10.3 / 195.2 KiB. Players remain
+deferred. Neither source expansion nor smaller visual typography adds a new
+publisher SDK to the initial page.

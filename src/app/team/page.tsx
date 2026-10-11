@@ -1,5 +1,6 @@
 import Link from "@/components/IntentLink";
 import FocusMoment from "@/components/FocusMoment";
+import { NewsBrief } from "@/components/NewsDesk";
 import FocusShell, { type FocusEntry } from "@/components/FocusShell";
 import shared from "@/components/Focus.module.css";
 import { dayOf } from "@/lib/focus-format";
@@ -19,19 +20,10 @@ export const metadata = pageMetadata({
 const KIND = { passing: "Passing", rushing: "Rushing", receiving: "Receiving" } as const;
 const NEW_TAB = <span className="sr-only"> (opens in a new tab)</span>;
 
-function host(url: string): string | null {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return null;
-  }
-}
-
 export default async function TeamPage() {
   const [coverage, current] = await Promise.all([loadCoverage(), loadCurrent()]);
   const season = current?.season ?? coverage?.season ?? null;
   const { stats, roster, news } = buildTeamFocus(coverage, season);
-  const source = news.lead ? host(news.lead.url) : null;
 
   const entries: FocusEntry[] = [
     { id: "leaders", title: "Leaders", answer: stats.names || "Not yet" },
@@ -81,11 +73,11 @@ export default async function TeamPage() {
       heading={news.lead?.title ?? "No team news yet."}
       status={news.retained ? <p className={shared.stale}>The latest news check failed, so newer headlines may be missing.</p> : null}
       actions={news.lead ? <>
-        <a href={news.lead.url} target="_blank" rel="noopener noreferrer" className={shared.go}>Read it{source ? ` on ${source}` : ""} <span aria-hidden="true">↗</span>{NEW_TAB}</a>
         <Link href="/team/news" className={shared.go}>All team news <span aria-hidden="true">→</span></Link>
       </> : <a href="https://www.newyorkjets.com/news/" target="_blank" rel="noopener noreferrer" className={shared.go}>Official Jets news <span aria-hidden="true">↗</span>{NEW_TAB}</a>}>
+      {news.lead ? <NewsBrief item={news.lead} className={styles.leadDetails} summaryClassName={shared.go}>Story details <span aria-hidden="true">+</span></NewsBrief> : null}
       {news.more.length ? <div className={shared.shape}><ul className={styles.wire} aria-label="More headlines">{news.more.map((item) => <li key={item.id}>
-        <a href={item.url} target="_blank" rel="noopener noreferrer"><time dateTime={item.publishedAt}>{dayOf(item.publishedAt)}</time><span className={styles.headline}>{item.title}</span>{NEW_TAB}</a>
+        <NewsBrief item={item} className={styles.wireDetails}><time dateTime={item.publishedAt}>{dayOf(item.publishedAt)}</time><span className={styles.headline}>{item.title}</span><span className="sr-only">Show story details</span></NewsBrief>
       </li>)}</ul></div> : !news.lead ? <p className={shared.caption}>{news.unavailable ? "Official team news will appear after a successful source check." : "No articles are available in this edition."}</p> : null}
     </FocusMoment>
   </FocusShell>;

@@ -44,10 +44,41 @@ test("news categories accompany original sourced headlines on the dedicated news
   await page.goto("/team/news");
   const section = page.locator("#news");
   for (const item of items) {
-    const link = section.getByRole("link", { name: item.title, exact: false });
-    await expect(link.locator("h3")).toHaveText(item.title);
-    await expect(link).toHaveAttribute("href", item.url);
-    await expect(link).toContainText(newsCategory(item.title));
-    await expect(link.locator(`time[datetime="${item.publishedAt}"]`)).toBeVisible();
+    const story = section.locator(`[data-inline-news="${item.id}"]`);
+    const trigger = story.locator(":scope > summary");
+    await expect(trigger.locator("h3")).toHaveText(item.title);
+    await expect(trigger).toContainText(newsCategory(item.title));
+    await expect(trigger.locator(`time[datetime="${item.publishedAt}"]`)).toBeVisible();
+    await expect(story.getByRole("link", { name: /^Read the full article/ })).toBeHidden();
   }
+});
+
+test("an official headline expands beside its title without opening another page", async ({ page }) => {
+  const coverage = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/coverage.json"), "utf8")) as CoverageSnapshot;
+  const item = coverage.news.items.toSorted((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || a.id.localeCompare(b.id))[0];
+  test.skip(!item, "This edition has no official headline.");
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.goto("/team/news");
+  const address = page.url();
+  let popups = 0;
+  page.on("popup", () => { popups += 1; });
+  const story = page.locator(`[data-inline-news="${item.id}"]`);
+  const trigger = story.locator(":scope > summary");
+  await trigger.focus();
+  await trigger.press("Enter");
+  await expect(story).toHaveAttribute("open", "");
+  await expect(story.locator(`[data-news-details="${item.id}"]`)).toBeVisible();
+  await expect(story).toContainText("The team wire supplies this headline and publication date.");
+  const original = story.getByRole("link", { name: /^Read the full article/ });
+  await expect(original).toBeHidden();
+  await story.locator("[data-news-details] > details > summary").click();
+  await expect(original).toBeVisible();
+  await expect(original).toHaveAttribute("href", item.url);
+  await expect(original).toHaveAttribute("target", "_blank");
+  expect(page.url()).toBe(address);
+  expect(popups).toBe(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await trigger.press("Space");
+  await expect(story).not.toHaveAttribute("open", "");
+  await expect(trigger).toBeFocused();
 });

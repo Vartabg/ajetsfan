@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { matchRemotePattern } from "next/dist/shared/lib/match-remote-pattern";
 import nextConfig from "../next.config";
+import curatedCatalog from "../src/lib/media-catalog.json";
+import { compactMediaItem, mediaAssetVersion, mediaImagePath } from "../src/lib/media-asset-paths.mjs";
 import { mediaCollection } from "../src/lib/media-catalog";
 import { formatMediaDate, mediaForGame, mediaForSeason, mediaImage, safeMediaUrl, validateMediaCollection, type MediaCollection, type MediaItem } from "../src/lib/media";
 
@@ -33,12 +35,30 @@ test("the dated catalog offers distinct outlets and attributable, bounded covera
       expect(item.gameIds).toBeUndefined();
     } else {
       expect(outlet.people).toContain(item.author);
-      expect(item.seasons?.length).toBeGreaterThan(0);
-      expect(item.phase).toBeDefined();
+      if (item.id.startsWith("rant-")) {
+        expect(item.gameIds).toBeUndefined();
+        if (item.id === "rant-francesa-idzik-2014") expect(item.seasons).toEqual([2014]);
+        else expect(item.seasons).toBeUndefined();
+      } else {
+        expect(item.seasons?.length).toBeGreaterThan(0);
+        expect(item.phase).toBeDefined();
+      }
     }
     expect(item.summary.split(/\s+/).length).toBeLessThanOrEqual(30);
     if (item.publishedAt) expect(Date.parse(item.publishedAt)).toBeLessThanOrEqual(Date.parse(mediaCollection.checkedAt));
   }
+});
+
+test("the Media Room keeps independent coverage and excludes the team's own publishing", () => {
+  for (const edition of [curatedCatalog, mediaCollection]) {
+    expect(edition.outlets.some((outlet) => outlet.id === "jets")).toBe(false);
+    for (const item of edition.items) {
+      expect(item.outletId, item.id).not.toBe("jets");
+      expect(new URL(item.url).hostname, item.id).not.toMatch(/(?:^|\.)newyorkjets\.com$/);
+    }
+  }
+  expect(mediaCollection.items.some((item) => item.outletId === "wfan")).toBe(true);
+  expect(mediaCollection.items.some((item) => item.outletId === "jake-asman-show")).toBe(true);
 });
 
 test("five social entries retain the actual verified writers, status URLs and dates", () => {
@@ -56,14 +76,12 @@ test("five social entries retain the actual verified writers, status URLs and da
   }
 });
 
-test("video identities refer to the twelve verified recordings rather than channel search pages", () => {
+test("video identities refer to verified recordings from retained publishers rather than channel search pages", () => {
   const expected = [
     ["s657QMErTG4", "sny", "2026-09-11T15:45:37Z"],
     ["6uVZ4sOzkpQ", "espn-new-york", "2026-05-15T18:14:15Z"],
-    ["u9Rh_ulKRPU", "jets", "2026-09-08T22:00:00Z"],
     ["_vHQnprws8w", "wfan", "2026-08-14T12:00:06Z"],
     ["fsJpQCFPK1g", "nfl", "2016-12-23T22:00:03Z"],
-    ["fTq9p0tPljw", "jets", "2026-09-13T21:13:42Z"],
     ["Iy8saaW8rBY", "lions", "2026-09-27T20:11:13Z"],
     ["Lhp2xZ87YNc", "jake-asman-show", "2026-10-05T16:30:07Z"],
     ["oVZKAy6OEMk", "mike-francesa-podcast", "2026-10-04T20:52:03Z"],
@@ -71,10 +89,10 @@ test("video identities refer to the twelve verified recordings rather than chann
     ["IDNKf7Kikcs", "jake-asman-show", "2026-10-07T16:20:42Z"],
     ["k-S3aOTJqxg", "bt-unleashed", "2026-10-04T20:58:56Z"],
   ];
-  expect(mediaCollection.items.filter((item) => item.youtubeId && !item.id.startsWith("auto-"))).toHaveLength(12);
+  expect(mediaCollection.items.filter((item) => item.youtubeId && !item.id.startsWith("auto-") && !item.id.startsWith("rant-"))).toHaveLength(expected.length);
   for (const item of mediaCollection.items.filter((item) => item.youtubeId && item.id.startsWith("auto-"))) {
     expect(item.url).toBe(`https://www.youtube.com/watch?v=${item.youtubeId}`);
-    expect(item.embedAllowed).toBeUndefined();
+    expect([undefined, true]).toContain(item.embedAllowed);
   }
   for (const [youtubeId, outletId, publishedAt] of expected) {
     expect(mediaCollection.items.find((item) => item.youtubeId === youtubeId)).toMatchObject({
@@ -97,12 +115,15 @@ test("2010 playoff filtering follows the football season across article and uplo
   expect(mediaForSeason(mediaCollection.items, 2016)).toEqual([]);
 });
 
-test("the championship retrospective belongs to 1968, and mixed coverage remains available in both phase views", () => {
-  const historical = mediaForSeason(mediaCollection.items, 1968);
+test("a season retrospective keeps its football year, and mixed coverage remains available in both phase views", () => {
+  const historical = mediaForSeason(mediaCollection.items, 2025);
   expect(historical).toHaveLength(1);
-  expect(historical[0]).toMatchObject({ id: "jets-namath-super-season-1968", publishedAt: "2010-03-10", phase: "mixed", context: "archive" });
-  expect(mediaForSeason(mediaCollection.items, 1968, "regular")).toEqual(historical);
-  expect(mediaForSeason(mediaCollection.items, 1968, "playoffs")).toEqual(historical);
+  expect(historical[0]).toMatchObject({ id: "pff-jets-2025-season-review", publishedAt: "2026-03-05T11:30:00Z", phase: "regular", context: "archive" });
+  expect(mediaForSeason(mediaCollection.items, 2025, "regular")).toEqual(historical);
+  expect(mediaForSeason(mediaCollection.items, 2025, "playoffs")).toEqual([]);
+  const mixed = [{ ...historical[0], phase: "mixed" as const }];
+  expect(mediaForSeason(mixed, 2025, "regular")).toEqual(mixed);
+  expect(mediaForSeason(mixed, 2025, "playoffs")).toEqual(mixed);
   expect(mediaForSeason(mediaCollection.items, 2010)).not.toContain(historical[0]);
   const before = JSON.stringify(mediaCollection);
   const regular = mediaForSeason(mediaCollection.items, 2026, "regular");
@@ -191,28 +212,39 @@ test("invalid football-season tags, phases and duplicate topics cannot contamina
 });
 
 test("game-linked media attach to their own game case and stay inside its season", () => {
-  expect(mediaForGame(mediaCollection.items, "2026_03_NYJ_DET").map((item) => item.id)).toEqual(["jets-lions-highlights-2026-09-27", "lions-jets-highlights-2026-09-27", "oh-the-pain-detroit-2026-09-28"]);
-  expect(mediaForGame(mediaCollection.items, "2026_01_NYJ_TEN").map((item) => item.youtubeId)).toEqual(["fTq9p0tPljw"]);
+  expect(mediaForGame(mediaCollection.items, "2026_03_NYJ_DET").map((item) => item.id)).toEqual(["lions-jets-highlights-2026-09-27", "oh-the-pain-detroit-2026-09-28"]);
+  expect(mediaForGame(mediaCollection.items, "2026_01_NYJ_TEN")).toEqual([]);
   expect(mediaForGame(mediaCollection.items, "2010_19_NYJ_NE")).toEqual([]);
-  const base = mediaCollection.items.find((item) => item.id === "jets-titans-highlights-2026-09-13")!;
+  const base = mediaCollection.items.find((item) => item.id === "lions-jets-highlights-2026-09-27")!;
   const collection = (gameIds: string[]) => ({ ...mediaCollection, items: [{ ...base, gameIds }] });
   expect(() => validateMediaCollection(collection(["2025_01_NYJ_TEN"]))).toThrow(/Invalid media game/);
   expect(() => validateMediaCollection(collection(["2026_01_BUF_TEN"]))).toThrow(/Invalid media game/);
   expect(() => validateMediaCollection(collection([]))).toThrow(/Invalid media game/);
 });
 
-test("every item carries its publisher's own picture or a recorded none, and only those exact images pass the optimizer", () => {
+test("publisher pictures use a local versioned identity without growing the optimizer host list", () => {
   const patterns = nextConfig.images!.remotePatterns!;
+  expect(patterns.length).toBeLessThanOrEqual(50);
   const admitted = (href: string) => patterns.some((pattern) => !(pattern instanceof URL) && matchRemotePattern(pattern, new URL(href)));
   for (const item of mediaCollection.items) {
     const image = mediaImage(item);
-    if (item.youtubeId) expect(image?.url, item.id).toBe(`https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`);
+    if (item.youtubeId && image) {
+      expect(image.url, item.id).toMatch(new RegExp(`^https://i\\.ytimg\\.com/vi/${item.youtubeId}/(?:maxresdefault|sddefault|hqdefault)\\.jpg$`));
+      expect(image.width).toBeGreaterThanOrEqual(480);
+    }
     else expect(item.image, `${item.id} records a picture or null`).not.toBeUndefined();
-    if (image) expect(admitted(image.url), item.id).toBe(true);
+    if (image) {
+      const local = mediaImagePath(item);
+      expect(local, item.id).toBe(`/api/media/image/${item.id}/${mediaAssetVersion(item, "image")}`);
+      expect(mediaImagePath(compactMediaItem(item)), item.id).toBe(local);
+      expect(compactMediaItem(item).image?.url).not.toContain("https://");
+    }
   }
   // A publisher that offers only its logo gets no picture, not a stand-in.
   expect(mediaCollection.items.find((item) => item.id === "espn-2010-divisional-rapid-reaction")?.image).toBeNull();
-  expect(mediaCollection.items.filter((item) => item.id.startsWith("auto-") && !item.youtubeId).every((item) => item.image === null)).toBe(true);
+  const automaticImages = mediaCollection.items.filter((item) => item.id.startsWith("auto-") && !item.youtubeId && item.image);
+  expect(automaticImages.length).toBeGreaterThan(0);
+  expect(automaticImages.every((item) => item.image!.width >= 300 && item.image!.height >= 160)).toBe(true);
   const recorded = mediaCollection.items.find((item) => item.id === articleId)!.image!.url;
   for (const near of [recorded.replace("1440x810", "1440x811"), recorded.replace(/\?.*/, ""), `${recorded}&w=1`, "https://pbs.twimg.com/profile_images/1/other_400x400.jpg", "https://media.pff.com/2025/10/Garrett-Wilson-scaled.jpg?w=2400&h=1350"]) {
     expect(admitted(near), near).toBe(false);
@@ -224,6 +256,8 @@ test("a preview picture cannot come from an unlisted host, lose its size or repl
   for (const image of [undefined, { ...good, url: "https://evil.example/x.jpg" }, { ...good, url: "http://media.pff.com/x.jpg" }, { ...good, width: 12.5 }, { ...good, height: 0 }, { url: good.url }, good.url]) {
     expect(() => validateMediaCollection(changedItem(articleId, { image })), JSON.stringify(image)).toThrow(/Invalid media image/);
   }
-  for (const image of [good, null]) expect(() => validateMediaCollection(changedItem(videoId, { image }))).toThrow(/Invalid media image/);
+  expect(() => validateMediaCollection(changedItem(videoId, { image: good }))).toThrow(/Mismatched video picture/);
+  expect(() => validateMediaCollection(changedItem(videoId, { image: { url: "https://i.ytimg.com/vi/6uVZ4sOzkpQ/maxresdefault.jpg", width: 1280, height: 720 } }))).toThrow(/Mismatched video picture/);
+  expect(validateMediaCollection(changedItem(videoId, { image: null })).items.find((item) => item.id === videoId)?.image).toBeNull();
   expect(validateMediaCollection(changedItem(articleId, { image: null })).items.find((item) => item.id === articleId)?.image).toBeNull();
 });

@@ -1,5 +1,7 @@
+import { safeMediaPlaybackMetadata } from "./media-playback-validation.mjs";
+
 /** A picture the publisher serves for its own link, recorded with its pixel size. */
-export type MediaImage = { url: string; width: number; height: number };
+export type MediaImage = { url: string; width: number; height: number; fingerprint?: string };
 
 export type MediaItem = {
   id: string;
@@ -11,8 +13,8 @@ export type MediaItem = {
   url: string;
   /**
    * The publisher's preview picture: its og:image, video poster or podcast art; for an X post, the
-   * author's profile picture. null records that the publisher offers only its logo. YouTube videos
-   * omit it and use the recording's own thumbnail.
+   * author's profile picture. null records that no suitable picture was verified. Older YouTube
+   * entries omit it; refreshed videos record the best available thumbnail and its measured size.
    */
   image?: MediaImage | null;
   summary: string;
@@ -20,6 +22,8 @@ export type MediaItem = {
   youtubeId?: string;
   tweetId?: string;
   embedAllowed?: boolean;
+  /** A recording or player explicitly declared by this item's own publisher. */
+  playback?: { kind: "video" | "audio" | "iframe"; url: string; type?: string };
   context: "archive" | "current";
   /** Football seasons established by the content, not its publication year. */
   seasons?: number[];
@@ -60,8 +64,8 @@ export function formatMediaDate(value: string | null): string {
 }
 
 const hosts = new Set(["www.newyorkjets.com", "www.nfl.com", "www.espn.com", "espn.com", "sny.tv", "www.sny.tv", "nypost.com", "www.nj.com", "www.newsday.com", "www.nytimes.com", "www.northjersey.com", "www.audacy.com", "www.youtube.com", "youtube.com", "x.com", "twitter.com", "www.cbssports.com", "www.nbcsports.com", "jetswire.usatoday.com", "jetsxfactor.com", "podcasts.apple.com", "www.pff.com"]);
-// Image hosts are checked here; next.config.ts then admits each recorded URL exactly, path and query.
-const imageHosts = new Set(["static.clubs.nfl.com", "assets-jpcust.jwpsrv.com", "www.audacy.com", "is1-ssl.mzstatic.com", "jetsxfactor.com", "nbcsports.brightspotcdn.com", "media.pff.com", "pbs.twimg.com"]);
+// Image hosts are checked here; the local asset route resolves only each recorded URL exactly.
+const imageHosts = new Set(["static.clubs.nfl.com", "assets-jpcust.jwpsrv.com", "cdn.jwplayer.com", "www.audacy.com", "is1-ssl.mzstatic.com", "is2-ssl.mzstatic.com", "is3-ssl.mzstatic.com", "is4-ssl.mzstatic.com", "is5-ssl.mzstatic.com", "jetsxfactor.com", "nypost.com", "nbcsports.brightspotcdn.com", "media.pff.com", "pbs.twimg.com", "i.ytimg.com"]);
 const text = (value: unknown, limit: number): value is string => typeof value === "string" && !!value.trim() && value.length <= limit && !/[\u0000-\u001f\u007f]/.test(value);
 
 function safeUrl(value: unknown, allowed: Set<string>): value is string {
@@ -73,10 +77,12 @@ function safeUrl(value: unknown, allowed: Set<string>): value is string {
 }
 
 export const safeMediaUrl = (value: unknown): value is string => safeUrl(value, hosts);
+export const safeMediaImageUrl = (value: unknown): value is string => safeUrl(value, imageHosts);
 const sourceHosts = new Set([...hosts, "itunes.apple.com"]);
 
 /** The picture to show for an item, or null when the publisher has none. */
 export function mediaImage(item: Pick<MediaItem, "youtubeId" | "image">): MediaImage | null {
+  if (Object.hasOwn(item, "image")) return item.image ?? null;
   // hqdefault exists for every upload; it is 4:3 with the 16:9 frame letterboxed inside.
   if (item.youtubeId) return { url: `https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`, width: 480, height: 360 };
   return item.image ?? null;
@@ -130,10 +136,14 @@ export function validateMediaCollection(collection: MediaCollection): MediaColle
       const url = new URL(item.url);
       if (!["youtube.com", "www.youtube.com"].includes(url.hostname) || url.pathname !== "/watch" || url.searchParams.getAll("v").length !== 1 || url.searchParams.get("v") !== item.youtubeId) throw new Error(`Mismatched video identity: ${item.id}`);
     }
-    if (item.youtubeId ? item.image !== undefined : item.image !== null && (typeof item.image !== "object" || !safeUrl(item.image.url, imageHosts)
-      || [item.image.width, item.image.height].some((size) => !Number.isInteger(size) || size < 100 || size > 4000))) throw new Error(`Invalid media image: ${item.id}`);
+    if ((!item.youtubeId && item.image === undefined) || (item.image !== undefined && item.image !== null && (typeof item.image !== "object" || !safeMediaImageUrl(item.image.url)
+      || [item.image.width, item.image.height].some((size) => !Number.isInteger(size) || size < 100 || size > 4000)))) throw new Error(`Invalid media image: ${item.id}`);
+    if (item.image && (item.youtubeId || new URL(item.image.url).hostname === "i.ytimg.com") && (!item.youtubeId
+      || !new RegExp(`^https://i\\.ytimg\\.com/vi/${item.youtubeId}/(?:maxresdefault|sddefault|hqdefault)\\.jpg$`).test(item.image.url))) throw new Error(`Mismatched video picture: ${item.id}`);
+    if (item.image?.fingerprint !== undefined && !/^[a-f0-9]{16}$/.test(item.image.fingerprint)) throw new Error(`Invalid media picture fingerprint: ${item.id}`);
     if (Object.hasOwn(item, "embedAllowed") && typeof item.embedAllowed !== "boolean") throw new Error(`Invalid video embed permission: ${item.id}`);
     if (item.embedAllowed && !item.youtubeId) throw new Error(`Unverified video embed: ${item.id}`);
+    if (item.playback !== undefined && !safeMediaPlaybackMetadata(item)) throw new Error(`Invalid media playback: ${item.id}`);
     ids.add(item.id); urls.add(item.url);
   }
   return collection;

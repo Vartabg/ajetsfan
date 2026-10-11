@@ -49,7 +49,7 @@ test("1968 has documented championship sources without invented season totals or
   })]);
   expect(selected.facts[0].text).toContain("January 12, 1969");
   expect(selected.facts[0].text).toContain("1968 football season");
-  expect(selected.media.map((item) => item.id)).toContain("jets-namath-super-season-1968");
+  expect(selected.media).toEqual([]);
 });
 
 test("withheld or missing probability analysis cannot erase a valid final score", () => {

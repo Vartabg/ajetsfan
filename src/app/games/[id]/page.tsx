@@ -18,6 +18,7 @@ import { mediaCollection } from "@/lib/media-catalog";
 import { formatMediaDate, mediaForGame } from "@/lib/media";
 import { gameEditorialPhoto } from "@/lib/editorial-photos";
 import EditorialPhoto from "@/components/EditorialPhoto";
+import InlineMedia from "@/components/InlineMedia";
 import FocusMoment from "@/components/FocusMoment";
 import FocusShell, { type FocusEntry } from "@/components/FocusShell";
 import shared from "@/components/Focus.module.css";
@@ -111,7 +112,7 @@ export default async function GamePage({ params }: Props) {
       <p className={styles.account}>{memory?.fact ?? `The Jets ${game.outcome === "win" ? "won" : "lost"} ${game.jetsScore}–${game.oppScore} ${game.atHome ? "at home against" : "on the road against"} ${opponent}${game.wentToOt ? " in overtime" : ""}. This is a game from the ${game.season} ${game.seasonType === "POST" ? "postseason" : "regular season"} archive.`}</p>
       {replays.length ? <section className={styles.replays} aria-labelledby="game-replays-heading">
         <h3 id="game-replays-heading">Watch it back.</h3>
-        <ul>{replays.map((item) => <li key={item.id}><a href={item.url} target="_blank" rel="noreferrer"><span className={styles.mark} aria-hidden="true">▶</span><span><strong>{item.title}</strong><small>{outletName(item.outletId)} · {formatMediaDate(item.publishedAt)} · {KIND[item.kind]} · opens at the publisher</small></span></a></li>)}</ul>
+        <ul>{replays.map((item) => <li key={item.id}><InlineMedia item={item} outletName={outletName(item.outletId)}><span><strong>{item.title}</strong><small>{outletName(item.outletId)} · {formatMediaDate(item.publishedAt)} · {KIND[item.kind]}</small></span></InlineMedia></li>)}</ul>
       </section> : null}
     </FocusMoment>
 
