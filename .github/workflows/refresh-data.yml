@@ -41,6 +41,8 @@ jobs:
       - run: npm run data:rankings
       - run: npm run data:trades
       - run: npm run data:media
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       - name: Detect snapshot changes
         id: snapshot
         run: |

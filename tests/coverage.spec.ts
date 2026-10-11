@@ -7,17 +7,39 @@ import { playerHref } from "../src/lib/roster";
 
 const coverage = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/coverage.json"), "utf8")) as CoverageSnapshot;
 
-test("official headlines retain dates and source links on the news page and legacy shortcut", async ({ page }) => {
+test("official headlines expand in place and retain dates and original sources on the news page and legacy shortcut", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   const items = [...coverage.news.items].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.id.localeCompare(b.id));
   for (const route of ["/team/news", "/#around-jets"]) {
     await page.goto(route);
     await expect.poll(() => new URL(page.url()).pathname).toBe("/team/news");
+    const address = page.url();
+    const pages = page.context().pages().length;
     const section = page.locator("#news");
     for (const item of items) {
-      const link = section.getByRole("link", { name: item.title, exact: false });
-      await expect(link).toHaveAttribute("href", item.url);
-      await expect(link).toHaveAttribute("target", "_blank");
-      await expect(link.locator(`time[datetime="${item.publishedAt}"]`)).toBeVisible();
+      const story = section.locator(`[data-inline-news="${item.id}"]`);
+      const trigger = story.locator(":scope > summary");
+      await expect(trigger.locator("h3")).toHaveText(item.title);
+      await expect(trigger.locator(`time[datetime="${item.publishedAt}"]`)).toBeVisible();
+      const original = story.getByRole("link", { name: /^Read the full article/ });
+      await expect(original).toBeHidden();
+      await trigger.scrollIntoViewIfNeeded();
+      const position = (await trigger.boundingBox())!;
+      const scrollBefore = await page.evaluate(() => window.scrollY);
+      await trigger.click();
+      await expect(story.locator(`[data-news-details="${item.id}"]`)).toBeVisible();
+      expect(Math.abs((await trigger.boundingBox())!.y - position.y)).toBeLessThanOrEqual(2);
+      expect(Math.abs(await page.evaluate(() => window.scrollY) - scrollBefore)).toBeLessThanOrEqual(2);
+      expect(page.url()).toBe(address);
+      expect(page.context().pages()).toHaveLength(pages);
+      await expect(original).toBeHidden();
+      await story.locator("[data-news-details] > details > summary").click();
+      await expect(original).toBeVisible();
+      await expect(original).toHaveAttribute("href", item.url);
+      await expect(original).toHaveAttribute("target", "_blank");
+      await expect(original).toHaveAttribute("rel", /noreferrer/);
+      await trigger.click();
+      await expect(story.locator("[data-news-details]")).toBeHidden();
     }
     if (coverage.news.checkedAt) await expect(section.locator(`time[datetime="${coverage.news.checkedAt}"]`)).toBeVisible();
   }

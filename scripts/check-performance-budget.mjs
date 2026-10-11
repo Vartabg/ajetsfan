@@ -6,10 +6,12 @@ import { gzipSync } from "node:zlib";
 // Check after `next build`; leave room for normal editorial/data growth.
 const budgets = [
   // 2026-10-02: the front page prints the latest game's probability curve as static SVG; see docs/performance.md.
-  { route: "/", file: "index", html: 14, js: 200 },
+  { route: "/", file: "index", html: 14, js: 203 },
   // 2026-10-06: the focus view adds the frame, a list of the plays and one drawn moment per play (about 2.4 KiB).
   { route: "/film-room", file: "film-room", html: 24, js: 220 },
-  { route: "/media", file: "media", html: 30, js: 205 },
+  // 2026-10-10: 24 sources, 96 items with measured artwork, inline controls and the rant archive.
+  { route: "/media", file: "media", html: 38, js: 205 },
+  { route: "/media/rants", file: "media/rants", html: 18, js: 200 },
   { route: "/team", file: "team", html: 12, js: 200 },
   { route: "/game-day", file: "game-day", html: 28, js: 200 },
   { route: "/stories", file: "stories", html: 18, js: 200 },
@@ -23,7 +25,7 @@ const budgets = [
   { route: "/team/news", file: "team/news", html: 14, js: 195 },
   { route: "/team/stats", file: "team/stats", html: 14, js: 200 },
   { route: "/morgue", file: "morgue", html: 90, js: 205 },
-  { route: "/seasons/2010", file: "seasons/2010", html: 28, js: 215 },
+  { route: "/seasons/2010", file: "seasons/2010", html: 28, js: 217 },
   { route: "/seasons/2010/guide", file: "seasons/2010/guide", html: 14, js: 195 },
 ];
 

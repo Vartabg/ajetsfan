@@ -3,7 +3,9 @@ import type { Game } from "./games";
 import type { CurvePoint } from "./load-games";
 import { jetsPlays } from "./jets-playbook";
 import { getJetsStudy } from "./jets-snap-study";
-import { mediaImage, type MediaCollection, type MediaImage } from "./media";
+import { mediaImage, type MediaCollection, type MediaItem } from "./media";
+import { mediaPlayback } from "./media-playback";
+import { compactMediaItem } from "./media-asset-paths.mjs";
 import type { PlayDesign } from "./playbook";
 import { publishedGames } from "./published-pages";
 import { teamIdentity } from "./teams";
@@ -24,7 +26,7 @@ export type FocusData = {
   season: { year: number; wins: number; losses: number; ties: number; weeks: { week: number; opponent: string | null; state: WeekState; score: string | null }[] } | null;
   division: { name: string; place: number; back: number; leader: string; tiedAtTop: number; teams: { team: string; place: string; wins: number; losses: number; ties: number; games: number; pointsFor: number; pointsAgainst: number; us: boolean }[] } | null;
   film: { title: string; date: string; situation: string; result: string; summary: string; star: string; design: PlayDesign } | null;
-  media: { id: string; title: string; outlet: string; publishedAt: string | null; image: MediaImage | null } | null;
+  media: { id: string; title: string; outlet: string; publishedAt: string | null; item: MediaItem } | null;
   discovery: { score: string; wins: number; firstSeason: number; lastDate: string; low: { label: string; chance: number }; high: { label: string; chance: number } } | null;
 };
 
@@ -91,8 +93,8 @@ export function buildFocus({ games, snapshot, curve, media }: { games: Game[]; s
   // The newest dated item that has its publisher's picture.
   const outletName = new Map(media.outlets.map((outlet) => [outlet.id, outlet.name]));
   const pictured = media.items.filter((item) => mediaImage(item) && item.publishedAt).sort((a, b) => b.publishedAt!.localeCompare(a.publishedAt!) || a.id.localeCompare(b.id));
-  const featured = pictured[0];
-  const mediaMoment = featured ? { id: featured.id, title: featured.title, outlet: outletName.get(featured.outletId) ?? featured.author, publishedAt: featured.publishedAt, image: mediaImage(featured) } : null;
+  const featured = pictured.find((item) => mediaPlayback(item)) ?? pictured[0];
+  const mediaMoment = featured ? { id: featured.id, title: featured.title, outlet: outletName.get(featured.outletId) ?? featured.author, publishedAt: featured.publishedAt, item: compactMediaItem(featured) } : null;
 
   const discoveries = buildDiscoveries(games.filter((game) => published.has(game.id)));
   const pair = discoveries.sameScore;

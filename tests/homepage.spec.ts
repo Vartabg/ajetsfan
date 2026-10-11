@@ -115,7 +115,10 @@ test("each moment shows one thing and opens its detail in place", async ({ page 
     await page.locator("[data-focus-play]").click();
     await expect(field).toHaveAttribute("data-time", "6.0");
   }
-  if (focus.media) await expect(page.locator("#media a")).toHaveAttribute("href", `/media?media=${focus.media.id}`);
+  if (focus.media) {
+    await expect(page.locator(`#media [data-inline-media="${focus.media.id}"]`)).toBeVisible();
+    await expect(page.locator("#media a")).toHaveAttribute("href", "/media");
+  }
 });
 
 test("wide screens keep an index of the moments that follows the one in view", async ({ page }) => {

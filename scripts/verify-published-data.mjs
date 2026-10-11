@@ -1,7 +1,10 @@
 import { appendFile, readFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { parseArgs } from 'node:util';
+import { parseArgs, promisify } from 'node:util';
+
+const runCommand = promisify(execFile);
 
 const FEEDS = ['results', 'news', 'roster', 'stats', 'analysis', 'media', 'rankings', 'nextgen', 'trades'];
 const FEED_STATES = new Set(['ready', 'retained', 'unavailable', 'overdue', 'unknown']);
@@ -45,6 +48,9 @@ export async function verifyPublishedData({
   if (!record(expected) || !Number.isInteger(expected.season) || expected.season < 1999 || expected.season > 2200 || !timestamp(expected.checkedAt)) {
     throw new DeploymentVerificationError('The local publication must include a valid season and checkedAt.');
   }
+  if (expected.commit !== undefined && (typeof expected.commit !== 'string' || !/^[a-f0-9]{40}$/.test(expected.commit))) {
+    throw new DeploymentVerificationError('The expected deployment commit must be a full Git SHA.');
+  }
   if (!Number.isInteger(attempts) || attempts < 1 || attempts > 30 || !Number.isInteger(intervalMs) || intervalMs < 0 || intervalMs > 30_000 ||
     !Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30_000) {
     throw new DeploymentVerificationError('Deployment verification retry settings are outside their bounded limits.');
@@ -67,6 +73,12 @@ export async function verifyPublishedData({
       }
     } catch { issue = 'health endpoint unavailable'; }
     if (health && validHealth(health, response.status) && health.season === expected.season && health.checkedAt === expected.checkedAt) {
+      if (expected.commit !== undefined && health.commit !== expected.commit) {
+        issue = 'deployed commit differs from the local publication';
+        onAttempt({ attempt, attempts, issue });
+        if (attempt < attempts) await pause(intervalMs);
+        continue;
+      }
       if (expected.feeds && Object.entries(expected.feeds).some(([name, checkedAt]) => health.feeds[name]?.checkedAt !== checkedAt)
         || expected.mediaSources && Object.entries(expected.mediaSources).some(([name, checkedAt]) => health.mediaSources?.[name]?.checkedAt !== checkedAt)) {
         issue = 'a deployed source snapshot differs from the local publication';
@@ -89,6 +101,8 @@ export async function verifyPublishedData({
 async function main() {
   const { values } = parseArgs({ options: { origin: { type: 'string' } }, allowPositionals: false });
   const expected = JSON.parse(await readFile(path.join(process.cwd(), 'public', 'data', 'current.json'), 'utf8'));
+  const { stdout } = await runCommand('git', ['rev-parse', 'HEAD'], { cwd: process.cwd(), timeout: 10_000, maxBuffer: 1024 });
+  expected.commit = stdout.trim();
   const [media, rankings, nextgen, trades] = await Promise.all(['media', 'season-rankings', 'nextgen-stats', 'draft-trades'].map(async (name) =>
     JSON.parse(await readFile(path.join(process.cwd(), 'public/data', `${name}.json`), 'utf8'))));
   const mediaChecks = media.sources.map((source) => source.checkedAt);

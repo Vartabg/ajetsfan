@@ -1,15 +1,18 @@
+import Link from "@/components/IntentLink";
 import FocusMoment from "@/components/FocusMoment";
-import FocusPicture from "@/components/FocusPicture";
+import InlineMedia from "@/components/InlineMedia";
 import FocusShell, { type FocusEntry } from "@/components/FocusShell";
 import MediaRoom, { RoomLink } from "@/components/MediaRoom";
 import shared from "@/components/Focus.module.css";
-import { formatMediaDate, mediaImage, type MediaItem, type MediaOutlet } from "@/lib/media";
+import { formatMediaDate, type MediaItem } from "@/lib/media";
 import { mediaCollection } from "@/lib/media-catalog";
+import { mediaPlayback } from "@/lib/media-playback";
+import { compactMediaItem } from "@/lib/media-asset-paths.mjs";
 import { pageMetadata } from "@/lib/site";
 import { focusFonts } from "../focus-fonts";
 import styles from "./page.module.css";
 
-export const metadata = pageMetadata({ path: "/media", title: "Jets Media Room — beat reporting, TV, radio and film", description: "Explore dated Jets coverage from beat reporters, SNY, WFAN, ESPN New York, official film and independent analysis. Filter by season, topic, source and format; open or compare the original reporting." });
+export const metadata = pageMetadata({ path: "/media", title: "Jets Media Room — fan voices, WFAN, reporting and film", description: "Watch and listen to independent Jets creators, WFAN shows and dated reporting in place. Mixed sports segments are included when they cover the Jets. Filter by source, season, topic or format." });
 
 const FORMATS: { kind: MediaItem["kind"]; id: string; title: string; one: string; many: string }[] = [
   { kind: "video", id: "watch", title: "Watch", one: "video", many: "videos" },
@@ -17,18 +20,14 @@ const FORMATS: { kind: MediaItem["kind"]; id: string; title: string; one: string
   { kind: "audio", id: "listen", title: "Listen", one: "show", many: "shows" },
   { kind: "post", id: "posts", title: "Posts", one: "post", many: "posts" },
 ];
-const VOICES: Record<MediaOutlet["kind"], string> = { beat: "beat reporters", tv: "TV", radio: "radio", official: "the team", independent: "independent film study" };
-
-const list = (parts: string[]) => parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}` : parts[0] ?? "";
-
 export default function MediaPage() {
   const { items, outlets } = mediaCollection;
   const outletById = new Map(outlets.map((outlet) => [outlet.id, outlet]));
   const used = outlets.filter((outlet) => items.some((item) => item.outletId === outlet.id));
   const newest = [...items].filter((item) => item.publishedAt).sort((a, b) => b.publishedAt!.localeCompare(a.publishedAt!) || a.id.localeCompare(b.id));
-  const formats = FORMATS.map((format) => ({ ...format, count: items.filter((item) => item.kind === format.kind).length, lead: newest.find((item) => item.kind === format.kind) }))
+  const formats = FORMATS.map((format) => ({ ...format, count: items.filter((item) => item.kind === format.kind).length,
+    lead: (format.kind === "video" || format.kind === "audio" ? newest.find((item) => item.kind === format.kind && mediaPlayback(item)) : null) ?? newest.find((item) => item.kind === format.kind) }))
     .filter((format) => format.lead);
-  const [opener] = formats;
 
   const entries: FocusEntry[] = [
     { id: "about", title: "Media Room", answer: `${items.length} stories` },
@@ -36,35 +35,31 @@ export default function MediaPage() {
     { id: "collection", title: "The collection", answer: "Search and filter" },
   ];
 
-  return <FocusShell page="media" entries={entries} checkedAt={null} className={focusFonts}>
-    <FocusMoment id="about" first label="Media Room" heading={<>Jets coverage, <em>from the people who cover them.</em></>}
-      actions={opener ? <a href={`#${opener.id}`} className={shared.go}>Start with the newest {opener.one} <span aria-hidden="true">↓</span></a> : null}>
-      <div className={shared.shape}>
+  return <FocusShell page="media" entries={entries} checkedAt={null} className={`${focusFonts} ${styles.media}`}>
+    <FocusMoment id="about" first label="Fan voices · Radio · Reporting" heading="Media Room">
+      <div className={styles.intro}>
         <ul className={styles.formats}>{formats.map((format) => <li key={format.kind}>
-          <a href={`#${format.id}`}><b>{format.title}</b><span>{format.count} {format.count === 1 ? format.one : format.many}</span></a>
+          <a href={`#${format.id}`} aria-label={`${format.title}: ${format.count} ${format.count === 1 ? format.one : format.many}`}><b>{format.title}</b><span>{format.count}</span></a>
         </li>)}</ul>
-        <p className={shared.caption}>{items.length} selected stories from {used.length} outlets: {list([...new Set(used.map((outlet) => VOICES[outlet.kind]))])}. Fresh publisher feeds join the archive automatically. Every story opens its original source.</p>
+        <div className={styles.introFooter}><p className={styles.introNote}>{items.length} stories · {used.length} sources · Updated automatically</p><Link href="/media/rants" className={styles.rantLink}>Jets Rants <span aria-hidden="true">↗</span></Link></div>
       </div>
     </FocusMoment>
 
     {formats.map((format) => {
       const item = format.lead!;
-      // A post's attached picture often belongs to something else, so posts stay text, as they do in the room.
-      const image = format.kind === "post" ? null : mediaImage(item);
       return <FocusMoment key={format.kind} id={format.id} label={`${format.title} · ${outletById.get(item.outletId)?.name ?? item.author} · ${formatMediaDate(item.publishedAt)}`} heading={item.title}
         actions={<>
-          <RoomLink media={item.id} className={shared.go}>Open it here <span aria-hidden="true">↓</span></RoomLink>
           <RoomLink type={format.kind} className={shared.go}>Every {format.one} ({format.count}) <span aria-hidden="true">↓</span></RoomLink>
         </>}>
         <figure className={shared.shape}>
-          {image ? <FocusPicture image={image} /> : null}
+          <InlineMedia item={compactMediaItem(item)} outletName={outletById.get(item.outletId)?.name} feature sizes="(max-width: 959px) calc(100vw - 32px), 760px" preview={item.kind !== "post"} />
           <figcaption>{item.summary.split(/(?<=\.)\s/)[0]}</figcaption>
         </figure>
       </FocusMoment>;
     })}
 
     <FocusMoment id="collection" label="The collection" heading={<>Search every story. <em>Filter by source, season or topic.</em></>}>
-      <div className={styles.room} data-focus-tools><MediaRoom items={items} outlets={outlets} checkedAt={mediaCollection.checkedAt} sources={mediaCollection.sources} curatedCheckedAt={mediaCollection.curatedCheckedAt} /></div>
+      <div className={styles.room} data-focus-tools><MediaRoom items={items.map(compactMediaItem)} outlets={outlets} checkedAt={mediaCollection.checkedAt} sources={mediaCollection.sources} curatedCheckedAt={mediaCollection.curatedCheckedAt} /></div>
     </FocusMoment>
   </FocusShell>;
 }

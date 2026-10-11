@@ -4,7 +4,7 @@ import { useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode
 import Link from "./IntentLink";
 import FocusMoment from "./FocusMoment";
 import FocusNext from "./FocusNext";
-import FocusPicture from "./FocusPicture";
+import InlineMedia from "./InlineMedia";
 import FocusPlay from "./FocusPlay";
 import FocusShell from "./FocusShell";
 import type { FocusData, FocusPoint } from "@/lib/focus";
@@ -122,10 +122,10 @@ function Division({ division }: { division: NonNullable<FocusData["division"]> }
 
 function Media({ media }: { media: NonNullable<FocusData["media"]> }) {
   return <FocusMoment id="media" label={`Watch & read · ${media.outlet}`} heading={<>{media.title}</>}
-    actions={<Go href={`/media?media=${encodeURIComponent(media.id)}`}>Open it in the Media Room</Go>}>
+    actions={<Go href="/media">Browse the Media Room</Go>}>
     <figure className={shared.shape}>
-      {media.image ? <FocusPicture image={media.image} /> : null}
-      <figcaption>{formatMediaDate(media.publishedAt)}. The newest item in the Media Room with its publisher’s picture.</figcaption>
+      <InlineMedia item={media.item} outletName={media.outlet} feature sizes="(max-width: 959px) calc(100vw - 32px), 760px" />
+      <figcaption>{formatMediaDate(media.publishedAt)} · {media.outlet}</figcaption>
     </figure>
   </FocusMoment>;
 }

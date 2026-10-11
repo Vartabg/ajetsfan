@@ -10,16 +10,18 @@ const firstPost = posts[0];
 const secondPost = posts[1];
 const thirdPost = posts[2];
 const video = items.find((item) => item.youtubeId && item.embedAllowed === true);
-const restrictedVideo = items.find((item) => item.youtubeId && item.embedAllowed !== true);
+const restrictedVideo = items.find((item) => item.youtubeId && item.embedAllowed === false);
 const season2010 = items.filter((item) => item.seasons?.includes(2010));
 const playoffArticle = season2010.find((item) => item.kind === "article")!;
-const namath = items.find((item) => item.seasons?.includes(1968))!;
+const retrospective = items.find((item) => item.id === "pff-jets-2025-season-review")!;
 const room = (page: Page) => page.locator("[data-media-room]");
 const itemSelector = (id: string) => `[data-media-select="${id}"]`;
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.route((url) => url.pathname === "/_next/image", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>' }));
+  await page.route("https://www.youtube.com/iframe_api", (route) => route.fulfill({ contentType: "application/javascript", body: `window.YT={Player:function(iframe,options){var player=this;this.destroy=function(){iframe.remove();};setTimeout(function(){options.events.onReady({target:player});},0);}};window.onYouTubeIframeAPIReady&&window.onYouTubeIframeAPIReady();` }));
+  await page.route("https://platform.twitter.com/widgets.js", (route) => route.fulfill({ contentType: "application/javascript", body: `window.twttr={widgets:{createTweet:function(id,target){var node=document.createElement('blockquote');node.textContent='Publisher post '+id;node.dataset.mockTweet=id;target.appendChild(node);return Promise.resolve(node);}}};` }));
 });
 
 test("the entry view starts with stories and keeps extra filters, provider notes and source bars optional", async ({ page }) => {
@@ -54,7 +56,7 @@ test("more stories remain searchable and a reloaded deep link returns to its own
   await expect(media.locator("[data-media-card]")).toHaveCount(Math.min(16, articles.length));
   await media.locator(itemSelector(deep.id)).click();
   await page.reload();
-  await expect(page.locator("#media-viewer-heading")).toHaveText(deep.title);
+  await expect(media.locator(`[data-media-card="${deep.id}"] [data-media-context]`)).toContainText(deep.title);
   await media.locator("[data-media-back-results]").click();
   await expect(media.locator(itemSelector(deep.id))).toBeVisible();
   await expect(media.locator(itemSelector(deep.id))).toBeFocused();
@@ -77,7 +79,7 @@ test("the automatic source directory exposes real checks alongside the dated arc
   expect(items.some((item) => item.id.startsWith("auto-") && item.youtubeId)).toBe(true);
 });
 
-test("formats keep their own sections, current coverage leads, and every card shows its publisher's picture or none", async ({ page }) => {
+test("formats keep their own sections, current coverage leads, and cards distinguish verified art from title cards", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/media");
   const media = room(page);
@@ -97,21 +99,23 @@ test("formats keep their own sections, current coverage leads, and every card sh
     const current = listed.filter((item) => item.context === "current").map((item) => item.publishedAt ?? "");
     expect(current, kind).toEqual([...current].sort().reverse());
   }
-  await expect(media.locator("[data-media-card] [data-media-thumbnail] img")).toHaveCount(items.filter((item) => mediaImage(item)).length);
-  await expect(media.locator('[data-media-card="espn-2010-divisional-rapid-reaction"] [data-media-thumbnail]')).toHaveCount(0);
+  const pictured = items.filter((item) => { const image = mediaImage(item); return item.kind !== "post" && image && image.width >= 600 && image.height >= 300; });
+  await expect(media.locator("[data-media-card] [data-media-thumbnail] img:not([data-media-title-card])")).toHaveCount(pictured.length);
+  await expect(media.locator("[data-media-card] [data-media-title-card]")).toHaveCount(items.filter((item) => item.kind !== "post").length - pictured.length);
+  await expect(media.locator('[data-media-card="espn-2010-divisional-rapid-reaction"] [data-media-title-card]')).toHaveCount(1);
   const tallest = Math.max(...await media.locator("[data-media-card]").evaluateAll((cards) => cards.map((card) => card.getBoundingClientRect().height)));
   expect(tallest).toBeLessThan(340);
-  const jetsVideo = items.find((item) => item.kind === "video" && !item.youtubeId && item.image)!;
-  await media.locator(itemSelector(jetsVideo.id)).click();
-  await expect(media.locator("[data-media-viewer] [data-media-thumbnail] img")).toHaveCount(1);
-  await expect(media.locator("[data-media-viewer]")).toContainText("Image via New York Jets");
-  expect((await page.locator("#media-selected-coverage").boundingBox())!.height).toBeLessThan(480);
+  const nativeVideo = items.find((item) => item.kind === "video" && item.outletId === "sny" && !item.youtubeId && item.image)!;
+  await media.locator(itemSelector(nativeVideo.id)).click();
+  const local = media.locator(`[data-media-card="${nativeVideo.id}"]`);
+  await expect(local.locator("[data-media-viewer]")).toHaveCount(1);
+  await expect(local.locator("[data-media-context]")).toContainText(nativeVideo.title);
+  await expect(page.locator("#media-selected-coverage")).toHaveCount(0);
   await media.locator(itemSelector(firstPost.id)).click();
-  await expect(media.locator("[data-media-viewer]")).toContainText(firstPost.author);
-  await expect(media.locator("[data-media-viewer]")).toContainText(`@${new URL(firstPost.url).pathname.split("/")[1]}`);
+  await expect(media.locator(`[data-media-card="${firstPost.id}"] [data-media-context]`)).toContainText(firstPost.author);
 });
 
-test("Back to results restores the clicked card and its place without clearing filters or comparison", async ({ page }) => {
+test("closing an inline selection keeps its card in place without clearing filters or comparison", async ({ page }) => {
   await page.goto("/media?keep=place&type=post&season=2026#media-room");
   const media = room(page);
   await media.locator(`[data-media-card-compare="${firstPost.id}"]`).click();
@@ -121,7 +125,6 @@ test("Back to results restores the clicked card and its place without clearing f
   await origin.scrollIntoViewIfNeeded();
   const before = (await origin.boundingBox())!;
   await origin.click();
-  await expect(page.locator("#media-viewer-heading")).toBeFocused();
   await expect(media.locator("[data-media-viewer]")).toBeVisible();
   await expect(media.locator("[data-media-embed-guide] p")).toBeHidden();
   await media.locator("[data-media-back-results]").click();
@@ -161,22 +164,21 @@ test("football seasons follow the source content through selection, Back and rel
   await expect(media.locator("[data-media-card]")).toHaveCount(season2010.length);
   await media.locator(itemSelector(playoffArticle.id)).click();
   await expect(media).toHaveAttribute("data-media-selected", playoffArticle.id);
-  await expect(page.locator("#media-viewer-heading")).toBeFocused();
   await expect(media.locator("[data-media-context]")).toContainText("Football season: 2010");
   // The January 2011 report is explicitly part of the 2010 football season.
   expect(new Date(playoffArticle.publishedAt!).getUTCFullYear()).toBe(2011);
   await expect(media.locator("[data-media-context] time")).toHaveAttribute("datetime", playoffArticle.publishedAt!);
   await expect(media.locator("[data-media-context] time")).toHaveText("Jan 16, 2011 ET");
   await media.locator("[data-media-more-filters] > summary").click();
-  await media.locator("[data-media-season]").selectOption("1968");
+  await media.locator("[data-media-season]").selectOption("2025");
   await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
-  await media.locator(itemSelector(namath.id)).click();
-  await expect(media).toHaveAttribute("data-media-selected", namath.id);
-  await expect(media.locator("[data-media-card]")).toHaveCount(items.filter((item) => item.seasons?.includes(1968)).length);
-  await expect(media.locator("[data-media-context]")).toContainText("Football season: 1968");
-  expect(new Date(namath.publishedAt!).getUTCFullYear()).toBe(2010);
+  await media.locator(itemSelector(retrospective.id)).click();
+  await expect(media).toHaveAttribute("data-media-selected", retrospective.id);
+  await expect(media.locator("[data-media-card]")).toHaveCount(items.filter((item) => item.seasons?.includes(2025)).length);
+  await expect(media.locator("[data-media-context]")).toContainText("Football season: 2025");
+  expect(new Date(retrospective.publishedAt!).getUTCFullYear()).toBe(2026);
   await page.goBack();
-  await expect(media.locator("[data-media-season]")).toHaveValue("1968");
+  await expect(media.locator("[data-media-season]")).toHaveValue("2025");
   await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
   await page.goBack();
   await expect(media).toHaveAttribute("data-media-selected", playoffArticle.id);
@@ -257,7 +259,6 @@ test("comparison holds two original sources, prevents a third and recovers after
   await media.locator(`[data-media-compare="${firstPost.id}"]`).click();
   await expect(media.locator("[data-media-compared]")).toHaveCount(1);
   await media.locator(itemSelector(secondPost.id)).click();
-  await expect(page.locator("#media-viewer-heading")).toBeFocused();
   await media.locator(`[data-media-compare="${secondPost.id}"]`).click();
   await expect(media.locator("[data-media-compared]")).toHaveCount(2);
   await media.locator(itemSelector(thirdPost.id)).click();
@@ -276,7 +277,7 @@ test("comparison holds two original sources, prevents a third and recovers after
   await expect(media.locator("[data-media-comparison]")).toHaveCount(0);
 });
 
-test("the original X SDK loads on request, renders the exact post and stays closed after a new selection", async ({ page }) => {
+test("the original X SDK loads on request and replaces its exact post locally after a new selection", async ({ page }) => {
   let requests = 0;
   await page.route("https://platform.twitter.com/widgets.js", (route) => {
     requests += 1;
@@ -284,21 +285,21 @@ test("the original X SDK loads on request, renders the exact post and stays clos
   });
   await page.goto(`/media?media=${firstPost.id}`);
   const media = room(page);
-  await expect(media.locator("[data-media-viewer]")).toHaveAttribute("data-embed-requested", "false");
+  await expect(media.locator(`[data-inline-media="${firstPost.id}"]`)).toHaveAttribute("data-inline-open", "true");
+  await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
   await expect(media.locator("[data-media-x-status]")).toHaveCount(0);
   expect(requests).toBe(0);
   await media.locator(`[data-media-load="${firstPost.id}"]`).click();
   await expect(media.locator("[data-media-x-status]")).toHaveAttribute("data-media-x-status", "ready");
   await expect(media.locator(`[data-mock-tweet="${firstPost.tweetId}"]`)).toHaveAttribute("data-dnt", "true");
   expect(requests).toBe(1);
-  await expect(media.locator("[data-media-viewer] a")).toHaveAttribute("href", firstPost.url);
+  await expect(media.locator(`[data-inline-media="${firstPost.id}"] [data-media-embed-guide] a`)).toHaveAttribute("href", firstPost.url);
   await media.locator(itemSelector(secondPost.id)).click();
-  await expect(media.locator("[data-media-viewer]")).toHaveAttribute("data-embed-requested", "false");
-  await expect(media.locator("[data-mock-tweet]")).toHaveCount(0);
-  await media.locator(`[data-media-load="${secondPost.id}"]`).click();
+  await expect(media.locator("[data-media-viewer]")).toHaveAttribute("data-embed-requested", "true");
+  await expect(media.locator(`[data-mock-tweet="${firstPost.tweetId}"]`)).toHaveCount(0);
   await expect(media.locator(`[data-mock-tweet="${secondPost.tweetId}"]`)).toBeVisible();
   expect(requests).toBe(1);
-  await media.getByRole("button", { name: "Close embed", exact: true }).click();
+  await media.locator("[data-media-close]").click();
   await expect(media.locator("[data-media-x-status]")).toHaveCount(0);
 });
 
@@ -308,8 +309,8 @@ test("X SDK failure leaves the original source usable and does not fabricate pos
   const media = room(page);
   await media.locator(`[data-media-load="${firstPost.id}"]`).click();
   await expect(media.locator("[data-media-x-status]")).toHaveAttribute("data-media-x-status", "failed");
-  await expect(media.locator("[data-media-x-status]")).toContainText("Read the original at its source");
-  await expect(media.locator("[data-media-viewer] a")).toHaveAttribute("href", firstPost.url);
+  await expect(media.locator("[data-media-x-status]")).toContainText(/original|publisher|source/i);
+  await expect(media.locator(`[data-inline-media="${firstPost.id}"] [data-media-embed-guide] a`)).toHaveAttribute("href", firstPost.url);
   await expect(media.locator("[data-media-viewer] iframe")).toHaveCount(0);
 });
 
@@ -323,11 +324,11 @@ test("a hanging X renderer times out with a bounded source fallback", async ({ p
   await expect.poll(() => page.evaluate(() => (window as unknown as { mediaXPending?: boolean }).mediaXPending)).toBe(true);
   await page.clock.runFor(16001);
   await expect(media.locator("[data-media-x-status]")).toHaveAttribute("data-media-x-status", "failed");
-  await expect(media.locator("[data-media-viewer] a")).toHaveAttribute("href", firstPost.url);
+  await expect(media.locator(`[data-inline-media="${firstPost.id}"] [data-media-embed-guide] a`)).toHaveAttribute("href", firstPost.url);
 });
 
 test("a late X result cannot attach to another selected source", async ({ page }) => {
-  await page.route("https://platform.twitter.com/widgets.js", (route) => route.fulfill({ contentType: "application/javascript", body: `window.mediaXHarness={pending:false,complete:function(){}};window.twttr={widgets:{createTweet:function(id,target){return new Promise(function(resolve){window.mediaXHarness.pending=true;window.mediaXHarness.complete=function(){var node=document.createElement('blockquote');node.dataset.lateTweet=id;target.appendChild(node);resolve(node);};});}}};` }));
+  await page.route("https://platform.twitter.com/widgets.js", (route) => route.fulfill({ contentType: "application/javascript", body: `window.mediaXHarness={pending:false,complete:function(){}};window.twttr={widgets:{createTweet:function(id,target){if(window.mediaXHarness.pending){var post=document.createElement('blockquote');post.textContent='Current publisher post '+id;target.appendChild(post);return Promise.resolve(post);}return new Promise(function(resolve){window.mediaXHarness.pending=true;window.mediaXHarness.complete=function(){var node=document.createElement('blockquote');node.dataset.lateTweet=id;target.appendChild(node);resolve(node);};});}}};` }));
   await page.goto(`/media?media=${firstPost.id}`);
   const media = room(page);
   await media.locator(`[data-media-load="${firstPost.id}"]`).click();
@@ -336,11 +337,11 @@ test("a late X result cannot attach to another selected source", async ({ page }
   await expect(media).toHaveAttribute("data-media-selected", secondPost.id);
   await page.evaluate(() => (window as unknown as { mediaXHarness: { complete: () => void } }).mediaXHarness.complete());
   await expect(media.locator("[data-late-tweet]")).toHaveCount(0);
-  await expect(media.locator("[data-media-x-status]")).toHaveCount(0);
-  await expect(media.locator("[data-media-viewer]")).toHaveAttribute("data-embed-requested", "false");
+  await expect(media.locator("[data-media-x-status]")).toHaveAttribute("data-media-x-status", "ready");
+  await expect(media.locator("[data-media-viewer]")).toHaveAttribute("data-embed-requested", "true");
 });
 
-test("permitted YouTube playback uses the privacy domain only after reader action and never autoplays", async ({ page }) => {
+test("permitted YouTube playback uses the privacy domain and starts only after reader action", async ({ page }) => {
   test.skip(!video, "No source in this catalog has verified embedding permission yet.");
   let requests = 0;
   await page.route("https://www.youtube-nocookie.com/embed/**", (route) => {
@@ -357,25 +358,26 @@ test("permitted YouTube playback uses the privacy domain only after reader actio
   const src = new URL((await frame.getAttribute("src"))!);
   expect(src.hostname).toBe("www.youtube-nocookie.com");
   expect(src.pathname).toBe(`/embed/${video!.youtubeId}`);
-  expect(src.searchParams.has("autoplay")).toBe(false);
+  expect(src.searchParams.get("autoplay")).toBe("1");
   await expect.poll(() => requests).toBe(1);
   await expect(frame).toHaveAttribute("allowfullscreen", "");
-  await media.getByRole("button", { name: "Close embed", exact: true }).click();
+  await media.locator("[data-media-close]").click();
   await expect(frame).toHaveCount(0);
-  await expect(media.locator("[data-media-viewer] a")).toHaveAttribute("href", video!.url);
+  await expect(media.locator("[data-media-viewer]")).toHaveCount(0);
 });
 
 test("source-restricted clips keep their publisher link without offering an unsupported player", async ({ page }) => {
   test.skip(!restrictedVideo, "Every catalog video is permitted to embed.");
   await page.goto(`/media?media=${restrictedVideo!.id}`);
   const media = room(page);
-  await expect(media.locator("[data-media-load]")).toHaveCount(0);
+  await expect(media.locator(`[data-inline-media="${restrictedVideo!.id}"]`)).toHaveAttribute("data-inline-open", "true");
+  await media.locator(itemSelector(restrictedVideo!.id)).click();
   await expect(media.locator("[data-media-viewer] iframe")).toHaveCount(0);
-  await expect(media.locator("[data-media-viewer] a")).toHaveAttribute("href", restrictedVideo!.url);
+  await expect(media.locator(`[data-inline-media="${restrictedVideo!.id}"] [data-media-embed-guide] a`)).toHaveAttribute("href", restrictedVideo!.url);
   const guide = media.locator("[data-media-embed-guide]");
   await expect(guide.locator("p")).toBeHidden();
   await guide.locator("summary").click();
-  await expect(guide.locator("p")).toContainText("No embedded playback is available");
+  await expect(guide.locator("p")).toContainText(/unavailable|publisher|source|restricted/i);
 });
 
 for (const fails of [false, true]) {

@@ -1,0 +1,78 @@
+name: Refresh Jets media
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Check new releases twice an hour; game-day/full-data checks run separately.
+    - cron: '8,38 * * * *'
+
+permissions:
+  contents: write
+
+# Scores and media share the snapshot tree. Publish them in sequence.
+concurrency:
+  group: refresh-jets-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+      VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Require production edition verification
+        run: node --input-type=module -e 'import { publicSiteOrigin } from "./scripts/verify-published-data.mjs"; publicSiteOrigin(process.env.PUBLIC_SITE_URL);'
+      - run: npm run test:data
+      - run: npm run data:media
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+      - name: Detect media changes
+        id: snapshot
+        run: |
+          git add -- public/data/media.json
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.snapshot.outputs.changed == 'true'
+        run: npm run lint
+      - if: steps.snapshot.outputs.changed == 'true'
+        run: npm run build
+      - if: steps.snapshot.outputs.changed == 'true'
+        run: npm run test:performance
+      - if: steps.snapshot.outputs.changed == 'true'
+        name: Use the runner's Chrome for Playwright
+        run: |
+          if command -v google-chrome >/dev/null; then google-chrome --version; exit 0; fi
+          for attempt in 1 2 3; do npx playwright install --with-deps chrome && exit 0; sleep 15; done
+          exit 1
+      - if: steps.snapshot.outputs.changed == 'true'
+        name: Verify media and the pages that carry it
+        run: npx playwright test tests/inline-media.spec.ts tests/media-data.spec.ts tests/media-focus.spec.ts tests/media-interactions.spec.ts tests/media-playback.spec.ts tests/media-thumbnails.spec.ts tests/media-rants.spec.ts tests/homepage.spec.ts tests/season-data.spec.ts tests/season-interactions.spec.ts --workers=2
+      - name: Publish validated media
+        if: steps.snapshot.outputs.changed == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'data: refresh Jets media releases'
+          git push
+      - name: Request deployment through configured hook
+        if: steps.snapshot.outputs.changed == 'true' && env.VERCEL_DEPLOY_HOOK != ''
+        run: |
+          curl --fail --silent --show-error --retry 3 --max-time 60 \
+            --request POST "$VERCEL_DEPLOY_HOOK" --output /dev/null
+      - name: Verify the exact published edition
+        if: steps.snapshot.outputs.changed == 'true'
+        run: node scripts/verify-published-data.mjs --origin "$PUBLIC_SITE_URL"

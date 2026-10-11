@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
-import { formatMediaDate, mediaImage, type MediaItem, type MediaOutlet, type MediaSource } from "@/lib/media";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { formatMediaDate, type MediaItem, type MediaOutlet, type MediaSource } from "@/lib/media";
 import { seasonReturn } from "@/lib/season-navigation";
 import SeasonReturn from "./SeasonReturn";
+import InlineMedia from "./InlineMedia";
 import styles from "./MediaRoom.module.css";
 
 const ROOM_EVENT = "ajetsfan:media-selection";
@@ -15,13 +15,11 @@ const kindNames: Record<MediaItem["kind"], string> = { video: "Video", post: "X 
 const outletNames: Record<MediaOutlet["kind"], string> = { beat: "Beat reporting", tv: "Television", radio: "Sports radio", official: "Official team coverage", independent: "Independent coverage" };
 const dateLabel = formatMediaDate;
 const gridClass: Record<MediaItem["kind"], string> = { video: styles.watchGrid, post: styles.postGrid, article: styles.rowGrid, audio: `${styles.rowGrid} ${styles.audioGrid}` };
-const cardSizes: Record<MediaItem["kind"], string> = { video: "(max-width: 699px) 50vw, (max-width: 1099px) 33vw, 250px", post: "36px", article: "(max-width: 699px) 112px, 176px", audio: "(max-width: 699px) 72px, 100px" };
+const cardSizes: Record<MediaItem["kind"], string> = { video: "(max-width: 699px) calc(100vw - 48px), (max-width: 1099px) 50vw, 33vw", post: "36px", article: "(max-width: 699px) 112px, 176px", audio: "(max-width: 699px) 72px, 100px" };
 
 /** Current coverage newest first, then the archive newest first. */
 const byRecency = (a: MediaItem, b: MediaItem) => Number(a.context === "archive") - Number(b.context === "archive")
   || (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "") || a.id.localeCompare(b.id);
-const handleOf = (item: MediaItem) => new URL(item.url).pathname.split("/")[1];
-const stageOf = (item: MediaItem) => item.kind === "post" ? styles.featuredPost : !mediaImage(item) ? styles.featuredText : item.kind === "audio" ? styles.featuredSquare : "";
 
 function Published({ item }: { item: MediaItem }) {
   return item.publishedAt && Number.isFinite(Date.parse(item.publishedAt))
@@ -50,10 +48,10 @@ function writeSelection(patch: Record<string, string>, mode: "push" | "replace" 
 
 const CLEAR = { media: "", type: "", q: "", source: "", season: "", topic: "" };
 
-/** A link from outside the room that sets its selection or format, then brings that part of the room into view. */
-export function RoomLink({ media, type, className, children }: { media?: string; type?: MediaItem["kind"]; className?: string; children: React.ReactNode }) {
-  const patch = { ...CLEAR, ...(media ? { media } : {}), ...(type ? { type } : {}) };
-  const target = media ? "media-viewer-heading" : "media-results-heading";
+/** A format link that brings the matching collection into view. */
+export function RoomLink({ type, className, children }: { type?: MediaItem["kind"]; className?: string; children: React.ReactNode }) {
+  const patch = { ...CLEAR, ...(type ? { type } : {}) };
+  const target = "media-results-heading";
   const query = new URLSearchParams(Object.entries(patch).filter(([, value]) => value)).toString();
   return <a className={className} href={`?${query}#${target}`} onClick={(event) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -72,143 +70,16 @@ function ExternalLink({ item, children, className }: { item: Pick<MediaItem, "ur
   return <a className={className} href={item.url} target="_blank" rel="noopener noreferrer">{children}<span aria-hidden="true"> ↗</span><span className="sr-only"> (opens in a new tab)</span></a>;
 }
 
-/** The publisher's own picture. An item without one shows none: no stand-in artwork. */
-function Preview({ item, sizes, credit }: { item: MediaItem; sizes: string; credit?: string }) {
-  const [failed, setFailed] = useState(false);
-  const image = mediaImage(item);
-  if (!image) return null;
-  return <span className={`${styles.preview} ${item.kind === "audio" ? styles.squarePreview : ""}`} data-media-thumbnail={item.id}>
-    {failed ? null : <Image src={image.url} alt="" fill sizes={sizes} onError={() => setFailed(true)} />}
-    {credit && !failed ? <span className={styles.previewCredit}>{credit}</span> : null}
-  </span>;
-}
-
-function Avatar({ item, large = false }: { item: MediaItem; large?: boolean }) {
-  const [failed, setFailed] = useState(false);
-  const image = mediaImage(item);
-  const size = large ? 52 : 36;
-  return <span className={`${styles.avatar} ${large ? styles.avatarLarge : ""}`} data-media-thumbnail={item.id}>
-    {image && !failed ? <Image src={image.url} alt="" width={size} height={size} onError={() => setFailed(true)} /> : null}
-  </span>;
-}
-
-type XWidgets = { createTweet: (id: string, element: HTMLElement, options: Record<string, string | boolean>) => Promise<HTMLElement | undefined> };
-type XWindow = Window & { twttr?: { widgets?: XWidgets; ready?: (callback: (api: { widgets: XWidgets }) => void) => void } };
-let xSdkPromise: Promise<XWidgets> | null = null;
-
-// X's official widgets factory renders the publisher's post; no copied post text
-// or guessed iframe URLs. This loader is called only after the reader asks.
-function loadXWidgets(): Promise<XWidgets> {
-  const available = (window as XWindow).twttr?.widgets;
-  if (available?.createTweet) return Promise.resolve(available);
-  if (xSdkPromise) return xSdkPromise;
-  xSdkPromise = new Promise<XWidgets>((resolve, reject) => {
-    let settled = false;
-    const existing = document.getElementById("media-room-x-sdk") as HTMLScriptElement | null;
-    const script = existing ?? document.createElement("script");
-    const done = (widgets?: XWidgets) => {
-      if (settled) return;
-      if (!widgets?.createTweet) return;
-      settled = true;
-      window.clearTimeout(timer);
-      script.removeEventListener("load", ready);
-      script.removeEventListener("error", fail);
-      resolve(widgets);
-    };
-    const fail = () => {
-      if (settled) return;
-      settled = true;
-      window.clearTimeout(timer);
-      script.removeEventListener("load", ready);
-      script.removeEventListener("error", fail);
-      script.remove();
-      reject(new Error("X embed unavailable"));
-    };
-    const ready = () => {
-      const api = (window as XWindow).twttr;
-      if (api?.widgets?.createTweet) done(api.widgets);
-      else api?.ready?.((loaded) => done(loaded.widgets));
-    };
-    const timer = window.setTimeout(fail, 12000);
-    script.addEventListener("load", ready);
-    script.addEventListener("error", fail);
-    if (!existing) {
-      script.id = "media-room-x-sdk";
-      script.src = "https://platform.twitter.com/widgets.js";
-      script.async = true;
-      document.head.appendChild(script);
-    } else ready();
-  }).catch((error: unknown) => { xSdkPromise = null; throw error; });
-  return xSdkPromise;
-}
-
-function XPost({ item }: { item: MediaItem }) {
-  const mount = useRef<HTMLDivElement>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
-  useEffect(() => {
-    const host = mount.current;
-    if (!host || !item.tweetId) return;
-    const target = document.createElement("div");
-    host.appendChild(target);
-    let cancelled = false;
-    const timer = window.setTimeout(() => {
-      cancelled = true;
-      target.remove();
-      setStatus("failed");
-    }, 16000);
-    void loadXWidgets().then((widgets) => {
-      if (cancelled) return undefined;
-      return widgets.createTweet(item.tweetId!, target, { theme: "dark", dnt: true, conversation: "none", align: "center" });
-    }).then((element) => {
-      if (cancelled) return;
-      window.clearTimeout(timer);
-      if (element) setStatus("ready");
-      else { target.remove(); setStatus("failed"); }
-    }).catch(() => {
-      if (cancelled) return;
-      window.clearTimeout(timer);
-      target.remove();
-      setStatus("failed");
-    });
-    return () => { cancelled = true; window.clearTimeout(timer); target.remove(); };
-  }, [item.tweetId]);
-  return <div className={styles.xPost} data-media-x-status={status}>
-    {status !== "ready" ? <p role="status">{status === "loading" ? "Loading the original post from X…" : "X could not display this post. Read the original at its source below."}</p> : null}
-    <div ref={mount} className={styles.xMount} />
-  </div>;
-}
-
-function Viewer({ item, outlet }: { item: MediaItem; outlet?: MediaOutlet }) {
-  const [requested, setRequested] = useState(false);
-  const [retry, setRetry] = useState(0);
-  const youtube = item.kind === "video" && item.embedAllowed === true && !!item.youtubeId && /^[A-Za-z0-9_-]{11}$/.test(item.youtubeId);
-  const post = item.kind === "post" && !!item.tweetId && /^\d{10,25}$/.test(item.tweetId);
-  const embeddable = youtube || post;
-  const source = outlet?.name ?? item.author;
-  const load = embeddable && !requested ? <button className={`${styles.loadButton} ${youtube ? styles.loadOverlay : ""}`} type="button" data-media-load={item.id} onClick={() => setRequested(true)}><span className={styles.loadSymbol} aria-hidden="true">{post ? "X" : "▶"}</span><span>{post ? "Load original X post" : "Load video player"}<small>{post ? "From the publisher’s account" : "YouTube · playback starts when you choose"}</small></span></button> : null;
-  const stage = requested && youtube ? <div className={styles.videoFrame}><iframe src={`https://www.youtube-nocookie.com/embed/${item.youtubeId}?rel=0&playsinline=1`} title={`${item.title} — ${source}`} allow="encrypted-media; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" data-media-youtube={item.youtubeId} /></div>
-    : requested && post ? <XPost key={`${item.id}:${retry}`} item={item} />
-      : item.kind === "post" ? <div className={styles.postCard}><Avatar item={item} large /><span><strong>{item.author}</strong><span>@{handleOf(item)} · {source}</span></span></div>
-        : mediaImage(item) ? <Preview key={item.id} item={item} sizes="(max-width: 899px) calc(100vw - 2rem), 540px" credit={`Image via ${source}`} /> : null;
-  return <div className={styles.viewer} data-media-viewer={item.id} data-embed-requested={requested ? "true" : "false"}>
-    {stage || load ? <div className={styles.stage}>{stage}{load}</div> : null}
-    <div className={styles.viewerActions}><ExternalLink item={item} className={styles.sourceButton}>Open original {item.kind === "post" ? "post" : item.kind === "audio" ? "audio" : item.kind === "video" ? "video" : "article"}</ExternalLink>{requested ? <button type="button" onClick={() => { setRequested(false); setRetry((value) => value + 1); }}>Close embed</button> : null}
-      <details className={styles.embedNote} data-media-embed-guide><summary>About this player</summary><p>{embeddable ? "The player or post connects to its provider only when loaded. Availability is controlled by the publisher; the original source stays accessible." : "This item opens at its publisher. No embedded playback is available here."}</p></details></div>
-  </div>;
-}
-
-function Card({ item, outletName, selected, compared, full, onSelect, onCompare }: { item: MediaItem; outletName: string; selected: boolean; compared: boolean; full: boolean; onSelect: () => void; onCompare: () => void }) {
-  const textOnly = item.kind !== "post" && !mediaImage(item);
-  return <li className={`${styles.card} ${textOnly ? styles.textOnly : ""} ${selected ? styles.activeStory : ""}`} data-media-card={item.id}>
-    <button type="button" className={styles.storySelect} onClick={onSelect} aria-pressed={selected} data-media-select={item.id}>
-      {item.kind === "post" ? null : <Preview item={item} sizes={cardSizes[item.kind]} />}
+function Card({ item, outletName, selected, compared, full, onSelect, onClose, onCompare, children }: { item: MediaItem; outletName: string; selected: boolean; compared: boolean; full: boolean; onSelect: () => void; onClose: () => void; onCompare: () => void; children?: ReactNode }) {
+  return <li className={`${styles.card} ${selected ? styles.activeStory : ""}`} data-media-card={item.id}>
+    <InlineMedia item={item} outletName={outletName} selected={selected} onSelect={onSelect} onClose={onClose} triggerClassName={styles.storySelect} sizes={cardSizes[item.kind]} preview={item.kind !== "post"}>
       <span className={styles.storyText}>
-        {item.kind === "post" ? <span className={styles.postHead}><Avatar item={item} /><span><b>{item.author}</b><span>{outletName}</span></span></span>
-          : <span className={styles.cardMeta}>{outletName}{item.context === "archive" ? <span> · Archive</span> : null}</span>}
+        <span className={styles.cardMeta}>{outletName}{item.context === "archive" ? <span> · Archive</span> : null}</span>
         <strong>{item.title}</strong>
         {item.kind === "video" ? null : <span className={styles.cardSummary}>{item.summary}</span>}
       </span>
-    </button>
+    </InlineMedia>
+    {selected ? children : null}
     <div className={styles.cardFoot}><span className={styles.cardDate}><Published item={item} /></span><button type="button" className={styles.cardCompare} onClick={onCompare} aria-pressed={compared} disabled={full && !compared} aria-label={`${compared ? "Remove" : "Add"} ${item.title} ${compared ? "from" : "to"} comparison`} data-media-card-compare={item.id}><span>{compared ? "Added −" : "Compare +"}</span></button></div>
   </li>;
 }
@@ -225,17 +96,19 @@ export default function MediaRoom({ items, outlets, checkedAt, sources, curatedC
   const query = (params.get("q") ?? "").slice(0, 160);
   const filterKey = `${season}\n${topic}\n${source}\n${type}\n${query}`;
   const [expanded, setExpanded] = useState<{ filters: string; counts: Partial<Record<MediaItem["kind"], number>> }>({ filters: "", counts: {} });
-  const shown = (kind: MediaItem["kind"]) => expanded.filters === filterKey ? expanded.counts[kind] ?? 8 : 8;
   const outletById = useMemo(() => new Map(outlets.map((outlet) => [outlet.id, outlet])), [outlets]);
   const filtered = useMemo(() => items.filter((item) => (!topic || item.topics.includes(topic)) && (!source || item.outletId === source) && (!type || item.kind === type) && (!season || item.seasons?.some((year) => String(year) === season)) && (!query || `${item.title} ${item.summary} ${item.author} ${outletById.get(item.outletId)?.name ?? ""} ${item.topics.join(" ")}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()))), [items, topic, source, type, season, query, outletById]);
   const selected = filtered.find((item) => item.id === params.get("media"));
-  const selectedOutlet = selected ? outletById.get(selected.outletId) : undefined;
   const [compared, setCompared] = useState<string[]>([]);
   const comparison = compared.flatMap((id) => { const item = items.find((candidate) => candidate.id === id); return item ? [item] : []; });
   const [share, setShare] = useState<{ search: string; message: string; url?: string } | null>(null);
   const copyRequest = useRef(0);
-  const returnPosition = useRef<{ id: string; viewportTop: number } | null>(null);
   const groups = kinds.map((kind) => ({ kind, entries: filtered.filter((item) => item.kind === kind).sort(byRecency) })).filter(({ entries }) => entries.length);
+  const shown = (kind: MediaItem["kind"]) => {
+    const limit = expanded.filters === filterKey ? expanded.counts[kind] ?? 8 : 8;
+    const selectedIndex = filtered.filter((item) => item.kind === kind).sort(byRecency).findIndex((item) => item.id === params.get("media"));
+    return Math.max(limit, selectedIndex + 1);
+  };
   const visibleOutlets = outlets.map((outlet) => ({ outlet, count: filtered.filter((item) => item.outletId === outlet.id).length })).filter(({ count }) => count > 0);
   const largestCount = Math.max(1, ...visibleOutlets.map(({ count }) => count));
   const dated = items.filter((item) => item.publishedAt && Number.isFinite(Date.parse(item.publishedAt))).map((item) => item.publishedAt!).sort((a, b) => Date.parse(a) - Date.parse(b));
@@ -252,7 +125,9 @@ export default function MediaRoom({ items, outlets, checkedAt, sources, curatedC
     if (!new URLSearchParams(search).get("media")) return;
     const hash = window.location.hash.slice(1);
     if (hash && hash !== "media-viewer-heading" && hash !== "media-selected-coverage" && document.getElementById(hash)) return;
-    document.getElementById("media-selected-coverage")?.scrollIntoView({ block: "start", behavior: "instant" });
+    const id = new URLSearchParams(search).get("media");
+    const card = id ? document.querySelector<HTMLElement>(`[data-media-card="${CSS.escape(id)}"]`) : null;
+    card?.scrollIntoView({ block: "center", behavior: "instant" });
   }, [search]);
   useEffect(() => {
     const invalidate = () => { copyRequest.current += 1; };
@@ -268,30 +143,16 @@ export default function MediaRoom({ items, outlets, checkedAt, sources, curatedC
   function chooseFilter(patch: Record<string, string>, mode: "push" | "replace" = "push") { writeSelection({ media: "", ...patch }, mode); }
   function resetFilters() { writeSelection(Object.fromEntries(ROOM_KEYS.map((key) => [key, ""]))); }
   function viewSelection(id: string) {
-    const card = document.querySelector<HTMLElement>(`[data-media-select="${CSS.escape(id)}"]`);
-    returnPosition.current = { id, viewportTop: card?.getBoundingClientRect().top ?? 0 };
+    arrived.current = true;
     writeSelection({ media: id });
-    window.requestAnimationFrame(() => {
-      document.getElementById("media-viewer-heading")?.focus({ preventScroll: true });
-      document.getElementById("media-selected-coverage")?.scrollIntoView({ block: "start", behavior: "instant" });
-    });
   }
   function backToResults() {
-    const destination = returnPosition.current;
-    const id = selected?.id ?? destination?.id;
-    const group = groups.find(({ entries }) => entries.some((item) => item.id === id));
+    const group = groups.find(({ entries }) => entries.some((item) => item.id === selected?.id));
     if (group) {
-      const required = group.entries.findIndex((item) => item.id === id) + 1;
-      if (required > shown(group.kind)) setExpanded({ filters: filterKey, counts: { ...(expanded.filters === filterKey ? expanded.counts : {}), [group.kind]: Math.ceil(required / 8) * 8 } });
+      const required = group.entries.findIndex((item) => item.id === selected?.id) + 1;
+      setExpanded({ filters: filterKey, counts: { ...(expanded.filters === filterKey ? expanded.counts : {}), [group.kind]: Math.max(shown(group.kind), Math.ceil(required / 8) * 8) } });
     }
     writeSelection({ media: "" });
-    window.requestAnimationFrame(() => {
-      const card = id ? document.querySelector<HTMLElement>(`[data-media-select="${CSS.escape(id)}"]`) : null;
-      const target = card ?? document.getElementById("media-results-heading");
-      target?.focus({ preventScroll: true });
-      if (card && destination && destination.id === id) window.scrollTo({ top: Math.max(0, window.scrollY + card.getBoundingClientRect().top - destination.viewportTop), behavior: "instant" });
-      else target?.scrollIntoView({ block: "center", behavior: "instant" });
-    });
   }
   function followTopic(topic: string) {
     chooseFilter({ topic });
@@ -338,28 +199,22 @@ export default function MediaRoom({ items, outlets, checkedAt, sources, curatedC
       <div className={styles.topicStrip} role="group" aria-label="Coverage topics"><span className={styles.topicLabel}>Topics</span><button type="button" aria-pressed={!topic} onClick={() => chooseFilter({ topic: "" })}>All topics</button>{topicList.map((tag) => <button type="button" key={tag} aria-pressed={topic === tag} onClick={() => chooseFilter({ topic: topic === tag ? "" : tag })} data-media-topic={tag}>{tag}<span>{items.filter((item) => item.topics.includes(tag)).length}</span></button>)}</div>
     </details>
 
-    {selected ? <div id="media-selected-coverage" className={`${styles.featured} ${stageOf(selected)}`}>
-      <div className={styles.selectedNav}><button type="button" onClick={backToResults} data-media-back-results>← Back to results</button><span>{selected.context === "archive" ? "From the archive" : "Current coverage"}</span></div>
-      <Viewer key={selected.id} item={selected} outlet={selectedOutlet} />
-      <article className={styles.context} data-media-context={selected.id}>
-        <p className={styles.itemMeta}><span>{selectedOutlet?.name ?? selected.author}</span><span>{kindNames[selected.kind]}</span></p>
-        <h3 id="media-viewer-heading" tabIndex={-1}>{selected.title}</h3>
-        <p className={styles.byline}>{selected.author} · Published <Published item={selected} /></p>
-        <p className={styles.seasonContext}>{selected.seasons?.length ? `Football season: ${selected.seasons.join(" / ")}` : "Football season not established by this source"}</p>
-        <p className={styles.selectedSummary}>{selected.summary}</p>
-        <div className={styles.contextActions}><button type="button" onClick={() => compare(selected)} disabled={compared.length === 2 && !compared.includes(selected.id)} aria-pressed={compared.includes(selected.id)} data-media-compare={selected.id}>{compared.includes(selected.id) ? "Remove from comparison" : "Add to comparison"}<span aria-hidden="true"> {compared.includes(selected.id) ? "−" : "+"}</span></button><button type="button" onClick={copyLink} data-media-share>Copy selection link <span aria-hidden="true">↗</span></button></div>
-        {share?.search === search ? <div className={styles.shareStatus}><p role="status">{share.message}</p>{share.url ? <label>Selection link<input readOnly value={share.url} onFocus={(event) => event.currentTarget.select()} /></label> : null}</div> : null}
-        <details className={styles.storyDetails}><summary>Related topics</summary><div className={styles.selectedTopics}>{selected.topics.map((tag) => <button type="button" key={tag} onClick={() => followTopic(tag)}>{tag}<span aria-hidden="true"> ↗</span></button>)}</div></details>
-      </article>
-    </div> : null}
-
     {comparison.length ? <section className={styles.comparison} aria-labelledby="media-compare-heading" data-media-comparison><header><h3 id="media-compare-heading">Compare coverage<span>{comparison.length} of 2</span></h3><button type="button" onClick={() => setCompared([])}>Clear comparison <span aria-hidden="true">×</span></button></header><div className={styles.compareGrid}>{comparison.map((item) => <article key={item.id} data-media-compared={item.id}><p className={styles.itemMeta}><span>{outletById.get(item.outletId)?.name ?? item.author}</span><span>{kindNames[item.kind]}</span></p><h4>{item.title}</h4><p className={styles.byline}>{item.author} · <Published item={item} /></p><p>{item.summary}</p><div className={styles.compareTags}>{item.topics.map((tag) => <span key={tag} data-shared-topic={comparison.length === 2 && comparison.every((entry) => entry.topics.includes(tag)) ? "true" : "false"}>{tag}</span>)}</div><div className={styles.compareActions}><ExternalLink item={item}>Open original</ExternalLink><button type="button" onClick={() => compare(item)} aria-label={`Remove ${item.title} from comparison`}>Remove <span aria-hidden="true">×</span></button></div></article>)}{comparison.length === 1 ? <p className={styles.compareEmpty}>Select another story and add it to comparison to read the two summaries, dates and topics side by side.</p> : null}</div>{comparison.length === 2 ? <details className={styles.compareNote}><summary>Comparison guide</summary><p>Highlighted tags occur in both items. Matching topics are not proof that the reporting agrees.</p></details> : null}</section> : null}
 
     <div className={styles.collectionHeader}><h3 id="media-results-heading" tabIndex={-1}>{topic || (source ? outletById.get(source)?.name : season ? `${season} coverage` : "Browse coverage")}</h3><div className={styles.resultSummary}><p role="status" data-media-results>{filtered.length} {filtered.length === 1 ? "item" : "items"}{activeFilters ? " match your filters" : " in the collection"}</p>{activeFilters ? <button type="button" onClick={resetFilters} data-media-reset>Clear filters <span aria-hidden="true">×</span></button> : null}</div></div>
     {filtered.length ? <div>
       {groups.map(({ kind, entries }) => <section key={kind} className={styles.group} aria-labelledby={`media-group-${kind}`} data-media-group={kind}>
         <h4 id={`media-group-${kind}`} className={styles.groupHead}>{kindLabels[kind]}<span>{entries.length}</span></h4>
-        <ul className={`${styles.cards} ${gridClass[kind]}`} aria-labelledby={`media-group-${kind}`}>{entries.slice(0, shown(kind)).map((item) => <Card key={item.id} item={item} outletName={outletById.get(item.outletId)?.name ?? item.author} selected={item.id === selected?.id} compared={compared.includes(item.id)} full={compared.length === 2} onSelect={() => viewSelection(item.id)} onCompare={() => compare(item)} />)}</ul>
+        <ul className={`${styles.cards} ${gridClass[kind]}`} aria-labelledby={`media-group-${kind}`}>{entries.slice(0, shown(kind)).map((item) => <Card key={item.id} item={item} outletName={outletById.get(item.outletId)?.name ?? item.author} selected={item.id === selected?.id} compared={compared.includes(item.id)} full={compared.length === 2} onSelect={() => viewSelection(item.id)} onClose={backToResults} onCompare={() => compare(item)}>{selected?.id === item.id ? (      <article className={styles.context} data-media-context={selected.id}>
+        <p className={styles.itemMeta}><span>{outletById.get(selected.outletId)?.name ?? selected.author}</span><span>{kindNames[selected.kind]}</span></p>
+        <h3 id={`media-viewer-heading-${selected.id}`} tabIndex={-1}>{selected.title}</h3>
+        <p className={styles.byline}>{selected.author} · Published <Published item={selected} /></p>
+        <p className={styles.seasonContext}>{selected.seasons?.length ? `Football season: ${selected.seasons.join(" / ")}` : "Football season not established by this source"}</p>
+        <p className={styles.selectedSummary}>{selected.summary}</p>
+        <div className={styles.contextActions}><button type="button" onClick={() => compare(selected)} disabled={compared.length === 2 && !compared.includes(selected.id)} aria-pressed={compared.includes(selected.id)} data-media-compare={selected.id}>{compared.includes(selected.id) ? "Remove from comparison" : "Add to comparison"}<span aria-hidden="true"> {compared.includes(selected.id) ? "−" : "+"}</span></button><button type="button" onClick={copyLink} data-media-share>Copy selection link <span aria-hidden="true">↗</span></button></div>
+        {share?.search === search ? <div className={styles.shareStatus}><p role="status">{share.message}</p>{share.url ? <label>Selection link<input readOnly value={share.url} onFocus={(event) => event.currentTarget.select()} /></label> : null}</div> : null}
+        <details className={styles.storyDetails}><summary>Related topics</summary><div className={styles.selectedTopics}>{selected.topics.map((tag) => <button type="button" key={tag} onClick={() => followTopic(tag)}>{tag}<span aria-hidden="true"> ↗</span></button>)}</div></details>
+      </article>) : null}</Card>)}</ul>
         {entries.length > shown(kind) ? <button type="button" className={styles.moreStories} data-media-more={kind} onClick={() => setExpanded({ filters: filterKey, counts: { ...(expanded.filters === filterKey ? expanded.counts : {}), [kind]: shown(kind) + 8 } })}>Show more {kindLabels[kind].toLowerCase()} stories <span>({entries.length - shown(kind)} remaining)</span></button> : null}
       </section>)}
       <details className={styles.coverageDisclosure} data-media-source-bars><summary>Explore by source<span>{visibleOutlets.length} outlets</span></summary>

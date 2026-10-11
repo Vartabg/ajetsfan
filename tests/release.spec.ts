@@ -2,12 +2,14 @@ import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import type { CurrentSnapshot } from "../src/lib/current";
 import type { CoverageSnapshot } from "../src/lib/coverage";
+import type { MediaCollection } from "../src/lib/media";
 import { siteOrigin, indexableSite } from "../src/lib/site";
 import { telemetryUrl } from "../src/lib/telemetry";
 import { editionHealth } from "../src/lib/edition-health";
 
 const current = JSON.parse(readFileSync("public/data/current.json", "utf8")) as CurrentSnapshot;
 const coverage = JSON.parse(readFileSync("public/data/coverage.json", "utf8")) as CoverageSnapshot;
+const media = JSON.parse(readFileSync("public/data/media.json", "utf8")) as MediaCollection;
 const now = Date.parse("2026-10-01T03:00:00Z");
 const checkedAt = new Date(now - 60_000).toISOString();
 const freshCurrent = { ...current, checkedAt, analysisCheck: { attemptedAt: checkedAt, checkedAt, status: "ready" as const, reason: null } };
@@ -108,12 +110,16 @@ test("deployed health exposes this edition with live freshness and no-cache diag
   expect(health.checkedAt).toBe(current.checkedAt);
   expect(health.feeds.results.checkedAt).toBe(current.checkedAt);
   for (const name of ["media", "rankings", "nextgen", "trades"]) expect(health.feeds[name]).toBeDefined();
-  expect(Object.keys(health.mediaSources)).toHaveLength(10);
+  const sources = media.sources ?? [];
+  expect(sources.length).toBeGreaterThan(0);
+  expect(Object.keys(health.mediaSources).sort()).toEqual(sources.map((source) => source.id).sort());
+  for (const source of sources) expect(health.mediaSources[source.id].checkedAt).toBe(source.checkedAt);
+  expect(health.feeds.media.checkedAt).toBe(sources.some((source) => !source.checkedAt) ? null : sources.map((source) => source.checkedAt!).sort()[0]);
   expect(JSON.stringify(health)).not.toMatch(/stack|Users\/|token|password/i);
 });
 
 test("each desk supplies its own share title and a branded 1200×630 PNG", async ({ page, request }) => {
-  for (const path of ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/media", "/stories", "/discover", "/history", "/history/trades", "/puzzle", "/film-room", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/seasons/2010/guide"]) {
+  for (const path of ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/media", "/media/rants", "/stories", "/discover", "/history", "/history/trades", "/puzzle", "/film-room", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/seasons/2010/guide"]) {
     await page.goto(path);
     const title = await page.title();
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", title);

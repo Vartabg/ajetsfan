@@ -57,7 +57,7 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
     }, { rootMargin: "-45% 0px -54% 0px" });
     sections.forEach((section) => observer.observe(section));
     const keys = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || sheet.current?.open || event.altKey || event.ctrlKey || event.metaKey || (event.target as HTMLElement).closest("input, select, textarea, [contenteditable], [data-focus-chart], [data-focus-tools]")) return;
+      if (event.defaultPrevented || sheet.current?.open || event.altKey || event.ctrlKey || event.metaKey || (event.target as HTMLElement).closest("input, select, textarea, [contenteditable], [data-focus-chart], [data-focus-tools], [data-inline-media], video, audio")) return;
       const step = ["ArrowDown", "j"].includes(event.key) ? 1 : ["ArrowUp", "k"].includes(event.key) ? -1 : 0;
       if (!step) return;
       const middle = innerHeight / 2;

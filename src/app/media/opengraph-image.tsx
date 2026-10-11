@@ -9,6 +9,6 @@ export default function Image() {
   return ShareImage({
     eyebrow: "Beat reporting, TV, radio and film",
     title: "Media Room.",
-    detail: `${mediaCollection.items.length} checked items from ${mediaCollection.outlets.length} outlets · dated coverage that opens at the original source.`,
+    detail: `${mediaCollection.items.length} items from ${mediaCollection.outlets.length} outlets · independent Jets voices, WFAN, ESPN New York and SNY. Play and listen right here.`,
   });
 }
