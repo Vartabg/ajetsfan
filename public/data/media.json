@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-12T01:10:25.703Z",
+  "checkedAt": "2026-10-12T02:30:14.486Z",
   "curatedCheckedAt": "2026-10-08T02:01:00.000Z",
   "items": [
     {
@@ -963,6 +963,26 @@
       }
     },
     {
+      "id": "auto-new-york-post-8bff2c658cd36b56e5c211b8",
+      "title": "Aaron Glenn has plenty of reasons to smile after gritty win for not-dead-yet Jets",
+      "kind": "article",
+      "outletId": "new-york-post",
+      "author": "Brian Costello",
+      "publishedAt": "2026-10-12T02:02:35.000Z",
+      "url": "https://nypost.com/2026/10/11/sports/aaron-glenn-has-plenty-of-reasons-to-smile-after-gritty-win-for-not-dead-yet-jets/",
+      "image": {
+        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F10%2Fhead-coach-aaron-glenn-new-144681810.jpg?quality%3D90%26strip%3Dall",
+        "width": 4000,
+        "height": 2668,
+        "fingerprint": "73fd437de19d22d4"
+      },
+      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Beat reporting"
+      ],
+      "context": "current"
+    },
+    {
       "id": "auto-new-york-post-7a25fd90e0af6186623230b3",
       "title": "Heroes, zeros from Jets’ win over Browns: Defense puts up historic performance",
       "kind": "article",
@@ -979,6 +999,26 @@
       "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
       "topics": [
         "Beat reporting"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-francesa-4ec4b4bba2729df4fd269c35",
+      "title": "Giants Inexplicable Tie with the Commanders | Jets Beat the Browns",
+      "kind": "audio",
+      "outletId": "mike-francesa-podcast",
+      "author": "BetRivers Network",
+      "publishedAt": "2026-10-11T22:52:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/giants-inexplicable-tie-with-the-commanders-jets/id1615588712?i=1000795828296",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/fe/fe/91/fefe9198-eef9-c635-f0ec-f53bb49e88c9/mza_475508703759044749.jpeg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "aaa44f567024830e"
+      },
+      "summary": "Published by The Mike Francesa Podcast.",
+      "topics": [
+        "Radio analysis"
       ],
       "context": "current"
     },
@@ -1106,26 +1146,6 @@
         "height": 720,
         "fingerprint": "5065f287cc4bd74a"
       }
-    },
-    {
-      "id": "auto-new-york-post-5bc74ad927d51d541a40a6db",
-      "title": "David Bailey & Jets Defense hold on for 17-12 win over Browns POSTGAME REACTION",
-      "kind": "video",
-      "outletId": "new-york-post",
-      "author": "rsampsonnyp",
-      "publishedAt": "2026-10-11T20:41:53.000Z",
-      "url": "https://nypost.com/video/david-bailey-jets-defense-hold-on-for-17-12-win-over-browns-postgame-reaction/",
-      "image": {
-        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F10%2FGANGS-WP-THUMB-3.png",
-        "width": 2000,
-        "height": 1333,
-        "fingerprint": "f0bd60402391d577"
-      },
-      "summary": "Published by New York Post Jets.",
-      "topics": [
-        "Beat reporting"
-      ],
-      "context": "current"
     },
     {
       "id": "auto-jets-talk-247-41fe4b7f9f22fa6563505e4a",
@@ -2143,26 +2163,6 @@
       "context": "current"
     },
     {
-      "id": "auto-francesa-a301529aa79fc4f33ec7093f",
-      "title": "Mike Francesa Reacts: Giants Beat Cardinals, Jets Fall To Bears",
-      "kind": "audio",
-      "outletId": "mike-francesa-podcast",
-      "author": "BetRivers Network",
-      "publishedAt": "2026-10-04T21:37:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/mike-francesa-reacts-giants-beat-cardinals-jets-fall/id1615588712?i=1000793145150",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/fe/fe/91/fefe9198-eef9-c635-f0ec-f53bb49e88c9/mza_475508703759044749.jpeg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "aaa44f567024830e"
-      },
-      "summary": "Published by The Mike Francesa Podcast.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
       "id": "auto-benigno-4ec87bb173641c8f35c3e381",
       "title": "It’s our Weekend Sports Preview!",
       "kind": "audio",
@@ -2447,9 +2447,9 @@
       "id": "jets-x-factor",
       "name": "Jets X-Factor",
       "url": "https://jetsxfactor.com/feed/",
-      "status": "ready",
+      "status": "retained",
       "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2457,8 +2457,8 @@
       "name": "New York Post Jets",
       "url": "https://nypost.com/tag/new-york-jets/feed/",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2467,7 +2467,7 @@
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCt8ZeGlv3VM8jLYO_EoDMPw",
       "status": "retained",
       "checkedAt": "2026-10-11T19:44:39.588Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2476,7 +2476,7 @@
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLJ2gpZBFl2ytuVlbNo9xAA",
       "status": "retained",
       "checkedAt": "2026-10-12T00:38:53.720Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2485,7 +2485,7 @@
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCPrLo3MozRhkbV-XCPsQxDg",
       "status": "retained",
       "checkedAt": "2026-10-11T19:44:39.588Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 2
     },
     {
@@ -2494,7 +2494,7 @@
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLS0BYK5W7eT_SxW6pQA19w",
       "status": "retained",
       "checkedAt": "2026-10-11T19:44:39.588Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2502,8 +2502,8 @@
       "name": "GreenBean Jetsfan",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC3gaW1ds7Q0fy51vA0J5y2g",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 2
     },
     {
@@ -2512,7 +2512,7 @@
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCNfqKk4bSwaBNPnPSo6eZ4w",
       "status": "retained",
       "checkedAt": "2026-10-11T19:44:39.588Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2521,7 +2521,7 @@
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCJ_CFZh_SqFLp6-71wdakVw",
       "status": "retained",
       "checkedAt": "2026-10-12T00:38:53.720Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 2
     },
     {
@@ -2530,7 +2530,7 @@
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCT6QwygPvX84-Y_fQryCtvA",
       "status": "retained",
       "checkedAt": "2026-10-12T00:38:53.720Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 2
     },
     {
@@ -2539,7 +2539,7 @@
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCZDpKRXDSFSc6IXPMQ3GHpA",
       "status": "retained",
       "checkedAt": "2026-10-11T19:44:39.588Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2547,8 +2547,8 @@
       "name": "DiPietro & Rothenberg",
       "url": "https://itunes.apple.com/lookup?id=928624712&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 2
     },
     {
@@ -2556,8 +2556,8 @@
       "name": "Don, Hahn & Rosenberg",
       "url": "https://itunes.apple.com/lookup?id=1788585041&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 2
     },
     {
@@ -2566,7 +2566,7 @@
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCL_OEjsHTwsHK6WKWs7s7Uw",
       "status": "retained",
       "checkedAt": "2026-10-11T19:44:39.588Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2575,7 +2575,7 @@
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCSZ8QL2xzTHzW4ucCy1cjog",
       "status": "retained",
       "checkedAt": "2026-10-11T19:44:39.588Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2583,8 +2583,8 @@
       "name": "Boomer & Gio",
       "url": "https://itunes.apple.com/lookup?id=386001601&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2592,8 +2592,8 @@
       "name": "Evan & Tiki",
       "url": "https://itunes.apple.com/lookup?id=386002649&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2601,8 +2601,8 @@
       "name": "The Carton Show with Craig Carton & Chris McMonigle",
       "url": "https://itunes.apple.com/lookup?id=942553546&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 3
     },
     {
@@ -2610,8 +2610,8 @@
       "name": "WFAN Daily",
       "url": "https://itunes.apple.com/lookup?id=386002669&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 2
     },
     {
@@ -2620,7 +2620,7 @@
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCiL06Dv6Eygpj27Yx6MM8TA",
       "status": "retained",
       "checkedAt": "2026-10-11T19:44:39.588Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 2
     },
     {
@@ -2628,8 +2628,8 @@
       "name": "The Mike Francesa Podcast",
       "url": "https://itunes.apple.com/lookup?id=1615588712&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 4
     },
     {
@@ -2637,8 +2637,8 @@
       "name": "Oh the Pain Podcast",
       "url": "https://itunes.apple.com/lookup?id=1586455556&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 2
     },
     {
@@ -2646,8 +2646,8 @@
       "name": "Let’s Talk Jets Radio",
       "url": "https://itunes.apple.com/lookup?id=863176413&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 2
     },
     {
@@ -2655,8 +2655,8 @@
       "name": "Jets Collective",
       "url": "https://itunes.apple.com/lookup?id=1887763130&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-12T01:10:25.703Z",
-      "attemptedAt": "2026-10-12T01:10:25.703Z",
+      "checkedAt": "2026-10-12T02:30:14.486Z",
+      "attemptedAt": "2026-10-12T02:30:14.486Z",
       "itemCount": 2
     }
   ]
