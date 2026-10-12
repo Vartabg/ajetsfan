@@ -19,7 +19,7 @@ const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 /** Publisher feeds only. Each rendered destination is checked against its own publisher. */
 export const MEDIA_SOURCES = [
   { id: 'jets-x-factor', outletId: 'jets-x-factor', name: 'Jets X-Factor', url: 'https://jetsxfactor.com/feed/', type: 'rss', kind: 'article', host: 'jetsxfactor.com', pathname: /^\/(?:\d{4}\/\d{2}\/\d{2}\/|watch\/)/, videoPathname: /^\/watch\//, topics: ['Analysis'] },
-  { id: 'new-york-post', outletId: 'new-york-post', name: 'New York Post Jets', url: 'https://nypost.com/tag/new-york-jets/feed/', type: 'rss', kind: 'article', host: 'nypost.com', pathname: /^\/(?:\d{4}\/\d{2}\/\d{2}\/sports\/|video\/)/, videoPathname: /^\/video\//, topics: ['Beat reporting'] },
+  { id: 'new-york-post', outletId: 'new-york-post', name: 'New York Post Jets', url: 'https://nypost.com/tag/new-york-jets/feed/', type: 'rss', kind: 'article', host: 'nypost.com', pathname: /^\/(?:\d{4}\/\d{2}\/\d{2}\/sports\/|video\/)/, excludedPathname: /^\/\d{4}\/\d{2}\/\d{2}\/betting\//, videoPathname: /^\/video\//, topics: ['Beat reporting'] },
   { id: 'jake-asman', outletId: 'jake-asman-show', name: 'The Jake Asman Show', url: youtubeSource('UCt8ZeGlv3VM8jLYO_EoDMPw'), channelId: 'UCt8ZeGlv3VM8jLYO_EoDMPw', type: 'youtube', kind: 'video', topics: ['Fan analysis'], jetsOnly: true },
   { id: 'bt-unleashed', outletId: 'bt-unleashed', name: 'BT Unleashed', url: youtubeSource('UCLJ2gpZBFl2ytuVlbNo9xAA'), channelId: 'UCLJ2gpZBFl2ytuVlbNo9xAA', type: 'youtube', kind: 'video', topics: ['Fan analysis'], jetsOnly: true },
   { id: 'jets-central', outletId: 'jets-central', name: 'Jets Central', url: youtubeSource('UCPrLo3MozRhkbV-XCPsQxDg'), channelId: 'UCPrLo3MozRhkbV-XCPsQxDg', type: 'youtube', kind: 'video', topics: ['Fan analysis'], jetsOnly: true },
@@ -138,7 +138,13 @@ export function parseMediaSource(text, source, now = new Date(), imageHints = ne
       if (!feed || !rows(feed.item).length) throw new Error('Publisher RSS has no items');
       for (const entry of rows(feed.item).slice(0, 240)) {
         const url = new URL(canonicalMediaUrl(entry.link));
-        if (url.hostname !== source.host || !source.pathname.test(url.pathname)) throw new Error('RSS destination publisher mismatch');
+        if (url.hostname !== source.host) throw new Error('RSS destination publisher mismatch');
+        if (!source.pathname.test(url.pathname)) {
+          // A Jets tag can include other publisher sections. Only explicitly
+          // excluded same-publisher paths are skipped; unexpected links fail.
+          if (source.excludedPathname?.test(url.pathname)) { excludedUrls.add(url.href); continue; }
+          throw new Error('RSS destination publisher mismatch');
+        }
         if (source.jetsOnly && !jetsRelevant(entry.title ?? '', entry.description ?? '')) { excludedUrls.add(url.href); continue; }
         const itemSource = source.videoPathname?.test(url.pathname) ? { ...source, kind: 'video' } : source;
         const item = itemFrom({ title: entry.title, publishedAt: entry.pubDate, url: url.href, author: entry['dc:creator'] ?? entry.author ?? source.name }, itemSource, now);

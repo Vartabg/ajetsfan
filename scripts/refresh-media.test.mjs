@@ -109,6 +109,75 @@ test('WordPress numeric entities and first-party film routes preserve readable v
   }
 });
 
+test('NYPost Jets reporting imports even when the same tag feed also carries betting articles', () => {
+  const source = MEDIA_SOURCES.find((value) => value.id === 'new-york-post');
+  const destination = (url, title = 'Jets &amp; Browns practice') => xmlItem().replace('https://www.newyorkjets.com/news/practice', url).replace('Jets &amp; Browns practice', title);
+  const article = 'https://nypost.com/2026/10/09/sports/jets-browns-game-report/';
+  const video = 'https://nypost.com/video/jets-browns-reaction/';
+  const promotions = [
+    'https://nypost.com/2026/10/09/betting/fanatics-sportsbook-promo-code/',
+    'https://nypost.com/2026/10/09/betting/jets-browns-prediction-best-bet/',
+  ];
+  const excluded = new Set();
+  const items = parseMediaSource(rss(destination(promotions[0], 'Jets sportsbook offer'), destination(article), destination(promotions[1], 'Jets best bet'), destination(video)), source, now, new Map(), excluded);
+  assert.deepEqual(items.map((item) => item.url).sort(), [article, video].sort());
+  assert.equal(items.find((item) => item.url === article).kind, 'article');
+  assert.equal(items.find((item) => item.url === video).kind, 'video');
+  assert.deepEqual([...excluded].sort(), promotions.sort());
+  assert.deepEqual(parseMediaSource(rss(...promotions.map((url) => destination(url))), source, now), []);
+});
+
+test('NYPost betting exclusions never bypass publisher, private destination or malformed link checks', () => {
+  const source = MEDIA_SOURCES.find((value) => value.id === 'new-york-post');
+  const link = (url) => xmlItem().replace('https://www.newyorkjets.com/news/practice', url);
+  const betting = link('https://nypost.com/2026/10/09/betting/irrelevant-promotion/');
+  for (const destination of [
+    'https://jetsxfactor.com/2026/10/09/betting/jets-offer/',
+    'https://nypost.com/2026/10/09/unknown/jets-report/',
+    'https://nypost.com/private/jets-report/',
+    'https://127.0.0.1/2026/10/09/betting/jets-offer/',
+    'http://nypost.com/2026/10/09/betting/jets-offer/',
+    'https://user:password@nypost.com/2026/10/09/betting/jets-offer/',
+    'https://nypost.com.evil.example/2026/10/09/betting/jets-offer/',
+    'not-a-url',
+  ]) assert.throws(() => parseMediaSource(rss(betting, link(destination)), source, now), /Unsafe|publisher mismatch/, destination);
+  assert.throws(() => parseMediaSource(rss(betting, xmlItem().replace('<link>https://www.newyorkjets.com/news/practice</link>', '')), source, now), /Unsafe/);
+});
+
+test('NYPost recovery advances its source check while real source failures retain the last valid reporting', async () => {
+  const source = MEDIA_SOURCES.find((value) => value.id === 'new-york-post');
+  const publisher = { id: source.outletId, name: source.name, kind: 'beat', url: 'https://nypost.com/', people: ['Reporter'] };
+  const ownCurated = { checkedAt: oldCheck, items: [], outlets: [publisher] };
+  const article = (slug) => xmlItem().replace('https://www.newyorkjets.com/news/practice', `https://nypost.com/2026/10/09/sports/${slug}/`);
+  const initial = await refresh({ curated: ownCurated, sources: [source], fetcher: fetcher(new Map([[source.url, rss(article('jets-preview'))]])) });
+  const later = new Date('2026-10-10T22:00:00Z');
+  const betting = xmlItem().replace('https://www.newyorkjets.com/news/practice', 'https://nypost.com/2026/10/09/betting/jets-promotion/');
+  const result = await refresh({ curated: ownCurated, previous: initial, now: later, sources: [source],
+    fetcher: fetcher(new Map([[source.url, rss(betting, article('jets-recap'))]])),
+  });
+  assert.equal(result.sources[0].status, 'ready');
+  assert.equal(result.sources[0].checkedAt, later.toISOString());
+  assert.equal(result.sources[0].attemptedAt, later.toISOString());
+  assert.equal(result.items.length, 2);
+  assert.equal(result.items.some((item) => item.url.endsWith('/jets-recap/')), true);
+  assert.equal(result.items.some((item) => item.url.includes('/betting/')), false);
+  const attempted = new Date('2026-10-11T22:00:00Z');
+  for (const failure of [
+    new Error('timeout'),
+    '<rss><channel>',
+    rss(betting, article('bad-date').replace('Fri, 09 Oct 2026 20:00:00 GMT', 'yesterday')),
+    rss(betting, article('wrong-publisher').replace('https://nypost.com/', 'https://jetsxfactor.com/')),
+  ]) {
+    const retained = await refresh({ curated: ownCurated, previous: result, now: attempted, sources: [source],
+      fetcher: fetcher(new Map([[source.url, failure]])),
+    });
+    assert.equal(retained.sources[0].status, 'retained');
+    assert.equal(retained.sources[0].checkedAt, later.toISOString());
+    assert.equal(retained.sources[0].attemptedAt, attempted.toISOString());
+    assert.deepEqual(retained.items, result.items);
+  }
+});
+
 test('malformed XML, entities and cross-publisher RSS destinations are rejected', () => {
   assert.throws(() => parseMediaSource('<rss><channel>', news, now), /XML/);
   assert.throws(() => parseMediaSource('<!DOCTYPE rss [<!ENTITY x SYSTEM "file:///etc/passwd">]>' + rss(xmlItem()), news, now), /XML/);
