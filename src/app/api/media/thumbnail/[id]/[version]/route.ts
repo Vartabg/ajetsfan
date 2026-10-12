@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { createElement as h } from "react";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { mediaCollection } from "@/lib/media-catalog";
+import { loadMediaAssetCollections } from "@/lib/load-media";
 import { formatMediaDate } from "@/lib/media";
 import { mediaAssetVersion } from "@/lib/media-asset-paths.mjs";
 
@@ -12,9 +12,11 @@ const font = readFile(path.join(process.cwd(), "public/fonts/Anton-Regular.ttf")
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string; version: string }> }) {
   if (new URL(_request.url).search) return new Response("Media not found", { status: 404 });
   const { id, version } = await params;
-  const item = mediaCollection.items.find((entry) => entry.id === id);
+  const collections = await loadMediaAssetCollections();
+  const mediaCollection = collections.find((collection) => collection.items.some((item) => item.id === id && mediaAssetVersion(item, "title") === version));
+  const item = mediaCollection?.items.find((entry) => entry.id === id && mediaAssetVersion(entry, "title") === version);
   if (!item || version !== mediaAssetVersion(item, "title")) return new Response("Media not found", { status: 404 });
-  const source = mediaCollection.outlets.find((outlet) => outlet.id === item.outletId)?.name ?? item.author;
+  const source = mediaCollection!.outlets.find((outlet) => outlet.id === item.outletId)?.name ?? item.author;
   const square = item.kind === "audio";
   const width = 1600, height = square ? 1600 : 900;
   const label = { video: "WATCH", audio: "LISTEN", article: "READ", post: "POST" }[item.kind];

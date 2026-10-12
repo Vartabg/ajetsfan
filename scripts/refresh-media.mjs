@@ -300,7 +300,12 @@ export function selectAutomaticMedia(groups, curated, limit) {
   return selected.sort(newest);
 }
 
-/** Sources fail independently. A failed check never re-dates its previously verified items. */
+/**
+ * Sources fail independently. A failed check never re-dates its previously verified items.
+ * @param {{ curated: import('../src/lib/media.ts').MediaCollection, previous?: import('../src/lib/media.ts').MediaCollection | null,
+ * sources?: typeof MEDIA_SOURCES, now?: Date, fetcher?: typeof fetch, onError?: (message: string) => void,
+ * perSource?: number, maxItems?: number, youtubeApiKey?: string | null }} options
+ */
 export async function refreshMedia({ curated, previous = null, sources = MEDIA_SOURCES, now = new Date(), fetcher = fetch, onError = console.warn, perSource = 6, maxItems = curated.items.length + 60, youtubeApiKey = null }) {
   validateMediaCollection(curated);
   if (previous) validateMediaCollection(previous);

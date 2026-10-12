@@ -1,6 +1,7 @@
 import { loadSeasonArchive } from "@/lib/load-season-archive";
 import { ShareImage } from "@/lib/share-image";
 
+export const dynamic = "force-dynamic";
 export const alt = "The Jets season archive from The Back Page";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";

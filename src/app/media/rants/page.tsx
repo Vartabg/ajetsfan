@@ -3,15 +3,17 @@ import FocusMoment from "@/components/FocusMoment";
 import FocusShell from "@/components/FocusShell";
 import RantShelf from "@/components/RantShelf";
 import shared from "@/components/Focus.module.css";
-import { mediaCollection } from "@/lib/media-catalog";
+import { loadMediaCollection } from "@/lib/load-media";
 import { isJetsRant } from "@/lib/media-topics.mjs";
 import { pageMetadata } from "@/lib/site";
 import { focusFonts } from "../../focus-fonts";
 import styles from "../page.module.css";
 
+export const dynamic = "force-dynamic";
 export const metadata = pageMetadata({ path: "/media/rants", title: "Jets Rants — the meltdowns worth revisiting", description: "Revisit memorable Jets rants from Joe Benigno, Don La Greca, Brandon Tierney, Sal Licata, Mike Francesa and other voices. Play the original clips right here, alongside fresh reactions." });
 
-export default function JetsRantsPage() {
+export default async function JetsRantsPage() {
+  const mediaCollection = await loadMediaCollection();
   const { items, outlets } = mediaCollection;
   const classics = items.filter((item) => item.topics.includes("Rants") && !item.id.startsWith("auto-"));
   const fresh = items.filter((item) => item.id.startsWith("auto-") && (item.kind === "video" || item.kind === "audio") && isJetsRant(item.title))

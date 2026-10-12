@@ -79,8 +79,21 @@ export async function verifyPublishedData({
         if (attempt < attempts) await pause(intervalMs);
         continue;
       }
-      if (expected.feeds && Object.entries(expected.feeds).some(([name, checkedAt]) => health.feeds[name]?.checkedAt !== checkedAt)
-        || expected.mediaSources && Object.entries(expected.mediaSources).some(([name, checkedAt]) => health.mediaSources?.[name]?.checkedAt !== checkedAt)) {
+      if (health.mediaScheduler && !['not_configured', 'ready'].includes(health.mediaScheduler.status)) {
+        issue = 'runtime media delivery is unavailable or overdue';
+        onAttempt({ attempt, attempts, issue });
+        if (attempt < attempts) await pause(intervalMs);
+        continue;
+      }
+      // Runtime media advances independently of this Git publication. Other datasets
+      // still require their exact edition; media must be the expected edition or newer.
+      const runtimeMedia = health.mediaScheduler?.mode === 'runtime' && health.mediaScheduler?.status === 'ready'
+        && timestamp(health.mediaScheduler?.updatedAt);
+      const mediaMatches = (actual, checkedAt) => actual === checkedAt || runtimeMedia
+        && timestamp(actual) && timestamp(checkedAt) && Date.parse(actual) >= Date.parse(checkedAt);
+      if (expected.feeds && Object.entries(expected.feeds).some(([name, checkedAt]) => name === 'media'
+        ? !mediaMatches(health.feeds[name]?.checkedAt, checkedAt) : health.feeds[name]?.checkedAt !== checkedAt)
+        || expected.mediaSources && Object.entries(expected.mediaSources).some(([name, checkedAt]) => !mediaMatches(health.mediaSources?.[name]?.checkedAt, checkedAt))) {
         issue = 'a deployed source snapshot differs from the local publication';
         onAttempt({ attempt, attempts, issue });
         if (attempt < attempts) await pause(intervalMs);
