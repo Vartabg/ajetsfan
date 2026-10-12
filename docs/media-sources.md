@@ -6,6 +6,18 @@
 
 Configure the GitHub Actions repository secret `YOUTUBE_API_KEY` for the preferred YouTube Data API path. Each channel uses three list requests to verify its uploads, recording identities, exact publication dates, public visibility and embedding permission. The key is sent only in a Google API request header and is never included in browser code, URLs, snapshots or error messages. Without a configured key, discovery tries the declared Atom feed and bounded public publisher metadata; those public endpoints can be throttled. Source failures preserve the last successful check time instead of claiming a new successful check. Refresh workflows share a concurrency group, validate before committing, and verify the exact published edition. GitHub schedules can be delayed.
 
+New York Post's Jets RSS tag also includes dated `/betting/` articles. The importer explicitly excludes those same-publisher destinations while accepting `/sports/` reporting and `/video/` reactions. A betting promotion cannot prevent postgame reporting from refreshing. Publisher identity, HTTPS, safe URL checks, publication dates and genuine feed failures retain their existing validation.
+
+### YouTube API setup
+
+1. In the `ajetsfan` Google Cloud project, enable **YouTube Data API v3**. Google presents its API terms during activation.
+2. Create an API key for the media updater. Public channel/upload metadata uses an API key; it does not require an OAuth client or access to a user's private channel. See [Google's credential guide](https://developers.google.com/youtube/registering_an_application).
+3. Set **API restrictions** to **YouTube Data API v3** only. Keep **Application restrictions** at **None** for this GitHub-hosted server job; a website referrer restriction would block the updater. See [Google's key restrictions guide](https://docs.cloud.google.com/api-keys/docs/add-restrictions-api-keys).
+4. Save the key as the encrypted **repository Actions secret** `YOUTUBE_API_KEY` in [this repository's secret settings](https://github.com/Vartabg/ajetsfan/settings/secrets/actions). Do not put it in Actions variables, a `NEXT_PUBLIC_` value, source files or chat. The website's Vercel deployment does not need the key.
+5. Run **Refresh Jets media** on `master` from the Actions page. Its publication verification must pass, and [live source health](https://ajetsfan.com/api/health) must show fresh successful checks for the YouTube sources. A green workflow can still preserve failed sources, so verify their `checkedAt` and status too. Check the live Media Room for the latest relevant releases and associated artwork.
+
+The same secret is used by the full football refresh. Subsequent scheduled runs pick it up automatically. If Google rejects it, confirm the API is enabled in the key's project, the API restriction includes YouTube Data API v3 and quota is available; never expose the key while diagnosing an error.
+
 The Media collection excludes the Jets’ official outlet, its YouTube uploads and NewYorkJets.com feeds and entries. This follows the fan-focused source preference and avoids offering team videos whose primary player requires visiting the team site. Historical verification notes below are retained as research provenance; sections labeled as removed are absent from the published collection.
 
 ### Verified WFAN sources

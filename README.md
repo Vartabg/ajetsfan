@@ -110,7 +110,7 @@ Pressing a media card opens its player or available summary at the clicked posit
 
 `/media/rants` brings together original broadcaster uploads from Joe Benigno, Don La Greca, Brandon Tierney, Sal Licata and Mike Francesa. The selected archive preserves upload dates and recording context rather than inventing a ranked vote. New qualifying video and podcast headlines automatically enter Fresh frustration. The Media Room uses compact counts, proportionate headlines and content-height sections, with players remaining in their original cards.
 
-The official RSS parser validates every entry and then withholds future publication dates, preserving valid already-published items. An entirely future-dated feed retains the last verified edition. No publication date is altered.
+The RSS parser validates publisher destinations and withholds future publication dates, preserving valid already-published items. New York Post's Jets tag can include dated betting promotions; those explicitly excluded links are skipped without blocking valid sports reporting. Other unexpected paths and unsafe destinations still fail the source check. An entirely future-dated feed retains the last verified edition. No publication date is altered. YouTube API setup and release verification are documented in [media sources](docs/media-sources.md#youtube-api-setup).
 
 
 ## League ranks, NFL tracking and PFF
