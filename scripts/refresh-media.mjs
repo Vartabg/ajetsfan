@@ -300,11 +300,17 @@ export function selectAutomaticMedia(groups, curated, limit) {
   return selected.sort(newest);
 }
 
-/** Sources fail independently. A failed check never re-dates its previously verified items. */
-export async function refreshMedia({ curated, previous = null, sources = MEDIA_SOURCES, now = new Date(), fetcher = fetch, onError = console.warn, perSource = 6, maxItems = curated.items.length + 60, youtubeApiKey = null }) {
+/**
+ * Sources fail independently. A failed check never re-dates its previously verified items.
+ * @param {{ curated: import('../src/lib/media.ts').MediaCollection, previous?: import('../src/lib/media.ts').MediaCollection | null,
+ * sources?: typeof MEDIA_SOURCES, now?: Date, fetcher?: typeof fetch, onError?: (message: string) => void,
+ * perSource?: number, maxItems?: number, youtubeApiKey?: string | null, readySourceIntervalMs?: number }} options
+ */
+export async function refreshMedia({ curated, previous = null, sources = MEDIA_SOURCES, now = new Date(), fetcher = fetch, onError = console.warn, perSource = 6, maxItems = curated.items.length + 60, youtubeApiKey = null, readySourceIntervalMs = 0 }) {
   validateMediaCollection(curated);
   if (previous) validateMediaCollection(previous);
-  if (!Number.isFinite(now.getTime()) || !Number.isInteger(perSource) || perSource < 1 || perSource > 60 || !Number.isInteger(maxItems) || maxItems < curated.items.length || maxItems > 300) throw new Error('Invalid media refresh bounds');
+  if (!Number.isFinite(now.getTime()) || !Number.isInteger(perSource) || perSource < 1 || perSource > 60 || !Number.isInteger(maxItems) || maxItems < curated.items.length || maxItems > 300
+    || !Number.isInteger(readySourceIntervalMs) || readySourceIntervalMs < 0 || readySourceIntervalMs > 20 * 60_000) throw new Error('Invalid media refresh bounds');
   const attemptedAt = now.toISOString(), outlets = new Map(curated.outlets.map((outlet) => [outlet.id, outlet]));
   const request = limitRequests(), pictureCache = new Map();
   const checked = await Promise.all(sources.map(async (source) => {
@@ -312,6 +318,12 @@ export async function refreshMedia({ curated, previous = null, sources = MEDIA_S
     const old = previous?.sources?.find((entry) => entry.id === source.id && entry.url === source.url);
     const oldItems = old?.checkedAt ? previous.items.filter((item) => item.id.startsWith(prefix(source)))
       .map((item) => ({ ...item, context: contextAt(item.publishedAt, now) })) : [];
+    const readyAge = old?.checkedAt ? now.getTime() - Date.parse(old.checkedAt) : null;
+    if (old?.status === 'ready' && readyAge !== null && readyAge >= 0 && readyAge < readySourceIntervalMs) {
+      // Retrying another failed publisher must not spend healthy channels' quota or
+      // claim a new check. Keep their verified recording metadata and source dates.
+      return { source, items: oldItems.sort(newest).slice(0, perSource), state: old };
+    }
     try {
       const imageHints = new Map(), excludedUrls = new Set();
       let fresh;

@@ -13,10 +13,10 @@ import styles from "./page.module.css";
 
 type Props = { params: Promise<{ year: string }> };
 export async function generateStaticParams() {
-  return (await loadSeasonArchive()).map((season) => ({ year: String(season.year) }));
+  return (await loadSeasonArchive({ liveMedia: false })).map((season) => ({ year: String(season.year) }));
 }
 async function seasonYear(value: string) {
-  if (!/^\d{4}$/.test(value) || !(await loadSeasonArchive()).some((season) => String(season.year) === value)) notFound();
+  if (!/^\d{4}$/.test(value) || !(await loadSeasonArchive({ liveMedia: false })).some((season) => String(season.year) === value)) notFound();
   return Number(value);
 }
 export async function generateMetadata({ params }: Props) {

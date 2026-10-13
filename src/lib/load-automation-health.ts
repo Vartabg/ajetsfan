@@ -5,7 +5,7 @@ import type { AutomationHealthSources } from "./edition-health";
 import type { RankingsCollection } from "./season-rankings";
 import type { NextGenCollection } from "./nextgen-stats";
 import { isNextGenCollection } from "./nextgen-stats";
-import { mediaCollection } from "./media-catalog";
+import { loadMediaCollection } from "./load-media";
 
 async function snapshot(name: string) {
   try { return JSON.parse(await readFile(path.join(process.cwd(), "public/data", name), "utf8")); }
@@ -14,10 +14,11 @@ async function snapshot(name: string) {
 
 /** Check each dataset's own successful source check, rather than the last site build. */
 export async function loadAutomationHealth(season: number | null): Promise<AutomationHealthSources> {
-  const [rankings, nextgen, trades] = await Promise.all([
+  const [rankings, nextgen, trades, mediaCollection] = await Promise.all([
     snapshot("season-rankings.json") as Promise<RankingsCollection | null>,
     snapshot("nextgen-stats.json") as Promise<NextGenCollection | null>,
     snapshot("draft-trades.json"),
+    loadMediaCollection(),
   ]);
   if (rankings && (rankings.schemaVersion !== 1 || !Array.isArray(rankings.seasons))) throw new Error("Invalid rankings health snapshot");
   if (nextgen && !isNextGenCollection(nextgen)) throw new Error("Invalid tracking health snapshot");

@@ -11,6 +11,7 @@ import { pageMetadata } from "@/lib/site";
 import { focusFonts } from "../focus-fonts";
 import styles from "./overview.module.css";
 
+export const dynamic = "force-dynamic";
 export const metadata = pageMetadata({ path: "/seasons", title: "Jets Season Archive — results, playoffs, stories and film", description: "Explore the Jets by football season: final scores, scoring margins, playoff runs, game evidence, sourced facts, reporting and replays. Historical game coverage begins in 1999 with selected earlier moments." });
 
 const regularRecord = (season: ArchiveSeason) => seasonNumbers(phaseResults(season, "regular"));

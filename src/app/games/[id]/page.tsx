@@ -14,7 +14,7 @@ import { gameEvidence } from "@/lib/game-evidence";
 import { pageMetadata } from "@/lib/site";
 import { teamColor, teamName, venueLine } from "@/lib/teams";
 import { placeName } from "@/lib/focus";
-import { mediaCollection } from "@/lib/media-catalog";
+import { loadMediaCollection } from "@/lib/load-media";
 import { formatMediaDate, mediaForGame } from "@/lib/media";
 import { gameEditorialPhoto } from "@/lib/editorial-photos";
 import EditorialPhoto from "@/components/EditorialPhoto";
@@ -37,6 +37,7 @@ async function getCase(id: string) {
   return game;
 }
 
+export const dynamic = "force-dynamic";
 export const dynamicParams = false;
 export async function generateStaticParams() {
   return (await loadPublishedGames()).map((game) => ({ id: game.id }));
@@ -53,6 +54,7 @@ const NEW_TAB = <span className="sr-only"> (opens in a new tab)</span>;
 const KIND = { video: "Video", audio: "Audio", post: "Post", article: "Article" } as const;
 
 export default async function GamePage({ params }: Props) {
+  const mediaCollection = await loadMediaCollection();
   const game = await getCase((await params).id);
   const memory = fanMemoryForGame(game);
   const board = game.outcome === "win" ? "miracle" : "heartbreak";

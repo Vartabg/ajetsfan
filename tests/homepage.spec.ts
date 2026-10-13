@@ -18,6 +18,13 @@ const curve = lead.analysisStatus === "ready" && curveFile && existsSync(path.jo
 const focus = buildFocus({ games, snapshot, curve, media: mediaCollection });
 const record = (w: number, l: number, t: number) => `${w}–${l}${t ? `–${t}` : ""}`;
 
+test("new playable coverage remains eligible for the landing page when publisher art needs a title card", () => {
+  const video = mediaCollection.items.find((item) => item.youtubeId && item.embedAllowed !== false)!;
+  const result = buildFocus({ games, snapshot, curve, media: { ...mediaCollection, items: [{ ...video, image: null }] } });
+  expect(result.media?.id).toBe(video.id);
+  expect(result.media?.item.image).toBeNull();
+});
+
 async function axe(page: Page) {
   await page.addScriptTag({ path: path.join(process.cwd(), "node_modules/axe-core/axe.min.js") });
   return page.evaluate(async () => {

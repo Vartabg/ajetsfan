@@ -135,3 +135,19 @@ test('loopback health checks require explicit test opt-in and still match the ex
   await assert.rejects(verifyPublishedData({ ...options, expected: { season: 2026, checkedAt: 'yesterday' } }), /valid season and checkedAt/);
   await assert.rejects(verifyPublishedData({ ...options, attempts: 100 }), /bounded limits/);
 });
+
+test('newer runtime media verifies without relaxing the exact football edition or source minimums', async () => {
+  const fullExpected = { ...expected, feeds: { media: expected.checkedAt }, mediaSources: { 'wfan-videos': expected.checkedAt } };
+  const later = '2026-09-30T12:10:00.000Z';
+  const health = { ...healthy(), mediaScheduler: { mode: 'runtime', status: 'ready', updatedAt: later },
+    mediaSources: { 'wfan-videos': { status: 'ready', checkedAt: later } } };
+  health.feeds.media.checkedAt = later;
+  assert.equal((await verifyPublishedData({ ...options, expected: fullExpected, attempts: 1, fetcher: async () => response(health) })).status, 'healthy');
+  health.mediaSources['wfan-videos'].checkedAt = '2026-09-30T11:59:00.000Z';
+  await assert.rejects(verifyPublishedData({ ...options, expected: fullExpected, attempts: 1, fetcher: async () => response(health) }), /source snapshot differs/);
+});
+
+test('a fresh baked fallback cannot falsely verify an unavailable runtime scheduler', async () => {
+  const health = { ...healthy(), status: 'degraded', mediaScheduler: { mode: 'fallback', status: 'unavailable', updatedAt: null } };
+  await assert.rejects(verifyPublishedData({ ...options, attempts: 1, fetcher: async () => response(health, 503) }), /runtime media delivery/);
+});

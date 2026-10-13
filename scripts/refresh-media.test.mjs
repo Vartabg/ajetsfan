@@ -274,6 +274,76 @@ test('feed failures retain last good items and their successful-check timestamp 
   assert.deepEqual(result.items.find((item) => item.kind === 'article'), previous.items.find((item) => item.kind === 'article'));
 });
 
+test('a failed RSS retry reuses a healthy YouTube source without querying its metadata or artwork', async () => {
+  const youtube = MEDIA_SOURCES.find((value) => value.id === 'jake-asman');
+  const ownCurated = { ...curated, outlets: [...curated.outlets,
+    { id: youtube.outletId, name: 'Jake Asman', kind: 'independent', url: 'https://www.youtube.com/@JakeAsman', people: ['Jake Asman'] }] };
+  const initial = await refresh({ curated: ownCurated, sources: [news, youtube],
+    fetcher: fetcher(new Map([[news.url, rss(xmlItem())], [youtube.url, atom(youtube)]])) });
+  const previous = { ...initial, sources: initial.sources.map((source) => source.id === news.id
+    ? { ...source, status: 'retained' } : source) };
+  const attempted = new Date(now.getTime() + 5 * 60_000), requests = [];
+  const result = await refresh({ curated: ownCurated, previous, sources: [news, youtube], now: attempted,
+    readySourceIntervalMs: 8 * 60_000, youtubeApiKey: 'test-only-secret-key', fetcher: async (url) => {
+      requests.push(url);
+      return new Response('', { status: 503 });
+    } });
+  assert.deepEqual(requests, [news.url]);
+  assert.equal(result.sources.find((source) => source.id === news.id).attemptedAt, attempted.toISOString());
+  assert.deepEqual(result.sources.find((source) => source.id === youtube.id), previous.sources.find((source) => source.id === youtube.id));
+  assert.deepEqual(result.items.filter((item) => item.youtubeId), previous.items.filter((item) => item.youtubeId));
+  assert.equal(result.sources.length, 2);
+});
+
+test('healthy YouTube is queried again at the interval boundary and by default CLI refreshes', async () => {
+  const youtube = MEDIA_SOURCES.find((value) => value.id === 'jake-asman');
+  const ownCurated = { ...curated, outlets: [{ id: youtube.outletId, name: 'Jake Asman', kind: 'independent',
+    url: 'https://www.youtube.com/@JakeAsman', people: ['Jake Asman'] }] };
+  const previous = await refresh({ curated: ownCurated, sources: [youtube], fetcher: fetcher(new Map([[youtube.url, atom(youtube)]])) });
+  for (const [age, options] of [[8 * 60_000, { readySourceIntervalMs: 8 * 60_000 }], [1 * 60_000, {}]]) {
+    const attempted = new Date(now.getTime() + age), requests = [];
+    const result = await refresh({ curated: ownCurated, sources: [youtube], previous, now: attempted,
+      youtubeApiKey: 'test-only-secret-key', ...options, fetcher: async (url) => {
+      requests.push(url);
+      return new Response('', { status: 503 });
+    } });
+    assert.ok(requests.some((url) => new URL(url).hostname === 'www.googleapis.com'));
+    assert.equal(result.sources[0].status, 'retained');
+    assert.equal(result.sources[0].attemptedAt, attempted.toISOString());
+  }
+});
+
+test('a recently failed YouTube source is retried within the healthy-source interval', async () => {
+  const youtube = MEDIA_SOURCES.find((value) => value.id === 'jake-asman');
+  const ownCurated = { ...curated, outlets: [{ id: youtube.outletId, name: 'Jake Asman', kind: 'independent',
+    url: 'https://www.youtube.com/@JakeAsman', people: ['Jake Asman'] }] };
+  const initial = await refresh({ curated: ownCurated, sources: [youtube], fetcher: fetcher(new Map([[youtube.url, atom(youtube)]])) });
+  const previous = { ...initial, sources: [{ ...initial.sources[0], status: 'retained' }] };
+  const attempted = new Date(now.getTime() + 5 * 60_000), requests = [];
+  const result = await refresh({ curated: ownCurated, previous, sources: [youtube], now: attempted,
+    readySourceIntervalMs: 8 * 60_000, youtubeApiKey: 'test-only-secret-key', fetcher: async (url) => {
+      requests.push(url);
+      return new Response('', { status: 503 });
+    } });
+  assert.ok(requests.some((url) => new URL(url).hostname === 'www.googleapis.com'));
+  assert.equal(result.sources[0].status, 'retained');
+  assert.equal(result.sources[0].checkedAt, previous.sources[0].checkedAt);
+  assert.equal(result.sources[0].attemptedAt, attempted.toISOString());
+});
+
+test('future source checks cannot suppress a real request and throttle bounds are validated', async () => {
+  const previous = await refresh();
+  const earlier = new Date(now.getTime() - 1_000), requests = [];
+  await refresh({ previous, now: earlier, readySourceIntervalMs: 8 * 60_000, fetcher: async (url) => {
+    requests.push(url);
+    return new Response(rss(xmlItem()));
+  } });
+  assert.ok(requests.includes(news.url));
+  for (const interval of [-1, 0.5, 20 * 60_000 + 1, Infinity, NaN, '480000']) {
+    await assert.rejects(refresh({ readySourceIntervalMs: interval }), /Invalid media refresh bounds/);
+  }
+});
+
 test('an all-failed run advances attempts while retaining the edition success timestamp', async () => {
   const previous = await refresh();
   const result = await refresh({ previous, now: new Date('2026-10-10T22:00:00Z'), fetcher: fetcher(new Map()) });

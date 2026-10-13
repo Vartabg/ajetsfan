@@ -3,7 +3,7 @@ import type { Game } from "./games";
 import type { CurvePoint } from "./load-games";
 import { jetsPlays } from "./jets-playbook";
 import { getJetsStudy } from "./jets-snap-study";
-import { mediaImage, type MediaCollection, type MediaItem } from "./media";
+import { type MediaCollection, type MediaItem } from "./media";
 import { mediaPlayback } from "./media-playback";
 import { compactMediaItem } from "./media-asset-paths.mjs";
 import type { PlayDesign } from "./playbook";
@@ -90,9 +90,9 @@ export function buildFocus({ games, snapshot, curve, media }: { games: Game[]; s
   const study = play ? getJetsStudy(play.id) : null;
   const film = play && study ? { title: play.title, date: play.date, situation: play.situation, result: play.result, summary: play.summary, star: play.focusPlayerIds[0], design: study.design } : null;
 
-  // The newest dated item that has its publisher's picture.
+  // Missing publisher art uses the same factual title-card fallback as the room.
   const outletName = new Map(media.outlets.map((outlet) => [outlet.id, outlet.name]));
-  const pictured = media.items.filter((item) => mediaImage(item) && item.publishedAt).sort((a, b) => b.publishedAt!.localeCompare(a.publishedAt!) || a.id.localeCompare(b.id));
+  const pictured = media.items.filter((item) => item.publishedAt).sort((a, b) => b.publishedAt!.localeCompare(a.publishedAt!) || a.id.localeCompare(b.id));
   const featured = pictured.find((item) => mediaPlayback(item)) ?? pictured[0];
   const mediaMoment = featured ? { id: featured.id, title: featured.title, outlet: outletName.get(featured.outletId) ?? featured.author, publishedAt: featured.publishedAt, item: compactMediaItem(featured) } : null;
 

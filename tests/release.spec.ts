@@ -100,6 +100,30 @@ test("retained analysis never receives a fabricated successful check", () => {
   expect(editionHealth({ ...freshCurrent, checkedAt: new Date(now + 10 * 60_000).toISOString() }, freshCoverage, null, now, freshAutomation).status).toBe("unavailable");
 });
 
+test("media becomes overdue at thirty minutes even while football feeds remain fresh", () => {
+  const mediaCheck = new Date(now - 30 * 60_000).toISOString();
+  const health = editionHealth(freshCurrent, freshCoverage, null, now, { ...freshAutomation,
+    media: [{ id: "delayed-publisher", status: "ready", checkedAt: mediaCheck }] });
+  expect(health.feeds.media).toEqual({ status: "overdue", checkedAt: mediaCheck, ageMinutes: 30 });
+  expect(health.feeds.results.status).toBe("ready");
+  expect(health.status).toBe("degraded");
+});
+
+test("unauthenticated cron requests cannot refresh media and the public snapshot uses the page edition", async ({ request }) => {
+  for (const authorization of [undefined, "Bearer invalid", "Bearer ééééééé"]) {
+    const response = await request.get("/api/cron/media", { headers: authorization ? { authorization } : {} });
+    expect(response.status()).toBe(401);
+    expect(await response.json()).toEqual({ status: "unauthorized" });
+  }
+  for (const path of ["/api/media", "/data/media.json"]) {
+    const response = await request.get(path);
+    expect(response.headers()["cache-control"]).toBe("no-store");
+    const collection = await response.json();
+    expect(collection.checkedAt).toBe(media.checkedAt);
+    expect(collection.items.map((item: { id: string }) => item.id)).toEqual(media.items.map((item) => item.id));
+  }
+});
+
 test("deployed health exposes this edition with live freshness and no-cache diagnostics", async ({ request }) => {
   const response = await request.get("/api/health");
   expect([200, 503]).toContain(response.status());

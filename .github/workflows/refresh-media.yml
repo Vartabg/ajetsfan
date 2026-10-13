@@ -2,9 +2,8 @@ name: Refresh Jets media
 
 on:
   workflow_dispatch:
-  schedule:
-    # Check new releases twice an hour; game-day/full-data checks run separately.
-    - cron: '8,38 * * * *'
+  # Vercel owns the five-minute runtime timer. Keep manual dispatch as a validated
+  # repository snapshot/recovery tool, not the freshness-critical publication path.
 
 permissions:
   contents: write

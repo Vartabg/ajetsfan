@@ -10,19 +10,19 @@ export type AutomationHealthSources = {
 };
 const DAY = 24 * 60 * 60_000;
 
-function sourceHealth(feed: Pick<FeedState, "status" | "checkedAt"> | undefined, now: number): HealthFeed {
+function sourceHealth(feed: Pick<FeedState, "status" | "checkedAt"> | undefined, now: number, overdueAfter = DAY): HealthFeed {
   if (!feed) return { status: "unavailable", checkedAt: null, ageMinutes: null };
   const checked = feed.checkedAt ? Date.parse(feed.checkedAt) : NaN;
   const age = now - checked;
   if (!Number.isFinite(checked) || age < -5 * 60_000) return { status: feed.status === "unavailable" ? "unavailable" : "unknown", checkedAt: feed.checkedAt, ageMinutes: null };
-  return { status: age >= DAY ? "overdue" : feed.status, checkedAt: feed.checkedAt, ageMinutes: Math.max(0, Math.floor(age / 60_000)) };
+  return { status: age >= overdueAfter ? "overdue" : feed.status, checkedAt: feed.checkedAt, ageMinutes: Math.max(0, Math.floor(age / 60_000)) };
 }
 
 /** Operational age is based on successful checks, not source content timestamps. */
 export function editionHealth(current: CurrentSnapshot | null, coverage: CoverageSnapshot | null, analytics: SeasonAnalytics | null, now: number, automation: AutomationHealthSources = {}) {
   const sameSeason = !!current && coverage?.season === current.season;
   const results = sourceHealth(current ? { checkedAt: current.checkedAt, status: "ready" } : undefined, now);
-  const mediaSources = Object.fromEntries((automation.media ?? []).map((source) => [source.id, sourceHealth(source, now)]));
+  const mediaSources = Object.fromEntries((automation.media ?? []).map((source) => [source.id, sourceHealth(source, now, 30 * 60_000)]));
   const mediaChecks = Object.values(mediaSources);
   const media: HealthFeed = !mediaChecks.length ? sourceHealth(undefined, now) : {
     status: (["unavailable", "unknown", "overdue", "retained", "ready"] as const).find((status) => mediaChecks.some((feed) => feed.status === status))!,

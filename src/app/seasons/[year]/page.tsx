@@ -11,7 +11,7 @@ import { dayOf, record } from "@/lib/focus-format";
 import { eraOf } from "@/lib/jets-eras";
 import { loadSeasonArchive } from "@/lib/load-season-archive";
 import { loadSeasonRankings, loadNextGenSeason } from "@/lib/load-season-statistics";
-import { mediaCollection } from "@/lib/media-catalog";
+import { loadMediaCollection } from "@/lib/load-media";
 import { phaseResults, seasonNumbers } from "@/lib/season-archive";
 import { seasonArchivePresentation } from "@/lib/season-presentation";
 import { pageMetadata } from "@/lib/site";
@@ -19,8 +19,9 @@ import { focusFonts } from "../../focus-fonts";
 import styles from "./year.module.css";
 
 type Props = { params: Promise<{ year: string }> };
+export const dynamic = "force-dynamic";
 export async function generateStaticParams() {
-  return (await loadSeasonArchive()).map((season) => ({ year: String(season.year) }));
+  return (await loadSeasonArchive({ liveMedia: false })).map((season) => ({ year: String(season.year) }));
 }
 async function findSeason(year: string) {
   if (!/^\d{4}$/.test(year)) notFound();
@@ -36,6 +37,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function SeasonPage({ params }: Props) {
+  const mediaCollection = await loadMediaCollection();
   const { season, years } = await findSeason((await params).year);
   const [rankings, tracking] = await Promise.all([loadSeasonRankings(season.year), loadNextGenSeason(season.year)]);
   const era = eraOf(season.year);

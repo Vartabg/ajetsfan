@@ -12,6 +12,8 @@ const publisherPatterns = [
 ];
 
 const nextConfig: NextConfig = {
+  // The public snapshot URL must use the same runtime edition as pages and health.
+  rewrites: () => ({ beforeFiles: [{ source: "/data/media.json", destination: "/api/media" }] }),
   // The home directory is itself a git repo with a stray package-lock.json.
   // Pin the root so Turbopack does not walk up into it.
   turbopack: { root: path.resolve(".") },

@@ -5,13 +5,15 @@ import FocusShell, { type FocusEntry } from "@/components/FocusShell";
 import MediaRoom, { RoomLink } from "@/components/MediaRoom";
 import shared from "@/components/Focus.module.css";
 import { formatMediaDate, type MediaItem } from "@/lib/media";
-import { mediaCollection } from "@/lib/media-catalog";
+import { loadMediaCollection, scheduleStaleMediaRecovery } from "@/lib/load-media";
 import { mediaPlayback } from "@/lib/media-playback";
 import { compactMediaItem } from "@/lib/media-asset-paths.mjs";
 import { pageMetadata } from "@/lib/site";
 import { focusFonts } from "../focus-fonts";
 import styles from "./page.module.css";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 180;
 export const metadata = pageMetadata({ path: "/media", title: "Jets Media Room — fan voices, WFAN, reporting and film", description: "Watch and listen to independent Jets creators, WFAN shows and dated reporting in place. Mixed sports segments are included when they cover the Jets. Filter by source, season, topic or format." });
 
 const FORMATS: { kind: MediaItem["kind"]; id: string; title: string; one: string; many: string }[] = [
@@ -20,7 +22,9 @@ const FORMATS: { kind: MediaItem["kind"]; id: string; title: string; one: string
   { kind: "audio", id: "listen", title: "Listen", one: "show", many: "shows" },
   { kind: "post", id: "posts", title: "Posts", one: "post", many: "posts" },
 ];
-export default function MediaPage() {
+export default async function MediaPage() {
+  const mediaCollection = await loadMediaCollection();
+  await scheduleStaleMediaRecovery();
   const { items, outlets } = mediaCollection;
   const outletById = new Map(outlets.map((outlet) => [outlet.id, outlet]));
   const used = outlets.filter((outlet) => items.some((item) => item.outletId === outlet.id));
