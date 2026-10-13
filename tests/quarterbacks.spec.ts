@@ -50,3 +50,16 @@ test("the page names the count, reads out a pointed game and picks out a quarter
   await expect(page.locator("#carousel [aria-live]")).toContainText(`${carousel.quarterbacks[2].name} · ${carousel.quarterbacks[2].starts} starts`);
   await expect(page.locator("[data-focus-chart]")).toHaveAttribute("data-chosen", "");
 });
+
+test("the quarterbacks page passes automated accessibility and reflows at 320px", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.goto("/history/quarterbacks");
+  await page.getByRole("button", { name: "Show the names" }).click();
+  await page.addScriptTag({ path: path.join(process.cwd(), "node_modules/axe-core/axe.min.js") });
+  const violations = await page.evaluate(async () => {
+    const run = (window as unknown as { axe: { run: (options: unknown) => Promise<{ violations: { id: string }[] }> } }).axe;
+    return (await run.run({ runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] } })).violations.map((violation) => violation.id);
+  });
+  expect(violations).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+});

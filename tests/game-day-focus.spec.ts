@@ -15,12 +15,14 @@ test.beforeEach(async ({ page }) => {
   await page.route((url) => url.pathname === "/_next/image", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"/>' }));
 });
 
-test("Game Day is a focus page: the next game first, then the matchup, your call, standings, the season and the league", async ({ page }) => {
+test("Game Day is a focus page: the next game first, then the matchup, your call, standings, the season, the rest of it and the league", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 860 });
   await page.goto("/game-day");
   await expect(page.locator("#top")).toHaveCount(0);
   const ids = await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.id));
-  expect(ids).toEqual(["kickoff", ...(next ? ["briefing"] : []), "ticket", "standings", "season", ...(await page.locator("#league").count() ? ["league"] : []), "more"]);
+  // Play it out appears while regular-season games remain to be played.
+  const toPlay = regular.some((game) => game.season === snapshot.season && game.status !== "final");
+  expect(ids).toEqual(["kickoff", ...(next ? ["briefing"] : []), "ticket", "standings", "season", ...(toPlay ? ["play-out"] : []), ...(await page.locator("#league").count() ? ["league"] : []), "more"]);
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   if (next) await expect(page.getByRole("heading", { level: 1 })).toContainText(next.game.atHome ? placeName(next.game.opponentDisplay) : `At ${placeName(next.game.opponentDisplay)}`);
   const index = page.getByRole("navigation", { name: "On this page" });
