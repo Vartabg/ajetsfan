@@ -3,6 +3,8 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { loadCurve, loadAnalytics } from "@/lib/load-games";
+import { loadGameDrives } from "@/lib/load-drives";
+import { scoringSummary } from "@/lib/drives";
 import { loadPublishedGame, loadPublishedGames } from "@/lib/load-published-pages";
 import { formatDate } from "@/lib/current";
 import { clockLabel, pct } from "@/lib/games";
@@ -12,11 +14,12 @@ import { keyPlayEvidenceLabel } from "@/lib/morgue";
 import { wpaLabel } from "@/lib/analytics-context";
 import { gameEvidence } from "@/lib/game-evidence";
 import { pageMetadata } from "@/lib/site";
-import { teamColor, teamName, venueLine } from "@/lib/teams";
+import { teamColor, teamIdentity, teamName, venueLine } from "@/lib/teams";
 import { placeName } from "@/lib/focus";
 import { loadMediaCollection } from "@/lib/load-media";
 import { formatMediaDate, mediaForGame } from "@/lib/media";
 import { gameEditorialPhoto } from "@/lib/editorial-photos";
+import DriveChart from "@/components/DriveChart";
 import EditorialPhoto from "@/components/EditorialPhoto";
 import InlineMedia from "@/components/InlineMedia";
 import FocusMoment from "@/components/FocusMoment";
@@ -51,6 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const NEW_TAB = <span className="sr-only"> (opens in a new tab)</span>;
+const sentenceName = (code: string) => teamIdentity(code)?.nickname ? `the ${teamIdentity(code)!.nickname}` : teamIdentity(code)?.city ?? code;
 const KIND = { video: "Video", audio: "Audio", post: "Post", article: "Article" } as const;
 
 export default async function GamePage({ params }: Props) {
@@ -58,7 +62,8 @@ export default async function GamePage({ params }: Props) {
   const game = await getCase((await params).id);
   const memory = fanMemoryForGame(game);
   const board = game.outcome === "win" ? "miracle" : "heartbreak";
-  const [rawPoints, analytics] = await Promise.all([loadCurve(game.id), loadAnalytics()]);
+  const [rawPoints, analytics, drives] = await Promise.all([loadCurve(game.id), loadAnalytics(), loadGameDrives(game.season, game.id)]);
+  const jetsDrives = drives?.filter((drive) => drive.jets) ?? [];
   const statistics = analytics?.season === game.season ? analytics.games.find((item) => item.id === game.id) ?? null : null;
   const points = rawPoints.filter((point) => Number.isFinite(point.wp) && point.wp >= 0 && point.wp <= 1);
   const hasVisualStory = buildVisualStory(game, points) != null;
@@ -87,6 +92,7 @@ export default async function GamePage({ params }: Props) {
     { id: "final", title: "Final", answer: `${verb} ${game.jetsScore}–${game.oppScore}` },
     { id: "game-report", title: memory ? "The account" : "Summary", answer: replays.length ? `${replays.length} to watch` : memory ? "Sourced" : "On record" },
     { id: "turn", title: "Win chance", answer: pct(game.swing) },
+    ...(jetsDrives.length ? [{ id: "drives", title: "Drives", answer: `${jetsDrives.length} Jets drives` }] : []),
     { id: "play", title: "Featured play", answer: wpaLabel(game.keyPlay.wpa) },
     ...(hasEvidence ? [{ id: "numbers", title: "Both offenses", answer: "Measured" }] : []),
   ];
@@ -125,6 +131,14 @@ export default async function GamePage({ params }: Props) {
         <figcaption>Model-estimated Jets win probability before each recorded play · play sequence · {points.length} usable points</figcaption>
       </figure> : <p className={shared.caption}>A usable probability curve is unavailable in this edition.</p>}
     </FocusMoment>
+
+    {drives && jetsDrives.length ? <FocusMoment id="drives" label="Drives · where each one went"
+      heading={<>{jetsDrives.length} Jets drives: <em>{scoringSummary(jetsDrives)}.</em></>}>
+      <figure className={shared.shape}>
+        <DriveChart drives={drives} opponent={sentenceName(game.opponentDisplay)} />
+        <figcaption>Each bar is one drive, from its first snap to its last (into the end zone for a touchdown), across the field from the Jets’ goal line on the left. Drives with no snap, such as a kickoff returned for a touchdown, are not shown. From nflverse play-by-play.</figcaption>
+      </figure>
+    </FocusMoment> : null}
 
     <FocusMoment id="play" label={`From the play-by-play · ${clock}`} heading={<>{keyPlayEvidenceLabel(game)}. <em>{wpaLabel(game.keyPlay.wpa)}</em></>}
       actions={filmCase ? <Link className={shared.go} href={`/film-room?play=${filmCase.id}`}>Study this game in the Film Room <span aria-hidden="true">→</span></Link> : null}>

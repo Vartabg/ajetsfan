@@ -5,8 +5,11 @@ import Link from "@/components/IntentLink";
 import { selectLead } from "@/lib/current";
 import { buildFocus } from "@/lib/focus";
 import { loadCurrent, loadCurve, loadGames } from "@/lib/load-games";
+import { loadLeagueHistory } from "@/lib/load-league-history";
 import { loadMediaCollection, scheduleStaleMediaRecovery } from "@/lib/load-media";
 import { loadFootballLive } from "@/lib/load-football";
+import { newYorkToday, onThisDay } from "@/lib/on-this-day";
+import { publishedGames } from "@/lib/published-pages";
 import { pageMetadata } from "@/lib/site";
 import { focusFonts } from "./focus-fonts";
 import shared from "@/components/Focus.module.css";
@@ -19,11 +22,13 @@ export const metadata = pageMetadata({
 });
 
 export default async function Home() {
-  const [games, snapshot, mediaCollection, live] = await Promise.all([loadGames(), loadCurrent(), loadMediaCollection(), loadFootballLive()]);
+  const [games, snapshot, mediaCollection, live, history] = await Promise.all([loadGames(), loadCurrent(), loadMediaCollection(), loadFootballLive(), loadLeagueHistory()]);
   await scheduleStaleMediaRecovery();
   const lead = selectLead(games, snapshot);
   const curve = lead.analysisStatus === "ready" && lead.analysis ? await loadCurve(lead.analysis.id) : [];
   const data = buildFocus({ games, snapshot, curve, media: mediaCollection });
+  // The page renders per request, so "today" is the reader's New York date.
+  const today = history ? onThisDay(history.games, newYorkToday(), new Set(publishedGames(games, snapshot).map((game) => game.id))) : null;
   const game = live && showFootballMoment(live, lead.result?.id) ? live.featured : null;
   const liveMoment = game && live ? {
     title: game.state === "live" && live.status === "ready" ? "Live game" : "Game update",
@@ -34,5 +39,5 @@ export default async function Home() {
       <figure className={shared.shape}><FootballLiveCard feed={live} id="home-football-score" /></figure>
     </FocusMoment>,
   } : undefined;
-  return <FocusHome data={data} className={focusFonts} liveMoment={liveMoment} />;
+  return <FocusHome data={data} today={today} className={focusFonts} liveMoment={liveMoment} />;
 }

@@ -30,9 +30,9 @@ test.describe("a game page", () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(`/games/${recent.id}`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(`${recent.outcome === "win" ? "Won" : "Lost"} ${recent.jetsScore}–${recent.oppScore} at Detroit.`);
-    await expect(page.locator("[data-focus-moment]")).toHaveCount(6);
+    await expect(page.locator("[data-focus-moment]")).toHaveCount(7);
     const index = page.getByRole("navigation", { name: "On this page" });
-    await expect(index.getByRole("link")).toHaveText([/Final/, /Summary|The account/, /Win chance/, /Featured play/, /Both offenses/, /Everything else/]);
+    await expect(index.getByRole("link")).toHaveText([/Final/, /Summary|The account/, /Win chance/, /Drives/, /Featured play/, /Both offenses/, /Everything else/]);
     // The old masthead gives way to the page's own frame; the site's sections sit in the last moment.
     await expect(page.locator("body > header, body > footer")).toHaveCount(0);
     await expect(page.locator("#more").getByRole("navigation", { name: "Site sections" })).toHaveCount(1);

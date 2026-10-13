@@ -15,7 +15,9 @@
     "test": "playwright test",
     "data:rankings": "node scripts/refresh-season-rankings.mjs",
     "data:media": "node scripts/refresh-media.mjs",
-    "data:trades": "node scripts/draft-trades.mjs"
+    "data:trades": "node scripts/draft-trades.mjs",
+    "data:history": "node scripts/league-history.mjs",
+    "data:drives": "node scripts/drives.mjs"
   },
   "dependencies": {
     "@duckdb/node-api": "^1.5.5-r.3",

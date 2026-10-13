@@ -34,7 +34,7 @@ const extractionUnavailable = (error) => error instanceof PbpAvailabilityError |
   ['ENOMEM', 'EMFILE', 'ENFILE', 'EAGAIN'].includes(error?.code) ||
   /^Out of Memory Error:/.test(error?.message ?? '');
 
-async function downloadPbp(source, fetcher) {
+export async function downloadPbp(source, fetcher) {
   let response;
   try { response = await fetcher(source, { signal: AbortSignal.timeout(60_000) }); }
   catch (cause) { throw new PbpAvailabilityError(`PBP request unavailable: ${source}`, { cause }); }

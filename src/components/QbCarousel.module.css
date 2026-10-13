@@ -1,0 +1,52 @@
+/* The quarterback carousel. Eight colours that hold up on the light and the dark focus palette. */
+.palette { --qb-0: #125740; --qb-1: #a14b37; --qb-2: #2f5d8a; --qb-3: #8a6d1f; --qb-4: #6b4c8a; --qb-5: #2f7f78; --qb-6: #9a3f63; --qb-7: #5d6b63; }
+@media (prefers-color-scheme: dark) {
+  .palette { --qb-0: #8fd3ae; --qb-1: #eba38d; --qb-2: #9cc3ea; --qb-3: #e3c56f; --qb-4: #c7a8ea; --qb-5: #7fd3cb; --qb-6: #eb9cbc; --qb-7: #b9c6be; }
+}
+.q0 { --c: var(--qb-0); } .q1 { --c: var(--qb-1); } .q2 { --c: var(--qb-2); } .q3 { --c: var(--qb-3); }
+.q4 { --c: var(--qb-4); } .q5 { --c: var(--qb-5); } .q6 { --c: var(--qb-6); } .q7 { --c: var(--qb-7); }
+
+/* Squares shrink with the window's height so all the seasons, the readout and the names button fit one screen. */
+.grid { display: grid; gap: 3px; max-width: min(640px, calc(3em + 50px + 21 * ((100svh - 330px) / 28 - 3px))); min-width: min(100%, 300px); touch-action: pan-y; }
+.season { display: grid; grid-template-columns: 3em minmax(0, 1fr); align-items: center; gap: 8px; }
+.season > span { font: 400 11px/1 var(--data); color: var(--quiet); }
+.season > div { display: grid; grid-template-columns: repeat(21, minmax(0, 1fr)); gap: 2px; }
+.season i { display: block; aspect-ratio: 1; border-radius: 2px; background: var(--c); transition: opacity .15s; }
+/* Playoff games carry a notch, so the postseason stays visible inside the colour. */
+.season i.playoff { box-shadow: inset 0 0 0 2px var(--bg); }
+.grid[data-chosen] i:not(.on) { opacity: .16; }
+@media (prefers-reduced-motion: reduce) { .season i { transition: none; } }
+.readout { min-height: 1.5em; margin: 0; font: 400 14px/1.5 var(--data); color: var(--quiet); }
+.readout b { color: var(--ink); font-weight: 600; }
+
+.tools { display: grid; gap: 14px; }
+.toggle { justify-self: start; min-height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: var(--ink); color: var(--bg); font: 600 15px/1 var(--text); cursor: pointer; }
+.toggle[aria-pressed="true"] { background: var(--green); }
+.names { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; max-width: 760px; }
+.names button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid var(--faint); border-radius: 999px; background: none; color: var(--ink); font: 500 13px/1 var(--text); cursor: pointer; }
+.names button[aria-pressed="true"] { border-color: var(--ink); background: var(--raise); }
+.names i { width: 10px; height: 10px; border-radius: 2px; background: var(--swatch); }
+.names small { font: 400 11px/1 var(--data); color: var(--quiet); }
+
+/* Most starts: one bar per quarterback */
+.bars { display: grid; gap: 10px; max-width: 720px; margin: 0; padding: 0; list-style: none; }
+.bars li { display: grid; grid-template-columns: minmax(7.5em, 11em) minmax(0, 1fr) 5.5em; align-items: center; gap: 10px; font: 500 14px/1.2 var(--text); }
+.bars li > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bars small { font: 400 12px/1 var(--data); color: var(--quiet); text-align: right; }
+.track { height: 14px; border-radius: 3px; background: var(--raise); overflow: hidden; }
+.track i { display: block; height: 100%; background: var(--c); }
+
+/* One season's starters, in order */
+.stints { display: flex; gap: 3px; max-width: 760px; height: 56px; }
+.stints > div { display: grid; align-content: start; gap: 8px; min-width: 0; }
+.stints > div > i { display: block; height: 28px; border-radius: 3px; background: var(--c); }
+.stints span { overflow: hidden; font: 500 12px/1.2 var(--text); text-overflow: ellipsis; white-space: nowrap; }
+.stintList { display: grid; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; max-width: 640px; font: 400 14px/1.4 var(--text); }
+.stintList li { display: flex; gap: 10px; align-items: baseline; }
+.stintList li::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 2px; background: var(--c); }
+.stintList small { font: 400 12px/1 var(--data); color: var(--quiet); }
+
+/* The longest run: one square per straight start */
+.run { display: grid; grid-template-columns: repeat(17, minmax(0, 1fr)); gap: 3px; max-width: 520px; }
+.run i { display: block; aspect-ratio: 1; border-radius: 3px; background: var(--c); }
+.run i.after { background: none; box-shadow: inset 0 0 0 2px var(--c); }

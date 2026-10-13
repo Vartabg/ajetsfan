@@ -1,0 +1,24 @@
+/* Play out the season: the home page's week marks, with the games still to play as buttons. */
+.marks { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 16px 6px; margin: 0; padding: 0; list-style: none; max-width: 720px; }
+.marks li, .marks button { display: grid; justify-items: center; gap: 6px; font: 400 11px/1.1 var(--data); color: var(--quiet); }
+.marks button { width: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
+.marks i { display: grid; place-items: center; width: min(8vw, 40px); aspect-ratio: 1; border: 2px solid var(--faint); border-radius: 50%; box-sizing: border-box; font: 700 13px/1 var(--data); font-style: normal; }
+.marks button:focus-visible { outline: none; }
+.marks button:focus-visible i { outline: 2px solid var(--ink); outline-offset: 3px; }
+.open i { border-style: dashed; border-color: var(--quiet); }
+.open button:hover i { border-color: var(--ink); }
+.win i { background: var(--green); border-color: var(--green); color: var(--bg); }
+.loss i { background: var(--loss); border-color: var(--loss); color: var(--bg); }
+.tie i { background: var(--tie); border-color: var(--tie); }
+/* A pick is drawn as a ring with its letter, so it never reads as a result. */
+.marks li.win button i, .marks li.loss button i { background: none; color: var(--ink); }
+.marks li.win button i { border-color: var(--green); }
+.marks li.loss button i { border-color: var(--loss); }
+.bye i { width: 8px; border: 0; border-radius: 4px; background: var(--faint); }
+.tally { max-width: 36em; margin: 0; font: 600 18px/1.4 var(--text); }
+.odds { display: grid; grid-template-columns: repeat(18, minmax(0, 1fr)); align-items: end; gap: 4px; height: 120px; max-width: 720px; }
+.odds span { display: grid; grid-template-rows: 1fr auto; height: 100%; gap: 4px; }
+.odds i { align-self: end; display: block; border-radius: 3px 3px 0 0; background: var(--quiet); opacity: .45; }
+.odds small { font: 400 10px/1 var(--data); color: var(--quiet); text-align: center; }
+.odds .yours i { background: var(--green); opacity: 1; }
+.odds .yours small { color: var(--ink); font-weight: 700; }
