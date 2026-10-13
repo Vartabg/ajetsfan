@@ -16,7 +16,8 @@
     "data:rankings": "node scripts/refresh-season-rankings.mjs",
     "data:media": "node scripts/refresh-media.mjs",
     "data:trades": "node scripts/draft-trades.mjs",
-    "data:history": "node scripts/league-history.mjs"
+    "data:history": "node scripts/league-history.mjs",
+    "data:drives": "node scripts/drives.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
