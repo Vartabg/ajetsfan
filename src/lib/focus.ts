@@ -23,7 +23,7 @@ export type FocusData = {
     href: string; hrefLabel: string; line: FocusPoint[];
   } | null;
   next: { week: number; postseason: boolean; opponent: string; place: string; home: boolean; date: string; kickoff: string | null; overdue: boolean } | null;
-  season: { year: number; wins: number; losses: number; ties: number; weeks: { week: number; opponent: string | null; state: WeekState; score: string | null }[] } | null;
+  season: { year: number; wins: number; losses: number; ties: number; weeks: { week: number; opponent: string | null; home: boolean | null; state: WeekState; score: string | null }[] } | null;
   division: { name: string; place: number; back: number; leader: string; tiedAtTop: number; teams: { team: string; place: string; wins: number; losses: number; ties: number; games: number; pointsFor: number; pointsAgainst: number; us: boolean }[] } | null;
   film: { title: string; date: string; situation: string; result: string; summary: string; star: string; design: PlayDesign } | null;
   media: { id: string; title: string; outlet: string; publishedAt: string | null; item: MediaItem } | null;
@@ -37,6 +37,27 @@ export function placeName(code: string): string {
   const team = teamIdentity(code);
   if (!team) return code;
   return team.nickname && SHARED_CITIES.has(team.city) ? `the ${team.nickname}` : team.city;
+}
+
+export type SeasonWeeks = NonNullable<FocusData["season"]>;
+
+/** The current regular season as one entry per week: results, byes, the next game and the rest. */
+export function seasonWeeks(snapshot: CurrentSnapshot | null): SeasonWeeks | null {
+  if (!snapshot) return null;
+  const upcoming = nextScheduledGame(snapshot);
+  const regular = snapshot.schedule.filter((game) => game.season === snapshot.season && game.seasonType === "REG");
+  const finals = new Map(completedGames(snapshot).filter((game) => game.season === snapshot.season && game.seasonType === "REG").map((game) => [game.id, game]));
+  const lastWeek = Math.max(18, ...regular.map((game) => game.week));
+  const weeks = Array.from({ length: lastWeek }, (_, index) => {
+    const week = index + 1;
+    const game = regular.find((entry) => entry.week === week);
+    if (!game) return { week, opponent: null, home: null, state: "bye" as const, score: null };
+    const final = finals.get(game.id);
+    if (final) return { week, opponent: game.opponentDisplay, home: game.atHome, state: final.outcome, score: `${final.jetsScore}–${final.oppScore}` };
+    return { week, opponent: game.opponentDisplay, home: game.atHome, state: upcoming?.game.id === game.id ? "next" as const : "upcoming" as const, score: null };
+  });
+  const results = [...finals.values()];
+  return { year: snapshot.season, wins: results.filter((game) => game.outcome === "win").length, losses: results.filter((game) => game.outcome === "loss").length, ties: results.filter((game) => game.outcome === "tie").length, weeks };
 }
 
 const FEATURED_PLAY = "wilson-cleveland";
@@ -61,22 +82,7 @@ export function buildFocus({ games, snapshot, curve, media }: { games: Game[]; s
     home: upcoming.game.atHome, date: upcoming.game.date, kickoff: upcoming.game.kickoff, overdue: upcoming.overdue,
   } : null;
 
-  let season: FocusData["season"] = null;
-  if (snapshot) {
-    const regular = snapshot.schedule.filter((game) => game.season === snapshot.season && game.seasonType === "REG");
-    const finals = new Map(completedGames(snapshot).filter((game) => game.season === snapshot.season && game.seasonType === "REG").map((game) => [game.id, game]));
-    const lastWeek = Math.max(18, ...regular.map((game) => game.week));
-    const weeks = Array.from({ length: lastWeek }, (_, index) => {
-      const week = index + 1;
-      const game = regular.find((entry) => entry.week === week);
-      if (!game) return { week, opponent: null, state: "bye" as const, score: null };
-      const final = finals.get(game.id);
-      if (final) return { week, opponent: game.opponentDisplay, state: final.outcome, score: `${final.jetsScore}–${final.oppScore}` };
-      return { week, opponent: game.opponentDisplay, state: upcoming?.game.id === game.id ? "next" as const : "upcoming" as const, score: null };
-    });
-    const results = [...finals.values()];
-    season = { year: snapshot.season, wins: results.filter((game) => game.outcome === "win").length, losses: results.filter((game) => game.outcome === "loss").length, ties: results.filter((game) => game.outcome === "tie").length, weeks };
-  }
+  const season = seasonWeeks(snapshot);
 
   const picture = divisionPicture(snapshot?.standings);
   const division = picture && snapshot?.standings ? {

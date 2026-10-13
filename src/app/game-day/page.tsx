@@ -6,13 +6,15 @@ import FocusShell, { type FocusEntry } from "@/components/FocusShell";
 import GameDayTicket from "@/components/GameDayTicket";
 import LeagueContext from "@/components/LeagueContext";
 import Matchup from "@/components/Matchup";
+import PlayOut from "@/components/PlayOut";
 import SeasonTrend from "@/components/SeasonTrend";
 import SundayBriefing from "@/components/SundayBriefing";
 import shared from "@/components/Focus.module.css";
 import { currentSeasonSummary, divisionPicture, formatCheckedAt, formatDate, nextScheduledGame, recordLabel } from "@/lib/current";
-import { placeName } from "@/lib/focus";
+import { placeName, seasonWeeks } from "@/lib/focus";
 import { halfGames, ORDINAL, on, record } from "@/lib/focus-format";
 import { loadAnalytics, loadCurrent, loadGames } from "@/lib/load-games";
+import { loadLeagueHistory } from "@/lib/load-league-history";
 import { publishedGames } from "@/lib/published-pages";
 import { pageMetadata } from "@/lib/site";
 import { teamIdentity } from "@/lib/teams";
@@ -22,7 +24,7 @@ import styles from "./page.module.css";
 export const metadata = pageMetadata({ path: "/game-day", title: "Jets Game Day — matchup and schedule", description: "The next Jets matchup, a score prediction you can save, and the current season’s schedule and results." });
 
 export default async function GameDayPage() {
-  const [games, snapshot, rawAnalytics] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics()]);
+  const [games, snapshot, rawAnalytics, history] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics(), loadLeagueHistory()]);
   const analytics = rawAnalytics?.season === snapshot?.season ? rawAnalytics : null;
   const next = nextScheduledGame(snapshot);
   const summary = currentSeasonSummary(snapshot);
@@ -35,6 +37,10 @@ export default async function GameDayPage() {
   const schedule = snapshot?.schedule.filter((game) => game.seasonType === "REG") ?? [];
   const nextGame = next ? { week: next.game.week, postseason: next.game.seasonType === "POST", place: placeName(next.game.opponentDisplay), home: next.game.atHome, date: next.game.date, kickoff: next.game.kickoff, overdue: next.overdue } : null;
   const place = picture && standings ? standings.teams.findIndex((row) => row.team === "NYJ") + 1 : 0;
+  // Play it out while regular-season games remain and the playoff counts are published.
+  const weeks = seasonWeeks(snapshot);
+  const toPlay = weeks?.weeks.filter((week) => week.state === "next" || week.state === "upcoming").length ?? 0;
+  const playOut = weeks && toPlay && history?.playoffsByWins.seasons.length ? { season: weeks, ...history.playoffsByWins } : null;
 
   const entries = [
     nextGame ? { id: "kickoff", title: "Next game", answer: `${nextGame.place}, ${on(nextGame.kickoff ?? `${nextGame.date}T17:00:00Z`, { weekday: "short" })}` } : { id: "kickoff", title: "Next game", answer: "None scheduled" },
@@ -42,6 +48,7 @@ export default async function GameDayPage() {
     snapshot ? { id: "ticket", title: "Your call", answer: "Call the score" } : null,
     snapshot ? { id: "standings", title: standings?.division ?? "Standings", answer: picture ? (place === 1 ? (picture.atTop > 1 ? "Tied for first" : "First") : `${ORDINAL[place - 1] ?? place}, ${halfGames(picture.back)} back`) : "Pending" } : null,
     snapshot ? { id: "season", title: `${snapshot.season} season`, answer: record(summary.wins, summary.losses, summary.ties) } : null,
+    playOut ? { id: "play-out", title: "Play it out", answer: `Pick the last ${toPlay}` } : null,
     analytics ? { id: "league", title: "League context", answer: "Where the Jets sit" } : null,
   ].filter((entry): entry is FocusEntry => entry !== null);
 
@@ -84,6 +91,8 @@ export default async function GameDayPage() {
         </li>)}</ol>
       </details>
     </FocusMoment> : null}
+
+    {playOut ? <PlayOut season={playOut.season} rows={playOut.rows} seasons={playOut.seasons} /> : null}
 
     {analytics ? <FocusMoment id="league" hosts>
       <LeagueContext analytics={analytics} opponent={next?.game.opponent ?? ""} />
