@@ -2,7 +2,10 @@ import FocusHome from "@/components/FocusHome";
 import { selectLead } from "@/lib/current";
 import { buildFocus } from "@/lib/focus";
 import { loadCurrent, loadCurve, loadGames } from "@/lib/load-games";
+import { loadLeagueHistory } from "@/lib/load-league-history";
 import { loadMediaCollection, scheduleStaleMediaRecovery } from "@/lib/load-media";
+import { newYorkToday, onThisDay } from "@/lib/on-this-day";
+import { publishedGames } from "@/lib/published-pages";
 import { pageMetadata } from "@/lib/site";
 import { focusFonts } from "./focus-fonts";
 
@@ -14,9 +17,11 @@ export const metadata = pageMetadata({
 });
 
 export default async function Home() {
-  const [games, snapshot, mediaCollection] = await Promise.all([loadGames(), loadCurrent(), loadMediaCollection()]);
+  const [games, snapshot, mediaCollection, history] = await Promise.all([loadGames(), loadCurrent(), loadMediaCollection(), loadLeagueHistory()]);
   await scheduleStaleMediaRecovery();
   const lead = selectLead(games, snapshot);
   const curve = lead.analysisStatus === "ready" && lead.analysis ? await loadCurve(lead.analysis.id) : [];
-  return <FocusHome data={buildFocus({ games, snapshot, curve, media: mediaCollection })} className={focusFonts} />;
+  // The page renders per request, so "today" is the reader's New York date.
+  const today = history ? onThisDay(history.games, newYorkToday(), new Set(publishedGames(games, snapshot).map((game) => game.id))) : null;
+  return <FocusHome data={buildFocus({ games, snapshot, curve, media: mediaCollection })} today={today} className={focusFonts} />;
 }
