@@ -1,14 +1,10 @@
 import "server-only";
 import { BlobError, BlobPreconditionFailedError, get, put } from "@vercel/blob";
+import { readMediaBlobRecord } from "./media-blob-read.mjs";
 
 /** A private, project-scoped store using Vercel's automatically rotated OIDC identity. */
 export async function readMediaBlob(pathname: string): Promise<{ value: unknown; etag: string } | null> {
-  const result = await get(pathname, { access: "private", useCache: false, abortSignal: AbortSignal.timeout(8_000) });
-  if (!result) return null;
-  if (result.statusCode !== 200 || result.blob.size > 2_000_000) throw new Error("Invalid media storage response");
-  const text = await new Response(result.stream).text();
-  if (text.length > 2_000_000) throw new Error("Invalid media storage response");
-  return { value: JSON.parse(text), etag: result.blob.etag };
+  return readMediaBlobRecord(pathname, get);
 }
 
 export async function writeMediaBlob(pathname: string, value: unknown, options: { ifMatch?: string; createOnly?: boolean } = {}) {
