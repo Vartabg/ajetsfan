@@ -1,4 +1,5 @@
 import Link from "@/components/IntentLink";
+import CalendarSubscribe from "@/components/CalendarSubscribe";
 import FocusMoment from "@/components/FocusMoment";
 import FocusNext from "@/components/FocusNext";
 import FocusShell, { type FocusEntry } from "@/components/FocusShell";
@@ -72,7 +73,8 @@ export default async function GameDayPage() {
       </div> : <p className={shared.caption} data-standings-pending>Division standings publish with the next results check.</p>}
     </FocusMoment> : null}
 
-    {snapshot ? <FocusMoment id="season" label={`${snapshot.season} season`} heading={<>{record(summary.wins, summary.losses, summary.ties)} <em>{played ? `after ${played} game${played === 1 ? "" : "s"}.` : "before the opener."}</em></>}>
+    {snapshot ? <FocusMoment id="season" label={`${snapshot.season} season`} heading={<>{record(summary.wins, summary.losses, summary.ties)} <em>{played ? `after ${played} game${played === 1 ? "" : "s"}.` : "before the opener."}</em></>}
+      actions={<CalendarSubscribe season={snapshot.season} />}>
       <div id="season-trend" className={styles.trend}><SeasonTrend games={summary.finals} analysisIds={games.filter((game) => !game.dataSuspect && game.swing != null && game.outcome !== "tie").map((game) => game.id)} /></div>
       <details className={shared.unfold}><summary className="disclosure"><span><span className="when-closed">See the full {snapshot.season} schedule</span><span className="when-open">Hide the {snapshot.season} schedule</span> <small>{schedule.length} games</small></span></summary>
         <ol className={styles.schedule}>{schedule.map((game) => <li key={game.id} data-status={game.status === "final" ? game.outcome : "scheduled"}>
