@@ -1,5 +1,5 @@
 /** Pages rebuilt as focus views; they carry their own navigation instead of the site header and footer. */
-export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/film-room", "/media", "/seasons", "/morgue", "/discover", "/stories", "/history", "/history/trades", "/puzzle", "/how-made"];
+export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/film-room", "/media", "/seasons", "/morgue", "/discover", "/stories", "/history", "/history/trades", "/history/quarterbacks", "/puzzle", "/how-made"];
 /** Every published destination shares the focus frame, including its detail pages. */
 export const isFocusRoute = (pathname: string) => FOCUS_ROUTES.includes(pathname) || /^\/seasons\/\d{4}(?:\/guide)?$/.test(pathname) || pathname.startsWith("/games/") || pathname.startsWith("/players/");
 
@@ -16,5 +16,6 @@ export const SECTIONS = [
   { href: "/stories", label: "Game stories", note: "How games turned, told visually" },
   { href: "/history", label: "History", note: "Rivalries and remembered games" },
   { href: "/history/trades", label: "Trade ledger", note: "Every pick, followed" },
+  { href: "/history/quarterbacks", label: "Quarterbacks", note: "Every Jets starter since 1999" },
   { href: "/how-made", label: "How it’s made", note: "Sources and methods" },
 ];

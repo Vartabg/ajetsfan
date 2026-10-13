@@ -143,7 +143,7 @@ test("deployed health exposes this edition with live freshness and no-cache diag
 });
 
 test("each desk supplies its own share title and a branded 1200×630 PNG", async ({ page, request }) => {
-  for (const path of ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/media", "/media/rants", "/stories", "/discover", "/history", "/history/trades", "/puzzle", "/film-room", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/seasons/2010/guide"]) {
+  for (const path of ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/media", "/media/rants", "/stories", "/discover", "/history", "/history/trades", "/history/quarterbacks", "/puzzle", "/film-room", "/morgue", "/how-made", "/seasons", "/seasons/2010", "/seasons/2010/guide"]) {
     await page.goto(path);
     const title = await page.title();
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", title);
