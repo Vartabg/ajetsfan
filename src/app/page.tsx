@@ -2,12 +2,14 @@ import FocusHome from "@/components/FocusHome";
 import FocusMoment from "@/components/FocusMoment";
 import FootballLiveCard, { footballOpponent, showFootballMoment } from "@/components/football-live-card";
 import Link from "@/components/IntentLink";
+import LivePlays from "@/components/LivePlays";
 import { selectLead } from "@/lib/current";
 import { buildFocus } from "@/lib/focus";
 import { loadCurrent, loadCurve, loadGames } from "@/lib/load-games";
 import { loadLeagueHistory } from "@/lib/load-league-history";
 import { loadMediaCollection, scheduleStaleMediaRecovery } from "@/lib/load-media";
 import { loadFootballLive } from "@/lib/load-football";
+import { editionClock } from "@/lib/live-plays";
 import { newYorkToday, onThisDay } from "@/lib/on-this-day";
 import { publishedGames } from "@/lib/published-pages";
 import { pageMetadata } from "@/lib/site";
@@ -36,7 +38,8 @@ export default async function Home() {
     content: <FocusMoment id="next" first={!data.last} label={`${live.status === "retained" ? "Last verified game update" : game.state === "live" ? "Live game" : "Latest game update"} · ${game.seasonType === "POST" ? "Playoffs" : `Week ${game.week}`}`}
       heading={<>Jets {game.atHome ? "vs" : "at"} {footballOpponent(game)}.</>}
       actions={<Link href="/game-day" className={shared.go}>Game Day <span aria-hidden="true">→</span></Link>}>
-      <figure className={shared.shape}><FootballLiveCard feed={live} id="home-football-score" /></figure>
+      <figure className={shared.shape}>{game.state === "live" ? <LivePlays event={game.eventId} nickname={footballOpponent(game)} us={game.jetsScore} them={game.oppScore} clock={editionClock(game)} />
+        : <FootballLiveCard feed={live} id="home-football-score" />}</figure>
     </FocusMoment>,
   } : undefined;
   return <FocusHome data={data} today={today} className={focusFonts} liveMoment={liveMoment} />;
