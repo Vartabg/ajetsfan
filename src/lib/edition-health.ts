@@ -1,6 +1,7 @@
 import type { CurrentSnapshot } from "./current";
 import type { CoverageSnapshot, FeedState } from "./coverage";
 import type { SeasonAnalytics } from "./analytics";
+import type { FootballEdition } from "./load-football";
 
 export type HealthFeed = { status: "ready" | "retained" | "unavailable" | "overdue" | "unknown"; checkedAt: string | null; ageMinutes: number | null };
 type SourceCheck = Pick<FeedState, "status" | "checkedAt">;
@@ -19,9 +20,10 @@ function sourceHealth(feed: Pick<FeedState, "status" | "checkedAt"> | undefined,
 }
 
 /** Operational age is based on successful checks, not source content timestamps. */
-export function editionHealth(current: CurrentSnapshot | null, coverage: CoverageSnapshot | null, analytics: SeasonAnalytics | null, now: number, automation: AutomationHealthSources = {}) {
+export function editionHealth(current: CurrentSnapshot | null, coverage: CoverageSnapshot | null, analytics: SeasonAnalytics | null, now: number, automation: AutomationHealthSources = {}, football?: { edition: FootballEdition; active: boolean }) {
   const sameSeason = !!current && coverage?.season === current.season;
-  const results = sourceHealth(current ? { checkedAt: current.checkedAt, status: "ready" } : undefined, now);
+  const resultSource = football ? football.edition.live ?? football.edition.scheduleCheck : current ? { checkedAt: current.checkedAt, status: "ready" as const } : undefined;
+  const results = sourceHealth(resultSource, now, football ? (football.active ? 3 : 10) * 60_000 : DAY);
   const mediaSources = Object.fromEntries((automation.media ?? []).map((source) => [source.id, sourceHealth(source, now, 30 * 60_000)]));
   const mediaChecks = Object.values(mediaSources);
   const media: HealthFeed = !mediaChecks.length ? sourceHealth(undefined, now) : {
@@ -31,9 +33,9 @@ export function editionHealth(current: CurrentSnapshot | null, coverage: Coverag
   };
   const feeds = {
     results,
-    news: sourceHealth(coverage?.news, now),
-    roster: sourceHealth(sameSeason && coverage?.roster.season === current?.season ? coverage.roster : undefined, now),
-    stats: sourceHealth(sameSeason && coverage?.stats.season === current?.season ? coverage.stats : undefined, now),
+    news: sourceHealth(coverage?.news, now, football ? 15 * 60_000 : DAY),
+    roster: sourceHealth(sameSeason && coverage?.roster.season === current?.season ? coverage.roster : undefined, now, football ? 45 * 60_000 : DAY),
+    stats: sourceHealth(sameSeason && coverage?.stats.season === current?.season ? coverage.stats : undefined, now, football ? 15 * 60_000 : DAY),
     analysis: current?.analysisCheck ? sourceHealth(current.analysisCheck, now) : { status: "unknown" as const, checkedAt: null, ageMinutes: null },
     media,
     rankings: sourceHealth(automation.rankings, now),

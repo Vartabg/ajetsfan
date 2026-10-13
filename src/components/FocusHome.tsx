@@ -143,12 +143,12 @@ function Discovery({ discovery }: { discovery: NonNullable<FocusData["discovery"
   </FocusMoment>;
 }
 
-export default function FocusHome({ data, className = "" }: { data: FocusData; className?: string }) {
+export default function FocusHome({ data, className = "", liveMoment }: { data: FocusData; className?: string; liveMoment?: { content: ReactNode; title: string; answer: string } }) {
   const now = useMinuteClock();
   const verb = (outcome: "win" | "loss" | "tie") => outcome === "win" ? "Won" : outcome === "loss" ? "Lost" : "Tied";
   const entries = [
     data.last ? { id: "last", title: data.last.archive ? "From the archive" : "Last game", answer: `${verb(data.last.outcome)} ${data.last.us}–${data.last.them}` } : null,
-    data.next ? { id: "next", title: "Next game", answer: `${data.next.place}, ${on(data.next.kickoff ?? `${data.next.date}T17:00:00Z`, { weekday: "short" })}` } : null,
+    liveMoment ? { id: "next", title: liveMoment.title, answer: liveMoment.answer } : data.next ? { id: "next", title: "Next game", answer: `${data.next.place}, ${on(data.next.kickoff ?? `${data.next.date}T17:00:00Z`, { weekday: "short" })}` } : null,
     data.season ? { id: "season", title: `${data.season.year} season`, answer: record(data.season.wins, data.season.losses, data.season.ties) } : null,
     data.division ? { id: "division", title: data.division.name, answer: data.division.place === 1 ? "First" : `${ORDINAL[data.division.place - 1] ?? data.division.place}, ${halfGames(data.division.back)} back` } : null,
     data.film ? { id: "film", title: "Film Room", answer: data.film.title.split(":")[0] } : null,
@@ -163,7 +163,7 @@ export default function FocusHome({ data, className = "" }: { data: FocusData; c
 
   return <FocusShell page="home" entries={entries} checkedAt={data.checkedAt} className={className}>
     {data.last ? <LastGame last={data.last} first status={status} /> : status}
-    {data.next ? <FocusNext next={data.next} wins={wins} losses={losses} ties={ties} first={!data.last} go={{ href: "/game-day", label: "Game Day" }} /> : null}
+    {liveMoment?.content ?? (data.next ? <FocusNext next={data.next} wins={wins} losses={losses} ties={ties} first={!data.last} go={{ href: "/game-day", label: "Game Day" }} /> : null)}
     {data.season ? <Season season={data.season} /> : null}
     {data.division ? <Division division={data.division} /> : null}
     {data.film ? <FocusPlay id="film" label={`Film Room · ${on(`${data.film.date}T16:00:00Z`, { month: "short", day: "numeric", year: "numeric" })}`} play={data.film} more={<Go href="/film-room">Open the Film Room</Go>} /> : null}

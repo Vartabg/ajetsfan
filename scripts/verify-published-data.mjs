@@ -72,7 +72,11 @@ export async function verifyPublishedData({
         } catch { issue = 'invalid health response'; }
       }
     } catch { issue = 'health endpoint unavailable'; }
-    if (health && validHealth(health, response.status) && health.season === expected.season && health.checkedAt === expected.checkedAt) {
+    const runtimeFootball = health?.footballScheduler?.mode === 'runtime' && health?.footballScheduler?.status === 'ready'
+      && timestamp(health?.footballScheduler?.updatedAt);
+    const newer = (actual, minimum) => timestamp(actual) && timestamp(minimum) && Date.parse(actual) >= Date.parse(minimum);
+    if (health && validHealth(health, response.status) && health.season === expected.season
+      && (health.checkedAt === expected.checkedAt || runtimeFootball && newer(health.checkedAt, expected.checkedAt))) {
       if (expected.commit !== undefined && health.commit !== expected.commit) {
         issue = 'deployed commit differs from the local publication';
         onAttempt({ attempt, attempts, issue });
@@ -85,21 +89,32 @@ export async function verifyPublishedData({
         if (attempt < attempts) await pause(intervalMs);
         continue;
       }
-      // Runtime media advances independently of this Git publication. Other datasets
-      // still require their exact edition; media must be the expected edition or newer.
+      if (health.footballScheduler && !['not_configured', 'ready'].includes(health.footballScheduler.status)) {
+        issue = 'runtime football delivery is unavailable or overdue';
+        onAttempt({ attempt, attempts, issue });
+        if (attempt < attempts) await pause(intervalMs);
+        continue;
+      }
+      // Hosted editions advance independently; require the exact deployed commit and
+      // every source's own successful minimum, never only a fresh top-level clock.
       const runtimeMedia = health.mediaScheduler?.mode === 'runtime' && health.mediaScheduler?.status === 'ready'
         && timestamp(health.mediaScheduler?.updatedAt);
       const mediaMatches = (actual, checkedAt) => actual === checkedAt || runtimeMedia
         && timestamp(actual) && timestamp(checkedAt) && Date.parse(actual) >= Date.parse(checkedAt);
+      const runtimeAnalysis = health.analysisScheduler?.mode === 'runtime' && health.analysisScheduler?.status === 'ready'
+        && timestamp(health.analysisScheduler?.updatedAt);
+      const matches = (name, actual, minimum) => actual === minimum ||
+        (['results', 'news', 'roster', 'stats'].includes(name) && runtimeFootball
+          || ['analysis', 'rankings', 'nextgen'].includes(name) && runtimeAnalysis) && newer(actual, minimum);
       if (expected.feeds && Object.entries(expected.feeds).some(([name, checkedAt]) => name === 'media'
-        ? !mediaMatches(health.feeds[name]?.checkedAt, checkedAt) : health.feeds[name]?.checkedAt !== checkedAt)
+        ? !mediaMatches(health.feeds[name]?.checkedAt, checkedAt) : !matches(name, health.feeds[name]?.checkedAt, checkedAt))
         || expected.mediaSources && Object.entries(expected.mediaSources).some(([name, checkedAt]) => !mediaMatches(health.mediaSources?.[name]?.checkedAt, checkedAt))) {
         issue = 'a deployed source snapshot differs from the local publication';
         onAttempt({ attempt, attempts, issue });
         if (attempt < attempts) await pause(intervalMs);
         continue;
       }
-      if (health.feeds.results.status === 'ready' && health.feeds.results.checkedAt === expected.checkedAt) {
+      if (health.feeds.results.status === 'ready' && matches('results', health.feeds.results.checkedAt, expected.checkedAt)) {
         return { attempts: attempt, season: health.season, checkedAt: health.checkedAt, status: health.status,
           degradedFeeds: FEEDS.filter((name) => health.feeds[name].status !== 'ready').map((name) => ({ name, status: health.feeds[name].status })) };
       }

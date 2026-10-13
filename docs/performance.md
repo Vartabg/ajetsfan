@@ -1,5 +1,11 @@
 # Performance pass — October 2, 2026
 
+October 13 runtime update: the roster now server-renders its current player cards
+instead of the static loading fallback. The measured response is 26.4 KiB gzip;
+its HTML guard is 28 KiB, while the JavaScript guard remains 205 KiB. Other page
+budgets remain unchanged. Native analysis is confined to the separate cron
+function and is absent from page, score, status and public JSON bundles.
+
 Baseline: production source at `5539544ec26db6d26c17da30768c76d3e094559b`.
 Both versions were built with Next 16.3.7 and served by `next start` on the same
 machine. Lighthouse 13.5.0 / Chrome 154 used its default simulated mobile profile.

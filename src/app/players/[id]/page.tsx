@@ -23,9 +23,10 @@ async function getProfile(id: string) {
   return profile;
 }
 
-export const dynamicParams = false;
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 export async function generateStaticParams() {
-  return (await loadPlayerEdition()).players.map((player) => ({ id: player.id }));
+  return (await loadPlayerEdition({ live: false })).players.map((player) => ({ id: player.id }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

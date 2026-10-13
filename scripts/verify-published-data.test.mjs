@@ -151,3 +151,22 @@ test('a fresh baked fallback cannot falsely verify an unavailable runtime schedu
   const health = { ...healthy(), status: 'degraded', mediaScheduler: { mode: 'fallback', status: 'unavailable', updatedAt: null } };
   await assert.rejects(verifyPublishedData({ ...options, attempts: 1, fetcher: async () => response(health, 503) }), /runtime media delivery/);
 });
+
+test('hosted football advances independently while commit and individual checks stay required', async () => {
+  const commit = '0123456789abcdef0123456789abcdef01234567';
+  const later = '2026-09-30T12:10:00.000Z';
+  const publication = { ...expected, commit, feeds: { news: expected.checkedAt, stats: expected.checkedAt } };
+  const health = { ...healthy({ ...expected, checkedAt: later }), commit,
+    footballScheduler: { mode: 'runtime', status: 'ready', updatedAt: later } };
+  assert.equal((await verifyPublishedData({ ...options, expected: publication, attempts: 1, fetcher: async () => response(health) })).checkedAt, later);
+  health.feeds.stats.checkedAt = '2026-09-29T12:00:00.000Z';
+  await assert.rejects(verifyPublishedData({ ...options, expected: publication, attempts: 1, fetcher: async () => response(health) }), /source snapshot differs/);
+  health.feeds.stats.checkedAt = later;
+  health.commit = 'abcdef0123456789abcdef0123456789abcdef0123';
+  await assert.rejects(verifyPublishedData({ ...options, expected: publication, attempts: 1, fetcher: async () => response(health) }), /deployed commit differs/);
+});
+
+test('compiled fallback cannot conceal an unavailable hosted football scheduler', async () => {
+  const health = { ...healthy(), status: 'degraded', footballScheduler: { mode: 'fallback', status: 'unavailable', updatedAt: null } };
+  await assert.rejects(verifyPublishedData({ ...options, attempts: 1, fetcher: async () => response(health, 503) }), /runtime football delivery/);
+});
