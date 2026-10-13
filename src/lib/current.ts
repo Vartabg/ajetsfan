@@ -14,6 +14,8 @@ export type ScheduledGame = {
   oppScore: number | null;
   outcome: Outcome | null;
   status: "final" | "scheduled";
+  scoreSource?: string;
+  scoreCheckedAt?: string;
 };
 
 export type StandingsRow = {

@@ -18,7 +18,7 @@ function validSourceCheck(value) {
 }
 
 /** Retention is safe only when the existing record still has usable checked data. */
-function validateSeasonRankings(value) {
+export function validateSeasonRankings(value) {
   const fail = () => { throw new Error('Invalid prior season rankings snapshot'); };
   if (!record(value) || !integer(value.year, 1999) || !validSourceCheck(value) ||
     value.year > new Date(value.checkedAt).getUTCFullYear() || !record(value.sources) ||

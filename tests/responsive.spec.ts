@@ -49,9 +49,15 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
   const entry = page.viewportSize()!.width >= 1024 ? page.getByRole("navigation", { name: "On this page" }) : page.getByRole("button", { name: "Menu", exact: true });
   await expect(entry).toBeVisible();
   await expect(links).toHaveCount(SECTIONS.length);
+  // Read one layout frame: streamed content or scroll restoration must not mix
+  // coordinates from different moments into an apparent navigation overlap.
+  const measured = await links.evaluateAll((elements) => elements.map((element) => {
+    if (!element.getClientRects().length) return null;
+    const { x, y, width, height } = element.getBoundingClientRect();
+    return { x, y, width, height };
+  }));
   const boxes = [];
-  for (const link of await links.all()) {
-    const box = await link.boundingBox();
+  for (const box of measured) {
     expect(box).not.toBeNull();
     expect.soft(box!.width, `${route}: navigation hit width`).toBeGreaterThanOrEqual(44);
     expect.soft(box!.height, `${route}: navigation hit height`).toBeGreaterThanOrEqual(44);

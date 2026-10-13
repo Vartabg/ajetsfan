@@ -43,6 +43,7 @@ export function publishedPlayers(coverage: CoverageSnapshot | null, editionSeaso
   if (!coverage || editionSeason === null || coverage.roster.status === "unavailable" || coverage.roster.season !== editionSeason) return [];
   const counts = new Map<string, number>();
   for (const player of coverage.roster.players) counts.set(player.id, (counts.get(player.id) ?? 0) + 1);
-  return coverage.roster.players.filter((player) => counts.get(player.id) === 1 && /^\d{2}-\d{7}$/.test(player.id) &&
+  return coverage.roster.players.filter((player) => counts.get(player.id) === 1 &&
+    (/^\d{2}-\d{7}$/.test(player.id) || !!player.espnId && /^[1-9]\d{0,11}$/.test(player.espnId) && player.id === `espn-${player.espnId}`) &&
     !!player.name.trim() && !!player.position.trim());
 }

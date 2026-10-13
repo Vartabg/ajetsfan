@@ -3,6 +3,7 @@ import CalendarSubscribe from "@/components/CalendarSubscribe";
 import FocusMoment from "@/components/FocusMoment";
 import FocusNext from "@/components/FocusNext";
 import FocusShell, { type FocusEntry } from "@/components/FocusShell";
+import FootballLiveCard, { footballOpponent, showFootballMoment } from "@/components/football-live-card";
 import GameDayTicket from "@/components/GameDayTicket";
 import LeagueContext from "@/components/LeagueContext";
 import Matchup from "@/components/Matchup";
@@ -15,6 +16,7 @@ import { placeName, seasonWeeks } from "@/lib/focus";
 import { halfGames, ORDINAL, on, record } from "@/lib/focus-format";
 import { loadAnalytics, loadCurrent, loadGames } from "@/lib/load-games";
 import { loadLeagueHistory } from "@/lib/load-league-history";
+import { loadFootballLive } from "@/lib/load-football";
 import { publishedGames } from "@/lib/published-pages";
 import { pageMetadata } from "@/lib/site";
 import { teamIdentity } from "@/lib/teams";
@@ -22,12 +24,14 @@ import { focusFonts } from "../focus-fonts";
 import styles from "./page.module.css";
 
 export const metadata = pageMetadata({ path: "/game-day", title: "Jets Game Day — matchup and schedule", description: "The next Jets matchup, a score prediction you can save, and the current season’s schedule and results." });
+export const dynamic = "force-dynamic";
 
 export default async function GameDayPage() {
-  const [games, snapshot, rawAnalytics, history] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics(), loadLeagueHistory()]);
+  const [games, snapshot, rawAnalytics, history, live] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics(), loadLeagueHistory(), loadFootballLive()]);
   const analytics = rawAnalytics?.season === snapshot?.season ? rawAnalytics : null;
   const next = nextScheduledGame(snapshot);
   const summary = currentSeasonSummary(snapshot);
+  const liveGame = live && showFootballMoment(live, summary.finals.at(-1)?.id) ? live.featured : null;
   const standings = snapshot?.standings ?? null;
   const picture = divisionPicture(standings);
   const showTies = !!standings?.teams.some((row) => row.ties > 0);
@@ -43,7 +47,8 @@ export default async function GameDayPage() {
   const playOut = weeks && toPlay && history?.playoffsByWins.seasons.length ? { season: weeks, ...history.playoffsByWins } : null;
 
   const entries = [
-    nextGame ? { id: "kickoff", title: "Next game", answer: `${nextGame.place}, ${on(nextGame.kickoff ?? `${nextGame.date}T17:00:00Z`, { weekday: "short" })}` } : { id: "kickoff", title: "Next game", answer: "None scheduled" },
+    liveGame ? { id: "kickoff", title: liveGame.state === "live" && live?.status === "ready" ? "Live game" : "Game update", answer: liveGame.jetsScore !== null && liveGame.oppScore !== null ? `Jets ${liveGame.jetsScore}–${liveGame.oppScore}` : liveGame.detail }
+      : nextGame ? { id: "kickoff", title: "Next game", answer: `${nextGame.place}, ${on(nextGame.kickoff ?? `${nextGame.date}T17:00:00Z`, { weekday: "short" })}` } : { id: "kickoff", title: "Next game", answer: "None scheduled" },
     next && snapshot ? { id: "briefing", title: "The matchup", answer: "In numbers" } : null,
     snapshot ? { id: "ticket", title: "Your call", answer: "Call the score" } : null,
     snapshot ? { id: "standings", title: standings?.division ?? "Standings", answer: picture ? (place === 1 ? (picture.atTop > 1 ? "Tied for first" : "First") : `${ORDINAL[place - 1] ?? place}, ${halfGames(picture.back)} back`) : "Pending" } : null,
@@ -53,7 +58,11 @@ export default async function GameDayPage() {
   ].filter((entry): entry is FocusEntry => entry !== null);
 
   return <FocusShell page="game-day" entries={entries} checkedAt={snapshot?.checkedAt ?? null} className={focusFonts}>
-    {nextGame && next ? <FocusNext id="kickoff" first next={nextGame} wins={summary.wins} losses={summary.losses} ties={summary.ties} stakes={false} go={{ href: "#ticket", label: "Make your call" }} />
+    {liveGame && live ? <FocusMoment id="kickoff" first label={`${live.status === "retained" ? "Last verified game update" : liveGame.state === "live" ? "Live game" : "Latest game update"} · ${liveGame.seasonType === "POST" ? "Playoffs" : `Week ${liveGame.week}`}`}
+      heading={<>Jets {liveGame.atHome ? "vs" : "at"} {footballOpponent(liveGame)}.</>}
+      actions={<Link href="/team/stats" className={shared.go}>Game &amp; player numbers <span aria-hidden="true">→</span></Link>}>
+      <figure className={shared.shape}><FootballLiveCard feed={live} id="game-day-football-score" /></figure>
+    </FocusMoment> : nextGame && next ? <FocusNext id="kickoff" first next={nextGame} wins={summary.wins} losses={summary.losses} ties={summary.ties} stakes={false} go={{ href: "#ticket", label: "Make your call" }} />
       : <FocusMoment id="kickoff" first label="Next game" heading="No game on the schedule."><p className={shared.caption}>{snapshot ? "No remaining fixture is listed in this edition." : "The next fixture is unavailable in this edition."}</p></FocusMoment>}
 
     {next && snapshot ? <FocusMoment id="briefing" hosts>

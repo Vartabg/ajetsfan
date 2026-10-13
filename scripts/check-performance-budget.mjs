@@ -27,7 +27,9 @@ export const performanceBudgets = [
   // 2026-10-13: 454 game squares and their readout data measured 13.4 KiB; one more row a season.
   { route: "/history/quarterbacks", file: "history/quarterbacks", html: 18, js: 200 },
   { route: "/puzzle", file: "puzzle", html: 18, js: 200 },
-  { route: "/team/roster", file: "team/roster", html: 22, js: 205 },
+  // 2026-10-13: runtime roster now renders its player cards on the server;
+  // the former static response carried a loading fallback. Measured 26.4 KiB.
+  { route: "/team/roster", file: "team/roster", html: 28, js: 205 },
   { route: "/team/news", file: "team/news", html: 14, js: 195 },
   { route: "/team/stats", file: "team/stats", html: 14, js: 200 },
   { route: "/morgue", file: "morgue", html: 90, js: 205 },

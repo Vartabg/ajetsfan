@@ -8,7 +8,7 @@ import { loadSeasonArchive } from "@/lib/load-season-archive";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = siteOrigin();
   if (!origin) return [];
-  const [games, current, coverage, seasons] = await Promise.all([loadGames(), loadCurrent(), loadCoverage(), loadSeasonArchive({ liveMedia: false })]);
+  const [games, current, coverage, seasons] = await Promise.all([loadGames({ live: false }), loadCurrent({ live: false }), loadCoverage({ live: false }), loadSeasonArchive({ liveMedia: false })]);
   const paths = ["/", "/game-day", "/stories", "/discover", "/history", "/history/trades", "/history/quarterbacks", "/puzzle", "/team", "/team/roster", "/team/stats", "/team/news", "/morgue", "/film-room", "/media", "/media/rants", "/seasons", "/how-made",
     ...seasons.map((season) => `/seasons/${season.year}`),
     ...seasons.map((season) => `/seasons/${season.year}/guide`),
