@@ -16,5 +16,9 @@ export default function SeasonReturn({ year, fallback = "/morgue", fallbackLabel
   const destination = seasonReturn(new URLSearchParams(search).get(queryKey), year);
   if (!destination && !fallback) return null;
   const season = destination?.match(/^\/seasons\/(\d{4})/)?.[1];
-  return <Link href={destination ?? fallback!} className={className} data-season-return={destination ? "context" : "fallback"}>{destination ? `← Back to ${season}` : fallbackLabel}</Link>;
+  const href = destination ?? fallback!;
+  // A native return lets the browser apply the saved fragment once. Next's
+  // optimistic navigation to a dynamic page can append its cached hash again.
+  const ReturnLink = href.includes("#") ? "a" : Link;
+  return <ReturnLink href={href} className={className} data-season-return={destination ? "context" : "fallback"}>{destination ? `← Back to ${season}` : fallbackLabel}</ReturnLink>;
 }
