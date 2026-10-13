@@ -1,4 +1,5 @@
 import Link from "@/components/IntentLink";
+import LivePlays from "@/components/LivePlays";
 import CalendarSubscribe from "@/components/CalendarSubscribe";
 import FocusMoment from "@/components/FocusMoment";
 import FocusNext from "@/components/FocusNext";
@@ -17,6 +18,7 @@ import { halfGames, ORDINAL, on, record } from "@/lib/focus-format";
 import { loadAnalytics, loadCurrent, loadGames } from "@/lib/load-games";
 import { loadLeagueHistory } from "@/lib/load-league-history";
 import { loadFootballLive } from "@/lib/load-football";
+import { editionClock } from "@/lib/live-plays";
 import { publishedGames } from "@/lib/published-pages";
 import { pageMetadata } from "@/lib/site";
 import { teamIdentity } from "@/lib/teams";
@@ -61,7 +63,8 @@ export default async function GameDayPage() {
     {liveGame && live ? <FocusMoment id="kickoff" first label={`${live.status === "retained" ? "Last verified game update" : liveGame.state === "live" ? "Live game" : "Latest game update"} · ${liveGame.seasonType === "POST" ? "Playoffs" : `Week ${liveGame.week}`}`}
       heading={<>Jets {liveGame.atHome ? "vs" : "at"} {footballOpponent(liveGame)}.</>}
       actions={<Link href="/team/stats" className={shared.go}>Game &amp; player numbers <span aria-hidden="true">→</span></Link>}>
-      <figure className={shared.shape}><FootballLiveCard feed={live} id="game-day-football-score" /></figure>
+      <figure className={shared.shape}>{liveGame.state === "live" ? <LivePlays event={liveGame.eventId} nickname={footballOpponent(liveGame)} us={liveGame.jetsScore} them={liveGame.oppScore} clock={editionClock(liveGame)} />
+        : <FootballLiveCard feed={live} id="game-day-football-score" />}</figure>
     </FocusMoment> : nextGame && next ? <FocusNext id="kickoff" first next={nextGame} wins={summary.wins} losses={summary.losses} ties={summary.ties} stakes={false} go={{ href: "#ticket", label: "Make your call" }} />
       : <FocusMoment id="kickoff" first label="Next game" heading="No game on the schedule."><p className={shared.caption}>{snapshot ? "No remaining fixture is listed in this edition." : "The next fixture is unavailable in this edition."}</p></FocusMoment>}
 

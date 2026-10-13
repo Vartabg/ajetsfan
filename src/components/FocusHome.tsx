@@ -1,13 +1,14 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "./IntentLink";
 import FocusMoment from "./FocusMoment";
 import FocusNext from "./FocusNext";
 import InlineMedia from "./InlineMedia";
 import FocusPlay from "./FocusPlay";
 import FocusShell from "./FocusShell";
-import type { FocusData, FocusPoint } from "@/lib/focus";
+import WinLine from "./WinLine";
+import type { FocusData } from "@/lib/focus";
 import type { OnThisDay } from "@/lib/on-this-day";
 import { dayOf, halfGames, on, ORDINAL, record } from "@/lib/focus-format";
 import { formatMediaDate } from "@/lib/media";
@@ -25,47 +26,6 @@ function Toggle({ pressed, onChange, show, hide }: { pressed: boolean; onChange:
 
 function Go({ href, children }: { href: string; children: ReactNode }) {
   return <Link href={href} className={shared.go}>{children} <span aria-hidden="true">→</span></Link>;
-}
-
-/** The game's shape: one point per play, evenly spaced, as the site's other charts do. */
-function WinLine({ line, keys, label }: { line: FocusPoint[]; keys: boolean; label: string }) {
-  const [at, setAt] = useState<number | null>(null);
-  const box = useRef<HTMLDivElement>(null);
-  const last = line.length - 1;
-  const x = (index: number) => index / last * 1000;
-  const y = (wp: number) => (1 - wp) * 300;
-  const path = line.map(([wp], index) => `${index ? "L" : "M"}${x(index).toFixed(1)} ${y(wp).toFixed(1)}`).join("");
-  const quarters = line.flatMap(([, q], index) => index && q !== line[index - 1][1] ? [{ index, label: q > 4 ? "OT" : `Q${q}` }] : []);
-  const best = line.reduce((top, point, index) => point[0] > line[top][0] ? index : top, 0);
-  const marks = [{ index: 0, text: `Kickoff ${pct(line[0][0])}`, below: Math.abs(best) < last * .12 }, { index: best, text: `Best ${pct(line[best][0])}`, below: false }, { index: last, text: `Final ${pct(line[last][0])}`, below: line[last][0] > .85 }];
-  const read = (clientX: number) => {
-    const rect = box.current?.getBoundingClientRect();
-    if (!rect) return;
-    setAt(Math.round(Math.min(1, Math.max(0, (clientX - rect.left) / rect.width)) * last));
-  };
-  const move = (event: PointerEvent<HTMLDivElement>) => { if (event.pointerType === "mouse" || event.buttons) read(event.clientX); };
-  const step = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-    event.preventDefault();
-    setAt((current) => Math.min(last, Math.max(0, (current ?? (event.key === "ArrowLeft" ? last + 1 : -1)) + (event.key === "ArrowLeft" ? -1 : 1))));
-  };
-  const reading = at === null ? null : line[at];
-  return <div ref={box} className={styles.chart} role="img" aria-label={label} tabIndex={0} onPointerMove={move} onPointerDown={(event) => read(event.clientX)} onPointerLeave={() => setAt(null)} onKeyDown={step} onBlur={() => setAt(null)} data-focus-chart>
-    <svg viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true">
-      {quarters.map((quarter) => <line key={quarter.index} className={styles.tick} x1={x(quarter.index)} x2={x(quarter.index)} y1="0" y2="300" />)}
-      <line className={styles.even} x1="0" x2="1000" y1="150" y2="150" />
-      <path className={styles.area} d={`${path}L1000 300L0 300Z`} />
-      <path className={styles.line} d={path} />
-    </svg>
-    <i className={styles.final} style={{ top: `calc((100% - 24px) * ${(y(line[last][0]) / 300).toFixed(3)})` }} aria-hidden="true" />
-    <div className={styles.axis} aria-hidden="true"><span style={{ left: 0 }}>Q1</span>{quarters.map((quarter) => <span key={quarter.index} style={{ left: `${x(quarter.index) / 10}%` }}>{quarter.label}</span>)}</div>
-    {keys ? <div className={styles.keys} data-focus-keys>{marks.map((mark) => {
-      // Labels near an edge hang inward so enlarged text cannot push them off the screen.
-      const left = x(mark.index) / 10, edge = left < 20 ? styles.start : left > 80 ? styles.end : "";
-      return <span key={mark.text} className={`${mark.below ? styles.below : ""} ${edge}`} style={{ left: `${left}%`, top: `${y(line[mark.index][0]) / 3}%` }}>{mark.text}</span>;
-    })}</div> : null}
-    {reading ? <><span className={styles.cursor} style={{ left: `${x(at!) / 10}%` }} aria-hidden="true" /><span className={styles.readout} role="status">{reading[1] > 4 ? "OT" : `Q${reading[1]}`} · {pct(reading[0])}</span></> : null}
-  </div>;
 }
 
 function LastGame({ last, first, status }: { last: NonNullable<FocusData["last"]>; first: boolean; status: ReactNode }) {
