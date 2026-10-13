@@ -83,3 +83,12 @@
 .dated span:first-of-type { font: 600 17px/1.3 var(--text); }
 .dated small { font: 400 12px/1 var(--data); color: var(--quiet); }
 .dated a:hover span:first-of-type { text-decoration: underline; text-underline-offset: 4px; }
+
+/* Live: one slow pulse beside the label while ESPN is answering; the line's last point breathes as on any game. */
+.liveDot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--loss); align-self: flex-start; margin-bottom: -6px; animation: breathe-loss 2.4s ease-in-out infinite; }
+.liveDot[data-live-state="post"], .liveDot[data-live-state="unavailable"], .liveDot[data-live-state="loading"], .liveDot[data-live-state="pre"] { background: var(--faint); animation: none; }
+@keyframes breathe-loss { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--loss) 22%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .liveDot { animation: none; } }
+.situation { display: grid; gap: 4px; max-width: 46em; margin: 0; font-size: 15px; line-height: 1.45; }
+.situation b { font: 600 15px/1.3 var(--data); }
+.situation span { color: var(--quiet); }

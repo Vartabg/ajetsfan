@@ -1,12 +1,14 @@
 import FocusHome from "@/components/FocusHome";
 import { selectLead } from "@/lib/current";
-import { buildFocus } from "@/lib/focus";
+import { buildFocus, placeName } from "@/lib/focus";
 import { loadCurrent, loadCurve, loadGames } from "@/lib/load-games";
 import { loadLeagueHistory } from "@/lib/load-league-history";
+import { liveCandidate } from "@/lib/live";
 import { loadMediaCollection, scheduleStaleMediaRecovery } from "@/lib/load-media";
 import { newYorkToday, onThisDay } from "@/lib/on-this-day";
 import { publishedGames } from "@/lib/published-pages";
 import { pageMetadata } from "@/lib/site";
+import { teamIdentity } from "@/lib/teams";
 import { focusFonts } from "./focus-fonts";
 
 export const dynamic = "force-dynamic";
@@ -23,5 +25,8 @@ export default async function Home() {
   const curve = lead.analysisStatus === "ready" && lead.analysis ? await loadCurve(lead.analysis.id) : [];
   // The page renders per request, so "today" is the reader's New York date.
   const today = history ? onThisDay(history.games, newYorkToday(), new Set(publishedGames(games, snapshot).map((game) => game.id))) : null;
-  return <FocusHome data={buildFocus({ games, snapshot, curve, media: mediaCollection })} today={today} className={focusFonts} />;
+  // A game whose window is open (half an hour before kickoff to six hours after) gets a live moment first.
+  const game = snapshot ? liveCandidate(snapshot.schedule, snapshot.season) : null;
+  const live = game?.kickoff ? { id: game.id, kickoff: game.kickoff, home: game.atHome, place: placeName(game.opponentDisplay), nickname: teamIdentity(game.opponentDisplay)?.nickname ?? placeName(game.opponentDisplay) } : null;
+  return <FocusHome data={buildFocus({ games, snapshot, curve, media: mediaCollection })} today={today} live={live} className={focusFonts} />;
 }
