@@ -34,9 +34,12 @@ test("a final names the score and result; a scheduled game names the matchup; an
 });
 
 test("the feed is served as a calendar and Game Day offers the four ways to add it", async ({ page, request }) => {
+  const manifest = JSON.parse(readFileSync(path.join(process.cwd(), ".next", "prerender-manifest.json"), "utf8"));
+  expect(Object.hasOwn(manifest.routes, "/jets.ics")).toBe(false);
   const response = await request.get("/jets.ics");
   expect(response.status()).toBe(200);
   expect(response.headers()["content-type"]).toContain("text/calendar");
+  expect(response.headers()["cache-control"]).toContain("no-store");
   expect(await response.text()).toContain(`X-WR-CALNAME:Jets ${snapshot.season}`);
   await page.goto("/game-day#season");
   const calendar = page.locator("#season details[data-calendar]");
