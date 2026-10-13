@@ -2,7 +2,7 @@ import "server-only";
 import curated from "./media-catalog.json";
 import { mediaCollection as baked } from "./media-catalog";
 import { MEDIA_SOURCES, refreshMedia } from "../../scripts/refresh-media.mjs";
-import { coordinateMediaRefresh, MEDIA_COLLECTION_PATH } from "./media-refresh-coordinator.mjs";
+import { coordinateMediaRefresh, MEDIA_COLLECTION_PATH, MIN_MEDIA_REFRESH_INTERVAL_MS } from "./media-refresh-coordinator.mjs";
 import { liveMediaEnvelope, MEDIA_POLICY_REVISION, mediaPolicyFingerprint, validateLiveMediaEnvelope } from "./media-live-envelope.mjs";
 import { isMediaBlobConflict, readMediaBlob, writeMediaBlob } from "./media-blob-store";
 import type { MediaCollection } from "./media";
@@ -34,6 +34,7 @@ export async function refreshHostedMedia() {
     },
     isConflict: isMediaBlobConflict,
     refresh: (options: { curated: MediaCollection; previous: MediaCollection; youtubeApiKey: string; now: Date; onError: (message: string) => void }) => refreshMedia({ ...options,
+      readySourceIntervalMs: previousEnvelope ? MIN_MEDIA_REFRESH_INTERVAL_MS : 0,
       fetcher: (input: string | URL | Request, init?: RequestInit) => fetch(input, { ...init, cache: "no-store",
         signal: init?.signal ? AbortSignal.any([deadline, init.signal]) : deadline }),
     }),

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { validateMediaCollection } from './media.ts';
 
 // Increment for importer/selection policy changes not represented in source config.
-export const MEDIA_POLICY_REVISION = 1;
+export const MEDIA_POLICY_REVISION = 2;
 
 /** Editorial/source policy changes invalidate old runtime selections. */
 export function mediaPolicyFingerprint(curated, sources) {
