@@ -24,6 +24,8 @@ export const performanceBudgets = [
   { route: "/history", file: "history", html: 14, js: 195 },
   // 143 trades with their pick chains measured 39.1 KiB at launch; a few trades are added each year.
   { route: "/history/trades", file: "history/trades", html: 48, js: 195 },
+  // 2026-10-13: 454 game squares and their readout data measured 13.4 KiB; one more row a season.
+  { route: "/history/quarterbacks", file: "history/quarterbacks", html: 18, js: 200 },
   { route: "/puzzle", file: "puzzle", html: 18, js: 200 },
   { route: "/team/roster", file: "team/roster", html: 22, js: 205 },
   { route: "/team/news", file: "team/news", html: 14, js: 195 },

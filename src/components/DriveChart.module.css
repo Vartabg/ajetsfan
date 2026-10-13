@@ -24,3 +24,4 @@
 .legend [data-kind="giveaway"]::before { background: var(--loss); opacity: 1; }
 @media (max-width: 440px) { .row { grid-template-columns: 2.2em minmax(0, 1fr) 5.8em; } .lines, .ends { left: 2.2em; right: 5.8em; } }
 .toggle { align-self: flex-start; }
+.ends span:nth-child(2) { position: absolute; left: 50%; transform: translateX(-50%); }
