@@ -38,9 +38,9 @@ async function getCase(id: string) {
 }
 
 export const dynamic = "force-dynamic";
-export const dynamicParams = false;
+export const dynamicParams = true;
 export async function generateStaticParams() {
-  return (await loadPublishedGames()).map((game) => ({ id: game.id }));
+  return (await loadPublishedGames({ live: false })).map((game) => ({ id: game.id }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

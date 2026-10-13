@@ -3,11 +3,9 @@ name: Refresh Jets data
 on:
   workflow_dispatch:
   schedule:
-    # UTC: publisher feeds and sports sources every three hours. Extra checks
-    # follow Sunday afternoon and Sunday/Monday/Thursday night games.
-    - cron: '23 */3 * * *'
-    - cron: '23 19-23 * * 0'
-    - cron: '23 0-5 * * 1,2,5'
+    # Daily archived recovery snapshot. Native Vercel timers publish live scores,
+    # team coverage and analysis independently of this build/deployment queue.
+    - cron: '23 8 * * *'
 
 permissions:
   contents: write

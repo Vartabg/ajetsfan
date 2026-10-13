@@ -7,6 +7,8 @@ import { loadGames, loadCurrent } from "@/lib/load-games";
 import { mergeResults, selectLead } from "@/lib/current";
 import { currentStreak, wearLevel } from "@/lib/paper";
 import LegacyNavigation from "@/components/LegacyNavigation";
+import FootballRefresh from "@/components/football-refresh";
+import { loadFootballViewerStatus } from "@/lib/football-viewer-status";
 import { publishedGames } from "@/lib/published-pages";
 import "./globals.css";
 
@@ -27,8 +29,10 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const [games, snapshot] = await Promise.all([loadGames(), loadCurrent()]);
+  const [games, snapshot, football] = await Promise.all([loadGames(), loadCurrent(), loadFootballViewerStatus()]);
   const streak = currentStreak(mergeResults(games, snapshot));
   const wear = wearLevel(streak);
   const result = selectLead(games, snapshot).result;
@@ -45,6 +49,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <LegacyNavigation latestReport={latestReport} />
         {children}
         <Telemetry />
+        <FootballRefresh initialRevision={football.revision} />
       </body>
     </html>
   );

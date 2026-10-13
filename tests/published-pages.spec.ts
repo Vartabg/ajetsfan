@@ -66,6 +66,15 @@ test("player publishing keeps the current checked roster and withholds wrong sea
   expect(publishedPlayers({ ...coverage, roster: { ...coverage.roster, players: [player, { ...player }] } }, current.season)).toEqual([]);
 });
 
+test("new roster entries with verified ESPN fallback IDs can publish without a manual profile rebuild", () => {
+  const fallback = { ...player, id: "espn-12345", espnId: "12345" };
+  const withPlayers = (players: typeof coverage.roster.players) => ({ ...coverage, roster: { ...coverage.roster, players } });
+  expect(publishedPlayers(withPlayers([fallback]), current.season)).toEqual([fallback]);
+  expect(publishedPlayers(withPlayers([{ ...fallback, id: "espn-67890" }]), current.season)).toEqual([]);
+  expect(publishedPlayers(withPlayers([{ ...fallback, espnId: null }]), current.season)).toEqual([]);
+  expect(publishedPlayers(withPlayers([fallback, fallback]), current.season)).toEqual([]);
+});
+
 test("published case and player are readable with JavaScript disabled and retain specific share metadata", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, baseURL: test.info().project.use.baseURL });
   const page = await context.newPage();

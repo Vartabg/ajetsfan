@@ -18,6 +18,7 @@
     "data:trades": "node scripts/draft-trades.mjs"
   },
   "dependencies": {
+    "@duckdb/node-api": "^1.5.5-r.3",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "2.8.1",
     "@vercel/speed-insights": "^2.0.0",
@@ -28,7 +29,6 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
-    "@duckdb/node-api": "^1.5.5-r.3",
     "@playwright/test": "^1.61.1",
     "@types/node": "^20",
     "@types/react": "^19",

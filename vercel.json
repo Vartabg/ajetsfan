@@ -1,3 +1,7 @@
 {
-  "crons": [{ "path": "/api/cron/media", "schedule": "*/5 * * * *" }]
+  "crons": [
+    { "path": "/api/cron/media", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/football", "schedule": "* * * * *" },
+    { "path": "/api/cron/analysis", "schedule": "*/10 * * * *" }
+  ]
 }
