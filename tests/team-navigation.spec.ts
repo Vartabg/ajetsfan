@@ -64,7 +64,11 @@ test("player pages use the same focus layout and retain particulars, statistics 
   await expect(page.locator("#profile-details-heading")).toHaveText("The particulars.");
   await expect(page.locator("#profile-stats-heading")).toContainText("on the record.");
   await expect(page.getByRole("navigation", { name: "Player sources and next steps" }).getByRole("link", { name: "Roster source" })).toHaveAttribute("target", "_blank");
-  expect(await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.id))).toEqual(["player", "profile-details", "profile-stats", "profile-sources", "more"]);
+  const ids = await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.id));
+  // Game by game, career and biggest plays appear only for players with Jets games on record, right after the player.
+  const optional = ["profile-games", "profile-career", "profile-plays"];
+  expect(ids.filter((id) => !optional.includes(id))).toEqual(["player", "profile-details", "profile-stats", "profile-sources", "more"]);
+  expect(ids.slice(1, 1 + ids.filter((id) => optional.includes(id)).length).every((id) => optional.includes(id))).toBe(true);
   await page.setViewportSize({ width: 320, height: 900 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

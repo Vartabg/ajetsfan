@@ -26,6 +26,8 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@duckdb/node-api", "@duckdb/node-bindings"],
   outputFileTracingIncludes: {
     "/*": ["./public/data/*.json", "./public/data/drives/*.json"],
+    // Player pages read every season's player file (readdir), which tracing cannot follow on its own.
+    "/players/*": ["./public/data/players/*.json"],
     "/api/cron/analysis": ["./node_modules/@duckdb/node-bindings-linux-x64/**/*", "./public/data/curves/*.json"],
   },
   images: {
