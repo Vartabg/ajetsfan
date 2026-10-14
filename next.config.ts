@@ -15,8 +15,9 @@ const nextConfig: NextConfig = {
   // The public snapshot URL must use the same runtime edition as pages and health.
   rewrites: () => ({ beforeFiles: [
     { source: "/data/media.json", destination: "/api/media" },
-    ...["current", "coverage", "live", "games", "analytics", "season-rankings", "nextgen-stats"].map((dataset) => ({ source: `/data/${dataset}.json`, destination: `/api/football/${dataset}` })),
+    ...["current", "coverage", "live", "games", "analytics", "season-rankings", "nextgen-stats", "league-history"].map((dataset) => ({ source: `/data/${dataset}.json`, destination: `/api/football/${dataset}` })),
     { source: "/data/curves/:id.json", destination: "/api/football/curve/:id" },
+    { source: "/data/drives/:season.json", destination: "/api/football/drives/:season" },
   ] }),
   // The home directory is itself a git repo with a stray package-lock.json.
   // Pin the root so Turbopack does not walk up into it.
@@ -24,7 +25,7 @@ const nextConfig: NextConfig = {
   // The native extractor runs only in the analysis timer, never in score or page handlers.
   serverExternalPackages: ["@duckdb/node-api", "@duckdb/node-bindings"],
   outputFileTracingIncludes: {
-    "/*": ["./public/data/*.json"],
+    "/*": ["./public/data/*.json", "./public/data/drives/*.json"],
     "/api/cron/analysis": ["./node_modules/@duckdb/node-bindings-linux-x64/**/*", "./public/data/curves/*.json"],
   },
   images: {

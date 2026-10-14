@@ -16,6 +16,7 @@ const MORE: FocusEntry = { id: "more", title: "Everything else", answer: "Team, 
 export default function FocusShell({ page, entries, checkedAt, section, name, className = "", style, children }: { page: string; entries: FocusEntry[]; checkedAt: string | null; section?: string; name?: string; className?: string; style?: CSSProperties; children: ReactNode }) {
   const pathname = usePathname();
   const index = [...entries, MORE];
+  const entryIds = JSON.stringify(entries.map((entry) => entry.id));
   // Use the most specific destination, and keep player profiles in the Team desk.
   const place = section ?? (pathname.startsWith("/players/") ? "/team" : pathname);
   const currentHref = SECTIONS.filter(({ href }) => place === href || place.startsWith(`${href}/`)).sort((a, b) => b.href.length - a.href.length)[0]?.href;
@@ -31,6 +32,7 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
   const sheet = useRef<HTMLDialogElement>(null);
+  const stack = useRef<HTMLElement>(null);
 
   // Menu opens a sheet over the current screen instead of scrolling the page to its last moment:
   // a long jump through snap points is what iPhone Safari pulls back to the top. Without JavaScript it stays a link to #more.
@@ -50,12 +52,27 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
   };
 
   useEffect(() => {
-    const sections = index.map((entry) => document.getElementById(entry.id)).filter((section): section is HTMLElement => section !== null);
+    const findSections = () => index.map((entry) => document.getElementById(entry.id)).filter((section): section is HTMLElement => section !== null);
+    let sections = findSections();
     // The moment crossing the middle of the screen is the one in view, however tall it is.
     const observer = new IntersectionObserver((records) => {
-      for (const record of records) if (record.isIntersecting) setActive(sections.indexOf(record.target as HTMLElement));
+      for (const record of records) if (record.isIntersecting) {
+        const at = sections.indexOf(record.target as HTMLElement);
+        if (at >= 0) setActive(at);
+      }
     }, { rootMargin: "-45% 0px -54% 0px" });
     sections.forEach((section) => observer.observe(section));
+    // An RSC refresh may replace a section without changing its ID. Only
+    // direct-child replacements matter; text, clocks and controls within a
+    // moment never restart observation or change the reader's position.
+    const replacements = new MutationObserver(() => {
+      const next = findSections();
+      if (next.length !== index.length || next.every((section, at) => section === sections[at])) return;
+      observer.disconnect();
+      sections = next;
+      sections.forEach((section) => observer.observe(section));
+    });
+    if (stack.current) replacements.observe(stack.current, { childList: true });
     const keys = (event: KeyboardEvent) => {
       if (event.defaultPrevented || sheet.current?.open || event.altKey || event.ctrlKey || event.metaKey || (event.target as HTMLElement).closest("input, select, textarea, [contenteditable], [data-focus-chart], [data-focus-tools], [data-inline-media], video, audio")) return;
       const step = ["ArrowDown", "j"].includes(event.key) ? 1 : ["ArrowUp", "k"].includes(event.key) ? -1 : 0;
@@ -71,10 +88,12 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
       target.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
     };
     addEventListener("keydown", keys);
-    return () => { observer.disconnect(); removeEventListener("keydown", keys); };
-  // The moment list only changes with a new build.
+    return () => { replacements.disconnect(); observer.disconnect(); removeEventListener("keydown", keys); };
+  // Runtime evidence can add a moment while this shell stays mounted. Observe
+  // the new DOM only when its IDs change; labels and source clocks keep the
+  // same listeners and never reposition the reader.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [entryIds]);
 
   return <div className={`${styles.app} ${className}`} style={style} data-focus-page={page}>
     <header className={styles.bar}>
@@ -97,7 +116,7 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
       <nav aria-label="On this page"><p className={rail.label}>On this page</p><ol>{index.map((entry, at) => <li key={entry.id}><a href={`#${entry.id}`} aria-current={at === active ? "true" : undefined}><span>{entry.title}</span><b>{entry.answer}</b></a></li>)}</ol></nav>
       {checkedAt ? <p className={styles.note}>Results checked {on(checkedAt, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} ET.</p> : null}
     </aside>
-    <main id="main" className={styles.stack}>
+    <main ref={stack} id="main" className={styles.stack}>
       {children}
       <section id="more" className={styles.moment} aria-labelledby="more-heading" data-focus-moment="more">
         <p className={styles.label}>ajetsfan</p>

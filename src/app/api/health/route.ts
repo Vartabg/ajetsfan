@@ -30,7 +30,7 @@ export async function GET() {
       status: football.mode === "snapshot" ? "not_configured" : football.mode === "fallback" ? "unavailable" :
         Date.now() - Date.parse(football.updatedAt!) >= (active ? 3 : 10) * 60_000 ? "overdue" :
           [football.edition.live, football.edition.scheduleCheck, coverage?.news, coverage?.roster, coverage?.stats].some((feed) => !feed || feed.status !== "ready") ? "degraded" : "ready" };
-    const analysisScheduler = { mode: analysis.mode, intervalMinutes: 10, updatedAt: analysis.edition?.updatedAt ?? null,
+    const analysisScheduler = { mode: analysis.mode, intervalMinutes: 10, targetMinutes: 30, updatedAt: analysis.edition?.updatedAt ?? null,
       durationMs: analysis.edition?.durationMs ?? null,
       status: analysis.mode === "snapshot" ? "not_configured" : analysis.mode === "fallback" ? "unavailable" :
         Date.now() - Date.parse(analysis.edition!.updatedAt) >= 25 * 60_000 ? "overdue" :

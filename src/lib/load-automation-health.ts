@@ -7,6 +7,10 @@ import type { NextGenCollection } from "./nextgen-stats";
 import { isNextGenCollection } from "./nextgen-stats";
 import { loadMediaCollection } from "./load-media";
 import { loadSeasonRankings, loadNextGenCollection } from "./load-season-statistics";
+import { loadAnalysisState } from "./load-analysis";
+import { analysisSourceChecks } from "./analysis-refresh-coordinator.mjs";
+import { loadLeagueHistory } from "./load-league-history";
+import { loadDrivesSeason } from "./load-drives";
 
 async function snapshot(name: string) {
   try { return JSON.parse(await readFile(path.join(process.cwd(), "public/data", name), "utf8")); }
@@ -24,17 +28,22 @@ export async function loadAutomationHealth(season: number | null): Promise<Autom
   if (rankings && (rankings.schemaVersion !== 1 || !Array.isArray(rankings.seasons))) throw new Error("Invalid rankings health snapshot");
   if (nextgen && !isNextGenCollection(nextgen)) throw new Error("Invalid tracking health snapshot");
   if (trades && (trades.schemaVersion !== 1 || !Array.isArray(trades.trades) || !trades.trades.length)) throw new Error("Invalid trade health snapshot");
-  const [ranking, liveNextgen] = await Promise.all([
-    season === null ? Promise.resolve(null) : loadSeasonRankings(season), loadNextGenCollection(),
+  const [ranking, liveNextgen, analysis, history, drives] = await Promise.all([
+    season === null ? Promise.resolve(null) : loadSeasonRankings(season), loadNextGenCollection(), loadAnalysisState(),
+    loadLeagueHistory(), season === null ? Promise.resolve(null) : loadDrivesSeason(season),
   ]);
   for (const source of [ranking, nextgen, trades]) {
     if (source && (!Number.isFinite(Date.parse(source.checkedAt)) || source.status !== undefined && !["ready", "retained"].includes(source.status)
       || source.attemptedAt !== undefined && (!Number.isFinite(Date.parse(source.attemptedAt)) || Date.parse(source.attemptedAt) < Date.parse(source.checkedAt)))) throw new Error("Invalid source health state");
   }
+  const postgameChecks = analysis.edition && analysis.edition.season === season ? analysisSourceChecks(analysis.edition) : null;
   return {
     media: mediaCollection.sources,
     rankings: ranking ? { checkedAt: ranking.checkedAt, status: ranking.status ?? "ready" } : undefined,
     nextgen: liveNextgen ? { checkedAt: liveNextgen.checkedAt, status: liveNextgen.status ?? "ready" } : undefined,
     trades: trades ? { checkedAt: trades.checkedAt, status: trades.status ?? "ready" } : undefined,
+    // Report the actual publisher checks in production, including a failed newer attempt.
+    history: analysis.mode === "snapshot" ? history ? { checkedAt: history.checkedAt, status: history.status ?? "ready" } : undefined : postgameChecks?.history,
+    drives: analysis.mode === "snapshot" ? drives ? { checkedAt: drives.checkedAt, status: "status" in drives ? drives.status : "ready" } : undefined : postgameChecks?.drives,
   };
 }

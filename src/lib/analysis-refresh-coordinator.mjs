@@ -25,7 +25,8 @@ export function analysisSourceChecks(envelope) {
   const check = (name, payload) => payload
     ? { status: payload.status ?? 'ready', checkedAt: payload.checkedAt ?? null, attemptedAt: payload.attemptedAt ?? payload.checkedAt }
     : envelope.sourceChecks?.[name] ?? { status: 'unavailable', checkedAt: null, attemptedAt: envelope.updatedAt };
-  return { analysis: check('analysis', envelope.current.analysisCheck), rankings: check('rankings', envelope.rankings), nextgen: check('nextgen', envelope.nextgen) };
+  return { analysis: check('analysis', envelope.current.analysisCheck), rankings: check('rankings', envelope.rankings), nextgen: check('nextgen', envelope.nextgen),
+    ...(Object.hasOwn(envelope, 'history') || Object.hasOwn(envelope, 'drives') ? { history: check('history', envelope.history), drives: check('drives', envelope.drives) } : {}) };
 }
 export const analysisFailedSourceIds = (envelope) => Object.entries(analysisSourceChecks(envelope))
   .filter(([, source]) => source.status !== 'ready' || !source.checkedAt).map(([id]) => id);
@@ -65,7 +66,7 @@ export async function coordinateAnalysisRefresh({ read, write, isConflict, refre
   if (!acquired) return { status: 'busy' };
   try {
     const baseline = await get(collectionPath), previous = baseline ? validated(baseline.value) : null;
-    if (previous && !baseline.refreshRequired && !analysisFailedSourceIds(previous).length) {
+    if (previous && Object.hasOwn(previous, 'history') && Object.hasOwn(previous, 'drives') && !baseline.refreshRequired && !analysisFailedSourceIds(previous).length) {
       const ages = Object.values(analysisSourceChecks(previous)).map((source) => started.getTime() - stamp(source.checkedAt));
       if (ages.every((age) => age >= 0 && age < MIN_ANALYSIS_REFRESH_INTERVAL_MS)) return { status: 'fresh', updatedAt: previous.updatedAt, season: previous.season };
     }
@@ -76,7 +77,7 @@ export async function coordinateAnalysisRefresh({ read, write, isConflict, refre
     if (previous && (envelope.season < previous.season || stamp(envelope.updatedAt) < stamp(previous.updatedAt))) return { status: 'superseded' };
     if (previous?.season === envelope.season) {
       const oldChecks = analysisSourceChecks(previous), freshChecks = analysisSourceChecks(envelope);
-      if (Object.keys(oldChecks).some((name) => stamp(freshChecks[name].checkedAt) < stamp(oldChecks[name].checkedAt)
+      if (Object.keys(oldChecks).some((name) => !freshChecks[name] || stamp(freshChecks[name].checkedAt) < stamp(oldChecks[name].checkedAt)
         || stamp(freshChecks[name].attemptedAt) < stamp(oldChecks[name].attemptedAt))) return { status: 'superseded' };
     }
     const currentLease = await get(leasePath);

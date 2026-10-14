@@ -2,6 +2,7 @@ import { loadFootballState } from "@/lib/load-football";
 import { loadCurrent, loadGames, loadAnalytics } from "@/lib/load-games";
 import { loadCoverage } from "@/lib/load-coverage";
 import { loadRankingsCollection, loadNextGenCollection } from "@/lib/load-season-statistics";
+import { loadLeagueHistory } from "@/lib/load-league-history";
 
 export const dynamic = "force-dynamic";
 export async function GET(_request: Request, { params }: { params: Promise<{ dataset: string }> }) {
@@ -10,6 +11,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ dat
   const loaders: Record<string, () => Promise<unknown>> = {
     current: loadCurrent, coverage: loadCoverage, games: loadGames, analytics: loadAnalytics,
     "season-rankings": loadRankingsCollection, "nextgen-stats": loadNextGenCollection,
+    "league-history": loadLeagueHistory,
     live: async () => (await loadFootballState()).edition.live,
   };
   if (!Object.hasOwn(loaders, dataset)) return Response.json({ status: "not_found" }, { status: 404, headers });

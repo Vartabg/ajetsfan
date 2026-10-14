@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { parseLeagueSchedule, SCHEDULE_SOURCE } from './data-refresh.mjs';
-import { jetsHistory, playoffsByWins, refreshHistory, scheduleExtras, validateHistory } from './league-history.mjs';
+import { buildHistory, jetsHistory, playoffsByWins, refreshHistory, scheduleExtras, validateHistory } from './league-history.mjs';
 
 const HEADER = 'game_id,season,game_type,week,gameday,gametime,away_team,away_score,home_team,home_score,espn,stadium,away_qb_id,home_qb_id,away_qb_name,home_qb_name';
 const csv = (...rows) => [HEADER, ...rows].join('\n');
@@ -74,4 +74,36 @@ test('an outage keeps the last validated history and marks it retained', async (
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test('a newly played game adds its actual starter on the next source check', () => {
+  const before = buildHistory(csv(PLAYED, NEXT), { now: new Date('2026-10-18T21:50:00Z') });
+  const completed = NEXT.replace('NYJ,,NE,,', 'NYJ,20,NE,17,').replace('00-0030565', '00-0049999').replace('Geno Smith', 'New Starter');
+  const after = buildHistory(csv(PLAYED, completed), { previous: before, now: new Date('2026-10-18T22:00:00Z') });
+  assert.equal(before.games[1].qb, null);
+  assert.deepEqual(after.games[1].qb, { id: '00-0049999', name: 'New Starter' });
+  assert.equal(after.games[1].status, 'final');
+  assert.equal(after.checkedAt, '2026-10-18T22:00:00.000Z');
+});
+
+test('a source cannot erase or revert a previously recorded final', () => {
+  const previous = buildHistory(csv(PLAYED, NEXT));
+  assert.throws(() => buildHistory(csv(NEXT), { previous }), /lost previously recorded Jets finals/);
+  assert.throws(() => buildHistory(csv(PLAYED.replace('CLE,12,NYJ,17,', 'CLE,,NYJ,,'), NEXT), { previous }), /lost previously recorded Jets finals/);
+});
+
+test('a blank starter cannot erase a known starter, while first-time blanks and explicit valid corrections remain allowed', async () => {
+  const blank = PLAYED.replace('00-0030565', '').replace('Geno Smith', '');
+  assert.equal(buildHistory(csv(blank, NEXT)).games[0].qb, null);
+  const previous = buildHistory(csv(PLAYED, NEXT), { now: new Date('2026-10-13T10:00:00Z') });
+  assert.throws(() => buildHistory(csv(blank, NEXT), { previous }), /lost previously recorded Jets starters/);
+  const corrected = PLAYED.replace('00-0030565', '00-0049999').replace('Geno Smith', 'Corrected Starter');
+  assert.deepEqual(buildHistory(csv(corrected, NEXT), { previous }).games[0].qb, { id: '00-0049999', name: 'Corrected Starter' });
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'league-history-starter-'));
+  try {
+    const out = path.join(dir, 'league-history.json'); await writeFile(out, JSON.stringify(previous));
+    const result = await refreshHistory({ out, now: new Date('2026-10-13T10:10:00Z'), fetcher: async () => new Response(csv(blank, NEXT)), onError: () => {} });
+    assert.deepEqual(result.games, previous.games); assert.equal(result.status, 'retained');
+    assert.equal(result.checkedAt, previous.checkedAt); assert.equal(result.attemptedAt, '2026-10-13T10:10:00.000Z');
+  } finally { await rm(dir, { recursive: true, force: true }); }
 });

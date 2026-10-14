@@ -8,6 +8,7 @@ type SourceCheck = Pick<FeedState, "status" | "checkedAt">;
 export type AutomationHealthSources = {
   media?: (SourceCheck & { id: string })[];
   rankings?: SourceCheck; nextgen?: SourceCheck; trades?: SourceCheck;
+  history?: SourceCheck; drives?: SourceCheck;
 };
 const DAY = 24 * 60 * 60_000;
 
@@ -41,6 +42,10 @@ export function editionHealth(current: CurrentSnapshot | null, coverage: Coverag
     rankings: sourceHealth(automation.rankings, now),
     nextgen: sourceHealth(automation.nextgen, now),
     trades: sourceHealth(automation.trades, now),
+    ...(Object.hasOwn(automation, "history") || Object.hasOwn(automation, "drives") ? {
+      history: sourceHealth(automation.history, now, football ? 30 * 60_000 : DAY),
+      drives: sourceHealth(automation.drives, now, football ? 30 * 60_000 : DAY),
+    } : {}),
   };
   const status = results.status === "unavailable" || results.status === "unknown" ? "unavailable" :
     Object.values(feeds).every((feed) => feed.status === "ready") ? "healthy" : "degraded";

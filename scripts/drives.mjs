@@ -24,7 +24,9 @@ const PLAYS = `play_type IN ('pass', 'run', 'punt', 'field_goal', 'qb_kneel', 'q
 const num = (value) => (typeof value === 'bigint' ? Number(value) : value);
 
 /** Jets drives and opponent drives for every completed Jets game in one season's play-by-play file. */
-export async function extractDrives(db, file) {
+export async function extractDrives(db, file, { gameIds = null } = {}) {
+  if (gameIds !== null && (!Array.isArray(gameIds) || gameIds.some((id) => !/^\d{4}_\d{2}_[A-Z]{2,3}_[A-Z]{2,3}$/.test(id)))) throw new Error('Invalid completed drive games');
+  if (gameIds?.length === 0) return {};
   const rows = async (sql) => (await db.runAndReadAll(sql)).getRowObjects().map((row) => Object.fromEntries(Object.entries(row).map(([key, value]) => [key, num(value)])));
   const parquet = `read_parquet('${file.replaceAll("'", "''")}')`;
   // The drive belongs to whoever took its first snap; return touchdowns and extra points do not change that.
@@ -41,6 +43,7 @@ export async function extractDrives(db, file) {
     FROM ${parquet}
     WHERE (home_team = '${TEAM}' OR away_team = '${TEAM}') AND fixed_drive IS NOT NULL
       AND posteam IS NOT NULL AND posteam <> '' AND yardline_100 IS NOT NULL AND ${SNAPS}
+      ${gameIds ? `AND game_id IN (${gameIds.map((id) => `'${id}'`).join(',')})` : ''}
     GROUP BY game_id, fixed_drive
     ORDER BY game_id, fixed_drive`);
   // Older seasons split a drive that crosses the end of a quarter into two, the first with no result.
@@ -63,6 +66,37 @@ export async function extractDrives(db, file) {
     (games[row.game_id] ??= []).push([jets ? 1 : 0, row.qtr, Math.round(row.clock), x(row.start_yl), end, row.plays, RESULTS.indexOf(row.result)]);
   }
   return games;
+}
+
+/** Terminal rows and score witnesses are independent of win probability and key-play extraction. */
+export async function extractVerifiedDrives(db, file, current) {
+  const rows = async (sql) => (await db.runAndReadAll(sql)).getRowObjects().map((row) => Object.fromEntries(Object.entries(row).map(([key, value]) => [key, num(value)])));
+  const parquet = `read_parquet('${file.replaceAll("'", "''")}')`;
+  const columns = await rows(`DESCRIBE SELECT * FROM ${parquet}`);
+  const terminal = `${columns.some((column) => column.column_name === 'game_end') ? 'game_end = 1 OR ' : ''}trim("desc") ILIKE 'END GAME%' OR trim("desc") ILIKE 'END OF GAME%'`;
+  const witnesses = await rows(`SELECT game_id, any_value(CAST(game_date AS VARCHAR)) AS date,
+    any_value(home_team) AS home, any_value(away_team) AS away,
+    min(home_score) AS home_min, max(home_score) AS home_score,
+    min(away_score) AS away_min, max(away_score) AS away_score,
+    max(total_home_score) AS run_home, max(total_away_score) AS run_away,
+    count(*) FILTER (WHERE ${terminal}) AS endings
+    FROM ${parquet} WHERE home_team = '${TEAM}' OR away_team = '${TEAM}' GROUP BY game_id`);
+  const confirmed = current.schedule.filter((game) => game.season === current.season && game.status === 'final');
+  const finals = {};
+  for (const witness of witnesses) {
+    const final = confirmed.find((game) => game.id === witness.game_id);
+    if (!final || !witness.endings || final.date !== witness.date || (witness.home === TEAM) !== final.atHome
+      || (final.atHome ? witness.away : witness.home) !== final.opponent
+      || witness.home_min !== witness.home_score || witness.away_min !== witness.away_score
+      || witness.run_home !== witness.home_score || witness.run_away !== witness.away_score) continue;
+    const jetsScore = final.atHome ? witness.home_score : witness.away_score;
+    const oppScore = final.atHome ? witness.away_score : witness.home_score;
+    if (jetsScore !== final.jetsScore || oppScore !== final.oppScore) continue;
+    finals[final.id] = { date: witness.date, jetsScore, oppScore };
+  }
+  const games = await extractDrives(db, file, { gameIds: Object.keys(finals) });
+  for (const id of Object.keys(finals)) if (!games[id]?.length) delete finals[id];
+  return { games, finals, pendingGameIds: confirmed.filter((game) => !Object.hasOwn(finals, game.id)).map((game) => game.id).sort() };
 }
 
 /** Each drive: [jets 1/0, quarter, seconds left in the quarter at its first snap, start, end, plays, result index]. */
