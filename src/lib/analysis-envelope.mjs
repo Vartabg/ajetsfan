@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { validateAnalytics } from '../../scripts/season-analytics.mjs';
 import { validateSeasonRankings } from '../../scripts/refresh-season-rankings.mjs';
 import { isNextGenCollection } from './nextgen-stats.ts';
+import { validateRuntimeDrives, validateRuntimeHistory } from './postgame-evidence.mjs';
 
 const record = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
 const timestamp = (value) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(value) && Number.isFinite(Date.parse(value));
@@ -61,7 +62,20 @@ export function validateAnalysisEnvelope(value, footballCurrent = null) {
   }
   if (value.rankings !== null) { validateSeasonRankings(value.rankings); if (value.rankings.year !== value.season || Date.parse(value.rankings.checkedAt) > Date.parse(value.updatedAt)) return fail(); }
   if (value.nextgen !== null && (!isNextGenCollection(value.nextgen) || Date.parse(value.nextgen.checkedAt) > Date.parse(value.updatedAt))) return fail();
-  if (value.sourceChecks !== undefined) for (const name of ['analysis', 'rankings', 'nextgen']) {
+  // Legacy editions remain readable while the first enriched native publication bootstraps.
+  const postgame = Object.hasOwn(value, 'history') || Object.hasOwn(value, 'drives');
+  if (postgame) {
+    if (!Object.hasOwn(value, 'history') || !Object.hasOwn(value, 'drives')) return fail();
+    if (value.history !== null) validateRuntimeHistory(value.history);
+    if (value.drives !== null) {
+      validateRuntimeDrives(value.drives, footballCurrent);
+      if (value.drives.season !== value.season) return fail();
+    }
+    for (const payload of [value.history, value.drives]) if (payload &&
+      (Date.parse(payload.checkedAt) > Date.parse(value.updatedAt) || Date.parse(payload.attemptedAt ?? payload.checkedAt) > Date.parse(value.updatedAt))) return fail();
+    if (!record(value.sourceChecks)) return fail();
+  }
+  if (value.sourceChecks !== undefined) for (const name of ['analysis', 'rankings', 'nextgen', ...(postgame ? ['history', 'drives'] : [])]) {
     const actual = value.sourceChecks?.[name], payload = name === 'analysis' ? value.current.analysisCheck : value[name];
     check(actual);
     if (actual.checkedAt !== (payload?.checkedAt ?? null) || actual.status !== (payload ? payload.status ?? 'ready' : 'unavailable')) return fail();
@@ -75,7 +89,7 @@ export function validateAnalysisEnvelope(value, footballCurrent = null) {
 }
 
 export function analysisEnvelope(fields, { startedAt = new Date(), completedAt = new Date() } = {}) {
-  const operational = new Set(['version', 'revision', 'checkedAt', 'attemptedAt', 'updatedAt', 'durationMs', 'analysisUpdatedAt', 'sourceUpdatedAt', 'providerChecks']);
+  const operational = new Set(['version', 'revision', 'checkedAt', 'attemptedAt', 'updatedAt', 'durationMs', 'analysisUpdatedAt', 'sourceUpdatedAt', 'providerChecks', 'asset']);
   const content = (value) => Array.isArray(value) ? value.map(content) : record(value)
     ? Object.fromEntries(Object.keys(value).sort().filter((key) => !operational.has(key)).map((key) => [key, content(value[key])])) : value;
   const revision = createHash('sha256').update(JSON.stringify(content(fields))).digest('hex');

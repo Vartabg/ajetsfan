@@ -12,12 +12,14 @@ import PlayOut from "@/components/PlayOut";
 import SeasonTrend from "@/components/SeasonTrend";
 import SundayBriefing from "@/components/SundayBriefing";
 import shared from "@/components/Focus.module.css";
-import { currentSeasonSummary, divisionPicture, formatCheckedAt, formatDate, nextScheduledGame, recordLabel } from "@/lib/current";
+import { completedGames, currentSeasonSummary, divisionPicture, formatCheckedAt, formatDate, nextScheduledGame, recordLabel } from "@/lib/current";
 import { placeName, seasonWeeks } from "@/lib/focus";
 import { halfGames, ORDINAL, on, record } from "@/lib/focus-format";
 import { loadAnalytics, loadCurrent, loadGames } from "@/lib/load-games";
 import { loadLeagueHistory } from "@/lib/load-league-history";
 import { loadFootballLive } from "@/lib/load-football";
+import { loadDrivesSeason } from "@/lib/load-drives";
+import { confirmedDriveGame } from "@/lib/drive-game-page.mjs";
 import { editionClock } from "@/lib/live-plays";
 import { publishedGames } from "@/lib/published-pages";
 import { pageMetadata } from "@/lib/site";
@@ -39,6 +41,10 @@ export default async function GameDayPage() {
   const showTies = !!standings?.teams.some((row) => row.ties > 0);
   const showDivisionTies = !!standings?.teams.some((row) => row.divisionTies > 0);
   const reports = new Set(publishedGames(games, snapshot).map((game) => game.id));
+  const driveFile = snapshot ? await loadDrivesSeason(snapshot.season) : null;
+  const driveReports = new Set(snapshot?.schedule.filter((game) => confirmedDriveGame(game.id, snapshot, driveFile)).map((game) => game.id) ?? []);
+  const latestFinal = completedGames(snapshot).at(-1);
+  const latestDrives = latestFinal && driveReports.has(latestFinal.id) ? latestFinal : null;
   const played = summary.wins + summary.losses + summary.ties;
   const schedule = snapshot?.schedule.filter((game) => game.seasonType === "REG") ?? [];
   const nextGame = next ? { week: next.game.week, postseason: next.game.seasonType === "POST", place: placeName(next.game.opponentDisplay), home: next.game.atHome, date: next.game.date, kickoff: next.game.kickoff, overdue: next.overdue } : null;
@@ -93,13 +99,14 @@ export default async function GameDayPage() {
     </FocusMoment> : null}
 
     {snapshot ? <FocusMoment id="season" label={`${snapshot.season} season`} heading={<>{record(summary.wins, summary.losses, summary.ties)} <em>{played ? `after ${played} game${played === 1 ? "" : "s"}.` : "before the opener."}</em></>}
-      actions={<CalendarSubscribe season={snapshot.season} />}>
+      actions={<><CalendarSubscribe season={snapshot.season} />{latestDrives ? <Link href={`/games/${encodeURIComponent(latestDrives.id)}#drives`} className={shared.go}>Latest game drives <span aria-hidden="true">→</span></Link> : null}</>}>
       <div id="season-trend" className={styles.trend}><SeasonTrend games={summary.finals} analysisIds={games.filter((game) => !game.dataSuspect && game.swing != null && game.outcome !== "tie").map((game) => game.id)} /></div>
       <details className={shared.unfold}><summary className="disclosure"><span><span className="when-closed">See the full {snapshot.season} schedule</span><span className="when-open">Hide the {snapshot.season} schedule</span> <small>{schedule.length} games</small></span></summary>
         <ol className={styles.schedule}>{schedule.map((game) => <li key={game.id} data-status={game.status === "final" ? game.outcome : "scheduled"}>
           <span>W{game.week}</span><time dateTime={game.date}>{formatDate(game.date)}</time><strong>{game.atHome ? "vs" : "at"} {game.opponentDisplay}</strong>
           <span>{game.status === "final" ? `${game.outcome === "win" ? "W" : game.outcome === "loss" ? "L" : "T"} ${game.jetsScore}–${game.oppScore}` : game.kickoff ? formatCheckedAt(game.kickoff) : "Time TBD"}</span>
-          {game.status === "final" && reports.has(game.id) ? <Link href={`/games/${encodeURIComponent(game.id)}`} aria-label={`Week ${game.week} game report`}>Report <span aria-hidden="true">→</span></Link> : <span aria-hidden="true" />}
+          {game.status === "final" && reports.has(game.id) ? <Link href={`/games/${encodeURIComponent(game.id)}`} aria-label={`Week ${game.week} game report`}>Report <span aria-hidden="true">→</span></Link>
+            : game.status === "final" && driveReports.has(game.id) ? <Link href={`/games/${encodeURIComponent(game.id)}#drives`} aria-label={`Week ${game.week} drive chart`}>Drives <span aria-hidden="true">→</span></Link> : <span aria-hidden="true" />}
         </li>)}</ol>
       </details>
     </FocusMoment> : null}

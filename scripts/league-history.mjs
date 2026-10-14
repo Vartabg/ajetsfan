@@ -118,6 +118,19 @@ async function publishHistory(out, snapshot) {
   }
 }
 
+/** Build history from the same validated schedule CSV used by the other football producers. */
+export function buildHistory(csv, { now = new Date(), previous = null } = {}) {
+  if (previous) validateHistory(previous);
+  const league = parseLeagueSchedule(csv);
+  const games = jetsHistory(league, scheduleExtras(csv));
+  const attemptedAt = now.toISOString();
+  const snapshot = validateHistory({ schemaVersion: 1, team: TEAM, source: SCHEDULE_SOURCE, checkedAt: attemptedAt, attemptedAt, status: 'ready', games, playoffsByWins: playoffsByWins(league) });
+  const byId = new Map(games.map((game) => [game.id, game]));
+  if (previous?.games.some((game) => game.status === 'final' && byId.get(game.id)?.status !== 'final')) throw new Error('Schedule lost previously recorded Jets finals');
+  if (previous?.games.some((game) => game.status === 'final' && game.qb && !byId.get(game.id)?.qb)) throw new Error('Schedule lost previously recorded Jets starters');
+  return snapshot;
+}
+
 /** A failed or invalid source keeps the last validated history and says so. */
 export async function refreshHistory({ out = path.join(process.cwd(), 'public', 'data', 'league-history.json'), now = new Date(), fetcher = fetch, onError = console.warn } = {}) {
   let previous = null;
@@ -127,11 +140,7 @@ export async function refreshHistory({ out = path.join(process.cwd(), 'public', 
   let snapshot;
   try {
     const csv = await fetchText(SCHEDULE_SOURCE, fetcher);
-    const league = parseLeagueSchedule(csv);
-    const games = jetsHistory(league, scheduleExtras(csv));
-    snapshot = validateHistory({ schemaVersion: 1, team: TEAM, source: SCHEDULE_SOURCE, checkedAt: attemptedAt, attemptedAt, status: 'ready', games, playoffsByWins: playoffsByWins(league) });
-    const kept = new Set(games.map((game) => game.id));
-    if (previous?.games.some((game) => game.status === 'final' && !kept.has(game.id))) throw new Error('Schedule lost previously recorded Jets games');
+    snapshot = buildHistory(csv, { now, previous });
   } catch (error) {
     if (!previous) throw error;
     onError(`League history retained: ${error.message}`);

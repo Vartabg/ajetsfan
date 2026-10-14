@@ -9,7 +9,9 @@ const [current, games, analytics, rankings, nextgen] = await Promise.all(['curre
 const seasonGames = games.filter((game) => game.season === current.season);
 const points = await data(`curves/${seasonGames[0].id}`);
 const curvePath = `analysis/v1/curves/${createHash('sha256').update(JSON.stringify(points)).digest('hex')}.json`;
-const start = new Date('2026-10-13T18:00:00Z'), finish = new Date(start.getTime() + 2000);
+const start = new Date(Math.max(...[current.analysisCheck.attemptedAt, current.analysisUpdatedAt, analytics.analysisUpdatedAt,
+  ...rankings.seasons.flatMap((entry) => [entry.checkedAt, entry.attemptedAt]), nextgen.checkedAt, nextgen.attemptedAt]
+  .map((value) => Date.parse(value ?? '')).filter(Number.isFinite)) + 60_000), finish = new Date(start.getTime() + 2000);
 const fields = () => ({ season: current.season,
   current: Object.fromEntries(['analysisCheck', 'analysisUpdatedAt', 'latestAnalyzedGameId'].map((name) => [name, current[name]])),
   games: structuredClone(seasonGames), analytics: structuredClone(analytics), curves: Object.fromEntries(seasonGames.map((game) => [game.id, curvePath])),

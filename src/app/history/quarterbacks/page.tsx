@@ -11,6 +11,7 @@ import { pageMetadata } from "@/lib/site";
 import { focusFonts } from "../../focus-fonts";
 
 export const metadata = pageMetadata({ path: "/history/quarterbacks", title: "Jets Quarterbacks — every starter since 1999", description: "Every Jets game since 1999 coloured by its starting quarterback, from the NFL schedule record: who started most, the busiest season and the longest run." });
+export const dynamic = "force-dynamic";
 
 const NUMBER = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven"];
 

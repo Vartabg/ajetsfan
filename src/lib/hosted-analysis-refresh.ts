@@ -12,6 +12,10 @@ import type { Game } from "./games";
 import type { SeasonAnalytics } from "./analytics";
 import type { RankingsCollection } from "./season-rankings";
 import type { NextGenCollection } from "./nextgen-stats";
+import type { CurrentSnapshot } from "./current";
+import type { DrivesFile } from "./drives";
+import type { LeagueHistory } from "./league-history";
+import { makeBakedDrivesEvidence, validateRuntimeHistory } from "./postgame-evidence.mjs";
 
 /** Native extraction is isolated to this timer; pages only read published JSON. */
 export async function refreshHostedAnalysis() {
@@ -24,8 +28,15 @@ export async function refreshHostedAnalysis() {
         loadFootballState(), footballSnapshot<Game[]>("games.json"), footballSnapshot<SeasonAnalytics>("analytics.json"),
         footballSnapshot<RankingsCollection>("season-rankings.json"), footballSnapshot<NextGenCollection>("nextgen-stats.json"),
       ]);
+      const [compiledCurrent, history, compiledDrives] = await Promise.all([
+        footballSnapshot<CurrentSnapshot>("current.json"),
+        footballSnapshot<LeagueHistory>("league-history.json").catch((error) => { if (error.code === "ENOENT") return null; throw error; }),
+        footballSnapshot<DrivesFile>(`drives/${football.edition.current.season}.json`).catch((error) => { if (error.code === "ENOENT") return null; throw error; }),
+      ]);
+      if (history) validateRuntimeHistory(history);
+      const drives = compiledDrives ? makeBakedDrivesEvidence(compiledDrives, compiledCurrent, games) : null;
       return refreshAnalysis({ ...options, football: football.edition,
-        baked: { current: football.edition.current, coverage: football.edition.coverage, games, analytics, rankingsCollection, nextgen },
+        baked: { current: football.edition.current, coverage: football.edition.coverage, games, analytics, rankingsCollection, nextgen, history, drives },
         fetcher: (input: string | URL | Request, init?: RequestInit) => fetch(input, { ...init, cache: "no-store",
           signal: init?.signal ? AbortSignal.any([deadline, init.signal]) : deadline }),
         onError: () => console.error("Analysis provider unavailable; retaining checked evidence."),

@@ -7,12 +7,15 @@ import type { SeasonAnalytics } from "./analytics";
 import type { Game } from "./games";
 import type { SeasonRankings } from "./season-rankings";
 import type { NextGenCollection } from "./nextgen-stats";
+import type { LeagueHistory } from "./league-history";
+import type { RuntimeDrives } from "./drives";
 
 export const ANALYSIS_EDITION_PATH = "analysis/v1/collection.json";
 export type AnalysisEdition = { version: 1; season: number; updatedAt: string; durationMs: number; revision: string;
   current: Pick<CurrentSnapshot, "analysisCheck" | "analysisUpdatedAt" | "latestAnalyzedGameId">;
   analytics: SeasonAnalytics | null; games: Game[]; curves: Record<string, string>;
-  rankings: SeasonRankings | null; nextgen: NextGenCollection | null };
+  rankings: SeasonRankings | null; nextgen: NextGenCollection | null;
+  history?: LeagueHistory | null; drives?: RuntimeDrives | null };
 export type AnalysisState = { edition: AnalysisEdition | null; mode: "snapshot" | "runtime" | "fallback" };
 let memo: { expiresAt: number; pending: Promise<AnalysisState> } | null = null;
 let lastValid: AnalysisEdition | null = null;

@@ -6,7 +6,7 @@ import path from 'node:path';
 import { DuckDBInstance } from '@duckdb/node-api';
 import { pbpSource } from './data-refresh.mjs';
 import { PbpAvailabilityError } from './build-data.mjs';
-import { extractDrives, refreshDrives, RESULTS, validateDrives } from './drives.mjs';
+import { extractDrives, extractVerifiedDrives, refreshDrives, RESULTS, validateDrives } from './drives.mjs';
 
 const GAME = '1999_02_NYJ_BUF';
 // play_id, fixed_drive, posteam, play_type, yardline_100, qtr, quarter_seconds_remaining, fixed_drive_result
@@ -22,12 +22,15 @@ const PLAYS = [
   [180, 4, 'BUF', 'extra_point', 15, 2, 790, 'Opp touchdown'], // the returning team's extra point stays out of the drive
 ];
 
-async function parquet(dir, rows) {
+async function parquet(dir, rows, { witness = false, complete = true, runningScore = 14 } = {}) {
   const db = await (await DuckDBInstance.create(':memory:')).connect();
   const values = rows.map(([id, drive, team, type, yardline, qtr, clock, result]) =>
     `(${id}, '${GAME}', 'BUF', 'NYJ', ${drive}, '${team}', '${type}', ${yardline}, ${qtr}, ${clock}, ${result ? `'${result}'` : 'NULL'})`).join(',');
   const file = path.join(dir, 'pbp.parquet');
-  await db.run(`COPY (SELECT * FROM (VALUES ${values}) AS t(play_id, game_id, home_team, away_team, fixed_drive, posteam, play_type, yardline_100, qtr, quarter_seconds_remaining, fixed_drive_result)) TO '${file}' (FORMAT parquet)`);
+  const evidence = witness ? `, '1999-09-19' AS game_date, 7 AS home_score, 14 AS away_score,
+    7 AS total_home_score, ${runningScore} AS total_away_score,
+    CASE WHEN play_id = ${rows.at(-1)[0]} AND ${complete} THEN 'END GAME' ELSE '' END AS "desc"` : '';
+  await db.run(`COPY (SELECT * ${evidence} FROM (VALUES ${values}) AS t(play_id, game_id, home_team, away_team, fixed_drive, posteam, play_type, yardline_100, qtr, quarter_seconds_remaining, fixed_drive_result)) TO '${file}' (FORMAT parquet)`);
   return { db, file };
 }
 
@@ -68,5 +71,25 @@ test('a temporarily unavailable season keeps its last file; a malformed one fail
     await assert.rejects(refreshDrives({ seasons: [2026], dir, extract: async () => ({ '2026_05_CLE_NYJ': [[1, 1, 900, 20, 140, 8, 0]] }) }), /Invalid drive/);
   } finally {
     await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('runtime drives require a terminal row and matching official/running score witnesses, independently of WP columns', async () => {
+  const current = { season: 1999, schedule: [{ id: GAME, season: 1999, date: '1999-09-19', status: 'final', jetsScore: 14, oppScore: 7, atHome: false, opponent: 'BUF' }] };
+  for (const options of [{}, { complete: false }, { runningScore: 13 }]) {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'verified-drives-'));
+    try {
+      const { db, file } = await parquet(dir, PLAYS, { witness: true, ...options });
+      const result = await extractVerifiedDrives(db, file, current);
+      if (Object.keys(options).length) { assert.deepEqual(result.games, {}); assert.deepEqual(result.pendingGameIds, [GAME]); }
+      else {
+        assert.equal(result.games[GAME].length, 3);
+        assert.deepEqual(result.finals[GAME], { date: '1999-09-19', jetsScore: 14, oppScore: 7 });
+        assert.deepEqual(result.pendingGameIds, []);
+        const corrected = await extractVerifiedDrives(db, file, { ...current, schedule: [{ ...current.schedule[0], jetsScore: 15 }] });
+        assert.deepEqual(corrected.games, {}); assert.deepEqual(corrected.pendingGameIds, [GAME]);
+      }
+      db.closeSync();
+    } finally { await rm(dir, { recursive: true, force: true }); }
   }
 });
