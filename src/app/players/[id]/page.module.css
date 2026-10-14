@@ -16,4 +16,19 @@
 .sources { display: grid; width: 100%; max-width: 760px; margin-block: 24px; }
 .sources a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding-block: 14px; border-bottom: 1px solid var(--faint); font: 600 19px/1.3 var(--display); letter-spacing: -.02em; text-decoration: none; overflow-wrap: anywhere; }
 .sources a:hover { color: var(--green); }
+/* Game by game and season by season: a label, a bar in the player's main number, the value, the line in words */
+.bars { display: grid; gap: 4px; width: 100%; max-width: 760px; margin: 0; padding: 0; list-style: none; }
+.bars li { display: grid; grid-template-columns: minmax(6.5em, 9em) minmax(0, 1fr) 4.5em; align-items: center; column-gap: 12px; padding-block: 8px; border-bottom: 1px solid var(--faint); }
+.bars li > a, .bars li > span { font: 500 13px/1.35 var(--data); color: var(--ink); overflow-wrap: anywhere; }
+.bars li > a { display: inline-flex; align-items: center; min-height: 44px; text-underline-offset: 3px; }
+.bars i { display: block; height: 12px; min-width: 2px; border-radius: 6px; background: var(--green); }
+.bars b { font: 600 15px/1 var(--data); text-align: right; font-variant-numeric: tabular-nums; }
+.bars small { grid-column: 1 / -1; margin-top: 2px; font-size: 13px; line-height: 1.45; color: var(--quiet); overflow-wrap: anywhere; }
+/* Biggest plays: the swing, the play in words, the game */
+.plays { display: grid; gap: 14px; width: 100%; max-width: 760px; margin: 0; padding: 0; list-style: none; }
+.plays li { display: grid; gap: 4px; padding: 14px 16px; border-radius: 12px; background: var(--raise); }
+.plays b { font: 650 22px/1.1 var(--data); color: var(--green); }
+.plays p { margin: 0; font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
+.plays small { font-size: 13px; line-height: 1.45; color: var(--quiet); }
+.plays small a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); text-underline-offset: 3px; }
 @media (max-width: 360px) { .bio { grid-template-columns: minmax(0, 1fr); gap: 0; } }

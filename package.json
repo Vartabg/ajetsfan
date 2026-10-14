@@ -17,7 +17,8 @@
     "data:media": "node scripts/refresh-media.mjs",
     "data:trades": "node scripts/draft-trades.mjs",
     "data:history": "node scripts/league-history.mjs",
-    "data:drives": "node scripts/drives.mjs"
+    "data:drives": "node scripts/drives.mjs",
+    "data:players": "node scripts/player-pages.mjs"
   },
   "dependencies": {
     "@duckdb/node-api": "^1.5.5-r.3",
