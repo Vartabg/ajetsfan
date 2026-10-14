@@ -76,8 +76,11 @@ export function lineText(line: PlayerLine) {
   ].filter(Boolean).join(" · ");
 }
 
-/** A play as a sentence: the clock and formation tags go, and a long description stops at a word. */
+/** A play as a sentence: prefer the final replay ruling, remove clock and formation tags, and stop at a word. */
 export function playText(desc: string) {
-  const plain = desc.replace(/^\(\s*[\d:]*\s*\)\s*/, "").replace(/\((?:Shotgun|No Huddle|No Huddle, Shotgun|Run formation|Punt formation|Field Goal formation)\)\s*/gi, "").trim();
+  // nflverse repeats the corrected play after its replay note. Shortening the original
+  // first would hide the final result, including touchdowns awarded on review.
+  const final = desc.split(/\b(?:play|ruling)\s+was\s+REVERSED\.\s*/i).at(-1)?.trim() || desc;
+  const plain = final.replace(/^\(\s*[\d:]*\s*\)\s*/, "").replace(/\((?:Shotgun|No Huddle|No Huddle, Shotgun|Run formation|Punt formation|Field Goal formation)\)\s*/gi, "").trim();
   return plain.length <= 180 ? plain : `${plain.slice(0, plain.lastIndexOf(" ", 176))}…`;
 }

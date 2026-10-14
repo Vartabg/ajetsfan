@@ -1,6 +1,10 @@
 /** Each drive: [jets 1/0, quarter, seconds left in the quarter at its first snap, start, end, plays, result index]. */
 export type DriveRow = [jets: 0 | 1, quarter: number, clock: number, start: number, end: number, plays: number, result: number];
 export type DrivesFile = { schemaVersion: 1; season: number; source: string; checkedAt: string; results: string[]; games: Record<string, DriveRow[]> };
+/** A published current-season file records which confirmed final each chart describes. */
+export type RuntimeDrives = DrivesFile & { status: "ready" | "retained"; attemptedAt: string;
+  finals: Record<string, { date: string; jetsScore: number; oppScore: number }>; pendingGameIds: string[];
+  asset?: { url: string; etag: string | null; lastModified: string | null; contentLength: number | null } | null };
 
 export type Drive = { jets: boolean; quarter: number; clock: number; start: number; end: number; plays: number; result: string; kind: "score" | "giveaway" | "empty" };
 

@@ -5,7 +5,8 @@ import { notFound } from "next/navigation";
 import { loadCurve, loadAnalytics } from "@/lib/load-games";
 import { loadGameDrives } from "@/lib/load-drives";
 import { scoringSummary } from "@/lib/drives";
-import { loadPublishedGame, loadPublishedGames } from "@/lib/load-published-pages";
+import { loadPublishedGames } from "@/lib/load-published-pages";
+import { loadGamePage } from "@/lib/load-game-page";
 import { formatDate } from "@/lib/current";
 import { clockLabel, pct } from "@/lib/games";
 import { gameHref } from "@/lib/explorer";
@@ -32,12 +33,13 @@ import PressChart from "@/components/PressChart";
 import SeasonReturn from "@/components/SeasonReturn";
 import { focusFonts } from "../../focus-fonts";
 import styles from "./page.module.css";
+import DriveGameReport from "./DriveGameReport";
 
 type Props = { params: Promise<{ id: string }> };
 async function getCase(id: string) {
-  const game = await loadPublishedGame(id);
-  if (!game) notFound();
-  return game;
+  const edition = await loadGamePage(id);
+  if (!edition) notFound();
+  return edition;
 }
 
 export const dynamic = "force-dynamic";
@@ -47,9 +49,10 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const game = await getCase((await params).id);
+  const edition = await getCase((await params).id);
+  const game = edition.game;
   const title = `Jets ${game.jetsScore}–${game.oppScore} ${game.opponentDisplay} · ${formatDate(game.date)}`;
-  const description = `The Jets ${game.outcome === "win" ? "beat" : "lost to"} ${game.opponentDisplay} ${game.jetsScore}–${game.oppScore}${game.wentToOt ? " in overtime" : ""}. ${game.season} ${game.seasonType === "POST" ? "postseason" : "regular season"}, Week ${game.week}. Final score, model win-probability curve and recorded play evidence.`;
+  const description = `The Jets ${game.outcome === "win" ? "beat" : game.outcome === "tie" ? "tied" : "lost to"} ${game.opponentDisplay} ${game.jetsScore}–${game.oppScore}${edition.kind === "analysis" && edition.game.wentToOt ? " in overtime" : ""}. ${game.season} ${game.seasonType === "POST" ? "postseason" : "regular season"}, Week ${game.week}. ${edition.kind === "analysis" ? "Final score, model win-probability curve and recorded play evidence." : "Confirmed final score and verified drive chart. Win-probability and featured-play analysis are pending."}`;
   return pageMetadata({ title, description, path: `/games/${game.id}` });
 }
 
@@ -58,8 +61,10 @@ const sentenceName = (code: string) => teamIdentity(code)?.nickname ? `the ${tea
 const KIND = { video: "Video", audio: "Audio", post: "Post", article: "Article" } as const;
 
 export default async function GamePage({ params }: Props) {
+  const edition = await getCase((await params).id);
+  if (edition.kind === "drives") return <DriveGameReport game={edition.game} drives={edition.drives} checkedAt={edition.file.checkedAt} source={edition.file.source} />;
+  const game = edition.game;
   const mediaCollection = await loadMediaCollection();
-  const game = await getCase((await params).id);
   const memory = fanMemoryForGame(game);
   const board = game.outcome === "win" ? "miracle" : "heartbreak";
   const [rawPoints, analytics, drives] = await Promise.all([loadCurve(game.id), loadAnalytics(), loadGameDrives(game.season, game.id)]);

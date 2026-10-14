@@ -1,16 +1,25 @@
 import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { cache } from "react";
 import type { LeagueHistory } from "./league-history";
+import { loadAnalysisState } from "./load-analysis";
+import { loadFootballState } from "./load-football";
+import { validateRuntimeHistory } from "./postgame-evidence.mjs";
+import { selectLeagueHistory } from "./postgame-consumers.mjs";
 
-export async function loadLeagueHistory(): Promise<LeagueHistory | null> {
+const loadBakedHistory = cache(async (): Promise<LeagueHistory | null> => {
   try {
     const raw = await readFile(path.join(process.cwd(), "public", "data", "league-history.json"), "utf8");
-    const history = JSON.parse(raw) as LeagueHistory;
-    if (history.schemaVersion !== 1 || !Array.isArray(history.games) || !history.games.length || !Array.isArray(history.playoffsByWins?.rows)) throw new Error("Unsupported league history");
-    return history;
+    return validateRuntimeHistory(JSON.parse(raw)) as LeagueHistory;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw error;
   }
+});
+
+export async function loadLeagueHistory({ live = true } = {}): Promise<LeagueHistory | null> {
+  if (!live) return loadBakedHistory();
+  const [baked, analysis, football] = await Promise.all([loadBakedHistory(), loadAnalysisState(), loadFootballState()]);
+  return selectLeagueHistory({ baked, runtime: analysis.edition?.history ?? null, current: football.edition.current }) as LeagueHistory | null;
 }

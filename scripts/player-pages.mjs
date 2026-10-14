@@ -24,6 +24,10 @@ const COLUMNS = ['player_id', 'player_name', 'player_display_name', 'position', 
   'receptions', 'targets', 'receiving_yards', 'receiving_tds', 'def_tackles_solo', 'def_tackle_assists', 'def_sacks', 'def_interceptions',
   'def_pass_defended', 'def_fumbles_forced'];
 const text = (value) => typeof value === 'string' && value.trim() !== '' && value.length <= 80 && !/[<>\u0000-\u001f\u007f]/.test(value);
+const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+const timestamp = (value) => typeof value === 'string' && Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
+// Weekly player files use current franchise codes while older game IDs retain the original city.
+const franchise = (value) => ({ OAK: 'LV', SD: 'LAC', STL: 'LA' })[value] ?? value;
 function count(row, key, { half = false, negative = false } = {}) {
   const raw = row[key];
   if (raw === '' || raw === 'NA' || raw === undefined) return 0;
@@ -66,9 +70,9 @@ export function seasonPlayers(csv, season) {
   return players;
 }
 
-/** "7-G.Smith" or, in older play-by-play, "G.Smith" — never inside another name. */
+/** Jets recovery prefixes and jersey numbers are optional; never match an opponent's explicit prefix or a longer name. */
 export function namePattern(short) {
-  return new RegExp(`(?:^|[\\s(])(?:\\d{1,2}-)?${short.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z'])`);
+  return new RegExp(`(?:^|[\\s(])(?:NYJ-)?(?:\\d{1,2}-)?${short.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z'])`);
 }
 
 /**
@@ -76,27 +80,72 @@ export function namePattern(short) {
  * players with the same short name in one season are left without plays rather than guessed between.
  */
 export function bigPlays(players, curves) {
+  const finalDescription = (desc) => desc.split(/\b(?:play|ruling)\s+was\s+REVERSED\.\s*/i).at(-1)?.trim() || desc;
   const shared = new Map();
   for (const player of Object.values(players)) shared.set(player.short, (shared.get(player.short) ?? 0) + 1);
   for (const player of Object.values(players)) {
     if (shared.get(player.short) > 1) continue;
     const named = namePattern(player.short);
     player.plays = player.games.flatMap(({ gameId }) => (curves.get(gameId) ?? [])
-      .filter((play) => play.meaningful && typeof play.d === 'number' && play.d > 0 && typeof play.desc === 'string' && named.test(play.desc))
-      .map((play) => ({ gameId, playId: play.playId, q: play.q, d: play.d, desc: play.desc.slice(0, 280) })))
+      .filter((play) => play.meaningful && typeof play.d === 'number' && play.d > 0 && typeof play.desc === 'string' && named.test(finalDescription(play.desc)))
+      .map((play) => ({ gameId, playId: play.playId, q: play.q, d: play.d, desc: finalDescription(play.desc).slice(0, 280) })))
       .sort((a, b) => b.d - a.d).slice(0, PLAYS_PER_SEASON);
   }
   return players;
 }
 
 export function validatePlayers(snapshot) {
-  if (snapshot?.schemaVersion !== 1 || !Number.isInteger(snapshot.season) || snapshot.source !== weekSource(snapshot.season)
-    || typeof snapshot.checkedAt !== 'string' || !snapshot.players || typeof snapshot.players !== 'object') throw new Error('Invalid player pages snapshot');
+  if (snapshot?.schemaVersion !== 1 || !Number.isInteger(snapshot.season) || snapshot.season < FIRST_SEASON || snapshot.season > 2200
+    || snapshot.source !== weekSource(snapshot.season) || !timestamp(snapshot.checkedAt)
+    || !record(snapshot.players) || !Object.keys(snapshot.players).length) throw new Error('Invalid player pages snapshot');
   for (const [id, player] of Object.entries(snapshot.players)) {
-    if (!GSIS.test(id) || !text(player.name) || !text(player.short) || !Array.isArray(player.games) || !player.games.length || !Array.isArray(player.plays))
+    if (!GSIS.test(id) || !record(player) || !text(player.name) || !text(player.short) || player.position !== null && !text(player.position)
+      || !Array.isArray(player.games) || !player.games.length || !Array.isArray(player.plays) || player.plays.length > PLAYS_PER_SEASON)
       throw new Error(`Invalid player: ${id}`);
+    const games = new Set();
+    for (const game of player.games) {
+      const identity = typeof game?.gameId === 'string' && game.gameId.match(GAME);
+      if (!record(game) || !identity || Number(identity[1]) !== snapshot.season || games.has(game.gameId)
+        || Number(identity[2]) !== game.week || !Number.isInteger(game.week) || game.week < 1 || game.week > 22 || typeof game.post !== 'boolean'
+        || game.opponent === TEAM || !(identity[3] === TEAM && franchise(identity[4]) === game.opponent || identity[4] === TEAM && franchise(identity[3]) === game.opponent))
+        throw new Error(`Invalid player game: ${id}`);
+      for (const [kind, length] of [['pass', 5], ['rush', 3], ['rec', 4], ['def', 5]]) {
+        const line = game[kind];
+        if (line === undefined) continue;
+        if (!Array.isArray(line) || line.length !== length || line.some((value, index) => !Number.isFinite(value) || Math.abs(value) > 20_000
+          || !(kind === 'def' && index === 1 ? Number.isInteger(value * 2) : Number.isInteger(value))
+          || value < 0 && !(kind === 'pass' && index === 2 || kind === 'rush' && index === 1 || kind === 'rec' && index === 2)))
+          throw new Error(`Invalid player line: ${id}`);
+      }
+      if (game.pass && game.pass[0] > game.pass[1]) throw new Error(`Invalid player completions: ${id}`);
+      games.add(game.gameId);
+    }
+    for (const play of player.plays) {
+      if (!record(play) || !games.has(play.gameId) || !Number.isInteger(play.playId) || play.playId < 0
+        || !Number.isInteger(play.q) || play.q < 1 || play.q > 6 || !Number.isFinite(play.d) || play.d <= 0 || play.d > 1
+        || typeof play.desc !== 'string' || !play.desc.trim() || play.desc.length > 280)
+        throw new Error(`Invalid player play: ${id}`);
+    }
   }
   return snapshot;
+}
+
+async function readPrevious(out, season) {
+  let raw;
+  try { raw = await readFile(out, 'utf8'); }
+  catch (error) { if (error.code === 'ENOENT') return null; throw error; }
+  try {
+    const previous = validatePlayers(JSON.parse(raw));
+    return previous.season === season ? previous : null;
+  } catch { return null; }
+}
+
+/** A replaced upstream file may correct a line, but cannot silently remove recorded player games. */
+function keepsRecordedGames(players, previous) {
+  for (const [id, player] of Object.entries(previous?.players ?? {})) {
+    const next = new Set(players[id]?.games.map((game) => game.gameId) ?? []);
+    if (player.games.some((game) => !next.has(game.gameId))) throw new Error(`Player stats lost recorded games: ${id}`);
+  }
 }
 
 async function readCurves(dir, gameIds) {
@@ -120,17 +169,31 @@ async function publish(out, snapshot) {
   }
 }
 
-/** Refreshes the given seasons. A season nflverse has not published yet keeps its last file; a malformed file fails the run. */
+/** Provider failures retain a validated prior season without blocking independent archive feeds; publication failures remain fatal. */
 export async function refreshPlayers({ seasons, root = path.join(process.cwd(), 'public', 'data'), now = new Date(), fetcher = fetch, onError = console.warn } = {}) {
   const written = [];
   for (const season of seasons) {
-    const response = await fetcher(weekSource(season), { signal: AbortSignal.timeout(60_000) });
-    if (response.status === 404) { onError(`${season} player stats not published; players unchanged`); continue; }
-    if (!response.ok) throw new Error(`Source HTTP ${response.status}: ${weekSource(season)}`);
-    const players = seasonPlayers(gunzipSync(Buffer.from(await response.arrayBuffer())).toString('utf8'), season);
-    if (!Object.keys(players).length) { onError(`${season} has no Jets player rows; players unchanged`); continue; }
+    const out = path.join(root, 'players', `${season}.json`), previous = await readPrevious(out, season);
+    let players;
+    try {
+      const response = await fetcher(weekSource(season), { signal: AbortSignal.timeout(60_000) });
+      if (response.status === 404) {
+        onError(previous ? `${season} player stats retained from ${previous.checkedAt}: source not published`
+          : `${season} player stats not published; players unchanged`);
+        continue;
+      }
+      if (!response.ok) throw new Error(`Source HTTP ${response.status}: ${weekSource(season)}`);
+      players = seasonPlayers(gunzipSync(Buffer.from(await response.arrayBuffer())).toString('utf8'), season);
+      if (!Object.keys(players).length) throw new Error(`${season} has no Jets player rows`);
+      keepsRecordedGames(players, previous);
+      validatePlayers({ schemaVersion: 1, season, source: weekSource(season), checkedAt: now.toISOString(), players });
+    } catch (error) {
+      if (!previous) throw error;
+      onError(`${season} player stats retained from ${previous.checkedAt}: ${error.message}`);
+      continue;
+    }
     const curves = await readCurves(path.join(root, 'curves'), new Set(Object.values(players).flatMap((player) => player.games.map((game) => game.gameId))));
-    await publish(path.join(root, 'players', `${season}.json`), { schemaVersion: 1, season, source: weekSource(season), checkedAt: now.toISOString(), players: bigPlays(players, curves) });
+    await publish(out, { schemaVersion: 1, season, source: weekSource(season), checkedAt: now.toISOString(), players: bigPlays(players, curves) });
     written.push(season);
   }
   return written;

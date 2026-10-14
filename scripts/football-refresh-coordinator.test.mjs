@@ -60,8 +60,9 @@ test('the active clock throttles healthy duplicate calls for forty seconds; idle
   const active = setup(undefined, '2026-10-18T17:00:30.000Z');
   assert.equal((await active.run({ refresh: () => assert.fail('active duplicate must not call providers') })).status, 'fresh');
   active.advance(10_000); assert.equal((await active.run()).status, 'published');
-  const idleTime = '2026-10-13T12:00:00.000Z';
-  const idle = setup([[FOOTBALL_COLLECTION_PATH, edition(idleTime)]], '2026-10-13T12:03:00.000Z');
+  // Use the idle day before the active fixture, after its compiled evidence dates.
+  const idleTime = '2026-10-17T12:00:00.000Z';
+  const idle = setup([[FOOTBALL_COLLECTION_PATH, edition(idleTime)]], '2026-10-17T12:03:00.000Z');
   idle.options.baked = edition(idleTime);
   assert.equal((await idle.run({ refresh: () => assert.fail('idle duplicate must not call providers') })).status, 'fresh');
   idle.advance(60_000); assert.equal((await idle.run()).status, 'published');

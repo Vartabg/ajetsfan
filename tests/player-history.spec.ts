@@ -35,6 +35,17 @@ test("lines and plays read as words", () => {
   expect(playText(`(:04) ${"word ".repeat(60)}`).endsWith("…")).toBe(true);
 });
 
+test("a replay reversal keeps the final touchdown ruling before shortening the description", () => {
+  // Actual top Wilson/Smith play: 2026_03_NYJ_DET, play 3619. The initial
+  // 22-yard gain at the one-yard line was changed to a 23-yard touchdown.
+  const desc = "(4:11) (Shotgun) 7-G.Smith pass deep right to 5-G.Wilson to DET 1 for 22 yards (4-D.Reed). Penalty on DET-4-D.Reed, Defensive Pass Interference, declined. New York Jets challenged the short of the goal line ruling, and the play was REVERSED. (Shotgun) 7-G.Smith pass deep right to 5-G.Wilson for 23 yards, TOUCHDOWN. Penalty on DET-4-D.Reed, Defensive Pass Interference, declined.";
+  const text = playText(desc);
+  expect(text).toContain("7-G.Smith pass deep right to 5-G.Wilson for 23 yards, TOUCHDOWN.");
+  expect(text).not.toContain("to DET 1 for 22 yards");
+  expect(text).not.toContain("Shotgun");
+  expect(playText("Initial result. The ruling was REVERSED. Corrected result. The play was REVERSED. Final result.")).toBe("Final result.");
+});
+
 test("a player page shows the season game by game, the career as a Jet and the biggest plays", async ({ page }) => {
   await page.goto("/players/00-0037740");
   const ids = await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.id));
