@@ -43,7 +43,7 @@ npx playwright install chrome
 npm run test:a11y
 ```
 
-Browser checks use system Google Chrome and a production server. They verify the current front page, news links, roster filters and player profiles, matchup numbers, full schedule, archive filters and shareable links, play scrubbing, case-study navigation, editable play diagrams and playback, responsive reflow, and automated accessibility at 1280, 390, and 320px. Data tests cover parsing, source URL validation, season rollover, incomplete analysis, independent feed failure, failed publication, and recovery. CI runs the same gates. Automated checks do not establish complete accessibility conformance.
+Browser checks use system Google Chrome and a production server. They verify the current front page, news links, roster filters and player profiles, matchup numbers, full schedule, archive filters and shareable links, play scrubbing, case-study navigation, editable play diagrams and playback, responsive reflow, and automated accessibility at 1280, 390, and 320px. Data tests cover parsing, source URL validation, season rollover, incomplete analysis, independent feed failure, failed publication, and recovery. CI runs the same gates. A pull request labelled `automerge` merges itself (`.github/workflows/automerge.yml`) once every check on its latest commit has passed; the label is the approval. Automated checks do not establish complete accessibility conformance.
 
 ## Data and decisions
 
