@@ -1,0 +1,47 @@
+name: Auto-merge
+
+# A pull request labelled "automerge" merges itself once every check on its latest commit has passed.
+# Branch protection would do this natively, but required checks would also block the data refresh,
+# which pushes straight to master. Each Verify run (push and pull_request) re-checks; the last to
+# finish merges.
+on:
+  workflow_run:
+    workflows: [Verify]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+  statuses: read
+
+concurrency:
+  group: automerge-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      SHA: ${{ github.event.workflow_run.head_sha }}
+      BRANCH: ${{ github.event.workflow_run.head_branch }}
+    steps:
+      - name: Merge the labelled pull request whose latest commit passed every check
+        run: |
+          set -euo pipefail
+          # Only an open, non-draft PR from this repository, labelled by a maintainer, whose head is still the commit that passed.
+          pr=$(gh pr list --repo "$REPO" --state open --head "$BRANCH" --json number,headRefOid,isDraft,isCrossRepository,labels \
+            --jq "[.[] | select(.headRefOid == \"$SHA\" and (.isDraft | not) and (.isCrossRepository | not) and any(.labels[]; .name == \"automerge\"))][0].number // empty")
+          if [ -z "$pr" ]; then echo "No labelled pull request at $SHA."; exit 0; fi
+          # Every check run on the commit (both Verify runs, Vercel) must be finished and passing; a pending one merges on its own run.
+          runs=$(gh api "repos/$REPO/commits/$SHA/check-runs?per_page=100" --jq '[.check_runs[] | {status, conclusion}]')
+          if echo "$runs" | jq -e 'any(.[]; .status != "completed")' >/dev/null; then echo "Checks still running on #$pr."; exit 0; fi
+          if echo "$runs" | jq -e 'any(.[]; (.conclusion | IN("success", "neutral", "skipped")) | not)' >/dev/null; then echo "A check failed on #$pr; not merging."; exit 0; fi
+          status=$(gh api "repos/$REPO/commits/$SHA/status" --jq '{state, total_count}')
+          if [ "$(echo "$status" | jq -r '.total_count')" != "0" ] && [ "$(echo "$status" | jq -r '.state')" != "success" ]; then echo "Statuses not all passing on #$pr."; exit 0; fi
+          gh pr merge "$pr" --repo "$REPO" --merge --match-head-commit "$SHA"
+          echo "Merged #$pr at $SHA."
