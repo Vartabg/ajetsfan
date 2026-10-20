@@ -11,13 +11,19 @@ const bakedCoverage = JSON.parse(await readFile(new URL('../public/data/coverage
 const oldTime = '2026-10-18T17:00:00.000Z', freshTime = '2026-10-18T17:10:00.000Z';
 const clone = (value) => structuredClone(value);
 function edition(at = oldTime) {
+  // The baked files come from the latest data refresh, which can postdate `at`; nothing in the edition may claim a later time.
+  const notAfter = (value) => value && Date.parse(value) > Date.parse(at) ? at : value;
+  const current = { ...clone(bakedCurrent), checkedAt: at, analysisUpdatedAt: notAfter(bakedCurrent.analysisUpdatedAt) };
+  if (current.analysisCheck) Object.assign(current.analysisCheck, { attemptedAt: notAfter(current.analysisCheck.attemptedAt), checkedAt: notAfter(current.analysisCheck.checkedAt) });
+  for (const game of current.schedule) if (game.scoreCheckedAt !== undefined) game.scoreCheckedAt = notAfter(game.scoreCheckedAt);
   const coverage = clone(bakedCoverage);
-  for (const name of ['news', 'roster', 'stats']) Object.assign(coverage[name], { checkedAt: at, attemptedAt: at, status: 'ready' });
+  for (const name of ['news', 'roster', 'stats']) Object.assign(coverage[name], { checkedAt: at, attemptedAt: at, status: 'ready', sourceUpdatedAt: notAfter(coverage[name].sourceUpdatedAt) });
+  coverage.news.items = coverage.news.items.filter((item) => Date.parse(item.publishedAt) <= Date.parse(at));
   const scheduled = bakedCurrent.schedule.find((game) => game.id === '2026_06_NYJ_NE');
   const game = { eventId: '401999001', gameId: scheduled.id, season: 2026, week: 6, seasonType: 'REG', kickoff: scheduled.kickoff,
     opponent: scheduled.opponent, opponentDisplay: scheduled.opponentDisplay, atHome: false, state: 'scheduled', jetsScore: null, oppScore: null,
     period: 0, clock: null, detail: 'Scheduled', provisional: false, players: [] };
-  return validateFootballEdition({ schemaVersion: 1, current: { ...clone(bakedCurrent), checkedAt: at }, coverage,
+  return validateFootballEdition({ schemaVersion: 1, current, coverage,
     live: { schemaVersion: 1, season: 2026, source: footballScheduleSource(2026), checkedAt: at, attemptedAt: at, status: 'ready', games: [game], featured: game },
     scheduleCheck: { source: bakedCurrent.sources.schedule, status: 'ready', checkedAt: at, attemptedAt: at } });
 }
