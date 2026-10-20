@@ -1,0 +1,2117 @@
+{
+  "schemaVersion": 1,
+  "edition": "2026-10-20",
+  "reviewedAt": "2026-10-20T17:31:40.488156Z",
+  "scope": "Finite seed catalog of first-party analyst pages and existing Film Room written evidence; not a complete index of online football analysis.",
+  "limitations": [
+    "No videos were watched or audio transcripts reviewed in this edition. Metadata-reviewed sources contribute discovery and match candidates, not verified analyst action claims.",
+    "Exact-game identifies a game, not an exact snap. Candidate selectors must match one persisted source play before a canonicalPlayId may be assigned.",
+    "A text-verified claim means the attributed statement was read; it does not turn analyst interpretation into measured tracking or establish every off-camera assignment.",
+    "Links and short original-language paraphrases are retained. No videos, images or wholesale transcripts are redistributed. Public accessibility does not determine reuse rights."
+  ],
+  "sources": [
+    {
+      "id": "baldinger-wilson-browns-2022",
+      "url": "https://www.newyorkjets.com/video/baldy-s-breakdown-garrett-wilson-s-big-day-against-the-browns",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Brian Baldinger"
+      ],
+      "publishedAt": "2022-09-20",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "Baldy's Breakdown | Garrett Wilson's Big Day Against the Browns",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "receiving"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "Publisher describes a Baldinger review of Garrett Wilson’s rookie performance in Cleveland.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied."
+        ]
+      },
+      "matches": [
+        {
+          "id": "wilson-browns-game",
+          "status": "exact-game",
+          "season": 2022,
+          "week": 2,
+          "teams": [
+            "NYJ",
+            "CLE"
+          ],
+          "basis": "Publisher identifies Wilson in Cleveland; the existing Film Room case independently identifies the 2022 Week 2 game. Canonical corpus resolution is pending.",
+          "playCandidates": [],
+          "candidateGameId": "2022_02_NYJ_CLE",
+          "gameId": "2022_02_NYJ_CLE",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2022_02_NYJ_CLE",
+              "season": 2022,
+              "week": 2,
+              "home_team": "CLE",
+              "away_team": "NYJ",
+              "game_date": "2022-09-18"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2022.parquet",
+              "name": "play_by_play_2022.parquet",
+              "fetchedAt": "2026-10-20T17:40:02.751Z",
+              "persistedAt": null,
+              "sha256": "931121d8897779d7944e2a293e92ed8799c8e5cceef84096ac42339003fedc09",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:17.094819Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/baldy-s-breakdown-garrett-wilson-s-big-day-against-the-browns",
+        "contentType": "text/html",
+        "bytes": 349327,
+        "sha256": "d902c5cfec0ace768cf7fb028da76ce55414d4390ab81542eac2bfa1f6149314",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "enunwa-wilson-browns-2022",
+      "url": "https://www.newyorkjets.com/video/inside-the-film-room-with-quincy-enunwa-jets-at-browns",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Quincy Enunwa"
+      ],
+      "publishedAt": "2022-09-19",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "Inside the Film Room with Quincy Enunwa | Jets at Browns",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "receiving"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "Publisher identifies Enunwa reviewing Garrett Wilson in the 31–30 win.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied."
+        ]
+      },
+      "matches": [
+        {
+          "id": "enunwa-browns-game",
+          "status": "exact-game",
+          "season": 2022,
+          "week": 2,
+          "teams": [
+            "NYJ",
+            "CLE"
+          ],
+          "basis": "Publisher names Wilson and the 31–30 Jets win at Cleveland; the existing Film Room case identifies this game. Canonical corpus resolution is pending.",
+          "playCandidates": [],
+          "candidateGameId": "2022_02_NYJ_CLE",
+          "gameId": "2022_02_NYJ_CLE",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2022_02_NYJ_CLE",
+              "season": 2022,
+              "week": 2,
+              "home_team": "CLE",
+              "away_team": "NYJ",
+              "game_date": "2022-09-18"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2022.parquet",
+              "name": "play_by_play_2022.parquet",
+              "fetchedAt": "2026-10-20T17:40:02.751Z",
+              "persistedAt": null,
+              "sha256": "931121d8897779d7944e2a293e92ed8799c8e5cceef84096ac42339003fedc09",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:17.526261Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/inside-the-film-room-with-quincy-enunwa-jets-at-browns",
+        "contentType": "text/html",
+        "bytes": 349511,
+        "sha256": "c944f3cd4c4195a1e00f72881c9ce2675a72f486216798c50cd15a32ff1621e4",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "bell-browns-comeback-2022",
+      "url": "https://www.newyorkjets.com/news/jets-joe-cool-puts-cleveland-in-the-deep-freeze-with-a-stirring-comeback-victory",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Jack Bell"
+      ],
+      "publishedAt": "2022-09-18",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "Jets' Joe Cool Puts Cleveland in the Deep Freeze With a Stirring Comeback Victory",
+      "contentType": "reported-account",
+      "originalLanguage": "en",
+      "concepts": [
+        "slant",
+        "throwing-window",
+        "safety-position",
+        "onside-kick"
+      ],
+      "evidence": {
+        "mode": "text-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Article body and byline. Claim-level section locators are recorded below.",
+        "availableEvidence": "Read the comeback account, including the winning-route description and Flacco’s explanation of the throwing window.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Written statements are attributed evidence; independent video and tracking verification has not been performed."
+        ]
+      },
+      "matches": [
+        {
+          "id": "bell-browns-game",
+          "status": "exact-game",
+          "season": 2022,
+          "week": 2,
+          "teams": [
+            "NYJ",
+            "CLE"
+          ],
+          "basis": "Dated game account gives Jets 31–30 at Cleveland; matches the existing Film Room fixture. Canonical corpus resolution is pending.",
+          "playCandidates": [
+            {
+              "id": "wilson-winning-td",
+              "status": "exact-play",
+              "selector": {
+                "qtr": 4,
+                "quarterSecondsRemaining": 25,
+                "down": 3,
+                "ydstogo": 10,
+                "yards_gained": 15,
+                "touchdown": 1,
+                "passerName": "Joe Flacco",
+                "receiverName": "Garrett Wilson"
+              },
+              "basis": "The game account identifies a 15-yard winning slant to Wilson with 25 seconds left and later specifies third-and-10 from the 15.",
+              "canonicalPlayId": "2022_02_NYJ_CLE:4199",
+              "limitations": [
+                "Resolve uniquely against persisted play-by-play before claiming an exact-play link."
+              ],
+              "resolution": {
+                "method": "persisted-pbp-unique-match-all-selectors",
+                "matchedRows": 1,
+                "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+                "resolvedAt": "2026-10-20T17:48:38.013Z",
+                "gameId": "2022_02_NYJ_CLE",
+                "playId": 4199,
+                "sourceDescription": "(:25) (Shotgun) 19-J.Flacco pass short middle to 17-G.Wilson for 15 yards, TOUCHDOWN.",
+                "identityRules": [
+                  {
+                    "selector": "passerName",
+                    "suppliedName": "Joe Flacco",
+                    "columns": [
+                      "passer_player_name"
+                    ],
+                    "exactValues": [
+                      "Joe Flacco",
+                      "J.Flacco"
+                    ]
+                  },
+                  {
+                    "selector": "receiverName",
+                    "suppliedName": "Garrett Wilson",
+                    "columns": [
+                      "receiver_player_name"
+                    ],
+                    "exactValues": [
+                      "Garrett Wilson",
+                      "G.Wilson"
+                    ]
+                  }
+                ],
+                "source": {
+                  "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2022.parquet",
+                  "name": "play_by_play_2022.parquet",
+                  "fetchedAt": "2026-10-20T17:40:02.751Z",
+                  "persistedAt": null,
+                  "sha256": "931121d8897779d7944e2a293e92ed8799c8e5cceef84096ac42339003fedc09",
+                  "originalColumnCount": 372
+                },
+                "limitation": "This verifies source-record identity only. It does not verify the video contents, assignments, coordinates or the analyst’s interpretation."
+              }
+            }
+          ],
+          "candidateGameId": "2022_02_NYJ_CLE",
+          "gameId": "2022_02_NYJ_CLE",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2022_02_NYJ_CLE",
+              "season": 2022,
+              "week": 2,
+              "home_team": "CLE",
+              "away_team": "NYJ",
+              "game_date": "2022-09-18"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2022.parquet",
+              "name": "play_by_play_2022.parquet",
+              "fetchedAt": "2026-10-20T17:40:02.751Z",
+              "persistedAt": null,
+              "sha256": "931121d8897779d7944e2a293e92ed8799c8e5cceef84096ac42339003fedc09",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "wilson-slant",
+          "attribution": "Jack Bell, NewYorkJets.com",
+          "originalLanguage": "en",
+          "summary": "Bell describes the winning Flacco-to-Wilson touchdown as a 15-yard slant.",
+          "evidenceKind": "reported",
+          "locator": {
+            "type": "section",
+            "text": "Opening account, paragraph describing the winning score."
+          },
+          "matchId": "bell-browns-game",
+          "playCandidateId": "wilson-winning-td",
+          "reviewStatus": "text-verified",
+          "limitations": [
+            "This reports the route; it does not establish every receiver’s route or the coverage call."
+          ]
+        },
+        {
+          "id": "flacco-window",
+          "attribution": "Joe Flacco, as quoted by Jack Bell",
+          "originalLanguage": "en",
+          "summary": "Flacco said he wanted the ball behind the linebackers against relatively soft safeties and expected to find a small window for Wilson.",
+          "evidenceKind": "participant-account",
+          "locator": {
+            "type": "section",
+            "text": "Final Flacco answer about the play called through his headset."
+          },
+          "matchId": "bell-browns-game",
+          "playCandidateId": "wilson-winning-td",
+          "reviewStatus": "text-verified",
+          "limitations": [
+            "The quarterback’s explanation is attributed testimony, not measured defender coordinates."
+          ]
+        }
+      ],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:20.083237Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/news/jets-joe-cool-puts-cleveland-in-the-deep-freeze-with-a-stirring-comeback-victory",
+        "contentType": "text/html",
+        "bytes": 300405,
+        "sha256": "201dce8bd846b525b012c38b59265edec54533314d245519126f72d3ffe8734a",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "lange-monday-night-miracle-2020",
+      "url": "https://www.newyorkjets.com/news/do-you-believe-in-miracles-jets-roar-back-from-23-down-rock-dolphins-40-37-in-ot",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Randy Lange"
+      ],
+      "publishedAt": "2020-03-30",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "Do You Believe in Miracles? Jets Roar Back from 23 Down, Rock Dolphins 40-37 in OT",
+      "contentType": "reported-account",
+      "originalLanguage": "en",
+      "concepts": [
+        "eligible-receiver",
+        "goal-line",
+        "field-goal",
+        "overtime"
+      ],
+      "evidence": {
+        "mode": "text-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Article body and byline. Claim-level section locators are recorded below.",
+        "availableEvidence": "Read the historical account and the full-broadcast link; the linked broadcast was not viewed.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Written statements are attributed evidence; independent video and tracking verification has not been performed."
+        ]
+      },
+      "matches": [
+        {
+          "id": "miracle-game",
+          "status": "exact-game",
+          "season": 2000,
+          "week": 8,
+          "gameDate": "2000-10-23",
+          "teams": [
+            "MIA",
+            "NYJ"
+          ],
+          "basis": "Article explicitly identifies Miami at Jets on October 23, 2000; matches the existing historical Film Room fixture. Canonical corpus resolution is pending.",
+          "playCandidates": [
+            {
+              "id": "elliott-td",
+              "status": "exact-play",
+              "selector": {
+                "qtr": 4,
+                "yards_gained": 3,
+                "touchdown": 1,
+                "passerName": "Vinny Testaverde",
+                "receiverName": "Jumbo Elliott"
+              },
+              "basis": "Account names Testaverde’s 3-yard pass to Elliott and the review; no exact snap clock is inferred.",
+              "canonicalPlayId": "2000_08_MIA_NYJ:4658",
+              "limitations": [
+                "The historical archive repeats a clock; the 42 seconds in prose describes the tied score after the PAT, not a verified snap time."
+              ],
+              "resolution": {
+                "method": "persisted-pbp-unique-match-all-selectors",
+                "matchedRows": 1,
+                "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+                "resolvedAt": "2026-10-20T17:48:38.013Z",
+                "gameId": "2000_08_MIA_NYJ",
+                "playId": 4658,
+                "sourceDescription": "(1:20) NY #76 Elliott reports eligible. Play action fake. V.Testaverde pass to J.Elliott for 3 yards, TOUCHDOWN. Play Challenged by Replay Official and Upheld.",
+                "identityRules": [
+                  {
+                    "selector": "passerName",
+                    "suppliedName": "Vinny Testaverde",
+                    "columns": [
+                      "passer_player_name"
+                    ],
+                    "exactValues": [
+                      "Vinny Testaverde",
+                      "V.Testaverde"
+                    ]
+                  },
+                  {
+                    "selector": "receiverName",
+                    "suppliedName": "Jumbo Elliott",
+                    "columns": [
+                      "receiver_player_name"
+                    ],
+                    "exactValues": [
+                      "Jumbo Elliott",
+                      "J.Elliott"
+                    ]
+                  }
+                ],
+                "source": {
+                  "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2000.parquet",
+                  "name": "play_by_play_2000.parquet",
+                  "fetchedAt": "2026-10-20T17:48:04.953Z",
+                  "persistedAt": null,
+                  "sha256": "595c3b0eefeb91afd6f08c629669823b31e63c34304c98faed09adf4fbd54706",
+                  "originalColumnCount": 372
+                },
+                "limitation": "This verifies source-record identity only. It does not verify the video contents, assignments, coordinates or the analyst’s interpretation."
+              }
+            },
+            {
+              "id": "hall-winning-fg",
+              "status": "exact-play",
+              "selector": {
+                "qtr": 5,
+                "field_goal_result": "made",
+                "kick_distance": 40,
+                "kickerName": "John Hall"
+              },
+              "basis": "Account identifies the game-winning 40-yard kick, 6:47 elapsed in overtime.",
+              "canonicalPlayId": "2000_08_MIA_NYJ:5271",
+              "limitations": [
+                "Resolve uniquely against persisted play-by-play before claiming an exact-play link."
+              ],
+              "resolution": {
+                "method": "persisted-pbp-unique-match-all-selectors",
+                "matchedRows": 1,
+                "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+                "resolvedAt": "2026-10-20T17:48:38.013Z",
+                "gameId": "2000_08_MIA_NYJ",
+                "playId": 5271,
+                "sourceDescription": "(8:13) J.Hall 40 yard field goal is GOOD, Center-B.Banta, Holder-T.Tupa.",
+                "identityRules": [
+                  {
+                    "selector": "kickerName",
+                    "suppliedName": "John Hall",
+                    "columns": [
+                      "kicker_player_name"
+                    ],
+                    "exactValues": [
+                      "John Hall",
+                      "J.Hall"
+                    ]
+                  }
+                ],
+                "source": {
+                  "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2000.parquet",
+                  "name": "play_by_play_2000.parquet",
+                  "fetchedAt": "2026-10-20T17:48:04.953Z",
+                  "persistedAt": null,
+                  "sha256": "595c3b0eefeb91afd6f08c629669823b31e63c34304c98faed09adf4fbd54706",
+                  "originalColumnCount": 372
+                },
+                "limitation": "This verifies source-record identity only. It does not verify the video contents, assignments, coordinates or the analyst’s interpretation."
+              }
+            }
+          ],
+          "candidateGameId": "2000_08_MIA_NYJ",
+          "gameId": "2000_08_MIA_NYJ",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2000_08_MIA_NYJ",
+              "season": 2000,
+              "week": 8,
+              "home_team": "NYJ",
+              "away_team": "MIA",
+              "game_date": "2000-10-23"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2000.parquet",
+              "name": "play_by_play_2000.parquet",
+              "fetchedAt": "2026-10-20T17:48:04.953Z",
+              "persistedAt": null,
+              "sha256": "595c3b0eefeb91afd6f08c629669823b31e63c34304c98faed09adf4fbd54706",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "elliott-goal-line",
+          "attribution": "Randy Lange, NewYorkJets.com",
+          "originalLanguage": "en",
+          "summary": "Lange reports Elliott lining up at tight end in the goal-line offense, catching Testaverde’s 3-yard touchdown after several juggles, and surviving replay review.",
+          "evidenceKind": "reported",
+          "locator": {
+            "type": "section",
+            "text": "Opening comeback account, Elliott touchdown paragraph."
+          },
+          "matchId": "miracle-game",
+          "playCandidateId": "elliott-td",
+          "reviewStatus": "text-verified",
+          "limitations": []
+        },
+        {
+          "id": "hall-overtime-kick",
+          "attribution": "Randy Lange, NewYorkJets.com",
+          "originalLanguage": "en",
+          "summary": "Lange identifies Hall’s 40-yard overtime field goal as the winning score, following a possession begun by Marcus Coleman’s interception.",
+          "evidenceKind": "reported",
+          "locator": {
+            "type": "section",
+            "text": "Opening comeback account, winning-kick paragraph."
+          },
+          "matchId": "miracle-game",
+          "playCandidateId": "hall-winning-fg",
+          "reviewStatus": "text-verified",
+          "limitations": []
+        }
+      ],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:20.273481Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/news/do-you-believe-in-miracles-jets-roar-back-from-23-down-rock-dolphins-40-37-in-ot",
+        "contentType": "text/html",
+        "bytes": 301234,
+        "sha256": "7d81e477dcc08bb7c849df959a0f502acf5cf0d501088e079bc8da27a73e8a5c",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "patriots-jets-postgame-quotes-2012",
+      "url": "https://www.patriots.com/news/jets-postgame-quotes-11-22-2012-184316",
+      "publisher": "New England Patriots",
+      "analysts": [
+        "Mark Sanchez",
+        "Rex Ryan",
+        "Brandon Moore"
+      ],
+      "publishedAt": "2012-11-22",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "Jets Postgame Quotes - 11/22/2012",
+      "contentType": "participant-account",
+      "originalLanguage": "en",
+      "concepts": [
+        "handoff",
+        "ball-security",
+        "mental-error"
+      ],
+      "evidence": {
+        "mode": "text-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Article body and byline. Claim-level section locators are recorded below.",
+        "availableEvidence": "Read the official postgame transcript, especially Sanchez’s mental-error and intended-handoff answers.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Written statements are attributed evidence; independent video and tracking verification has not been performed."
+        ]
+      },
+      "matches": [
+        {
+          "id": "thanksgiving-game",
+          "status": "exact-game",
+          "season": 2012,
+          "week": 12,
+          "gameDate": "2012-11-22",
+          "teams": [
+            "NE",
+            "NYJ"
+          ],
+          "basis": "Publisher identifies the November 22, 2012 game at MetLife; existing Film Room fixture identifies its canonical game ID. Canonical corpus resolution is pending.",
+          "playCandidates": [
+            {
+              "id": "sanchez-fumble",
+              "status": "exact-play",
+              "selector": {
+                "qtr": 2,
+                "quarterSecondsRemaining": 550,
+                "rusherName": "Mark Sanchez",
+                "fumble_lost": 1,
+                "returnTouchdownPlayerName": "Steve Gregory"
+              },
+              "basis": "Sanchez’s mental-error answer refers to running into Brandon Moore; the existing official-gamebook Film Room case supplies Q2 9:10 and the fumble-return identity.",
+              "canonicalPlayId": "2012_12_NE_NYJ:1401",
+              "limitations": [
+                "Resolve uniquely against persisted play-by-play before claiming an exact-play link."
+              ],
+              "resolution": {
+                "method": "persisted-pbp-unique-match-all-selectors",
+                "matchedRows": 1,
+                "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+                "resolvedAt": "2026-10-20T17:48:38.013Z",
+                "gameId": "2012_12_NE_NYJ",
+                "playId": 1401,
+                "sourceDescription": "(9:10) 6-M.Sanchez up the middle to NYJ 32 for 1 yard. FUMBLES, RECOVERED by NE-28-S.Gregory at NYJ 32. 28-S.Gregory for 32 yards, TOUCHDOWN.",
+                "identityRules": [
+                  {
+                    "selector": "rusherName",
+                    "suppliedName": "Mark Sanchez",
+                    "columns": [
+                      "rusher_player_name"
+                    ],
+                    "exactValues": [
+                      "Mark Sanchez",
+                      "M.Sanchez"
+                    ]
+                  },
+                  {
+                    "selector": "returnTouchdownPlayerName",
+                    "suppliedName": "Steve Gregory",
+                    "columns": [
+                      "td_player_name"
+                    ],
+                    "exactValues": [
+                      "Steve Gregory",
+                      "S.Gregory"
+                    ]
+                  }
+                ],
+                "source": {
+                  "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2012.parquet",
+                  "name": "play_by_play_2012.parquet",
+                  "fetchedAt": "2026-10-20T17:42:50.006Z",
+                  "persistedAt": null,
+                  "sha256": "447b90789104aac70427ec9d3b51df7247234029d0ecabd269279369b1cc6278",
+                  "originalColumnCount": 372
+                },
+                "limitation": "This verifies source-record identity only. It does not verify the video contents, assignments, coordinates or the analyst’s interpretation."
+              }
+            }
+          ],
+          "candidateGameId": "2012_12_NE_NYJ",
+          "gameId": "2012_12_NE_NYJ",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2012_12_NE_NYJ",
+              "season": 2012,
+              "week": 12,
+              "home_team": "NYJ",
+              "away_team": "NE",
+              "game_date": "2012-11-22"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2012.parquet",
+              "name": "play_by_play_2012.parquet",
+              "fetchedAt": "2026-10-20T17:42:50.006Z",
+              "persistedAt": null,
+              "sha256": "447b90789104aac70427ec9d3b51df7247234029d0ecabd269279369b1cc6278",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "sanchez-intended-handoff",
+          "attribution": "Mark Sanchez, in the Patriots-published postgame transcript",
+          "originalLanguage": "en",
+          "summary": "Sanchez said he had a different play in mind, found nobody to hand to, then tried to run and get down before colliding with Moore. He identified the intended recipient as the fullback.",
+          "evidenceKind": "participant-account",
+          "locator": {
+            "type": "section",
+            "text": "MARK SANCHEZ section; mental-error and intended-handoff answers."
+          },
+          "matchId": "thanksgiving-game",
+          "playCandidateId": "sanchez-fumble",
+          "reviewStatus": "text-verified",
+          "limitations": [
+            "This does not prove Moore’s blocking assignment or any off-camera movement."
+          ]
+        }
+      ],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:19.448516Z",
+        "status": 200,
+        "finalUrl": "https://www.patriots.com/news/jets-postgame-quotes-11-22-2012-184316",
+        "contentType": "text/html",
+        "bytes": 460411,
+        "sha256": "bb2ea3c858d7987cd15f8732377c1edb45c8dbc92e974a597acf1c33d85ac10c",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "duffy-eagles-vikings-2019",
+      "url": "https://www.philadelphiaeagles.com/news/eagle-eye-explaining-sunday-s-loss-from-a-coach-s-perspective",
+      "publisher": "Philadelphia Eagles",
+      "analysts": [
+        "Fran Duffy"
+      ],
+      "publishedAt": "2019-10-15",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "Eagle Eye: Explaining Sunday's loss from a coach's perspective",
+      "contentType": "written-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "quarters",
+        "pattern-match",
+        "play-action",
+        "deep-post",
+        "route-combination"
+      ],
+      "evidence": {
+        "mode": "text-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Article body and byline. Claim-level section locators are recorded below.",
+        "availableEvidence": "Read Duffy’s written breakdown of two explosive touchdowns, including his qualifiers about apparent coverage exchanges.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Written statements are attributed evidence; independent video and tracking verification has not been performed."
+        ]
+      },
+      "matches": [
+        {
+          "id": "eagles-vikings-game",
+          "status": "exact-game",
+          "candidateGameId": "2019_06_PHI_MIN",
+          "season": 2019,
+          "teams": [
+            "PHI",
+            "MIN"
+          ],
+          "basis": "Article discusses the Eagles’ road loss in Minnesota immediately before the October 15, 2019 publication; canonical week needs corpus verification.",
+          "playCandidates": [
+            {
+              "id": "diggs-62-yard-td",
+              "status": "exact-play",
+              "selector": {
+                "yards_gained": 62,
+                "touchdown": 1,
+                "passerName": "Kirk Cousins",
+                "receiverName": "Stefon Diggs"
+              },
+              "basis": "Article explicitly identifies the first Diggs touchdown as a 62-yard deep-post pass.",
+              "canonicalPlayId": "2019_06_PHI_MIN:1101",
+              "limitations": [
+                "Resolve uniquely against persisted play-by-play before claiming an exact-play link."
+              ],
+              "resolution": {
+                "method": "persisted-pbp-unique-match-all-selectors",
+                "matchedRows": 1,
+                "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+                "resolvedAt": "2026-10-20T17:48:38.013Z",
+                "gameId": "2019_06_PHI_MIN",
+                "playId": 1101,
+                "sourceDescription": "(11:47) 8-K.Cousins pass deep middle to 14-S.Diggs for 62 yards, TOUCHDOWN.",
+                "identityRules": [
+                  {
+                    "selector": "passerName",
+                    "suppliedName": "Kirk Cousins",
+                    "columns": [
+                      "passer_player_name"
+                    ],
+                    "exactValues": [
+                      "Kirk Cousins",
+                      "K.Cousins"
+                    ]
+                  },
+                  {
+                    "selector": "receiverName",
+                    "suppliedName": "Stefon Diggs",
+                    "columns": [
+                      "receiver_player_name"
+                    ],
+                    "exactValues": [
+                      "Stefon Diggs",
+                      "S.Diggs"
+                    ]
+                  }
+                ],
+                "source": {
+                  "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2019.parquet",
+                  "name": "play_by_play_2019.parquet",
+                  "fetchedAt": "2026-10-20T17:44:33.973Z",
+                  "persistedAt": null,
+                  "sha256": "60c3067017db2d28a78f66a79b657268be8578d9a5288e6a827efdcd7fe42540",
+                  "originalColumnCount": 372
+                },
+                "limitation": "This verifies source-record identity only. It does not verify the video contents, assignments, coordinates or the analyst’s interpretation."
+              }
+            }
+          ],
+          "gameId": "2019_06_PHI_MIN",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2019_06_PHI_MIN",
+              "season": 2019,
+              "week": 6,
+              "home_team": "MIN",
+              "away_team": "PHI",
+              "game_date": "2019-10-13"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2019.parquet",
+              "name": "play_by_play_2019.parquet",
+              "fetchedAt": "2026-10-20T17:44:33.973Z",
+              "persistedAt": null,
+              "sha256": "60c3067017db2d28a78f66a79b657268be8578d9a5288e6a827efdcd7fe42540",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "quarters-match-variation",
+          "attribution": "Fran Duffy, PhiladelphiaEagles.com",
+          "originalLanguage": "en",
+          "summary": "Duffy explains that quarters often becomes receiver matching after routes reach a certain depth, while the trigger and checks vary by coach.",
+          "evidenceKind": "analyst-interpretation",
+          "locator": {
+            "type": "section",
+            "text": "Quarters overview, third strength and second weakness."
+          },
+          "matchId": "eagles-vikings-game",
+          "reviewStatus": "text-verified",
+          "limitations": [
+            "A teaching principle in this article does not establish any selected Jets play’s coverage."
+          ]
+        },
+        {
+          "id": "diggs-isolation",
+          "attribution": "Fran Duffy, PhiladelphiaEagles.com",
+          "originalLanguage": "en",
+          "summary": "Duffy interprets Thielen’s crossing route and the run fake as holding the safeties, isolating Diggs against Douglas on the 62-yard post. He describes the safety exchange as apparent rather than certain.",
+          "evidenceKind": "analyst-interpretation",
+          "locator": {
+            "type": "section",
+            "text": "First Diggs touchdown discussion after the quarters overview."
+          },
+          "matchId": "eagles-vikings-game",
+          "playCandidateId": "diggs-62-yard-td",
+          "reviewStatus": "text-verified",
+          "limitations": [
+            "Analyst interpretation; coverage and assignment certainty must retain the author’s qualifiers."
+          ]
+        }
+      ],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:19.456298Z",
+        "status": 200,
+        "finalUrl": "https://www.philadelphiaeagles.com/news/eagle-eye-explaining-sunday-s-loss-from-a-coach-s-perspective",
+        "contentType": "text/html",
+        "bytes": 352957,
+        "sha256": "53e33eb16e7e57689b9d799c33f389ffbe2d58d44ae798b6aae36f05f8299c9a",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "baldinger-browns-returns-2025",
+      "url": "https://www.newyorkjets.com/video/baldy-breakdown-jets-return-touchdowns-kene-nwangwu-isaiah-williams-11-10-2025",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Brian Baldinger"
+      ],
+      "publishedAt": "2025-11-10",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "The Film Behind the Two Return TDs vs. the Browns | Baldy's Breakdown",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "kickoff-return",
+        "punt-return",
+        "special-teams"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "The description identifies two particular scoring returns. Blocking and lane explanations in the video remain unreviewed.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied."
+        ]
+      },
+      "matches": [
+        {
+          "id": "browns-returns-game",
+          "status": "exact-game",
+          "candidateGameId": "2025_10_CLE_NYJ",
+          "season": 2025,
+          "week": 10,
+          "teams": [
+            "CLE",
+            "NYJ"
+          ],
+          "basis": "Publisher names the 27–20 win over Cleveland; the corresponding Week 10 canonical game awaits corpus confirmation.",
+          "playCandidates": [
+            {
+              "id": "nwangwu-kickoff-td",
+              "status": "exact-play",
+              "selector": {
+                "play_type": "kickoff",
+                "return_yards": 99,
+                "touchdown": 1,
+                "returnerName": "Kene Nwangwu"
+              },
+              "basis": "Publisher description explicitly identifies Nwangwu’s 99-yard kickoff-return touchdown.",
+              "canonicalPlayId": "2025_10_CLE_NYJ:585",
+              "limitations": [
+                "Resolve uniquely against persisted play-by-play before claiming an exact-play link."
+              ],
+              "resolution": {
+                "method": "persisted-pbp-unique-match-all-selectors",
+                "matchedRows": 1,
+                "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+                "resolvedAt": "2026-10-20T17:48:38.013Z",
+                "gameId": "2025_10_CLE_NYJ",
+                "playId": 585,
+                "sourceDescription": "25-A.Szmyt kicks 64 yards from CLE 35 to NYJ 1. 34-K.Nwangwu for 99 yards, TOUCHDOWN.",
+                "identityRules": [
+                  {
+                    "selector": "returnerName",
+                    "suppliedName": "Kene Nwangwu",
+                    "columns": [
+                      "punt_returner_player_name",
+                      "kickoff_returner_player_name"
+                    ],
+                    "exactValues": [
+                      "Kene Nwangwu",
+                      "K.Nwangwu"
+                    ]
+                  }
+                ],
+                "source": {
+                  "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+                  "name": "play_by_play_2025.parquet",
+                  "fetchedAt": "2026-10-20T17:45:08.772Z",
+                  "persistedAt": null,
+                  "sha256": "c6ecedd6d678cc37ed316b23ef84ee1ec6abb69c514bb11868a7ebd5a367df29",
+                  "originalColumnCount": 372
+                },
+                "limitation": "This verifies source-record identity only. It does not verify the video contents, assignments, coordinates or the analyst’s interpretation."
+              }
+            },
+            {
+              "id": "williams-punt-td",
+              "status": "exact-play",
+              "selector": {
+                "play_type": "punt",
+                "return_yards": 74,
+                "touchdown": 1,
+                "returnerName": "Isaiah Williams"
+              },
+              "basis": "Publisher description explicitly identifies Williams’s 74-yard punt-return touchdown.",
+              "canonicalPlayId": "2025_10_CLE_NYJ:735",
+              "limitations": [
+                "Resolve uniquely against persisted play-by-play before claiming an exact-play link."
+              ],
+              "resolution": {
+                "method": "persisted-pbp-unique-match-all-selectors",
+                "matchedRows": 1,
+                "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+                "resolvedAt": "2026-10-20T17:48:38.013Z",
+                "gameId": "2025_10_CLE_NYJ",
+                "playId": 735,
+                "sourceDescription": "(6:01) 13-C.Bojorquez punts 45 yards to NYJ 26, Center-50-R.Sunahara. 18-I.Williams for 74 yards, TOUCHDOWN. Penalty on CLE-28-T.Avery, Offensive Holding, declined.",
+                "identityRules": [
+                  {
+                    "selector": "returnerName",
+                    "suppliedName": "Isaiah Williams",
+                    "columns": [
+                      "punt_returner_player_name",
+                      "kickoff_returner_player_name"
+                    ],
+                    "exactValues": [
+                      "Isaiah Williams",
+                      "I.Williams"
+                    ]
+                  }
+                ],
+                "source": {
+                  "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+                  "name": "play_by_play_2025.parquet",
+                  "fetchedAt": "2026-10-20T17:45:08.772Z",
+                  "persistedAt": null,
+                  "sha256": "c6ecedd6d678cc37ed316b23ef84ee1ec6abb69c514bb11868a7ebd5a367df29",
+                  "originalColumnCount": 372
+                },
+                "limitation": "This verifies source-record identity only. It does not verify the video contents, assignments, coordinates or the analyst’s interpretation."
+              }
+            }
+          ],
+          "gameId": "2025_10_CLE_NYJ",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2025_10_CLE_NYJ",
+              "season": 2025,
+              "week": 10,
+              "home_team": "NYJ",
+              "away_team": "CLE",
+              "game_date": "2025-11-09"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+              "name": "play_by_play_2025.parquet",
+              "fetchedAt": "2026-10-20T17:45:08.772Z",
+              "persistedAt": null,
+              "sha256": "c6ecedd6d678cc37ed316b23ef84ee1ec6abb69c514bb11868a7ebd5a367df29",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:23.732895Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/baldy-breakdown-jets-return-touchdowns-kene-nwangwu-isaiah-williams-11-10-2025",
+        "contentType": "text/html",
+        "bytes": 349301,
+        "sha256": "3c596bc3a0b80ebc881b297af3b3c3f4e0425432cafe74f2642701f0c74972ed",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "baldinger-mcdonald-browns-2025",
+      "url": "https://www.newyorkjets.com/video/will-mcdonald-four-sacks-jets-vs-browns-week-10-2025",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Brian Baldinger"
+      ],
+      "publishedAt": "2025-11-11",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "Will McDonald's 4 Sacks vs. the Browns | Baldy's Breakdown",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "pass-rush",
+        "sack",
+        "edge-rush"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "Publisher identifies a review of McDonald’s four-sack game. Individual sack selections and techniques require video review.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied."
+        ]
+      },
+      "matches": [
+        {
+          "id": "mcdonald-browns-game",
+          "status": "exact-game",
+          "candidateGameId": "2025_10_CLE_NYJ",
+          "season": 2025,
+          "week": 10,
+          "teams": [
+            "CLE",
+            "NYJ"
+          ],
+          "basis": "Page URL explicitly identifies Week 10, 2025 against Cleveland; game ID awaits corpus confirmation.",
+          "playCandidates": [],
+          "gameId": "2025_10_CLE_NYJ",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2025_10_CLE_NYJ",
+              "season": 2025,
+              "week": 10,
+              "home_team": "NYJ",
+              "away_team": "CLE",
+              "game_date": "2025-11-09"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+              "name": "play_by_play_2025.parquet",
+              "fetchedAt": "2026-10-20T17:45:08.772Z",
+              "persistedAt": null,
+              "sha256": "c6ecedd6d678cc37ed316b23ef84ee1ec6abb69c514bb11868a7ebd5a367df29",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:22.982256Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/will-mcdonald-four-sacks-jets-vs-browns-week-10-2025",
+        "contentType": "text/html",
+        "bytes": 348531,
+        "sha256": "3b004764b7e1ca1ac25170406001669e804d7f6afd7112378ad0d4746d5d7d62",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "baldinger-bengals-offense-2025",
+      "url": "https://www.newyorkjets.com/video/jets-offense-500-yards-baldy-breakdown-10-28-2025",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Brian Baldinger"
+      ],
+      "publishedAt": "2025-10-28",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "Inside the 500-Yard Day for the Jets Offense | Baldy's Breakdown",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "offense"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "Publisher describes a review of the offense’s 500-yard performance against Cincinnati. No individual play is established by the description.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied."
+        ]
+      },
+      "matches": [
+        {
+          "id": "bengals-offense-game",
+          "status": "exact-game",
+          "candidateGameId": "2025_08_NYJ_CIN",
+          "season": 2025,
+          "week": 8,
+          "teams": [
+            "NYJ",
+            "CIN"
+          ],
+          "basis": "Publisher explicitly identifies the Week 8 win over Cincinnati; game ID awaits corpus confirmation.",
+          "playCandidates": [],
+          "gameId": "2025_08_NYJ_CIN",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2025_08_NYJ_CIN",
+              "season": 2025,
+              "week": 8,
+              "home_team": "CIN",
+              "away_team": "NYJ",
+              "game_date": "2025-10-26"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+              "name": "play_by_play_2025.parquet",
+              "fetchedAt": "2026-10-20T17:45:08.772Z",
+              "persistedAt": null,
+              "sha256": "c6ecedd6d678cc37ed316b23ef84ee1ec6abb69c514bb11868a7ebd5a367df29",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:22.778583Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/jets-offense-500-yards-baldy-breakdown-10-28-2025",
+        "contentType": "text/html",
+        "bytes": 348695,
+        "sha256": "4e845583529a5061e83b7421a78a12db60291e0456071fbcbd54cea040cf1968",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "baldinger-sherwood-panthers-2025",
+      "url": "https://www.newyorkjets.com/video/baldy-breakdown-jamien-sherwood-jets-defense-vs-panthers",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Brian Baldinger"
+      ],
+      "publishedAt": "2025-10-21",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "Baldy's Breakdown | Jamien Sherwood Stars in Run & Pass Defense",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "linebacker",
+        "run-defense",
+        "pass-defense"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "Publisher identifies a Sherwood run/pass-defense film review. Assignments and individual play matches remain unverified.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied."
+        ]
+      },
+      "matches": [
+        {
+          "id": "sherwood-panthers-game",
+          "status": "exact-game",
+          "candidateGameId": "2025_07_CAR_NYJ",
+          "season": 2025,
+          "week": 7,
+          "teams": [
+            "CAR",
+            "NYJ"
+          ],
+          "basis": "Publisher identifies Sherwood and the Week 7 Panthers game; game ID awaits corpus confirmation.",
+          "playCandidates": [],
+          "gameId": "2025_07_CAR_NYJ",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2025_07_CAR_NYJ",
+              "season": 2025,
+              "week": 7,
+              "home_team": "NYJ",
+              "away_team": "CAR",
+              "game_date": "2025-10-19"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+              "name": "play_by_play_2025.parquet",
+              "fetchedAt": "2026-10-20T17:45:08.772Z",
+              "persistedAt": null,
+              "sha256": "c6ecedd6d678cc37ed316b23ef84ee1ec6abb69c514bb11868a7ebd5a367df29",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:22.149156Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/baldy-breakdown-jamien-sherwood-jets-defense-vs-panthers",
+        "contentType": "text/html",
+        "bytes": 348846,
+        "sha256": "07c43bb7c55736d75b649563158652dc3db9ac4903f06d9fa2bc38aa5ca646f7",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "baldinger-steelers-rushing-2025",
+      "url": "https://www.newyorkjets.com/video/baldy-breakdown-182-rushing-yards-vs-steelers-breece-hall-offensive-line",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Brian Baldinger"
+      ],
+      "publishedAt": "2025-09-09",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "How the Jets Manufactured 182 Rushing Yards vs. the Steelers | Baldy's Breakdown",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "offensive-line",
+        "rushing",
+        "blocking"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "Publisher names the offensive line and Breece Hall as subjects of its Week 1 review. No run concept or blocking assignment was inferred from this description.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied."
+        ]
+      },
+      "matches": [
+        {
+          "id": "steelers-rushing-game",
+          "status": "exact-game",
+          "candidateGameId": "2025_01_PIT_NYJ",
+          "season": 2025,
+          "week": 1,
+          "teams": [
+            "PIT",
+            "NYJ"
+          ],
+          "basis": "Publisher identifies the Week 1 182-yard rushing game against Pittsburgh; game ID awaits corpus confirmation.",
+          "playCandidates": [],
+          "gameId": "2025_01_PIT_NYJ",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2025_01_PIT_NYJ",
+              "season": 2025,
+              "week": 1,
+              "home_team": "NYJ",
+              "away_team": "PIT",
+              "game_date": "2025-09-07"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+              "name": "play_by_play_2025.parquet",
+              "fetchedAt": "2026-10-20T17:45:08.772Z",
+              "persistedAt": null,
+              "sha256": "c6ecedd6d678cc37ed316b23ef84ee1ec6abb69c514bb11868a7ebd5a367df29",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:24.180211Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/baldy-breakdown-182-rushing-yards-vs-steelers-breece-hall-offensive-line",
+        "contentType": "text/html",
+        "bytes": 349020,
+        "sha256": "5021ba7938b0881609e1fc6b784c6b264ef896de9420087ed8b0368775602a4d",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "enunwa-hall-patriots-2025",
+      "url": "https://www.newyorkjets.com/video/breece-hall-59-yard-touchdown-breakdown-vs-patriots-12-28-2025",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Quincy Enunwa"
+      ],
+      "publishedAt": "2025-12-28",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "Breaking Down the Film of Breece Hall's Long Touchdown",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "rushing",
+        "explosive-play"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "Publisher identifies the 59-yard touchdown as the subject. The video’s explanation has not been reviewed.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied."
+        ]
+      },
+      "matches": [
+        {
+          "id": "hall-patriots-game",
+          "status": "exact-game",
+          "candidateGameId": "2025_17_NE_NYJ",
+          "season": 2025,
+          "gameDate": "2025-12-28",
+          "teams": [
+            "NE",
+            "NYJ"
+          ],
+          "basis": "Publisher identifies a Hall touchdown against New England on December 28, 2025; week and game ID await corpus confirmation.",
+          "playCandidates": [
+            {
+              "id": "hall-59-yard-td",
+              "status": "exact-play",
+              "selector": {
+                "play_type": "run",
+                "yards_gained": 59,
+                "touchdown": 1,
+                "rusherName": "Breece Hall"
+              },
+              "basis": "Publisher description identifies Hall’s 59-yard touchdown run.",
+              "canonicalPlayId": "2025_17_NE_NYJ:3086",
+              "limitations": [
+                "Resolve uniquely against persisted play-by-play before claiming an exact-play link."
+              ],
+              "resolution": {
+                "method": "persisted-pbp-unique-match-all-selectors",
+                "matchedRows": 1,
+                "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+                "resolvedAt": "2026-10-20T17:48:38.013Z",
+                "gameId": "2025_17_NE_NYJ",
+                "playId": 3086,
+                "sourceDescription": "(15:00) 20-B.Hall up the middle for 59 yards, TOUCHDOWN.",
+                "identityRules": [
+                  {
+                    "selector": "rusherName",
+                    "suppliedName": "Breece Hall",
+                    "columns": [
+                      "rusher_player_name"
+                    ],
+                    "exactValues": [
+                      "Breece Hall",
+                      "B.Hall"
+                    ]
+                  }
+                ],
+                "source": {
+                  "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+                  "name": "play_by_play_2025.parquet",
+                  "fetchedAt": "2026-10-20T17:45:08.772Z",
+                  "persistedAt": null,
+                  "sha256": "c6ecedd6d678cc37ed316b23ef84ee1ec6abb69c514bb11868a7ebd5a367df29",
+                  "originalColumnCount": 372
+                },
+                "limitation": "This verifies source-record identity only. It does not verify the video contents, assignments, coordinates or the analyst’s interpretation."
+              }
+            }
+          ],
+          "gameId": "2025_17_NE_NYJ",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2025_17_NE_NYJ",
+              "season": 2025,
+              "week": 17,
+              "home_team": "NYJ",
+              "away_team": "NE",
+              "game_date": "2025-12-28"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+              "name": "play_by_play_2025.parquet",
+              "fetchedAt": "2026-10-20T17:45:08.772Z",
+              "persistedAt": null,
+              "sha256": "c6ecedd6d678cc37ed316b23ef84ee1ec6abb69c514bb11868a7ebd5a367df29",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:26.142407Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/breece-hall-59-yard-touchdown-breakdown-vs-patriots-12-28-2025",
+        "contentType": "text/html",
+        "bytes": 348832,
+        "sha256": "afecc62fa1c3345ab9a765de4950477f5ec6a0aaa1a2dc04c0cec8cb4a9b85ba",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "enunwa-browns-2026",
+      "url": "https://www.newyorkjets.com/video/quincy-enunwa-s-film-breakdown-from-the-win-over-the-browns",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Quincy Enunwa"
+      ],
+      "publishedAt": "2026-10-12",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "Quincy Enunwa's Film Breakdown from the Win Over the Browns",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "receiving",
+        "pass-rush",
+        "sack"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "Publisher identifies Wilson’s touchdown and David Bailey’s sacks as review subjects. Canonical game/play matching awaits the current feed and film review.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied."
+        ]
+      },
+      "matches": [
+        {
+          "id": "enunwa-browns-2026-game",
+          "status": "unresolved",
+          "candidateGameId": null,
+          "season": 2026,
+          "teams": [
+            "NYJ",
+            "CLE"
+          ],
+          "basis": "Publisher identifies a 2026 Jets win over Cleveland but the page description does not establish venue, date or canonical game ID.",
+          "playCandidates": [],
+          "resolutionAttempt": {
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "checkedAt": "2026-10-20T17:48:38.013Z",
+            "reason": "No precise candidate game ID supplied; season-level and broad subjects are not forced into a game."
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:24.139555Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/quincy-enunwa-s-film-breakdown-from-the-win-over-the-browns",
+        "contentType": "text/html",
+        "bytes": 348867,
+        "sha256": "4c6e3cfbfcea751df868491d64cf4f8ee5ffd4f49a1a365516b1dc2a7af3d228",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "lazar-patriots-jets-2026",
+      "url": "https://www.patriots.com/news/after-further-review-drake-maye-and-a-j-brown-film-breakdown-quick-hit-film-notes-from-sunday-s-win-over-the-jets",
+      "publisher": "New England Patriots",
+      "analysts": [
+        "Evan Lazar"
+      ],
+      "publishedAt": "2026-10-19",
+      "publishedDateEvidence": "Publication date displayed on the publisher page.",
+      "title": "After Further Review: Drake Maye and A.J. Brown film breakdown, quick-hit film notes from Sunday's win over the Jets",
+      "contentType": "written-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "simulated-pressure",
+        "trap-run",
+        "screen",
+        "fire-zone",
+        "split-safety"
+      ],
+      "evidence": {
+        "mode": "text-reviewed",
+        "reviewedAt": "2026-10-20T17:27:16Z",
+        "method": "publisher-page-text",
+        "locator": "Article body and byline. Claim-level section locators are recorded below.",
+        "availableEvidence": "Read the game review, its attributed coverage charting, and the descriptions of the Jets’ trap run and screen answers to pressure.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Written statements are attributed evidence; independent video and tracking verification has not been performed."
+        ]
+      },
+      "matches": [
+        {
+          "id": "patriots-jets-2026-game",
+          "status": "exact-game",
+          "candidateGameId": "2026_06_NYJ_NE",
+          "season": 2026,
+          "week": 6,
+          "gameDate": "2026-10-18",
+          "teams": [
+            "NYJ",
+            "NE"
+          ],
+          "basis": "Article identifies New England’s Week 6 26–19 home win over the Jets on the Sunday preceding October 19, 2026; current corpus match remains pending.",
+          "playCandidates": [
+            {
+              "id": "allen-16-yard-trap",
+              "status": "exact-play",
+              "selector": {
+                "play_type": "run",
+                "yards_gained": 16,
+                "rusherName": "Braelon Allen"
+              },
+              "basis": "Written defense review explicitly describes an Allen 16-yard run from shotgun against the Patriots pressure look.",
+              "canonicalPlayId": "2026_06_NYJ_NE:849",
+              "limitations": [
+                "Resolve uniquely against persisted play-by-play before claiming an exact-play link."
+              ],
+              "resolution": {
+                "method": "persisted-pbp-unique-match-all-selectors",
+                "matchedRows": 1,
+                "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+                "resolvedAt": "2026-10-20T17:48:38.013Z",
+                "gameId": "2026_06_NYJ_NE",
+                "playId": 849,
+                "sourceDescription": "(1:54) (Shotgun) 0-B.Allen left tackle pushed ob at NE 38 for 16 yards (25-M.Jones).",
+                "identityRules": [
+                  {
+                    "selector": "rusherName",
+                    "suppliedName": "Braelon Allen",
+                    "columns": [
+                      "rusher_player_name"
+                    ],
+                    "exactValues": [
+                      "Braelon Allen",
+                      "B.Allen"
+                    ]
+                  }
+                ],
+                "source": {
+                  "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet",
+                  "name": "play_by_play_2026.parquet",
+                  "fetchedAt": "2026-10-20T17:35:06.335Z",
+                  "persistedAt": null,
+                  "sha256": "d09141334d2aafad55f2182226bf9f999bd3da1c9dfa33fcc1b1788c926ca53a",
+                  "originalColumnCount": 372
+                },
+                "limitation": "This verifies source-record identity only. It does not verify the video contents, assignments, coordinates or the analyst’s interpretation."
+              }
+            },
+            {
+              "id": "cooper-18-yard-screen",
+              "status": "exact-play",
+              "selector": {
+                "play_type": "pass",
+                "yards_gained": 18,
+                "receiverName": "Omar Cooper Jr."
+              },
+              "basis": "Written defense review names an 18-yard receiver screen against a blitz.",
+              "canonicalPlayId": "2026_06_NYJ_NE:4130",
+              "limitations": [
+                "Resolve uniquely against persisted play-by-play before claiming an exact-play link."
+              ],
+              "resolution": {
+                "method": "persisted-pbp-unique-match-all-selectors",
+                "matchedRows": 1,
+                "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+                "resolvedAt": "2026-10-20T17:48:38.013Z",
+                "gameId": "2026_06_NYJ_NE",
+                "playId": 4130,
+                "sourceDescription": "(1:08) (Shotgun) 7-G.Smith pass short left to 11-O.Cooper ran ob at NYJ 43 for 18 yards (22-C.Woods).",
+                "identityRules": [
+                  {
+                    "selector": "receiverName",
+                    "suppliedName": "Omar Cooper Jr.",
+                    "columns": [
+                      "receiver_player_name"
+                    ],
+                    "exactValues": [
+                      "Omar Cooper Jr.",
+                      "O.Cooper",
+                      "O.Cooper Jr."
+                    ]
+                  }
+                ],
+                "source": {
+                  "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet",
+                  "name": "play_by_play_2026.parquet",
+                  "fetchedAt": "2026-10-20T17:35:06.335Z",
+                  "persistedAt": null,
+                  "sha256": "d09141334d2aafad55f2182226bf9f999bd3da1c9dfa33fcc1b1788c926ca53a",
+                  "originalColumnCount": 372
+                },
+                "limitation": "This verifies source-record identity only. It does not verify the video contents, assignments, coordinates or the analyst’s interpretation."
+              }
+            }
+          ],
+          "gameId": "2026_06_NYJ_NE",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2026_06_NYJ_NE",
+              "season": 2026,
+              "week": 6,
+              "home_team": "NE",
+              "away_team": "NYJ",
+              "game_date": "2026-10-18"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet",
+              "name": "play_by_play_2026.parquet",
+              "fetchedAt": "2026-10-20T17:35:06.335Z",
+              "persistedAt": null,
+              "sha256": "d09141334d2aafad55f2182226bf9f999bd3da1c9dfa33fcc1b1788c926ca53a",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [
+        {
+          "id": "jets-coverage-charting",
+          "attribution": "Evan Lazar, Patriots.com",
+          "originalLanguage": "en",
+          "summary": "Lazar charts the Jets sending more than four rushers on 26.5% of Maye’s dropbacks and using split-safety coverage 44.1% of the time.",
+          "evidenceKind": "analyst-interpretation",
+          "locator": {
+            "type": "section",
+            "text": "Opening defensive-plan discussion, paragraph giving the coverage rates."
+          },
+          "matchId": "patriots-jets-2026-game",
+          "reviewStatus": "text-verified",
+          "limitations": [
+            "These are the author’s charting results; methodology and player coordinates are not supplied here."
+          ]
+        },
+        {
+          "id": "allen-trap-answer",
+          "attribution": "Evan Lazar, Patriots.com",
+          "originalLanguage": "en",
+          "summary": "Lazar describes the Jets pulling a guard toward Milton Williams and blocking down on the linebackers, opening the interior for Allen’s 16-yard shotgun run.",
+          "evidenceKind": "analyst-interpretation",
+          "locator": {
+            "type": "section",
+            "text": "Defense Review section, Allen trap-run paragraph."
+          },
+          "matchId": "patriots-jets-2026-game",
+          "playCandidateId": "allen-16-yard-trap",
+          "reviewStatus": "text-verified",
+          "limitations": [
+            "One named play candidate; an exact PBP match and independent video review are still needed."
+          ]
+        },
+        {
+          "id": "cooper-screen-answer",
+          "attribution": "Evan Lazar, Patriots.com",
+          "originalLanguage": "en",
+          "summary": "Lazar identifies an 18-yard receiver screen to Omar Cooper Jr. as one of the Jets’ successful answers to New England’s pressure package.",
+          "evidenceKind": "analyst-interpretation",
+          "locator": {
+            "type": "section",
+            "text": "Defense Review section, paragraph immediately after the Allen trap run."
+          },
+          "matchId": "patriots-jets-2026-game",
+          "playCandidateId": "cooper-18-yard-screen",
+          "reviewStatus": "text-verified",
+          "limitations": []
+        }
+      ],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:29:24.279913Z",
+        "status": 200,
+        "finalUrl": "https://www.patriots.com/news/after-further-review-drake-maye-and-a-j-brown-film-breakdown-quick-hit-film-notes-from-sunday-s-win-over-the-jets",
+        "contentType": "text/html",
+        "bytes": 458190,
+        "sha256": "fa5ad7eec308089099512fc97e34d533a0050900c521daf00323835635c8863b",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "baldinger-browns-special-teams-2022",
+      "url": "https://www.newyorkjets.com/video/baldy-s-breakdown-jets-special-teams-success-in-the-win-over-the-browns",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Brian Baldinger"
+      ],
+      "publishedAt": "2022-09-21",
+      "publishedDateEvidence": "Publication date displayed on publisher page.",
+      "title": "Baldy's Breakdown | Jets Special Teams Success in the Win Over the Browns",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "special-teams"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:31:40.488156Z",
+        "method": "publisher-page-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "Publisher identifies a Baldinger review of special teams in the 31–30 victory over Cleveland.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied."
+        ]
+      },
+      "matches": [
+        {
+          "id": "browns-special-teams-game",
+          "status": "exact-game",
+          "candidateGameId": "2022_02_NYJ_CLE",
+          "season": 2022,
+          "week": 2,
+          "teams": [
+            "NYJ",
+            "CLE"
+          ],
+          "basis": "Publisher identifies a Baldinger review of special teams in the 31–30 victory over Cleveland. Canonical corpus resolution is pending.",
+          "playCandidates": [],
+          "gameId": "2022_02_NYJ_CLE",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2022_02_NYJ_CLE",
+              "season": 2022,
+              "week": 2,
+              "home_team": "CLE",
+              "away_team": "NYJ",
+              "game_date": "2022-09-18"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2022.parquet",
+              "name": "play_by_play_2022.parquet",
+              "fetchedAt": "2026-10-20T17:40:02.751Z",
+              "persistedAt": null,
+              "sha256": "931121d8897779d7944e2a293e92ed8799c8e5cceef84096ac42339003fedc09",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:31:12.890026Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/baldy-s-breakdown-jets-special-teams-success-in-the-win-over-the-browns",
+        "contentType": "text/html",
+        "bytes": 349713,
+        "sha256": "5eb8da540b624d0f58f44402d189b772046e47771496376d29ac82beb42de8ab",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "baldinger-season-special-teams-2025",
+      "url": "https://www.newyorkjets.com/video/best-of-jets-special-teams-2025-baldy-breakdown",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Brian Baldinger"
+      ],
+      "publishedAt": "2026-02-13",
+      "publishedDateEvidence": "Publication date displayed on publisher page.",
+      "title": "Best of Jets' Special Teams in 2025 | Baldy's Breakdown",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "special-teams",
+        "season-review"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:31:40.488156Z",
+        "method": "publisher-page-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "Publisher describes selected Jets special-teams highlights across the 2025 season; the description does not identify individual games.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied."
+        ]
+      },
+      "matches": [
+        {
+          "id": "special-teams-season",
+          "status": "unresolved",
+          "candidateGameId": null,
+          "season": 2025,
+          "teams": [
+            "NYJ"
+          ],
+          "basis": "Publisher describes selected Jets special-teams highlights across the 2025 season; the description does not identify individual games. Canonical corpus resolution is pending.",
+          "playCandidates": [],
+          "resolutionAttempt": {
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "checkedAt": "2026-10-20T17:48:38.013Z",
+            "reason": "No precise candidate game ID supplied; season-level and broad subjects are not forced into a game."
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:31:22.232360Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/best-of-jets-special-teams-2025-baldy-breakdown",
+        "contentType": "text/html",
+        "bytes": 348399,
+        "sha256": "906e18a6de719e9c884502da37750106a6b2bb276179cab205cee5d67cb510b5",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "enunwa-patriots-cooper-2026",
+      "url": "https://www.newyorkjets.com/video/quincy-enunw-film-breakdown-jets-patriots-omar-cooper-jr-10-18-2026",
+      "publisher": "New York Jets",
+      "analysts": [
+        "Quincy Enunwa"
+      ],
+      "publishedAt": "2026-10-19",
+      "publishedDateEvidence": "Publisher HTML displayed Oct 19, 2026; JSON-LD datePublished was 2026-10-19T12:00:00Z.",
+      "title": "Quincy Enunwa's Film Breakdown from Jets-Patriots",
+      "contentType": "video-analysis",
+      "originalLanguage": "en",
+      "concepts": [
+        "receiving",
+        "touchdown",
+        "explosive-play"
+      ],
+      "evidence": {
+        "mode": "metadata-reviewed",
+        "reviewedAt": "2026-10-20T17:31:40.488156Z",
+        "method": "direct-publisher-html-text",
+        "locator": "Page title, publication date and description below the title.",
+        "availableEvidence": "Publisher description identifies Omar Cooper Jr.’s 48-yard touchdown catch from Geno Smith.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "Publisher title, date and description were read; the video and its audio were not reviewed.",
+          "No verified video offsets, route geometry or player assignments are supplied.",
+          "Browser text extraction could not open this URL; its title, description and displayed date were inspected from the successful direct publisher HTML response."
+        ]
+      },
+      "matches": [
+        {
+          "id": "cooper-patriots-game",
+          "status": "exact-game",
+          "candidateGameId": "2026_06_NYJ_NE",
+          "season": 2026,
+          "week": 6,
+          "teams": [
+            "NYJ",
+            "NE"
+          ],
+          "basis": "Publisher description identifies Omar Cooper Jr.’s 48-yard touchdown catch from Geno Smith. Canonical corpus resolution is pending.",
+          "playCandidates": [
+            {
+              "id": "cooper-48-yard-td",
+              "status": "exact-play",
+              "selector": {
+                "play_type": "pass",
+                "yards_gained": 48,
+                "touchdown": 1,
+                "passerName": "Geno Smith",
+                "receiverName": "Omar Cooper Jr."
+              },
+              "basis": "Publisher description explicitly names the passer, receiver, distance and touchdown.",
+              "canonicalPlayId": "2026_06_NYJ_NE:2411",
+              "limitations": [
+                "Resolve uniquely against persisted play-by-play before claiming an exact-play link."
+              ],
+              "resolution": {
+                "method": "persisted-pbp-unique-match-all-selectors",
+                "matchedRows": 1,
+                "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+                "resolvedAt": "2026-10-20T17:48:38.013Z",
+                "gameId": "2026_06_NYJ_NE",
+                "playId": 2411,
+                "sourceDescription": "(10:32) 7-G.Smith pass deep left to 11-O.Cooper for 48 yards, TOUCHDOWN.",
+                "identityRules": [
+                  {
+                    "selector": "passerName",
+                    "suppliedName": "Geno Smith",
+                    "columns": [
+                      "passer_player_name"
+                    ],
+                    "exactValues": [
+                      "Geno Smith",
+                      "G.Smith"
+                    ]
+                  },
+                  {
+                    "selector": "receiverName",
+                    "suppliedName": "Omar Cooper Jr.",
+                    "columns": [
+                      "receiver_player_name"
+                    ],
+                    "exactValues": [
+                      "Omar Cooper Jr.",
+                      "O.Cooper",
+                      "O.Cooper Jr."
+                    ]
+                  }
+                ],
+                "source": {
+                  "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet",
+                  "name": "play_by_play_2026.parquet",
+                  "fetchedAt": "2026-10-20T17:35:06.335Z",
+                  "persistedAt": null,
+                  "sha256": "d09141334d2aafad55f2182226bf9f999bd3da1c9dfa33fcc1b1788c926ca53a",
+                  "originalColumnCount": 372
+                },
+                "limitation": "This verifies source-record identity only. It does not verify the video contents, assignments, coordinates or the analyst’s interpretation."
+              }
+            }
+          ],
+          "gameId": "2026_06_NYJ_NE",
+          "resolution": {
+            "method": "persisted-pbp-exact-game-id-and-context",
+            "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+            "resolvedAt": "2026-10-20T17:48:38.013Z",
+            "sourceGame": {
+              "game_id": "2026_06_NYJ_NE",
+              "season": 2026,
+              "week": 6,
+              "home_team": "NE",
+              "away_team": "NYJ",
+              "game_date": "2026-10-18"
+            },
+            "source": {
+              "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet",
+              "name": "play_by_play_2026.parquet",
+              "fetchedAt": "2026-10-20T17:35:06.335Z",
+              "persistedAt": null,
+              "sha256": "d09141334d2aafad55f2182226bf9f999bd3da1c9dfa33fcc1b1788c926ca53a",
+              "originalColumnCount": 372
+            }
+          }
+        }
+      ],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:31:30.691723Z",
+        "status": 200,
+        "finalUrl": "https://www.newyorkjets.com/video/quincy-enunw-film-breakdown-jets-patriots-omar-cooper-jr-10-18-2026",
+        "contentType": "text/html",
+        "bytes": 250353,
+        "sha256": "7c61338844fb551449dea2938e07362031f4a451b7d3ada070a11a06fbfde1d7",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed."
+      }
+    },
+    {
+      "id": "baldinger-x-wilson-2022-unavailable",
+      "url": "https://x.com/BaldyNFL/status/1571808721721769986",
+      "publisher": "X / @BaldyNFL",
+      "analysts": [
+        "Brian Baldinger"
+      ],
+      "publishedAt": null,
+      "publishedDateEvidence": "Unavailable; do not infer a date from a social post ID.",
+      "title": null,
+      "contentType": "social-video-discovery",
+      "originalLanguage": "en",
+      "concepts": [
+        "receiving"
+      ],
+      "evidence": {
+        "mode": "inaccessible",
+        "reviewedAt": "2026-10-20T17:31:40.488156Z",
+        "method": "http-access-attempt",
+        "locator": "Direct post URL.",
+        "availableEvidence": "The browser text retrieval returned HTTP 403. Direct HTTP returned an HTML response, without inspected post text or media. No transcript or assignments were inspected.",
+        "videoReviewed": false,
+        "verifiedVideoTimestamps": [],
+        "limitations": [
+          "This is an inaccessible discovery pointer supplied by the coordinating source audit, not verified post content.",
+          "The official Jets Wilson review is an accessible alternative; equivalence of the two videos has not been established."
+        ],
+        "accessAttempts": [
+          {
+            "method": "web-text-retrieval",
+            "status": 403,
+            "checkedAt": "2026-10-20T17:31:40.488156Z"
+          },
+          {
+            "method": "direct-http",
+            "status": 200,
+            "checkedAt": "2026-10-20T17:31:01.224881Z",
+            "contentReviewed": false
+          }
+        ]
+      },
+      "alternateSourceIds": [
+        "baldinger-wilson-browns-2022"
+      ],
+      "matches": [],
+      "claims": [],
+      "retrieval": {
+        "fetchedAt": "2026-10-20T17:31:01.224881Z",
+        "status": 200,
+        "finalUrl": "https://x.com/BaldyNFL/status/1571808721721769986",
+        "contentType": "text/html; charset=UTF-8",
+        "bytes": 117651,
+        "sha256": "de6f320bc672724260662cdbd5d74a3e0def2a0092471f1bdb41ec199304652d",
+        "checksumScope": "HTTP response body; publisher HTML can change. No page body is redistributed.",
+        "note": "HTTP success is transport success only; the post content has not been inspected and browser text access failed."
+      }
+    }
+  ],
+  "resolvedAgainst": {
+    "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+    "resolvedAt": "2026-10-20T17:48:38.013Z",
+    "method": "Exact candidate game IDs with source context; unique PBP rows satisfying every supported supplied selector.",
+    "sources": 18,
+    "exactGameMatches": 15,
+    "exactPlayMatches": 11,
+    "unresolvedGameMatches": 2,
+    "unresolvedPlayCandidates": 0,
+    "evidenceModes": {
+      "metadata-reviewed": 12,
+      "text-reviewed": 5,
+      "inaccessible": 1
+    },
+    "textVerifiedClaims": 10
+  }
+}
