@@ -1,7 +1,7 @@
 .context { min-width: 0; margin: 2.5rem 0; padding-top: 1.5rem; border-top: 4px double var(--rule); }
 .heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: .75rem 2rem; margin-bottom: 1.5rem; }
 .heading > div { min-width: 0; }
-.kicker { margin: 0 0 .65rem; font: 800 .72rem/1.5 var(--font-sans-narrow), sans-serif; text-transform: uppercase; letter-spacing: .1em; color: var(--spot); }
+.kicker { margin: 0 0 .65rem; font: 800 .8rem/1.5 var(--font-sans-narrow), sans-serif; color: var(--spot); }
 .heading h2 { font-size: clamp(2rem, 3.4vw, 3rem); line-height: 1.05; overflow-wrap: anywhere; }
 .heading > p { max-width: 32ch; margin: 0; font: 1rem/1.6 var(--font-serif), Georgia, serif; color: var(--ink-2); }
 .field { min-width: 0; }

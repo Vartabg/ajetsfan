@@ -7,9 +7,9 @@
 .mobileFinal { display: none; }
 .edition { border-bottom: 1px solid var(--rule); }
 .cover { position: relative; isolation: isolate; color: var(--ink); }
-.editionLine { display: flex; justify-content: space-between; gap: 1rem; align-items: center; min-height: 44px; padding: .65rem 0; border-block: 1px solid var(--rule); color: var(--forest); font: 700 .72rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .075em; }
+.editionLine { display: flex; justify-content: space-between; gap: 1rem; align-items: center; min-height: 44px; padding: .65rem 0; border-block: 1px solid var(--rule); color: var(--forest); font: 700 .8rem/1.5 var(--font-sans), sans-serif; letter-spacing: .075em; }
 .editionLine p { margin: 0; padding-left: .8rem; border-left: 4px solid var(--spot); }
-.editionLine .readerNote { font: italic 400 1.05rem/1.4 var(--font-serif), Georgia, serif; text-transform: none; letter-spacing: 0; }
+.editionLine .readerNote { font: 400 1.05rem/1.4 var(--font-serif), Georgia, serif; text-transform: none; letter-spacing: 0; }
 .editionLine span { color: var(--spot); }
 .coverBody { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 3rem; align-items: center; padding: 2rem 0; }
 .scoreOnly { grid-template-columns: minmax(0, 1fr) 240px; }
@@ -28,21 +28,21 @@
 .coverVisual:has(figure) .scoreboard small { grid-column: 3; padding-left: 1.5rem; }
 .coverCopy h1 { max-width: 13ch; font-size: clamp(3.1rem, 5.15vw, 4.6rem); line-height: 1.06; text-wrap: balance; overflow-wrap: anywhere; }
 .coverCopy h1 > span { display: block; }
-.voiceLabel { display: inline-block; margin-bottom: .75rem; color: var(--stamp); font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
-.coverCopy h1 em { display: block; margin-top: .1em; font: italic 500 .84em/1.03 var(--font-serif), Georgia, serif; letter-spacing: -.05em; text-transform: none; }
+.voiceLabel { display: inline-block; margin-bottom: .75rem; color: var(--stamp); font-size: .8rem; font-weight: 800; }
+.coverCopy h1 em { display: block; margin-top: .1em; font: 500 .84em/1.03 var(--font-serif), Georgia, serif; letter-spacing: -.05em; text-transform: none; }
 .coverCopy > p { font: 1.05rem/1.75 var(--font-serif), Georgia, serif; max-width: 42ch; margin: 1.4rem 0; color: var(--ink-2); }
 .coverLink { display: inline-flex; align-items: center; justify-content: space-between; gap: 2rem; min-height: 48px; color: white; background: var(--spot); border-radius: var(--radius); padding: .7rem 1.1rem; font-size: .83rem; font-weight: 800; text-decoration: none; transition: background .15s, color .15s; }
 .coverLink:hover { background: var(--forest); }
 .coverLink:focus-visible { outline-color: var(--spot); }
 .scoreboard { border: 1px solid var(--rule-soft); border-top: 2px solid var(--spot); padding: 1rem; background: var(--paper-2); }
-.finalLabel { align-self: start; border: 1px solid currentColor; padding: .18rem .35rem; transform: rotate(-3deg); font: 800 .72rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .09em; color: var(--spot); }
+.finalLabel { align-self: start; border: 1px solid currentColor; padding: .18rem .35rem; transform: rotate(-3deg); font: 800 .8rem/1.5 var(--font-sans), sans-serif; color: var(--spot); }
 .scoreRow { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .5rem 0; }
 .scoreRow + .scoreRow { border-top: 1px solid var(--rule-soft); }
 .scoreRow b { font: 400 2rem/1 var(--font-hed), sans-serif; }
 .scoreRow strong { font: 400 4rem/1 var(--font-hed), sans-serif; }
 .scoreboard time, .scoreboard small { display: block; color: var(--ink-2); font-size: .72rem; }
 .postgame { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2.5rem; padding: 1.6rem 0 1.4rem; border-top: 1px solid var(--rule-soft); }
-.kicker { display: block; color: var(--spot); font: 800 .72rem/1.6 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 .6rem; }
+.kicker { display: block; color: var(--spot); font: 800 .8rem/1.6 var(--font-sans), sans-serif; margin: 0 0 .6rem; }
 .playHeading { position: relative; padding-left: 1rem; border-left: 3px solid var(--stamp); }
 .playHeading h2 { font-size: clamp(1.9rem, 2.6vw, 2.35rem); max-width: 12ch; line-height: 1.04; overflow-wrap: anywhere; }
 .playClock { font: 700 .72rem/1.7 var(--font-sans), sans-serif; color: var(--ink-2); margin: 0 0 .5rem; }
@@ -76,7 +76,7 @@
 .seasonLine strong { font: 400 3.5rem/1 var(--font-hed), sans-serif; white-space: nowrap; }
 .seasonLine p span { color: var(--ink-2); max-width: 18ch; font-size: .72rem; }
 .sundays { display: grid; grid-template-columns: 1.3fr 1fr; gap: 3rem; margin: 1.3rem 0; }
-.recent h3 { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .75rem; }
+.recent h3 { font-size: .8rem; font-weight: 800; margin-bottom: .75rem; }
 .recent ol { list-style: none; margin: 0; padding: 0; }
 .recent { min-width: 0; container: recent-results / inline-size; }
 .recent li { display: grid; grid-template-columns: 1.8rem 4rem 1fr auto; align-items: center; gap: .7rem; border-bottom: 1px solid var(--rule-soft); padding: .7rem 0; }
@@ -89,7 +89,7 @@
 .recent li a:hover { background: var(--paper-2); color: var(--spot); }
 .nextSunday { position: relative; min-width: 0; background: var(--forest); color: var(--paper); padding: 1.4rem 3.25rem 1.4rem 1.5rem; }
 .nextSunday::after { content: ''; position: absolute; top: .85rem; bottom: .85rem; right: 2rem; border-right: 1px dashed #dbe0ce77; }
-.ticketMark { position: absolute; right: .55rem; top: 1rem; bottom: 1rem; writing-mode: vertical-rl; text-align: center; color: #dbe0ce; font: 700 .6rem/1.4 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .1em; }
+.ticketMark { position: absolute; right: .55rem; top: 1rem; bottom: 1rem; writing-mode: vertical-rl; text-align: center; color: #dbe0ce; font: 700 .8rem/1.4 var(--font-sans), sans-serif; }
 .nextSunday .kicker { color: var(--accent); max-width: 28ch; }
 .nextSunday h3 { font-size: clamp(2rem, 3.5vw, 3.2rem); color: var(--paper); }
 .nextSunday p { margin: .55rem 0 0; font-size: .8rem; }
@@ -100,7 +100,7 @@
 .morgue { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.4fr); gap: 2.5rem; padding: 2.6rem; margin: 1rem 0 0; color: var(--paper); background: var(--forest); }
 .morgueHeading { min-width: 0; }
 .morgueHeading .kicker { color: #c8d5bd; max-width: 29ch; }
-.morgueHeading h2 { font: italic 500 clamp(2.4rem, 3.4vw, 3.25rem)/1.02 var(--font-serif), Georgia, serif; text-transform: none; letter-spacing: -.045em; overflow-wrap: anywhere; }
+.morgueHeading h2 { font: 500 clamp(2.4rem, 3.4vw, 3.25rem)/1.02 var(--font-serif), Georgia, serif; text-transform: none; letter-spacing: -.045em; overflow-wrap: anywhere; }
 .morgueHeading h2 span { color: var(--accent); }
 .morgueHeading p:last-child { font: .95rem/1.7 var(--font-serif), Georgia, serif; color: #dbe0ce; max-width: 32ch; }
 .morgueDoor { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; padding: .5rem 0; color: var(--paper); font: 800 .8rem/1.5 var(--font-sans), sans-serif; text-decoration: underline; text-underline-offset: 5px; }
@@ -113,7 +113,7 @@
 .obituary:focus-visible { outline-color: var(--paper); }
 .signOfLife { background: #e8efdf; border-color: #e8efdf; }
 .signOfLife:hover { background: #dee8d5; border-color: #dee8d5; }
-.obitLabel { display: inline-block; margin: 0 0 1.1rem; border-block: 1px solid currentColor; padding: .3rem 0; color: var(--stamp); font: 800 .65rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .055em; }
+.obitLabel { display: inline-block; margin: 0 0 1.1rem; border-block: 1px solid currentColor; padding: .3rem 0; color: var(--stamp); font: 800 .8rem/1.5 var(--font-sans), sans-serif; letter-spacing: .055em; }
 .signOfLife .obitLabel { color: var(--spot); }
 .obituary h3 { max-width: 17ch; font: 700 clamp(1.7rem, 2.1vw, 2rem)/1.03 var(--font-sans-narrow), sans-serif; text-transform: none; min-height: 3.1em; }
 .obitScore { margin: 1.1rem 0 .15rem; font: 700 1.35rem/1.5 var(--font-sans-narrow), sans-serif; }
@@ -132,7 +132,7 @@
 .player > small { display: block; font-size: .72rem; color: var(--ink-2); margin-bottom: 1.1rem; }
 .filmRoom { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule-soft); }
 .filmRoom > summary { padding: 1.3rem .9rem; background: var(--paper-2); cursor: pointer; }
-.filmRoom > summary > span { min-width: 0; overflow-wrap: anywhere; font: 400 1.65rem/1.4 var(--font-hed), sans-serif; text-transform: uppercase; }
+.filmRoom > summary > span { min-width: 0; overflow-wrap: anywhere; font: 400 1.65rem/1.4 var(--font-hed), sans-serif; }
 .filmRoom > summary small { display: block; font: .72rem/1.6 var(--font-sans), sans-serif; color: var(--ink-2); text-transform: none; margin-top: .3rem; }
 .filmRoom > div { padding-bottom: 1rem; }
 .freshness { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; color: var(--ink-2); font-size: .72rem; padding: 1rem 0; }
@@ -160,7 +160,7 @@
   .coverBody { grid-template-columns: minmax(0, 1fr); gap: 1.6rem; padding: 1.6rem 0 1.25rem; }
   .coverCopy h1 { font-size: clamp(2.65rem, 11vw, 4rem); max-width: 14ch; }
   .coverCopy h1 > span { display: block; }
-.coverCopy h1 em { display: block; margin-top: .1em; font: italic 500 .84em/1.03 var(--font-serif), Georgia, serif; letter-spacing: -.05em; text-transform: none; }
+.coverCopy h1 em { display: block; margin-top: .1em; font: 500 .84em/1.03 var(--font-serif), Georgia, serif; letter-spacing: -.05em; text-transform: none; }
 .coverCopy > p { font-size: 1rem; margin: 1rem 0 1.2rem; }
   .coverVisual:has(figure) .scoreRow strong { font-size: 2.7rem; }
   .coverVisual:has(figure) .scoreRow { gap: .4rem; }
@@ -226,7 +226,7 @@
 .filmInvitation>div>p:last-of-type { max-width:43rem;color:#bdd0c3;line-height:1.75;font-size:.9rem; }
 .filmInvitation a { display:inline-flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;max-width:100%;min-height:44px;margin-top:.8rem;color:var(--accent);font-weight:800;text-underline-offset:5px; }
 .filmIndex { padding-left:2rem;border-left:1px solid #f8f5ed30;align-self:center; }
-.filmIndex>span { font:700 .65rem/1.7 var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.1em;color:var(--accent); }
+.filmIndex>span { font:700 .8rem/1.7 var(--font-mono),monospace;color:var(--accent); }
 .filmIndex p { display:block;margin:.6rem 0;font-size:.8rem; }
 .filmIndex strong { display:block;font:400 3.4rem/1 var(--font-hed),sans-serif; }
 .filmIndex small { display:block;margin-top:1rem;font-size:.75rem;line-height:1.75;color:#bdd0c3; }
@@ -288,13 +288,13 @@
 @media(min-width:641px) and (max-width:900px){.nowFour{grid-template-columns:1fr 1fr;gap:0 1.8rem}.nowFour>a{padding:.9rem 0}.nowFour>a+a{border-left:0;padding-left:0}.nowFour>a:nth-child(even){border-left:1px solid var(--rule-soft);padding-left:1.8rem}.nowFour>a:nth-child(n+3){border-top:1px solid var(--rule-soft)}}
 .standings{margin:1.3rem 0 .4rem;padding-top:1.3rem;border-top:1px solid var(--rule-soft)}
 .standingsHead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.3rem 1rem;margin-bottom:.5rem}
-.standingsHead h3{margin:0;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.standingsHead h3{margin:0;font-size:.8rem;font-weight:800;}
 .standingsHead span{font-size:.72rem;color:var(--ink-2)}
 .standingsScroll{overflow-x:auto}
 .standings table{width:100%;border-collapse:collapse;font:500 .82rem/1.4 var(--font-sans),sans-serif}
 .standings th,.standings td{padding:.6rem .5rem;border-bottom:1px solid var(--rule-soft);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .standings th:first-child,.standings td:first-child{text-align:left}
-.standings thead th{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);border-bottom:2px solid var(--rule)}
+.standings thead th{font-size:.8rem;font-weight:800;color:var(--ink-2);border-bottom:2px solid var(--rule)}
 .standings thead abbr{text-decoration:none}
 .standings tbody th{font:700 1.05rem/1.3 var(--font-sans-narrow),sans-serif;padding-left:.6rem;box-shadow:inset 4px 0 0 transparent}
 .standings .us th,.standings .us td{background:var(--paper-2)}

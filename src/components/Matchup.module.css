@@ -1,7 +1,7 @@
 .matchup { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.7fr); gap: 2.5rem; padding: 2.5rem; margin: 2.5rem 0; color: #f7f4eb; background: var(--forest); border-top: 4px solid var(--forest); border-bottom: 4px solid var(--forest); }
 .matchup::before { content: ''; position: absolute; inset: .55rem; border: 1px solid #f7f4eb40; pointer-events: none; z-index: -1; }
 .matchup::after { content: ''; position: absolute; left: 1.2rem; right: 1.2rem; top: .55rem; height: .6rem; border-left: 1px solid #f7f4eb70; border-right: 1px solid #f7f4eb70; pointer-events: none; }
-.kicker { margin: 0 0 1rem; color: var(--tape, #ede2bb); font: 800 .74rem/1.5 var(--font-sans-narrow), sans-serif; text-transform: uppercase; letter-spacing: .12em; }
+.kicker { margin: 0 0 1rem; color: var(--tape, #ede2bb); font: 800 .8rem/1.5 var(--font-sans-narrow), sans-serif; }
 .intro { min-width: 0; }
 .intro h2 { font-size: clamp(2.6rem, 4vw, 3.8rem); line-height: 1.02; overflow-wrap: anywhere; }
 .intro h2 span { color: #f7f4eb; }

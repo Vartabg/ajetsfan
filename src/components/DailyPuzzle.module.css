@@ -7,16 +7,16 @@
 .chart svg { width: 100%; height: auto; }
 .clues { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--rule); }
 .clues li { display: grid; gap: .2rem; padding: .75rem 0; border-bottom: 1px solid var(--rule-soft); font-size: .95rem; line-height: 1.5; }
-.clueLabel { color: var(--spot); font: 800 .66rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .1em; }
+.clueLabel { color: var(--spot); font: 800 .8rem/1.5 var(--font-sans), sans-serif; }
 .locked { color: var(--ink-2); }
-.locked span:last-child { font-size: .8rem; font-style: italic; }
+.locked span:last-child { font-size: .8rem; font-style: normal; }
 .open span:last-child { font-weight: 600; }
 .colours { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
 .colours i { display: inline-block; width: 1.4rem; height: 1.4rem; border: 1px solid var(--rule); }
 .colours i:first-child { background: var(--rival); }
 .colours i:nth-child(2) { background: var(--rival-2); }
 .form { display: grid; gap: .9rem; align-content: start; padding: 1.2rem; background: var(--paper-2); border: 1px solid var(--rule-soft); border-radius: 12px; }
-.form label { display: grid; min-width: 0; gap: .35rem; font: 800 .66rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); }
+.form label { display: grid; min-width: 0; gap: .35rem; font: 800 .8rem/1.5 var(--font-sans), sans-serif; color: var(--ink-2); }
 .form select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; padding: .5rem .6rem; font: 500 1rem/1.4 var(--font-sans), sans-serif; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); }
 .form button { min-height: 48px; padding: .6rem 1rem; background: var(--forest); color: var(--paper); border: 0; border-radius: 999px; font: 650 .9rem/1.4 var(--font-sans), sans-serif; cursor: pointer; }
 .form button:disabled { opacity: .5; cursor: default; }
@@ -26,13 +26,13 @@
 .guesses li { display: grid; grid-template-columns: 2rem minmax(0, 1fr) auto; gap: .8rem; align-items: center; padding: .6rem 0; border-bottom: 1px solid var(--rule-soft); font-size: .92rem; }
 .guessNumber { display: grid; place-items: center; width: 1.7rem; height: 1.7rem; background: var(--ink); color: var(--paper); font: 800 .72rem/1 var(--font-sans), sans-serif; }
 .verdict { display: flex; flex-wrap: wrap; gap: .4rem; }
-.verdict em { font: 700 .66rem/1.6 var(--font-sans), sans-serif; font-style: normal; text-transform: uppercase; letter-spacing: .06em; padding: .1rem .5rem; border: 1px solid currentColor; }
+.verdict em { font: 700 .8rem/1.6 var(--font-sans), sans-serif; font-style: normal; padding: .1rem .5rem; border: 1px solid currentColor; }
 .right { color: var(--spot); }
 .wrong { color: var(--stamp); }
 .reveal { grid-column: 1 / -1; padding: 1.4rem 1.5rem; background: var(--forest); color: var(--paper); border-radius: 12px; border-top: 7px solid var(--rival, var(--accent)); box-shadow: inset 0 3px 0 var(--rival-2, transparent); }
 .reveal p { margin: .3rem 0 0; font-size: .9rem; }
 .reveal a { display: inline-block; margin-top: .8rem; color: var(--accent); font-weight: 800; font-size: .85rem; }
-.kicker { color: var(--accent); font: 800 .7rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .1em; }
+.kicker { color: var(--accent); font: 800 .8rem/1.5 var(--font-sans), sans-serif; }
 .answer { font: 400 clamp(1.8rem, 4vw, 2.8rem)/1.05 var(--font-hed), sans-serif; text-transform: none; }
 .tally, .next { color: inherit; font-size: .78rem !important; }
 @media (max-width: 760px) { .puzzle { grid-template-columns: minmax(0, 1fr); gap: 1.4rem; } .guesses li { grid-template-columns: 1.7rem minmax(0, 1fr); } .verdict { grid-column: 2; } }

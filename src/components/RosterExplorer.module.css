@@ -31,13 +31,13 @@
 .initials { font: 400 1.7rem/1 var(--font-hed), Impact, sans-serif; color: var(--spot); letter-spacing: -.03em; }
 .jersey { color: var(--ink); font: 700 1.1rem/1.2 var(--font-mono), monospace; font-variant-numeric: tabular-nums; }
 .cardText { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: .8rem; min-width: 0; }
-.cardPosition { grid-column: 1 / -1; font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--spot); font-weight: 800; }
+.cardPosition { grid-column: 1 / -1; font-size: .8rem; color: var(--spot); font-weight: 800; }
 .cardText > strong { display: block; margin-top: .3rem; font: 700 1.4rem/1.15 var(--font-sans-narrow), Arial, sans-serif; overflow-wrap: anywhere; }
 .cardStatus { display: block; grid-column: 1; margin-top: .4rem; color: var(--ink-2); font-size: .74rem; }
 .cardLink { display: flex; grid-column: 2; grid-row: 2 / 4; align-self: center; justify-content: space-between; gap: .4rem; color: var(--spot); font-size: .72rem; font-weight: 700; white-space: nowrap; }
 .profile { margin-bottom: 2rem; border: 1px solid var(--rule); border-radius: var(--radius, 2px); overflow: hidden; background: var(--paper); scroll-margin-top: 1.5rem; }
 .profileTop { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .7rem; padding: .65rem 1.5rem; background: var(--forest); color: #fff; }
-.profileTop p { margin: 0; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; }
+.profileTop p { margin: 0; font-size: .8rem; }
 .profileTop button { display: flex; align-items: center; gap: .6rem; min-height: 44px; padding: .45rem .7rem; border: 1px solid #ffffff40; border-radius: var(--radius, 2px); font-size: .75rem; font-weight: 700; }
 .profileTop button:hover { background: #ffffff12; }
 .profileTop kbd { font: .7rem/1 var(--font-mono), monospace; opacity: .8; }
@@ -47,7 +47,7 @@
 .profileIdentity > .portrait { width: 160px; height: 160px; max-width: 100%; border-radius: var(--radius, 2px); margin-bottom: 1.25rem; }
 .profileIdentity .initials { font-size: 3.8rem; }
 .playerKicker { color: var(--spot); font: 700 .85rem/1.5 var(--font-mono), monospace; margin: 0 0 .5rem; }
-.profileIdentity h2 { font: 400 clamp(2rem, 3.5vw, 2.9rem)/1.1 var(--font-hed), Impact, sans-serif; text-transform: uppercase; scroll-margin-top: 1.5rem; overflow-wrap: anywhere; }
+.profileIdentity h2 { font: 400 clamp(2rem, 3.5vw, 2.9rem)/1.1 var(--font-hed), Impact, sans-serif; scroll-margin-top: 1.5rem; overflow-wrap: anywhere; }
 .status { margin: .7rem 0 0; font-size: .8rem; color: var(--ink-2); }
 .profileInfo { min-width: 0; }
 .bio { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; margin: 0; }

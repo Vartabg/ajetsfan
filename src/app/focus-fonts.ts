@@ -1,7 +1,7 @@
-import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
+import { Lexend } from "next/font/google";
 
-const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--focus-display", axes: ["opsz"] });
-const text = Instrument_Sans({ subsets: ["latin"], variable: "--focus-text" });
+/** Lexend, chosen for readability (it was drawn to reduce visual stress for readers, including dyslexic readers). */
+const lexend = Lexend({ subsets: ["latin"], variable: "--font-lexend" });
 
-/** Font variables for the focus pages; only pages that use them load these faces. */
-export const focusFonts = `${display.variable} ${text.variable}`;
+/** The site's one face. The root layout sets it on every page; pages still pass it to FocusShell. */
+export const focusFonts = lexend.variable;
