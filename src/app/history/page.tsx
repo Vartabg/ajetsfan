@@ -2,6 +2,7 @@ import { pageMetadata } from "@/lib/site";
 import { loadGames, loadCurrent } from "@/lib/load-games";
 import FanStand from "@/components/FanStand";
 import FocusShell from "@/components/FocusShell";
+import LegendHomeFeature from "@/components/LegendHomeFeature";
 import { selectFanMemories } from "@/lib/fan-memories";
 import { focusFonts } from "../focus-fonts";
 
@@ -13,7 +14,9 @@ export default async function HistoryPage() {
     { id: "fan-stand", title: "Jets history", answer: "The games that stay" },
     ...(memories ? [{ id: "memories", title: "Selected games", answer: `${memories} archive cases` }] : []),
     { id: "rivals", title: "AFC East", answer: "The rivalry record" },
+    { id: "people", title: "Jets legends", answer: "The people behind the games" },
   ]} checkedAt={snapshot?.checkedAt ?? null} className={focusFonts}>
     <FanStand games={games} snapshot={snapshot} />
+    <LegendHomeFeature />
   </FocusShell>;
 }
