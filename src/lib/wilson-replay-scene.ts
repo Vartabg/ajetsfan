@@ -1,5 +1,6 @@
 import type * as Three from "three";
 import { REPLAY, sampleActor, sampleBall } from "./wilson-replay.mjs";
+import { TEACHING } from "./wilson-teaching.mjs";
 
 export type ReplayCamera = "sideline" | "endzone" | "overhead" | "quarterback";
 export type ReplayCameraMove = "left" | "right" | "up" | "down" | "in" | "out";
@@ -22,6 +23,10 @@ export interface ReplayScene {
   setTime(time: number): void;
   setSelection(id: string): void;
   setRoutes(visible: boolean): void;
+  setLabels(visible: boolean): void;
+  setResponsibilities(visible: boolean): void;
+  frameSelection(): void;
+  setFollowSelection(visible: boolean): void;
   setCamera(preset: ReplayCamera): void;
   moveCamera(action: ReplayCameraMove): void;
   getMetrics(): ReplaySceneMetrics;
@@ -70,6 +75,10 @@ export async function createReplayScene(
   let lastWidth = 0;
   let lastHeight = 0;
   let cameraPreset: ReplayCamera = "sideline";
+  let labelsVisible = true;
+  let responsibilitiesVisible = false;
+  let followSelection = false;
+  let followAnchor: Three.Vector3 | null = null;
   const renderDurations: number[] = [];
   const releaseAt = REPLAY.events.find((event) => event.id === "release")?.at ?? 1.7;
   const catchAt = REPLAY.events.find((event) => event.id === "catch")?.at ?? 2.4;
@@ -420,7 +429,7 @@ export async function createReplayScene(
     scene.add(mesh);
     playerBatches.push({ mesh, parts });
   }
-  const selectedMaterial = material(new THREE.MeshBasicMaterial({ color: "#c6ff81", transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide }));
+  const selectedMaterial = material(new THREE.MeshBasicMaterial({ color: "#f5d55e", transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide }));
   const selectionRing = new THREE.Mesh(geometry(new THREE.RingGeometry(0.68, 0.77, 40)), selectedMaterial);
   selectionRing.rotation.x = -Math.PI / 2;
   selectionRing.position.y = 0.045;
@@ -433,6 +442,7 @@ export async function createReplayScene(
   let selectionLabelTexture: Three.Texture | undefined;
   const selectionLabelMaterial = material(new THREE.SpriteMaterial({ depthTest: false, depthWrite: false, transparent: true }));
   const selectionLabel = new THREE.Sprite(selectionLabelMaterial);
+  selectionLabel.visible = false;
   selectionLabel.scale.set(7.8, 1.35, 1);
   selectionLabel.renderOrder = 10;
   scene.add(selectionLabel);
@@ -452,6 +462,56 @@ export async function createReplayScene(
     }
   }
   updateSelectionLabel();
+
+  const labelOverlay = document.createElement("div");
+  labelOverlay.setAttribute("aria-hidden", "true");
+  labelOverlay.dataset.replayLabels = "true";
+  Object.assign(labelOverlay.style, { position: "absolute", inset: "0", pointerEvents: "none", overflow: "hidden", zIndex: "2" });
+  const originalHostPosition = host.style.position;
+  if (getComputedStyle(host).position === "static") host.style.position = "relative";
+  host.appendChild(labelOverlay);
+  cleanupListeners.push(() => { labelOverlay.remove(); host.style.position = originalHostPosition; });
+  const leaders = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  Object.assign(leaders.style, { position: "absolute", inset: "0", width: "100%", height: "100%", overflow: "visible" });
+  labelOverlay.appendChild(leaders);
+  const roleLabels = TEACHING.players.map((player) => {
+    const actor = REPLAY.actors.find((candidate) => candidate.id === player.id)!;
+    const element = document.createElement("div");
+    element.textContent = actor.number ? `${player.code} ${actor.number}` : player.code;
+    element.dataset.actorId = player.id;
+    element.title = `${player.position} · authored role and movement`;
+    Object.assign(element.style, { position: "absolute", height: "23px", minWidth: "34px", padding: "3px 6px", borderRadius: "4px", border: "1px solid", font: "800 11px/15px system-ui, sans-serif", textAlign: "center", whiteSpace: "nowrap", boxSizing: "border-box", boxShadow: "0 1px 4px #0009" });
+    const leader = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    leader.setAttribute("stroke-width", "1");
+    leaders.appendChild(leader);
+    labelOverlay.appendChild(element);
+    return { player, actor, element, leader };
+  });
+
+  const responsibilityGroup = new THREE.Group();
+  scene.add(responsibilityGroup);
+  const relatedRings = new Map<string, Three.Mesh>();
+  const relatedGeometry = geometry(new THREE.RingGeometry(0.62, 0.69, 28));
+  const relatedMaterials = {
+    NYJ: material(new THREE.MeshBasicMaterial({ color: "#84d6b0", transparent: true, opacity: 0.7, depthWrite: false, side: THREE.DoubleSide })),
+    CLE: material(new THREE.MeshBasicMaterial({ color: "#efb487", transparent: true, opacity: 0.7, depthWrite: false, side: THREE.DoubleSide })),
+  };
+  for (const actor of REPLAY.actors) {
+    const ring = new THREE.Mesh(relatedGeometry, relatedMaterials[actor.team]);
+    ring.rotation.x = -Math.PI / 2;
+    responsibilityGroup.add(ring);
+    relatedRings.set(actor.id, ring);
+  }
+  const relationshipLines = TEACHING.relationships.map((relationship) => {
+    const points = geometry(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]));
+    points.setAttribute("lineDistance", new THREE.Float32BufferAttribute([0, 0], 1));
+    const color = relationship.kind === "coverage" ? "#efb487" : relationship.kind === "protection" ? "#84d6b0" : "#e9d78a";
+    const mat = material(new THREE.LineDashedMaterial({ color, dashSize: relationship.kind === "coverage" ? 0.22 : 0.55, gapSize: 0.32, transparent: true, opacity: 0.6, depthWrite: false }));
+    const line = new THREE.Line(points, mat);
+    responsibilityGroup.add(line);
+    return { relationship, line, mat };
+  });
+  responsibilityGroup.visible = responsibilitiesVisible;
 
   const routes = new THREE.Group();
   scene.add(routes);
@@ -479,6 +539,23 @@ export async function createReplayScene(
   const ballArc = new THREE.Line(geometry(new THREE.BufferGeometry().setFromPoints(flightPoints)), material(new THREE.LineDashedMaterial({ color: "#f4ce7d", dashSize: 0.22, gapSize: 0.23, transparent: true, opacity: 0.7 })));
   ballArc.computeLineDistances();
   routes.add(ballArc);
+
+  const eligibleIds = ["x", "z", "y", "rb"];
+  for (const actor of REPLAY.actors.filter((candidate) => eligibleIds.includes(candidate.id))) {
+    const points = Array.from({ length: 81 }, (_, index) => {
+      const position = sampleActor(actor, (index / 80) * REPLAY.duration);
+      return new THREE.Vector3(position.x, 0.07, position.z);
+    });
+    const line = new THREE.Line(geometry(new THREE.BufferGeometry().setFromPoints(points)), material(new THREE.LineDashedMaterial({ color: "#8dc7ac", dashSize: 0.42, gapSize: 0.35, transparent: true, opacity: 0.55 })));
+    line.computeLineDistances();
+    routes.add(line);
+  }
+  const selectedPathGeometry = geometry(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 81 }, () => new THREE.Vector3())));
+  selectedPathGeometry.setAttribute("lineDistance", new THREE.Float32BufferAttribute(new Float32Array(81), 1));
+  const selectedPath = new THREE.Line(selectedPathGeometry, material(new THREE.LineDashedMaterial({ color: "#f5d55e", dashSize: 0.5, gapSize: 0.25, transparent: true, opacity: 0.92 })));
+  const selectedTrailGeometry = geometry(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 81 }, () => new THREE.Vector3())));
+  const selectedTrail = new THREE.Line(selectedTrailGeometry, material(new THREE.LineBasicMaterial({ color: "#ffe38b", transparent: true, opacity: 0.92 })));
+  routes.add(selectedPath, selectedTrail);
 
   const ball = new THREE.Group();
   const football = new THREE.Mesh(geometry(new THREE.SphereGeometry(1, 10, 7)), ballMaterial);
@@ -512,6 +589,133 @@ export async function createReplayScene(
     const unitsPerPixel = (2 * depth * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / Math.max(1, lastHeight);
     const width = Math.min(190, Math.max(120, lastWidth * 0.48));
     selectionLabel.scale.set(width * unitsPerPixel, width * 0.2 * unitsPerPixel, 1);
+  }
+
+  function relatedActors() {
+    const ids = new Set<string>([selected]);
+    if (responsibilitiesVisible) {
+      for (const relationship of TEACHING.relationships) {
+        if (relationship.from === selected) ids.add(relationship.to);
+        if (relationship.to === selected) ids.add(relationship.from);
+      }
+    }
+    return ids;
+  }
+
+  function updateTeachingGeometry() {
+    const connected = relatedActors();
+    for (const actor of REPLAY.actors) {
+      const pose = sampleActor(actor, time);
+      const ring = relatedRings.get(actor.id)!;
+      ring.position.set(pose.x, 0.05, pose.z);
+      ring.visible = actor.id !== selected && connected.has(actor.id);
+    }
+    for (const { relationship, line, mat } of relationshipLines) {
+      const from = sampleActor(relationship.from, time);
+      const to = sampleActor(relationship.to, time);
+      const points = line.geometry.getAttribute("position") as Three.BufferAttribute;
+      points.setXYZ(0, from.x, 0.22, from.z);
+      points.setXYZ(1, to.x, 0.22, to.z);
+      points.needsUpdate = true;
+      line.geometry.computeBoundingSphere();
+      const distances = line.geometry.getAttribute("lineDistance") as Three.BufferAttribute;
+      distances.setX(1, Math.hypot(to.x - from.x, to.z - from.z));
+      distances.needsUpdate = true;
+      mat.opacity = relationship.from === selected || relationship.to === selected ? 0.9 : 0.23;
+    }
+    const pathPositions = selectedPathGeometry.getAttribute("position") as Three.BufferAttribute;
+    const trailPositions = selectedTrailGeometry.getAttribute("position") as Three.BufferAttribute;
+    const pathDistances = selectedPathGeometry.getAttribute("lineDistance") as Three.BufferAttribute;
+    let previous = sampleActor(selected, 0);
+    let distance = 0;
+    for (let index = 0; index <= 80; index++) {
+      const full = sampleActor(selected, (index / 80) * REPLAY.duration);
+      const past = sampleActor(selected, (index / 80) * time);
+      pathPositions.setXYZ(index, full.x, 0.12, full.z);
+      trailPositions.setXYZ(index, past.x, 0.135, past.z);
+      distance += Math.hypot(full.x - previous.x, full.z - previous.z);
+      pathDistances.setX(index, distance);
+      previous = full;
+    }
+    pathPositions.needsUpdate = true;
+    trailPositions.needsUpdate = true;
+    pathDistances.needsUpdate = true;
+    selectedPathGeometry.computeBoundingSphere();
+    selectedTrailGeometry.computeBoundingSphere();
+  }
+
+  function updateRoleLabels() {
+    labelOverlay.style.display = labelsVisible ? "block" : "none";
+    const connected = relatedActors();
+    const placed: { left: number; top: number; width: number; height: number }[] = [];
+    const anchors: Record<string, { x: number; y: number }> = {};
+    let visibleCount = 0;
+    const labelOrder = [...roleLabels].sort((a, b) => Number(b.actor.id === selected) - Number(a.actor.id === selected));
+    for (const label of labelOrder) {
+      const pose = sampleActor(label.actor, time);
+      const labelHeight = label.player.unit === "offense" ? 0.05 : 2.1;
+      const projected = new THREE.Vector3(pose.x, labelHeight, pose.z).project(camera);
+      const anchorX = (projected.x * 0.5 + 0.5) * lastWidth;
+      const anchorY = (-projected.y * 0.5 + 0.5) * lastHeight;
+      const pickPoint = new THREE.Vector3(pose.x, 1.35, pose.z).project(camera);
+      anchors[label.actor.id] = { x: Number(((pickPoint.x * 0.5 + 0.5) * lastWidth).toFixed(2)), y: Number(((-pickPoint.y * 0.5 + 0.5) * lastHeight).toFixed(2)) };
+      const onScreen = projected.z >= -1 && projected.z <= 1 && anchorX > -30 && anchorX < lastWidth + 30 && anchorY > -20 && anchorY < lastHeight + 30;
+      label.element.style.display = onScreen ? "block" : "none";
+      label.leader.style.display = onScreen ? "block" : "none";
+      if (!labelsVisible || !onScreen) continue;
+      visibleCount++;
+      const isSelected = label.actor.id === selected;
+      const isRelated = connected.has(label.actor.id);
+      const color = isSelected ? "#fff1ad" : label.actor.team === "NYJ" ? "#b9efda" : "#f4c6a2";
+      const background = isSelected ? "#f4d568" : label.actor.team === "NYJ" ? "#102e27ee" : "#3d271fee";
+      label.element.style.color = isSelected ? "#242719" : color;
+      label.element.style.background = background;
+      label.element.style.borderColor = color;
+      label.element.style.borderWidth = isRelated ? "2px" : "1px";
+      label.element.dataset.selected = String(isSelected);
+      label.element.dataset.related = String(isRelated && !isSelected);
+      const width = label.actor.number ? 52 : Math.max(35, label.player.code.length * 7 + 13);
+      label.element.style.width = `${width}px`;
+      const preferredDy = label.player.unit === "offense" ? 2 : -29;
+      const verticalOffsets = label.player.unit === "offense" ? [2, 27, 52, -23, 77, -48, -73] : [-29, -54, -79, -104, -4, 21, 46];
+      let best = { left: anchorX - width / 2, top: anchorY + preferredDy, width, height: 23 };
+      let bestScore = Infinity;
+      for (const dy of verticalOffsets) {
+        for (const dx of [0, -43, 43, -86, 86]) {
+          const candidate = { left: THREE.MathUtils.clamp(anchorX - width / 2 + dx, 5, Math.max(5, lastWidth - width - 5)), top: THREE.MathUtils.clamp(anchorY + dy, 42, Math.max(42, lastHeight - 28)), width, height: 23 };
+          const overlaps = placed.reduce((sum, other) => {
+            const x = Math.max(0, Math.min(candidate.left + width + 3, other.left + other.width + 3) - Math.max(candidate.left - 3, other.left - 3));
+            const y = Math.max(0, Math.min(candidate.top + 26, other.top + other.height + 3) - Math.max(candidate.top - 3, other.top - 3));
+            return sum + x * y;
+          }, 0);
+          const score = overlaps * 500 + Math.abs(dx) * 1.2 + Math.abs(dy - preferredDy) * 1.4;
+          if (score < bestScore) { best = candidate; bestScore = score; }
+        }
+      }
+      placed.push(best);
+      label.element.style.left = `${best.left}px`;
+      label.element.style.top = `${best.top}px`;
+      label.leader.setAttribute("x1", String(anchorX));
+      label.leader.setAttribute("y1", String(anchorY));
+      label.leader.setAttribute("x2", String(best.left + width / 2));
+      label.leader.setAttribute("y2", String(best.top > anchorY ? best.top : best.top + 23));
+      label.leader.setAttribute("stroke", color);
+      label.leader.setAttribute("opacity", isRelated ? "0.95" : "0.65");
+    }
+    canvas.dataset.labelCount = String(visibleCount);
+    canvas.dataset.labelsVisible = String(labelsVisible);
+    canvas.dataset.playerAnchors = JSON.stringify(anchors);
+    canvas.dataset.responsibilitiesVisible = String(responsibilityGroup.visible);
+    canvas.dataset.responsibilityCount = String(responsibilityGroup.visible ? relationshipLines.filter(({ line }) => line.visible).length : 0);
+    canvas.dataset.routesVisible = String(routes.visible);
+    canvas.dataset.routeCount = String(routes.visible ? routes.children.filter((child) => child instanceof THREE.Line && child.visible).length : 0);
+    canvas.dataset.movementActorCount = String(routes.visible ? new Set(["wilson", ...eligibleIds, selected]).size : 0);
+    canvas.dataset.selectedActor = selected;
+    canvas.dataset.selectedHighlight = String(selectionRing.visible);
+    canvas.dataset.highlightedActors = [...connected].join(",");
+    canvas.dataset.followSelection = String(followSelection);
+    const selectedPose = sampleActor(selected, time);
+    canvas.dataset.selectedAnchor = [selectedPose.x, 0.8, selectedPose.z].map((value) => value.toFixed(3)).join(",");
   }
 
   function applyTime(value: number) {
@@ -593,6 +797,18 @@ export async function createReplayScene(
       batch.parts.forEach((part, index) => batch.mesh.setMatrixAt(index, part.matrixWorld));
       batch.mesh.instanceMatrix.needsUpdate = true;
     }
+    updateTeachingGeometry();
+    if (followSelection) {
+      const pose = sampleActor(selected, time);
+      const anchor = new THREE.Vector3(pose.x, 0, pose.z);
+      if (followAnchor) {
+        const delta = anchor.clone().sub(followAnchor);
+        camera.position.add(delta);
+        controls.target.add(delta);
+        controls.update();
+      }
+      followAnchor = anchor;
+    }
   }
 
   const failure = (message: string) => {
@@ -613,6 +829,7 @@ export async function createReplayScene(
     const started = performance.now();
     try {
       sizeSelectionLabel();
+      updateRoleLabels();
       renderer.render(scene, camera);
       frames++;
       canvas.dataset.renderFrames = String(frames);
@@ -649,12 +866,23 @@ export async function createReplayScene(
     const poses = {
       sideline: { position: [43 * spread, 30 * spread, 17], target: [0, 0.5, 7] },
       endzone: { position: [0, 23 * spread, -32 * spread], target: [0, 0.6, 8] },
-      overhead: { position: [0, 63 * spread, 12], target: [0, 0, 12] },
+      overhead: { position: [0, 55 * spread, 20], target: [0, 0.3, 10] },
       quarterback: { position: [0.4, 6.3, 34], target: [2, 1, 6] },
     } satisfies Record<ReplayCamera, { position: number[]; target: number[] }>;
     const pose = poses[preset];
     camera.position.set(pose.position[0], pose.position[1], pose.position[2]);
     controls.target.set(pose.target[0], pose.target[1], pose.target[2]);
+    controls.update();
+    invalidate();
+  }
+
+  function frameSelection() {
+    if (disposed) return;
+    const pose = sampleActor(selected, time);
+    controls.target.set(pose.x, 0.8, pose.z);
+    const spread = camera.aspect < 0.85 ? 1.25 : 1;
+    camera.position.set(pose.x + 7 * spread, 9 * spread, pose.z + 12 * spread);
+    followAnchor = new THREE.Vector3(pose.x, 0, pose.z);
     controls.update();
     invalidate();
   }
@@ -672,7 +900,10 @@ export async function createReplayScene(
     camera.aspect = width / height;
     camera.fov = camera.aspect < 0.85 ? 53 : 43;
     camera.updateProjectionMatrix();
-    if (firstSize || crossedPortrait) setCamera(cameraPreset);
+    if (firstSize || crossedPortrait) {
+      if (followSelection) frameSelection();
+      else setCamera(cameraPreset);
+    }
     invalidate();
   }
   const resizeObserver = new ResizeObserver(resize);
@@ -694,6 +925,7 @@ export async function createReplayScene(
     const hit = raycaster.intersectObjects(rigs.map((rig) => rig.root), true).find((intersection) => intersection.object.userData.actorId);
     if (hit) {
       selected = hit.object.userData.actorId as string;
+      followAnchor = null;
       updateSelectionLabel();
       applyTime(time);
       invalidate();
@@ -724,11 +956,28 @@ export async function createReplayScene(
     setSelection(id) {
       if (disposed || !REPLAY.actors.some((actor) => actor.id === id)) return;
       selected = id;
+      followAnchor = null;
       updateSelectionLabel();
       applyTime(time);
       invalidate();
     },
     setRoutes(visible) { if (!disposed) { routes.visible = visible; invalidate(); } },
+    setLabels(visible) { if (!disposed) { labelsVisible = visible; invalidate(); } },
+    setResponsibilities(visible) {
+      if (disposed) return;
+      responsibilitiesVisible = visible;
+      responsibilityGroup.visible = visible;
+      updateTeachingGeometry();
+      invalidate();
+    },
+    frameSelection,
+    setFollowSelection(visible) {
+      if (disposed) return;
+      followSelection = visible;
+      const pose = sampleActor(selected, time);
+      followAnchor = visible ? new THREE.Vector3(pose.x, 0, pose.z) : null;
+      invalidate();
+    },
     setCamera(preset) { if (!disposed) setCamera(preset); },
     moveCamera(action) {
       if (disposed) return;

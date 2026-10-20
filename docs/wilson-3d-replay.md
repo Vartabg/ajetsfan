@@ -1,6 +1,6 @@
 # Wilson at Cleveland: evidence and 3D replay
 
-The dedicated study at `/film-room/replay/wilson-cleveland` explains Garrett Wilson’s winning touchdown on September 18, 2022. Fans can move around the field, focus on a player, pause, slow the replay, scrub in either direction and return to the snap. The movement is an educational reconstruction anchored to collected evidence and a later bounded review of official footage. Its coordinates, body motion and teaching clock remain authored; it is not recovered player tracking or a synchronized reproduction of the video.
+The dedicated study at `/film-room/replay/wilson-cleveland` explains Garrett Wilson’s winning touchdown on September 18, 2022. Fans can choose any of the 22 players, read the position’s teaching job, follow the selected player, move around the field, pause, slow the replay, scrub in either direction and return to the snap. The movement is an educational reconstruction anchored to collected evidence and a later bounded review of official footage. Its coordinates, body motion and teaching clock remain authored; it is not recovered player tracking or a synchronized reproduction of the video.
 
 ## What the labels mean
 
@@ -50,6 +50,22 @@ Camera presets provide keyboard-accessible framing alongside direct field manipu
 
 The renderer is loaded only after an explicit action. The field and player figures are original procedural geometry rather than redistributed game/video assets. Repeated static field geometry and articulated player parts use instanced rendering. A hand-to-ball constraint keeps the authored release and catch connected to the figures; that visual continuity does not establish historical body mechanics. The renderer owns and cleans up its graphics resources; the React shell owns the controls and evidence. No production deployment is part of this change.
 
+## Learning every position
+
+`src/lib/wilson-teaching.mjs` supplies a bounded teaching catalog for the same canonical play: 11 offensive and 11 defensive roles, a position name and code, a job in the authored scene, source-supported actions where available, and a separate assessment boundary. The roster and native player selector both reach every role. Position labels use team colors; the selected player receives a yellow label and ground ring. On narrow screens, a direct lesson link reaches the selected player’s explanation.
+
+The selected-player panel leads with a concise football lesson and a short reported concept where one is supported. Expanded **Evidence for this player** retains the full teaching explanation, original qualifications and attributed reported account. **Assessment evidence** retains the detailed limits on performance judgments. Source-frame and timing details likewise remain available without overwhelming the main lesson.
+
+Only Flacco and Wilson have established identities here. Their completed pass and touchdown reception can be stated as recorded contributions. Those results do not grade their technique, read order, separation or execution. Each of the other 20 roles has an unknown individual assessment: actual identity, assignment and outcome remain unestablished. Scrubbing a defender’s authored movement through the touchdown does not produce a missed-assignment claim, loss or performance grade.
+
+Three layers work independently:
+
+* **Show inferred routes:** the teaching model’s five eligible receiver/backfield paths and the selected actor’s path when distinct. Solid trail segments show movement so far; dashed segments show authored movement. All 22 figures continue to use the same inferred motion model.
+* **Position labels:** screen-space role codes, with names and full position explanations available in semantic HTML. They can be hidden without removing movement, selection or the teaching panel.
+* **Teaching responsibilities:** 14 faint authored relationship lines supply context. The selected actor and connected roles receive stronger highlights. Protection, coverage and pass geometry are inferred, including the geometry of the recorded Flacco-to-Wilson connection. They do not identify actual blocking matchups or Cleveland’s call.
+
+**Follow player** frames the selected actor, then keeps the view with that actor while seeking, playing, resizing or changing selection. **Show everyone** exits follow mode and restores the overhead view. The browser tests exercise keyboard activation, a real canvas raycast selection, and a resize across the renderer’s portrait threshold. The HTML roster, teaching jobs and evidence remain available before loading the renderer and after a graphics failure.
+
 ## Existing work used
 
 The references were inspected read-only. They informed bounded implementation choices:
@@ -59,48 +75,56 @@ The references were inspected read-only. They informed bounded implementation ch
 * **Garo’s text corpora:** the prior ingestion audit supplies immutable source identities, provenance and bounded delivery as the data pattern. A small replay evidence package is an edition-bound derivative, not a replacement for the canonical source objects.
 * **Research Vault:** `domains/04-product-3d-web/guidance/CURRENT_GUIDANCE.md` is the reviewed operating baseline. The trust audit passed for this task. The accessibility/recovery and Space Explorer recipes are provisional implementation references, not device-performance evidence.
 
+The interaction references were also read directly: [EA’s gameplay explanation](https://www.ea.com/games/madden-nfl/madden-nfl-26/news/madden-26-gridiron-notes-gameplay-deep-dive) describes coach-camera play art for protection and defensive responsibilities. This replay uses original geometry and teaching data; no Madden assets, mechanics or ratings were imported. [NFL’s Coaches Film overview](https://www.nfl.com/news/nfl-com-to-offer-fans-coaches-film-with-nfl-game-rewind-09000d5d82ac698a) describes elevated framing that keeps all 22 players visible.
+
 ## Verification
 
 The project checks used for this change are:
 
 ```sh
 npm run test:data
+node --test scripts/wilson-replay.test.mjs scripts/wilson-teaching.test.mjs
 npm run lint
 npx tsc --noEmit --pretty false
 npm run build
 ```
 
-Run the browser suite against a managed local preview; the repository Playwright configuration reuses an existing server. With the preview on port 3118:
+Run the browser suite against the managed local production preview; the repository Playwright configuration reuses an existing server. Port 3118 follows the normal idle-cleanup policy; it is a local review view, not a production deployment. With that preview available:
 
 ```sh
 PORT=3118 npx playwright test tests/wilson-replay.spec.ts --workers=1
+PORT=3118 npx playwright test tests/wilson-replay.spec.ts --workers=1 --grep 'source record|all 22|light and dark'
+PORT=3118 npx playwright test tests/film-room-data.spec.ts tests/film-workspace.spec.ts tests/film-room-interactions.spec.ts --workers=2
 PERFORMANCE_BASE_URL=http://127.0.0.1:3118 npm run test:performance
 ```
 
 The suite covers the unloaded evidence path, all four evidence labels, the official source-context link and its separate clock, JavaScript-disabled source content, playback and keyboard scrubbing, quarter-speed elapsed time and reverse playback under a controlled clock, preset/focus controls, unavailable WebGL, reduced motion, visibility-change pausing, 390 CSS-pixel reflow and serious/critical axe findings. It also renders the real WebGL scene, checks that pointer drag, keyboard camera presets and a keyboard movement button move the camera, verifies rendering stops at rest and invokes the browser’s `WEBGL_lose_context` extension. A separate failure test permits WebGL allocation and then rejects the 2D context needed for labels; it verifies the failed initialization removes its canvas and a clean retry restores one canvas with the sought time preserved. The ordinary unavailable-WebGL test leaves 2D contexts functional and verifies the fallback message does not obscure the teaching diagram.
 
-The twelve focused browser tests passed in 25.8 seconds on October 20, 2026 against the managed Next **production build** on port 3118, build ID `kK9K2An-A1l3EL7nV24aT`, using installed system Chrome 155.0.8059.85 in headless mode, macOS 27.0.1 (26A434), arm64, Node 22.23.2, Next 16.3.7, React 19.2.8 and Three 0.186.1. There were no skips. `WEBGL_lose_context` was available and exercised. The hidden-tab test dispatches a controlled visibility change. Desktop, quarterback and narrow screenshots were visually inspected. Power state is unknown.
+All fifteen functional browser cases passed in 31.9 seconds on October 20, 2026 against production build `d0Jo61XaBpN-aE9b9rQgp`. After the final concise-copy and contrast changes, the three affected source, all-22 lesson/evidence and light/dark accessibility cases passed in 14.6 seconds against final production build `ESLldiqBZNTXeIUsLHSYK`; the unchanged renderer behaviors were not rerun. Both runs used the managed preview on port 3118 and had no skips.
 
-The complete data-test run passed all 410 tests, and the existing Film Room browser regression selection passed all 31 tests. The repository’s production performance-budget check passed all 18 existing route budgets; `/film-room` used 21.2/24 KiB HTML and 218.0/220 KiB initial gzip JavaScript. That route budget is separate from the new replay route’s request-body measurement below.
+The environment was installed system Chrome 155.0.8059.85 in headless mode, macOS 27.0.1 (26A434), arm64, Node 22.23.2, Next 16.3.7, React 19.2.8 and Three 0.186.1. The new functional cases check every roster entry’s job/evidence/assessment, layer independence and the follow/resize/selection/broad-view sequence. The canvas test positively selects Flacco through a raycast before dragging. `WEBGL_lose_context` was available and exercised. The hidden-tab test dispatches a controlled visibility change. Final desktop, close-follow, narrow and dark lesson screenshots were visually inspected. Power state is unknown.
+
+The complete data-test run passed all 416 tests before the final copy change, followed by 18 focused replay/teaching-model tests after adding the concise fields and preservation assertions. The existing Film Room browser regression selection passed all 31 tests during the initial replay pass. The repository’s production performance-budget check passed all 18 existing route budgets; `/film-room` used 21.2/24 KiB HTML and 218.0/220 KiB initial gzip JavaScript. That route budget is separate from the new replay route’s request-body measurement below.
 
 At the authored release (1.7 seconds) and catch (2.4 seconds), the browser test waits for a new rendered frame and compares the actual posed right-hand and ball world positions, requiring less than 0.15 yards separation. The final capture measured 0.00000 yards at both points. This checks internal scene continuity, not documentary accuracy or measured tracking.
 
-An illustrative snapshot of the paused sideline scene, without post-processing:
+Paused scene snapshots, with labels and movement paths on and no post-processing:
 
-| Viewport | Canvas drawing buffer | DPR | Last rendered draw calls | Last rendered triangles |
+| View | Canvas drawing buffer | DPR | Last rendered draw calls | Last rendered triangles |
 | --- | --- | --- | --- | --- |
-| 1440×1050 desktop | 1118×560 | 1 | 82 | 34,606 |
-| 390×844 narrow viewport | 356×360 | 1 | 76 | 34,594 |
+| 1440×1050 desktop overhead, Wilson selected, responsibilities off | 794×520 | 1 | 83 | 34,596 |
+| 390×844 narrow overhead, left tackle selected, responsibilities off | 356×390 | 1 | 83 | 34,596 |
+| 1440×1050 close follow, left tackle selected, responsibilities on | 794×520 | 1 | 79 | 34,640 |
 
-Chrome reported `ANGLE (Apple, ANGLE Metal Renderer: Apple M2 Max, Unspecified Version)`. These are scene counts from one static camera position, not frame-rate or GPU-time benchmarks. The idle scene retained one rendered frame until interaction; the browser test also verified the render counter stayed fixed at rest. The quarterback view at release used 68 draw calls and 34,578 triangles. The narrow loaded scene had no horizontal overflow. The renderer caps DPR at 1.5; this test device used DPR 1. The scene uses PCF shadows and no post-processing.
+Chrome reported `ANGLE (Apple, ANGLE Metal Renderer: Apple M2 Max, Unspecified Version)`. These are camera-dependent scene counts, not frame-rate or GPU-time benchmarks. Both overhead captures showed all 22 role labels. The close view at teaching time 1.7 showed 16 labels, all 14 responsibility lines and stronger left-tackle/edge-role highlights; its camera target matched the selected anchor. The idle scene retained one rendered frame until interaction; the browser test also verified the render counter stayed fixed at rest. The narrow loaded scene had no horizontal overflow. The renderer caps DPR at 1.5; this test device used DPR 1. The scene uses PCF shadows and no post-processing.
 
 In a fresh browser context, same-origin JavaScript resource response bodies measured:
 
 | Stage | Encoded body bytes | Decoded body bytes |
 | --- | --- | --- |
-| Initial route, before requesting 3D | 163,085 | 537,406 |
-| Additional four chunks after Load 3D replay | 200,928 | 802,955 |
-| Total after loading 3D | 364,013 | 1,340,361 |
+| Initial route, before requesting 3D | 167,686 | 556,504 |
+| Additional four chunks after Load 3D replay | 203,361 | 810,426 |
+| Total after loading 3D | 371,047 | 1,366,930 |
 
 These are browser Resource Timing `encodedBodySize`/`decodedBodySize` values for this local production build’s `.js` resources. They exclude HTML, CSS, fonts, response headers and later navigation. Two local Vercel telemetry script attempts returned no body and contributed zero bytes. The separate body sizes show the renderer cost is deferred until requested; they are not a network-speed benchmark or a guarantee about public hosting compression.
 

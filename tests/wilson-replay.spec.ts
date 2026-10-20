@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import path from "node:path";
+import { REPLAY } from "../src/lib/wilson-replay.mjs";
+import { TEACHING } from "../src/lib/wilson-teaching.mjs";
 
 const replayPath = "/film-room/replay/wilson-cleveland";
 const article = "https://www.newyorkjets.com/news/jets-joe-cool-puts-cleveland-in-the-deep-freeze-with-a-stirring-comeback-victory";
@@ -11,6 +13,25 @@ async function openReplay(page: Page) {
 
 async function expectTime(page: Page, expected: number) {
   await expect.poll(async () => Number(await page.getByLabel("Replay time", { exact: true }).inputValue())).toBeCloseTo(expected, 2);
+}
+
+async function expectArticleSource(page: Page) {
+  const sources = page.locator("#evidence > details");
+  if (await sources.getAttribute("open") === null) await sources.locator("summary").click();
+  await expect(sources.locator(`a[href="${article}"]`).first()).toBeVisible();
+}
+
+function vectorGap(first: string | null, second: string | null) {
+  const a = first?.split(",").map(Number), b = second?.split(",").map(Number);
+  if (!a || !b || a.length !== 3 || b.length !== 3 || ![...a, ...b].every(Number.isFinite)) return Infinity;
+  return Math.hypot(...a.map((value, index) => value - b[index]));
+}
+
+async function seriousAxeViolations(page: Page) {
+  return page.evaluate(async () => {
+    const axe = (window as unknown as { axe: { run: (context: Document, options: unknown) => Promise<{ violations: { id: string; impact: string; nodes: { target: string[] }[] }[] }> } }).axe;
+    return (await axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] } })).violations.filter((violation) => ["serious", "critical"].includes(violation.impact));
+  });
 }
 
 async function disableWebGL(page: Page) {
@@ -40,7 +61,7 @@ test("the source record and evidence limits are readable before 3D loads", async
   expect(sourceUrl.searchParams.get("t")).toMatch(/^251s?$/);
   await expect(page.locator("[data-wilson-replay]")).toContainText("Related paused frame; this teaching timeline is not synchronized.");
   await expect(page.locator("[data-wilson-replay]")).toContainText("Teaching time, not a synchronized game or video clock.");
-  await expect(page.locator(`a[href="${article}"]`).first()).toBeVisible();
+  await expectArticleSource(page);
 });
 
 test("the result, attribution and source links survive without JavaScript", async ({ browser, baseURL }) => {
@@ -50,7 +71,7 @@ test("the result, attribution and source links survive without JavaScript", asyn
   await expect(page.getByRole("main")).toContainText("Flacco");
   await expect(page.getByRole("main")).toContainText("15-yard touchdown");
   await expect(page.getByRole("main")).toContainText("Inferred");
-  await expect(page.locator(`a[href="${article}"]`).first()).toBeVisible();
+  await expectArticleSource(page);
   await context.close();
 });
 
@@ -140,12 +161,153 @@ test("camera presets and player focus remain keyboard accessible", async ({ page
   expect(options.some((name) => name.includes("Flacco"))).toBe(true);
   await focus.selectOption({ label: options.find((name) => name.includes("Flacco"))! });
   await expect(focus.locator("option:checked")).toContainText("Flacco");
-  await expect(page.getByRole("heading", { level: 3, name: "Joe Flacco", exact: true })).toBeVisible();
+  await expect(page.locator("[data-selected-player=qb]").getByRole("heading", { level: 2, name: "Joe Flacco", exact: true })).toBeVisible();
   const routes = page.getByLabel("Show inferred routes", { exact: true });
   await routes.uncheck();
   await expect(routes).not.toBeChecked();
   await routes.check();
   await expect(routes).toBeChecked();
+});
+
+test("all 22 players expose their position and teaching job without inventing assessments", async ({ page }) => {
+  await openReplay(page);
+  const roster = page.locator("[data-all22]");
+  await expect(roster.locator("[data-roster-player]")).toHaveCount(22);
+  await expect(roster.locator('[data-roster-player][data-unit="offense"]')).toHaveCount(11);
+  await expect(roster.locator('[data-roster-player][data-unit="defense"]')).toHaveCount(11);
+  for (const player of TEACHING.players) {
+    const actor = REPLAY.actors.find((item) => item.id === player.id)!;
+    const button = roster.locator(`[data-roster-player="${player.id}"]`);
+    await expect(button).toHaveAccessibleName(`${actor.name} · ${player.position}`);
+    await button.click();
+    await expect(button).toHaveAttribute("aria-pressed", "true");
+    await expect(roster.locator('[aria-pressed="true"]')).toHaveCount(1);
+    const selected = page.locator(`[data-selected-player="${player.id}"]`);
+    await expect(selected).toContainText(player.position);
+    await expect(selected.locator("[data-teaching-job]")).toContainText(player.lesson);
+    await expect(selected.locator('[data-teaching-job] [data-basis="inferred"]')).toHaveText("Illustration");
+    const assessment = selected.locator("[data-player-assessment]");
+    const recordedIdentity = ["qb", "wilson"].includes(player.id);
+    await expect(selected).toHaveAttribute("data-assessment-basis", recordedIdentity ? "recorded" : "unknown");
+    if (recordedIdentity) {
+      await expect(selected.getByRole("heading", { name: "Source-supported action", exact: true })).toBeVisible();
+      await expect(assessment).toContainText("touchdown");
+      const reportedIdea = selected.getByRole("heading", { name: "The reported idea", exact: true }).locator("..");
+      await expect(reportedIdea).toContainText(player.reportedConcept!);
+    } else {
+      await expect(selected.getByRole("heading", { name: "Source-supported action", exact: true })).toHaveCount(0);
+      await expect(selected.getByRole("heading", { name: "The reported idea", exact: true })).toHaveCount(0);
+      await expect(assessment).toContainText("The actual assignment and individual outcome are unestablished");
+    }
+    const assessmentEvidence = assessment.locator("details");
+    if (await assessmentEvidence.getAttribute("open") === null) await assessmentEvidence.locator("summary").click();
+    await expect(assessmentEvidence).toContainText(player.assessment.detail);
+    const evidence = selected.locator("details").filter({ hasText: "Evidence for this player" });
+    if (await evidence.getAttribute("open") === null) await evidence.locator("summary").click();
+    await expect(evidence).toContainText(actor.note);
+    await expect(evidence).toContainText(player.teachingJob);
+    if (player.reportedIntent) await expect(evidence).toContainText(player.reportedIntent);
+    if (!recordedIdentity) {
+      await expect(evidence).toContainText("Authored 3D teaching reconstruction");
+      await expect(evidence.locator("a")).toHaveCount(0);
+    }
+  }
+  await roster.locator('[data-roster-player="d5"]').click();
+  const assessment = page.locator('[data-selected-player="d5"] [data-player-assessment]');
+  const originalAssessment = await assessment.innerText();
+  await page.getByRole("button", { name: "Touchdown · 30–30", exact: true }).click();
+  await expectTime(page, 3);
+  await expect(page.locator('[data-selected-player="d5"]')).toHaveAttribute("data-assessment-basis", "unknown");
+  await expect(assessment).toHaveText(originalAssessment, { useInnerText: true });
+});
+
+test("movement, position labels and teaching responsibilities are independent rendered layers", async ({ page }) => {
+  await openReplay(page);
+  await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
+  const replay = page.locator("[data-wilson-replay]");
+  await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
+  const canvas = replay.locator("canvas");
+  await page.getByRole("combobox", { name: "Focus player", exact: true }).selectOption("lt");
+  await page.getByRole("button", { name: "Throwing window", exact: true }).click();
+  const routes = page.getByLabel("Show inferred routes", { exact: true });
+  const labels = page.getByLabel("Position labels", { exact: true });
+  const responsibilities = page.getByLabel("Teaching responsibilities", { exact: true });
+  await expect(canvas).toHaveAttribute("data-routes-visible", "true");
+  await expect(canvas).toHaveAttribute("data-labels-visible", "true");
+  await expect(canvas).toHaveAttribute("data-responsibilities-visible", "false");
+  await expect.poll(async () => Number(await canvas.getAttribute("data-label-count"))).toBeGreaterThan(0);
+  await responsibilities.check();
+  await expect(canvas).toHaveAttribute("data-responsibilities-visible", "true");
+  const responsibilityCount = String(TEACHING.relationships.length);
+  await expect(canvas).toHaveAttribute("data-responsibility-count", responsibilityCount);
+  await expect.poll(async () => (await canvas.getAttribute("data-highlighted-actors"))?.split(",").sort()).toEqual(["d1", "lt"]);
+  const initialRoutes = await canvas.getAttribute("data-route-count");
+  expect(Number(initialRoutes)).toBeGreaterThan(0);
+  await labels.uncheck();
+  await expect(canvas).toHaveAttribute("data-label-count", "0");
+  await expect(canvas).toHaveAttribute("data-routes-visible", "true");
+  await expect(canvas).toHaveAttribute("data-route-count", initialRoutes!);
+  await expect(canvas).toHaveAttribute("data-responsibility-count", responsibilityCount);
+  await routes.uncheck();
+  await expect(canvas).toHaveAttribute("data-route-count", "0");
+  await expect(canvas).toHaveAttribute("data-responsibilities-visible", "true");
+  await expect(canvas).toHaveAttribute("data-responsibility-count", responsibilityCount);
+  await expect(canvas).toHaveAttribute("data-selected-highlight", "true");
+  await labels.check();
+  await expect.poll(async () => Number(await canvas.getAttribute("data-label-count"))).toBeGreaterThan(0);
+  await expect(canvas).toHaveAttribute("data-routes-visible", "false");
+  await responsibilities.uncheck();
+  await expect(canvas).toHaveAttribute("data-responsibility-count", "0");
+  await expect(canvas).toHaveAttribute("data-highlighted-actors", "lt");
+  await routes.check();
+  await expect(canvas).toHaveAttribute("data-route-count", initialRoutes!);
+  await expect(canvas).toHaveAttribute("data-labels-visible", "true");
+  await expect(canvas).toHaveAttribute("data-selected-actor", "lt");
+  await expectTime(page, 1.7);
+  await expect(page.locator('[data-selected-player="lt"]')).toHaveAttribute("data-assessment-basis", "unknown");
+});
+
+test("follow player survives movement, selection and a narrow resize, then Show everyone restores the broad view", async ({ page }) => {
+  await openReplay(page);
+  await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
+  const replay = page.locator("[data-wilson-replay]");
+  await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
+  const canvas = replay.locator("canvas");
+  const expectTargetAtSelection = async () => {
+    await expect.poll(async () => vectorGap(await canvas.getAttribute("data-camera-target"), await canvas.getAttribute("data-selected-anchor"))).toBeLessThan(0.01);
+  };
+  const wideBounds = (await canvas.boundingBox())!;
+  expect(wideBounds.width / wideBounds.height).toBeGreaterThan(0.85);
+  const follow = page.getByRole("button", { name: "Follow player", exact: true });
+  await follow.focus();
+  await follow.press("Enter");
+  await expect(follow).toHaveAttribute("aria-pressed", "true");
+  await expect(canvas).toHaveAttribute("data-follow-selection", "true");
+  await expectTargetAtSelection();
+  const beforeMovement = await canvas.getAttribute("data-camera-target");
+  await page.getByRole("button", { name: "Forward 1 second", exact: true }).click();
+  await expectTargetAtSelection();
+  await expect.poll(() => canvas.getAttribute("data-camera-target")).not.toBe(beforeMovement);
+  await page.setViewportSize({ width: 320, height: 844 });
+  await expect.poll(async () => { const bounds = (await canvas.boundingBox())!; return bounds.width / bounds.height; }).toBeLessThan(0.85);
+  await expectTargetAtSelection();
+  await expect(canvas).toHaveAttribute("data-follow-selection", "true");
+  await page.getByRole("button", { name: "Catch and finish", exact: true }).click();
+  await expectTime(page, 2.4);
+  await expectTargetAtSelection();
+  await page.getByRole("combobox", { name: "Focus player", exact: true }).selectOption("lt");
+  await expect(canvas).toHaveAttribute("data-selected-actor", "lt");
+  await expectTargetAtSelection();
+  const closeCamera = await canvas.getAttribute("data-camera-position");
+  const everyone = page.getByRole("button", { name: "Show everyone", exact: true });
+  await everyone.focus();
+  await everyone.press("Enter");
+  await expect(follow).toHaveAttribute("aria-pressed", "false");
+  await expect(canvas).toHaveAttribute("data-follow-selection", "false");
+  await expect.poll(() => canvas.getAttribute("data-camera-position")).not.toBe(closeCamera);
+  await expect(canvas).toHaveAttribute("data-label-count", "22");
+  await expect(canvas).toHaveAttribute("data-selected-actor", "lt");
+  await expectTime(page, 2.4);
 });
 
 test("the loaded 3D scene renders, accepts camera drags and stops rendering at rest", async ({ page }) => {
@@ -155,6 +317,13 @@ test("the loaded 3D scene renders, accepts camera drags and stops rendering at r
   await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
   const canvas = replay.locator("canvas");
   await expect(canvas).toHaveAccessibleName(/Three-dimensional schematic of Garrett Wilson/);
+  await canvas.scrollIntoViewIfNeeded();
+  await expect(canvas).toHaveAttribute("data-player-anchors", /^\{/);
+  const pickBounds = (await canvas.boundingBox())!;
+  const anchors = JSON.parse((await canvas.getAttribute("data-player-anchors"))!) as Record<string, { x: number; y: number }>;
+  await page.mouse.click(pickBounds.x + anchors.qb.x, pickBounds.y + anchors.qb.y);
+  await expect(page.locator("[data-selected-player=qb]")).toBeVisible();
+  await expect(canvas).toHaveAttribute("data-selected-actor", "qb");
   const cameraPosition = await canvas.getAttribute("data-camera-position");
   const bounds = (await canvas.boundingBox())!;
   await page.mouse.move(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.55);
@@ -162,6 +331,7 @@ test("the loaded 3D scene renders, accepts camera drags and stops rendering at r
   await page.mouse.move(bounds.x + bounds.width * 0.65, bounds.y + bounds.height * 0.6, { steps: 8 });
   await page.mouse.up();
   await expect.poll(() => canvas.getAttribute("data-camera-position")).not.toBe(cameraPosition);
+  await expect(canvas).toHaveAttribute("data-selected-actor", "qb");
   // Wait for any scheduled interaction frame to settle, then an idle canvas must stay idle.
   await page.waitForTimeout(300);
   const idleFrames = await canvas.getAttribute("data-render-frames");
@@ -208,7 +378,7 @@ test("a lost WebGL context recovers to the usable HTML controls", async ({ page 
   await expect(page.getByRole("status").filter({ hasText: /3D unavailable/i })).toBeVisible();
   await page.getByRole("button", { name: "Forward 1 second", exact: true }).click();
   await expectTime(page, 1);
-  await expect(page.locator(`a[href="${article}"]`).first()).toBeVisible();
+  await expectArticleSource(page);
 });
 
 test("a failed WebGL context leaves the timeline and evidence usable", async ({ page }) => {
@@ -226,7 +396,7 @@ test("a failed WebGL context leaves the timeline and evidence usable", async ({ 
   await expectTime(page, 1);
   await page.getByRole("button", { name: "Return to snap", exact: true }).click();
   await expectTime(page, 0);
-  await expect(page.locator(`a[href="${article}"]`).first()).toBeVisible();
+  await expectArticleSource(page);
   await expect(page.getByText("Recorded", { exact: true }).first()).toBeVisible();
 });
 
@@ -255,7 +425,7 @@ test("label setup failure after WebGL allocation removes the canvas and allows a
   await expect(page.locator("[data-wilson-replay] canvas")).toHaveCount(0);
   await page.getByRole("button", { name: "Forward 1 second", exact: true }).click();
   await expectTime(page, 1);
-  await expect(page.locator(`a[href="${article}"]`).first()).toBeVisible();
+  await expectArticleSource(page);
   await page.evaluate(() => { (window as unknown as { __wilsonInitProbe: { block2d: boolean } }).__wilsonInitProbe.block2d = false; });
   await page.getByRole("button", { name: "Try 3D again", exact: true }).click();
   await expect(page.locator("[data-wilson-replay]")).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
@@ -282,18 +452,21 @@ test("reduced motion starts static and hiding the document pauses playback", asy
   await expect(page.getByLabel("Replay time", { exact: true })).toHaveValue(pausedTime);
 });
 
-test("the narrow fallback reflows and has no serious or critical accessibility violations", async ({ page }) => {
+test("the narrow fallback reflows and passes light and dark accessibility checks", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
   await disableWebGL(page);
   await openReplay(page);
   await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: /3D unavailable/i })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.addScriptTag({ path: path.join(process.cwd(), "node_modules/axe-core/axe.min.js") });
-  const violations = await page.evaluate(async () => {
-    const axe = (window as unknown as { axe: { run: (context: Document, options: unknown) => Promise<{ violations: { id: string; impact: string; nodes: { target: string[] }[] }[] }> } }).axe;
-    return (await axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] } })).violations.filter((violation) => ["serious", "critical"].includes(violation.impact));
-  });
-  expect(violations).toEqual([]);
+  expect(await seriousAxeViolations(page)).toEqual([]);
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await page.locator('[data-roster-player="d5"]').click();
+  await page.getByLabel("Teaching responsibilities", { exact: true }).check();
+  await expect(page.locator('[data-selected-player="d5"]')).toHaveAttribute("data-assessment-basis", "unknown");
+  await expect(page.locator('[data-selected-player="d5"] [data-player-assessment]')).toContainText("Not established");
+  await expect(page.getByText("Responsibility links show an illustrative teaching scheme. Actual blocking and coverage assignments are unestablished.", { exact: true })).toBeVisible();
+  expect(await seriousAxeViolations(page)).toEqual([]);
 });
