@@ -1,47 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore, type CSSProperties, type FormEvent } from "react";
+import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import Link from "next/link";
 import PressChart from "./PressChart";
 import type { CurvePoint } from "@/lib/load-games";
 import { formatDate } from "@/lib/current";
-import { PUZZLE_GUESSES, solved, type Guess, type PuzzleProgress, type Verdict } from "@/lib/puzzle";
+import { PUZZLE_GUESSES, puzzleChartSummary, solved, type Guess, type PuzzleProgress } from "@/lib/puzzle";
 import { teamName } from "@/lib/teams";
 import styles from "./DailyPuzzle.module.css";
-
-type Entry = Guess & { verdict: Verdict };
-type Saved = { guesses: Entry[] };
-type Tally = { played: number; solved: number; lastDay: string | null };
-
-const dayKey = (day: string) => `back-page-puzzle:v1:${day}`;
-const TALLY_KEY = "back-page-puzzle:v1:tally";
-
-// Browser storage keeps the day's progress; when it is unavailable the puzzle still plays from memory.
-const memory = new Map<string, string>();
-const listeners = new Set<() => void>();
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  window.addEventListener("storage", listener);
-  return () => { listeners.delete(listener); window.removeEventListener("storage", listener); };
-}
-function readRaw(key: string): string | null {
-  try { return localStorage.getItem(key) ?? memory.get(key) ?? null; } catch { return memory.get(key) ?? null; }
-}
-function writeStore(key: string, value: unknown) {
-  const raw = JSON.stringify(value);
-  memory.set(key, raw);
-  try { localStorage.setItem(key, raw); } catch { /* private mode or full storage */ }
-  for (const listener of listeners) listener();
-}
-function useStored<T>(key: string): T | null {
-  const raw = useSyncExternalStore(subscribe, () => readRaw(key), () => null);
-  return useMemo(() => { try { return raw ? JSON.parse(raw) as T : null; } catch { return null; } }, [raw]);
-}
-const useHydrated = () => useSyncExternalStore(subscribe, () => true, () => false);
+import { dayKey, readRaw, TALLY_KEY, usePuzzleStorage, writeStore } from "./puzzle-storage";
 
 // The server judges every guess, so the answer is never part of the page.
-async function check(day: string, guesses: Guess[]): Promise<PuzzleProgress> {
-  const response = await fetch("/api/puzzle", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ day, guesses: guesses.map(({ opponent, season }) => ({ opponent, season })) }) });
+async function check(day: string, guesses: Guess[], signal?: AbortSignal): Promise<PuzzleProgress> {
+  const response = await fetch("/api/puzzle", { method: "POST", signal, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ day, guesses: guesses.map(({ opponent, season }) => ({ opponent, season })) }) });
   if (!response.ok) throw new Error(`puzzle check failed: ${response.status}`);
   return response.json() as Promise<PuzzleProgress>;
 }
@@ -51,30 +22,32 @@ const CLUE_LABELS = ["When", "Conditions", "Margin", "Final score", "Colours", "
 export default function DailyPuzzle({ day, board, points, opponents, seasons }: {
   day: string; board: "heartbreak" | "miracle"; points: Pick<CurvePoint, "q" | "wp">[]; opponents: { code: string; name: string }[]; seasons: number[];
 }) {
-  const restored = useHydrated();
-  const guesses = useStored<Saved>(dayKey(day))?.guesses ?? [];
-  const tally = useStored<Tally>(TALLY_KEY);
+  const { restored, guesses, tally } = usePuzzleStorage(day);
+  const guessKey = JSON.stringify(guesses.map(({ opponent, season }) => ({ opponent, season })));
   const [opponent, setOpponent] = useState("");
   const [season, setSeason] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [progress, setProgress] = useState<PuzzleProgress | null>(null);
+  const [checked, setChecked] = useState<{ key: string; value: PuzzleProgress } | null>(null);
+  const progress = checked?.key === guessKey ? checked.value : null;
 
-  const won = guesses.some((entry) => solved(entry.verdict));
+  const won = progress?.verdicts.some(solved) ?? false;
   const over = won || guesses.length >= PUZZLE_GUESSES;
   const ready = restored && (!guesses.length || progress !== null);
   const opened = progress?.clues ?? [];
   const answer = progress?.answer ?? null;
 
-  // A returning visitor's saved guesses are sent back once to reopen their clues.
-  const hasSaved = guesses.length > 0;
+  // Rejudge every storage snapshot, including changes or clears from another tab.
   useEffect(() => {
-    if (!restored || !hasSaved || progress) return;
-    let live = true;
-    check(day, guesses).then((result) => { if (live) setProgress(result); }, () => { if (live) setError("Could not load your clues. Reload to try again."); });
-    return () => { live = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once per restored day
-  }, [restored, hasSaved, day]);
+    if (!restored || guessKey === "[]" || checked?.key === guessKey) return;
+    const controller = new AbortController();
+    check(day, JSON.parse(guessKey) as Guess[], controller.signal).then((result) => {
+      if (!controller.signal.aborted) setChecked({ key: guessKey, value: result });
+    }, () => {
+      if (!controller.signal.aborted) setError("Could not load your clues. Reload to try again.");
+    });
+    return () => controller.abort();
+  }, [restored, guessKey, day, checked?.key]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -82,16 +55,21 @@ export default function DailyPuzzle({ day, board, points, opponents, seasons }: 
     if (!opponent || !season) { setError("Choose an opponent and a season."); return; }
     setError(null);
     setPending(true);
+    const storedAtStart = readRaw(dayKey(day));
     const asked = [...guesses, { opponent, season: Number(season) }];
     try {
       const result = await check(day, asked);
+      if (readRaw(dayKey(day)) !== storedAtStart) {
+        setError("Your puzzle changed in another tab. Check the updated guesses and try again.");
+        return;
+      }
       const next = asked.slice(0, result.verdicts.length).map((guess, index) => ({ opponent: guess.opponent, season: guess.season, verdict: result.verdicts[index] }));
       const last = next.at(-1)!.verdict;
       const finished = solved(last) || next.length >= PUZZLE_GUESSES;
       if (finished && tally?.lastDay !== day) {
         writeStore(TALLY_KEY, { played: (tally?.played ?? 0) + 1, solved: (tally?.solved ?? 0) + (solved(last) ? 1 : 0), lastDay: day });
       }
-      setProgress(result);
+      setChecked({ key: JSON.stringify(asked.slice(0, result.verdicts.length).map(({ opponent, season }) => ({ opponent, season }))), value: result });
       writeStore(dayKey(day), { guesses: next });
     } catch {
       setError("Could not check that guess. Try again.");
@@ -105,7 +83,10 @@ export default function DailyPuzzle({ day, board, points, opponents, seasons }: 
   return <div className={styles.puzzle} data-puzzle={day} data-puzzle-state={!ready ? "loading" : won ? "won" : over ? "lost" : "open"}>
     <figure className={styles.chart}>
       <figcaption><strong>Clue 1 · The Jets&rsquo; chance of winning.</strong><span>Higher means the Jets were more likely to win. The circle marks their {board === "miracle" ? "lowest" : "highest"} point after halftime. Quarters are spaced by number of plays, not by time.</span></figcaption>
-      {points.length >= 2 ? <PressChart points={points} board={board} size="wide" /> : <p>The chart for this game is unavailable.</p>}
+      {points.length >= 2 ? <>
+        <PressChart points={points} board={board} size="wide" />
+        <details className={styles.chartText}><summary>Read the chart as text</summary><ul>{puzzleChartSummary(points, board).map((text) => <li key={text}>{text}</li>)}</ul></details>
+      </> : <p>The chart for this game is unavailable.</p>}
     </figure>
     <ol className={styles.clues} aria-label="Clues from the record">
       {CLUE_LABELS.map((label, index) => {
@@ -122,6 +103,7 @@ export default function DailyPuzzle({ day, board, points, opponents, seasons }: 
       <button type="submit" disabled={over || !ready || pending}>Guess {Math.min(guesses.length + 1, PUZZLE_GUESSES)} of {PUZZLE_GUESSES}</button>
       {error ? <p className={styles.error} role="alert">{error}</p> : null}
     </form>
+    <p className={styles.status} role="status" aria-live="polite">{!ready ? "Loading your saved guesses…" : won ? `Solved in ${guesses.length} ${guesses.length === 1 ? "guess" : "guesses"}.` : over ? "The puzzle is finished. The answer is below." : `${guesses.length} of ${PUZZLE_GUESSES} guesses used. ${opened.length} extra ${opened.length === 1 ? "clue is" : "clues are"} open.`}</p>
     {guesses.length ? <ol className={styles.guesses} aria-label="Your guesses">
       {guesses.map((entry, index) => <li key={index} data-puzzle-guess>
         <span className={styles.guessNumber}>{index + 1}</span>

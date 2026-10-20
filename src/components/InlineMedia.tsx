@@ -5,10 +5,11 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore, type CSSPrope
 import { mediaImage, type MediaItem } from "@/lib/media";
 import { mediaPlayback } from "@/lib/media-playback";
 import { mediaImagePath, mediaTitleCardPath } from "@/lib/media-asset-paths.mjs";
-import dynamic from "next/dynamic";
+import Player from "./InlineMediaPlayer";
 import styles from "./InlineMedia.module.css";
 
-const Player = dynamic(() => import("./InlineMediaPlayer"), { loading: () => <div className={styles.loadingPlayer} role="status">Loading player…</div> });
+// The controls and player ship together. Publisher SDKs still load only after a
+// visitor presses play, without a second application-chunk request that can stall.
 
 // One active player per document, including repeated stories in the page's opening moments.
 let activePlayer: string | null = null;

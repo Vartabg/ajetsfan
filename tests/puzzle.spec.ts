@@ -1,10 +1,13 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
-import type { Game } from "../src/lib/games";
-import type { CurrentSnapshot } from "../src/lib/current";
-import { publishedGames } from "../src/lib/published-pages";
 import { dailyPuzzleGame, hashString, judge, puzzleClues, puzzleDay } from "../src/lib/puzzle";
 import { teamName } from "../src/lib/teams";
+
+async function answerForDay(day: string) {
+  const archive = JSON.parse(await readFile("src/lib/puzzle-archive-v1.json", "utf8")) as { rows: [string, string, string, string, ...unknown[]][] };
+  const pool = archive.rows.map(([id, , , opponentDisplay]) => ({ id, season: Number(id.slice(0, 4)), week: Number(id.slice(5, 7)), opponentDisplay }));
+  return dailyPuzzleGame(pool, day)!;
+}
 
 test("the puzzle day turns at midnight New York time and the pick is stable for that day", () => {
   expect(puzzleDay(new Date("2026-10-03T03:59:00Z"))).toBe("2026-10-02");
@@ -30,9 +33,7 @@ test("clues and verdicts come straight from the record", () => {
 });
 
 test("the page never carries the answer, and the server refuses a future day", async ({ request }) => {
-  const games = JSON.parse(await readFile("public/data/games.json", "utf8")) as Game[];
-  const current = JSON.parse(await readFile("public/data/current.json", "utf8")) as CurrentSnapshot;
-  const answer = dailyPuzzleGame(publishedGames(games, current), puzzleDay(new Date()))!;
+  const answer = await answerForDay(puzzleDay(new Date()));
   const html = await (await request.get("/puzzle")).text();
   expect(html).not.toContain(answer.id);
   expect(html).not.toContain("jetsScore");
@@ -45,9 +46,7 @@ test("the page never carries the answer, and the server refuses a future day", a
 
 test("a wrong guess opens the next clue, a right one reveals the game, and the state survives a reload", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  const games = JSON.parse(await readFile("public/data/games.json", "utf8")) as Game[];
-  const current = JSON.parse(await readFile("public/data/current.json", "utf8")) as CurrentSnapshot;
-  const answer = dailyPuzzleGame(publishedGames(games, current), puzzleDay(new Date()))!;
+  const answer = await answerForDay(puzzleDay(new Date()));
   await page.goto("/puzzle");
   await expect(page.locator("[data-puzzle-state]")).toHaveAttribute("data-puzzle-state", "open");
   await expect(page.locator("figure svg")).toBeVisible();
@@ -74,4 +73,41 @@ test("a wrong guess opens the next clue, a right one reveals the game, and the s
   await expect(page.locator("[data-puzzle-state]")).toHaveAttribute("data-puzzle-state", "won");
   await expect(page.locator("[data-puzzle-guess]")).toHaveCount(2);
   await expect(page.locator("[data-puzzle-opponent]")).toBeDisabled();
+});
+
+test("invalid puzzle requests fail clearly while a valid empty request keeps the answer private", async ({ request }) => {
+  for (const data of [null, false, [], { day: "2026-02-30", guesses: [] }]) {
+    const response = await request.post("/api/puzzle", { data: JSON.stringify(data), headers: { "Content-Type": "application/json" } });
+    expect(response.status()).toBe(400);
+    expect(await response.json()).toEqual({ error: expect.any(String), action: expect.any(String) });
+  }
+  const oversized = await request.post("/api/puzzle", { data: { day: puzzleDay(new Date()), guesses: [], extra: "x".repeat(5000) } });
+  expect(oversized.status()).toBe(413);
+});
+
+test("another tab refreshes clues and the final answer; clearing progress does not restore stale guesses", async ({ page, context }) => {
+  const day = puzzleDay(new Date()), answer = await answerForDay(day);
+  await page.goto("/puzzle");
+  await expect(page.locator("[data-puzzle-state]")).toHaveAttribute("data-puzzle-state", "open");
+  await page.getByText("Read the chart as text", { exact: true }).click();
+  await expect(page.locator("details li").first()).toContainText(/Quarter 1: starts at/);
+  const other = await context.newPage();
+  await other.goto("/puzzle");
+  await expect(other.locator("[data-puzzle-state]")).toHaveAttribute("data-puzzle-state", "open");
+  await page.locator("[data-puzzle-opponent]").selectOption(answer.opponentDisplay === "MIA" ? "BUF" : "MIA");
+  await page.locator("[data-puzzle-season]").selectOption(String(answer.season === 1999 ? 2000 : 1999));
+  await page.getByRole("button", { name: /^Guess 1 of 6/ }).click();
+  await expect(other.locator("[data-puzzle-guess]")).toHaveCount(1);
+  await expect(other.locator('ol[aria-label="Clues from the record"] > li').first()).toContainText(`Week ${answer.week}`);
+  await other.locator("[data-puzzle-opponent]").selectOption(answer.opponentDisplay);
+  await other.locator("[data-puzzle-season]").selectOption(String(answer.season));
+  await other.getByRole("button", { name: /^Guess 2 of 6/ }).click();
+  await expect(page.locator("[data-puzzle-state]")).toHaveAttribute("data-puzzle-state", "won");
+  await expect(page.locator("[data-puzzle-reveal]")).toContainText(teamName(answer.opponentDisplay));
+  await other.evaluate((key) => localStorage.removeItem(key), `back-page-puzzle:v2:${day}`);
+  await expect(page.locator("[data-puzzle-state]")).toHaveAttribute("data-puzzle-state", "open");
+  await expect(page.locator("[data-puzzle-guess]")).toHaveCount(0);
+  await expect(page.locator("[data-puzzle-reveal]")).toHaveCount(0);
+  await expect(page.locator('ol[aria-label="Clues from the record"] > li').first()).toContainText("Opens after guess 1");
+  await other.close();
 });
