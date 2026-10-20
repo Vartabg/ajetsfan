@@ -18,7 +18,7 @@ export function hashString(value: string): number {
   return hash >>> 0;
 }
 
-/** The same day picks the same game for everyone; the pool is sorted so edition order cannot change it. */
+/** The caller supplies a frozen series; sorting makes its serialized row order irrelevant. */
 export function dailyPuzzleGame<T extends { id: string }>(pool: T[], day: string): T | null {
   if (!pool.length) return null;
   const ordered = [...pool].sort((a, b) => a.id.localeCompare(b.id));
@@ -72,4 +72,22 @@ export function puzzleProgress(game: PuzzleGame, guesses: Guess[]): PuzzleProgre
   const clues = puzzleClues(game).slice(0, over ? undefined : verdicts.length).map((clue) => clue.kind === "colours" ? { ...clue, colours } : clue);
   const answer = over ? { opponent: teamName(game.opponentDisplay), jetsScore: game.jetsScore, oppScore: game.oppScore, atHome: game.atHome, seasonType: game.seasonType, week: game.week, date: game.date, wentToOt: game.wentToOt, colours, caseHref: `/games/${encodeURIComponent(game.id)}` } : null;
   return { verdicts, clues, answer };
+}
+
+/** Essential chart facts without opponent, date, score or play-description spoilers. */
+export function puzzleChartSummary(points: { q: number; wp: number }[], board: "heartbreak" | "miracle"): string[] {
+  const valid = points.filter((point) => Number.isFinite(point.wp) && point.wp >= 0 && point.wp <= 1 && Number.isInteger(point.q) && point.q >= 1);
+  const percent = (value: number) => `${Math.round(value * 1000) / 10}%`;
+  const quarter = (q: number) => q > 4 ? `overtime ${q - 4}` : `quarter ${q}`;
+  const rows = [...new Set(valid.map((point) => point.q))].map((q) => {
+    const values = valid.filter((point) => point.q === q).map((point) => point.wp);
+    const label = q > 4 ? `Overtime ${q - 4}` : `Quarter ${q}`;
+    return `${label}: starts at ${percent(values[0])}, ends at ${percent(values.at(-1)!)}, ranges from ${percent(Math.min(...values))} to ${percent(Math.max(...values))}.`;
+  });
+  const secondHalf = valid.filter((point) => point.q >= 3);
+  if (secondHalf.length) {
+    const extreme = secondHalf.reduce((best, point) => (board === "miracle" ? point.wp < best.wp : point.wp > best.wp) ? point : best);
+    rows.push(`${board === "miracle" ? "Lowest" : "Highest"} after halftime: ${percent(extreme.wp)} in ${quarter(extreme.q)} (the circled point).`);
+  }
+  return rows;
 }

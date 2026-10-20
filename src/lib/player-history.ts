@@ -1,3 +1,5 @@
+import type { CoverageSnapshot } from "./coverage";
+
 /** A player's Jets games, season by season, as scripts/player-pages.mjs writes them. Pure helpers; the loader reads the files. */
 export type PlayerLine = {
   /** completions, attempts, yards, touchdowns, interceptions */ pass?: number[];
@@ -12,11 +14,12 @@ export type PlayerSeasonFile = {
   players: Record<string, { name: string; short: string; position: string | null; games: PlayerGame[]; plays: PlayerPlay[] }>;
 };
 export type PlayerHistory = {
-  seasons: { season: number; games: number; totals: PlayerLine; source: string }[];
+  seasons: ({ season: number; games: number; totals: PlayerLine; source: string } & ArchiveCoverage)[];
   /** The latest season's games, when the player has any. */
-  latest: { season: number; games: PlayerGame[]; checkedAt: string } | null;
+  latest: ({ season: number; games: PlayerGame[] } & ArchiveCoverage) | null;
   plays: (PlayerPlay & { season: number; week: number; post: boolean; opponent: string })[];
 };
+type ArchiveCoverage = { checkedAt: string; throughWeek: number | null; playoffs: boolean };
 
 const KINDS = ["pass", "rush", "rec", "def"] as const;
 type Kind = typeof KINDS[number];
@@ -35,14 +38,35 @@ export function historyFor(id: string, files: PlayerSeasonFile[]): PlayerHistory
   const mine = files.filter((file) => file.players[id]).sort((a, b) => a.season - b.season);
   if (!mine.length) return null;
   const last = mine.at(-1)!;
+  // The file's cutoff is independent of a player's bye, injury or last recorded appearance.
+  const coverage = (file: PlayerSeasonFile): ArchiveCoverage => {
+    const games = Object.values(file.players).flatMap((player) => player.games);
+    const weeks = games.filter((game) => !game.post).map((game) => game.week);
+    return { checkedAt: file.checkedAt, throughWeek: weeks.length ? Math.max(...weeks) : null, playoffs: games.some((game) => game.post) };
+  };
   return {
-    seasons: mine.map((file) => ({ season: file.season, games: file.players[id].games.length, totals: sumLines(file.players[id].games), source: file.source })),
-    latest: { season: last.season, games: last.players[id].games, checkedAt: last.checkedAt },
+    seasons: mine.map((file) => ({ season: file.season, games: file.players[id].games.length, totals: sumLines(file.players[id].games), source: file.source, ...coverage(file) })),
+    latest: { season: last.season, games: last.players[id].games, ...coverage(last) },
     plays: mine.flatMap((file) => file.players[id].plays.map((play) => {
       const game = file.players[id].games.find((entry) => entry.gameId === play.gameId)!;
       return { ...play, season: file.season, week: game.week, post: game.post, opponent: game.opponent };
     })).sort((a, b) => b.d - a.d).slice(0, 3),
   };
+}
+
+/** Archive rows and live aggregate totals refresh separately. Compare only their common regular-season scope. */
+export function archiveDiffersFromStats(history: PlayerHistory, id: string, stats: CoverageSnapshot["stats"]): boolean {
+  if (stats.status === "unavailable" || history.latest?.season !== stats.season) return false;
+  const player = stats.players.find((entry) => entry.id === id);
+  if (!player) return false;
+  const games = history.latest.games.filter((game) => !game.post);
+  const ids = stats.playerGameIds?.[id];
+  if (games.length !== player.games || ids && (ids.length !== games.length || games.some((game) => !ids.includes(game.gameId)))) return true;
+  const total = sumLines(games);
+  const same = (actual: number[] | undefined, expected: number[]) => expected.every((value, index) => value === (actual?.[index] ?? 0));
+  return !same(total.pass, [player.passing.completions, player.passing.attempts, player.passing.yards, player.passing.touchdowns, player.passing.interceptions])
+    || !same(total.rush, [player.rushing.carries, player.rushing.yards, player.rushing.touchdowns])
+    || !same(total.rec, [player.receiving.receptions, player.receiving.targets, player.receiving.yards, player.receiving.touchdowns]);
 }
 
 export type Focus = { kind: Kind; unit: string; value: (line: PlayerLine) => number };

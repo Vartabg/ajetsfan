@@ -4,7 +4,7 @@ import type { CurvePoint } from "./load-games";
 import { jetsPlays } from "./jets-playbook";
 import { getJetsStudy } from "./jets-snap-study";
 import { type MediaCollection, type MediaItem } from "./media";
-import { mediaPlayback } from "./media-playback";
+import { selectHomeMedia } from "./home-media";
 import { compactMediaItem } from "./media-asset-paths.mjs";
 import type { PlayDesign } from "./playbook";
 import { publishedGames } from "./published-pages";
@@ -98,8 +98,7 @@ export function buildFocus({ games, snapshot, curve, media }: { games: Game[]; s
 
   // Missing publisher art uses the same factual title-card fallback as the room.
   const outletName = new Map(media.outlets.map((outlet) => [outlet.id, outlet.name]));
-  const pictured = media.items.filter((item) => item.publishedAt).sort((a, b) => b.publishedAt!.localeCompare(a.publishedAt!) || a.id.localeCompare(b.id));
-  const featured = pictured.find((item) => mediaPlayback(item)) ?? pictured[0];
+  const featured = selectHomeMedia(media.items);
   const mediaMoment = featured ? { id: featured.id, title: featured.title, outlet: outletName.get(featured.outletId) ?? featured.author, publishedAt: featured.publishedAt, item: compactMediaItem(featured) } : null;
 
   const discoveries = buildDiscoveries(games.filter((game) => published.has(game.id)));

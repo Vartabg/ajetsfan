@@ -3,8 +3,8 @@ import Link from "@/components/IntentLink";
 import { notFound } from "next/navigation";
 import { loadPlayerEdition, loadPublishedGames, loadPublishedPlayer } from "@/lib/load-published-pages";
 import { loadPlayerHistory } from "@/lib/load-player-history";
-import { focusOf, lineText, playText, sumLines, type PlayerGame, type PlayerHistory } from "@/lib/player-history";
-import { formatDate } from "@/lib/current";
+import { archiveDiffersFromStats, focusOf, lineText, playText, sumLines, type PlayerGame, type PlayerHistory } from "@/lib/player-history";
+import { formatCheckedAt, formatDate } from "@/lib/current";
 import { playerStatLines, playerStatsMessage, statsForPlayer } from "@/lib/roster";
 import { playerActionPhoto } from "@/lib/editorial-photos";
 import { pageMetadata } from "@/lib/site";
@@ -42,17 +42,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 const n = (value: number) => value.toLocaleString("en-US");
 const where = (game: { gameId: string; opponent: string }) => `${game.gameId.endsWith("_NYJ") ? "vs" : "at"} ${teamIdentity(game.opponent)?.nickname ?? game.opponent}`;
 const when = (game: { week: number; post: boolean }) => game.post ? "Playoffs" : `Week ${game.week}`;
+const archiveCutoff = (coverage: { throughWeek: number | null; playoffs: boolean }) => [
+  coverage.throughWeek !== null ? `regular-season Week ${coverage.throughWeek}` : null,
+  coverage.playoffs ? "recorded playoff games" : null,
+].filter(Boolean).join(" and ");
 
 /** One bar per game this season, measured in the player's main number. */
-function Games({ history, published }: { history: PlayerHistory; published: Set<string> }) {
+function Games({ history, published, differs }: { history: PlayerHistory; published: Set<string>; differs: boolean }) {
   const latest = history.latest!;
   const focus = focusOf(sumLines(latest.games));
   if (!focus) return null;
   const top = Math.max(1, ...latest.games.map((game) => focus.value(game)));
   const total = focus.value(sumLines(latest.games));
   const gameLabel = (game: PlayerGame) => `${when(game)} ${where(game)}`;
-  return <FocusMoment id="profile-games" label={`${latest.season} · game by game`}
+  return <FocusMoment id="profile-games" label={`${latest.season} archive · game by game`}
     heading={<>{n(total)} {focus.unit} <em>in {latest.games.length} {latest.games.length === 1 ? "game" : "games"}.</em></>}>
+    <p className={shared.caption}>Archive through {archiveCutoff(latest)}. Checked <time dateTime={latest.checkedAt}>{formatCheckedAt(latest.checkedAt)}</time>. It updates separately from the current totals below.</p>
+    {differs ? <p className={shared.caption}>The archive and current totals cover different games or source revisions. These bars show only the archived game lines; use the cutoff and check time for each section.</p> : null}
     <div className={shared.shape}>
       <ol className={styles.bars}>{latest.games.map((game) => <li key={game.gameId}>
         {published.has(game.gameId) ? <Link href={`/games/${game.gameId}`}>{gameLabel(game)}</Link> : <span>{gameLabel(game)}</span>}
@@ -71,15 +77,16 @@ function Career({ history }: { history: PlayerHistory }) {
   const top = Math.max(1, ...history.seasons.map((season) => focus.value(season.totals)));
   const games = history.seasons.reduce((sum, season) => sum + season.games, 0);
   const total = focus.value(sumLines(history.seasons.map((season) => season.totals)));
-  return <FocusMoment id="profile-career" label="As a Jet"
+  return <FocusMoment id="profile-career" label="As a Jet · in the archive"
     heading={<>{history.seasons.length} {history.seasons.length === 1 ? "season" : "seasons"}, {games} {games === 1 ? "game" : "games"}. <em>{n(total)} {focus.unit}.</em></>}>
     <div className={shared.shape}>
       <ol className={styles.bars}>{history.seasons.map((season) => <li key={season.season}>
         <Link href={`/seasons/${season.season}`}>{season.season}</Link>
         <i style={{ width: `${Math.max(0, focus.value(season.totals)) / top * 100}%` }} aria-hidden="true" /><b>{n(focus.value(season.totals))}</b>
         <small>{season.games} {season.games === 1 ? "game" : "games"} · {lineText(season.totals) || "No recorded line"}</small>
+        <small>Archive through {archiveCutoff(season)} · checked <time dateTime={season.checkedAt}>{formatCheckedAt(season.checkedAt)}</time></small>
       </li>)}</ol>
-      <p className={shared.caption}>Regular season and playoffs, Jets games only, since 1999.</p>
+      <p className={shared.caption}>Recorded regular season and playoffs, Jets games only, since 1999. Archive totals update separately from the current-season feed and may be missing newer games or corrections.</p>
     </div>
   </FocusMoment>;
 }
@@ -109,12 +116,13 @@ export default async function PlayerPage({ params }: Props) {
   const stats = statsForPlayer(coverage.stats, player.id, season);
   const lines = playerStatLines(stats);
   const statsMessage = playerStatsMessage(coverage.stats, player, season);
+  const archiveDiffers = history ? archiveDiffersFromStats(history, player.id, coverage.stats) : false;
   const photo = playerActionPhoto(player.id, season);
   const rosterHref = `/team/roster?${new URLSearchParams({ player: player.id })}#roster`;
   const entries: FocusEntry[] = [
     { id: "player", title: "The player", answer: player.name },
-    ...(history?.latest && latestFocus ? [{ id: "profile-games", title: `${history.latest.season} game by game`, answer: `${history.latest.games.length} ${history.latest.games.length === 1 ? "game" : "games"}` }] : []),
-    ...(bars && history && history.seasons.length ? [{ id: "profile-career", title: "As a Jet", answer: `${history.seasons.length} ${history.seasons.length === 1 ? "season" : "seasons"}` }] : []),
+    ...(history?.latest && latestFocus ? [{ id: "profile-games", title: `${history.latest.season} game archive`, answer: `${history.latest.games.length} ${history.latest.games.length === 1 ? "game" : "games"}` }] : []),
+    ...(bars && history && history.seasons.length ? [{ id: "profile-career", title: "Jets archive", answer: `${history.seasons.length} ${history.seasons.length === 1 ? "season" : "seasons"}` }] : []),
     ...(history?.plays.length ? [{ id: "profile-plays", title: "Biggest plays", answer: `+${Math.round(history.plays[0].d * 100)}% win chance` }] : []),
     { id: "profile-details", title: "The particulars", answer: player.college ?? player.position },
     { id: "profile-stats", title: "On the record", answer: `${season} production` },
@@ -136,7 +144,7 @@ export default async function PlayerPage({ params }: Props) {
       </div>
     </FocusMoment>
 
-    {history?.latest && latestFocus ? <Games history={history} published={published} /> : null}
+    {history?.latest && latestFocus ? <Games history={history} published={published} differs={archiveDiffers} /> : null}
     {bars && history && history.seasons.length ? <Career history={history} /> : null}
     {history?.plays.length ? <Plays history={history} published={published} /> : null}
 

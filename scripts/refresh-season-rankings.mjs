@@ -137,6 +137,9 @@ export async function refreshSeasonRankings({ outDir = path.resolve('public/data
 
 export async function refreshNextGen({ outDir = path.resolve('public/data'), now = new Date(), cacheDir = null, fetcher = fetch, onError = console.warn, beforePromote } = {}) {
   const { buildNextGenCollection, NEXTGEN_SOURCES } = await import('./nextgen-stats.mjs');
+  const attemptedAt = now.toISOString();
+  const retainSeason = (season, fallbackCheck, reason) => ({ ...season, checkedAt: season.checkedAt ?? fallbackCheck,
+    status: 'retained', attemptedAt, retentionReason: reason });
   await mkdir(outDir, { recursive: true });
   return withDataLock(outDir, async () => {
     const file = path.join(outDir, 'nextgen-stats.json');
@@ -162,19 +165,28 @@ export async function refreshNextGen({ outDir = path.resolve('public/data'), now
         const timestamp = JSON.parse(raw).last_updated;
         if (typeof timestamp === 'string' && timestamp.trim()) sourceUpdatedAt = timestamp;
       } catch { /* Measurements remain usable when the optional source timestamp is absent. */ }
-      collection = { ...buildNextGenCollection({ ...Object.fromEntries(entries), checkedAt: now.toISOString(), sourceUpdatedAt }), status: 'ready', attemptedAt: now.toISOString() };
+      collection = { ...buildNextGenCollection({ ...Object.fromEntries(entries), checkedAt: attemptedAt, sourceUpdatedAt }), status: 'ready', attemptedAt };
       if (!collection.seasons.length) throw new Error('Empty Next Gen season collection');
+      const seasons = new Map(collection.seasons.map((season) => [season.year, { ...season, checkedAt: attemptedAt, status: 'ready', attemptedAt }]));
       for (const prior of previous?.seasons ?? []) {
-        const replacement = collection.seasons.find((season) => season.year === prior.year);
-        if (!replacement || ['passing', 'receiving', 'rushing'].some((kind) => prior[kind]?.length && !replacement[kind]?.length)) {
-          throw new Error(`Next Gen coverage regressed for ${prior.year}`);
+        const replacement = seasons.get(prior.year);
+        const missing = ['passing', 'receiving', 'rushing'].filter((kind) => prior[kind]?.length && !replacement?.[kind]?.length);
+        if (!replacement || missing.length) {
+          const reason = `The latest source files no longer include ${prior.year} ${missing.length ? missing.join(', ') : 'season'} measurements. Showing the last verified season snapshot.`;
+          const retained = retainSeason(prior, previous.checkedAt, reason);
+          seasons.set(prior.year, retained);
+          onError(`${prior.year}: retaining Next Gen season checked ${retained.checkedAt}: ${reason}`);
         }
       }
-      console.log(`Next Gen Stats: ${collection.seasons.length} seasons checked`);
+      collection.seasons = [...seasons.values()].sort((a, b) => b.year - a.year);
+      collection.status = collection.seasons.some((season) => season.status === 'retained') ? 'retained' : 'ready';
+      collection.checkedAt = new Date(Math.max(...collection.seasons.map((season) => Date.parse(season.checkedAt)))).toISOString();
+      console.log(`Next Gen Stats: ${collection.seasons.filter((season) => season.status === 'ready').length} seasons checked; ${collection.seasons.filter((season) => season.status === 'retained').length} retained`);
     } catch (error) {
       if (!previous) throw error;
       onError(`Retaining Next Gen measurements checked ${previous.checkedAt}: ${error.message}`);
-      collection = { ...previous, status: 'retained', attemptedAt: now.toISOString() };
+      collection = { ...previous, status: 'retained', attemptedAt,
+        seasons: previous.seasons.map((season) => retainSeason(season, previous.checkedAt, 'The latest source check failed. Showing the last verified measurements.')) };
     }
     if (!isNextGenCollection(collection)) throw new Error('Invalid Next Gen publication');
     await publish(file, collection, beforePromote);
