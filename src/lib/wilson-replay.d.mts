@@ -1,4 +1,5 @@
 export type EvidenceBasis = "recorded" | "reported" | "observed" | "inferred" | "unreviewed";
+export type ReplayRoleFamily = "quarterback" | "receiver" | "back" | "blocker" | "rusher" | "coverage";
 export type ReplayActor = {
   readonly id: string;
   readonly name: string;
@@ -9,6 +10,10 @@ export type ReplayActor = {
   readonly identityBasis: "recorded" | "inferred";
   readonly motionBasis: "inferred";
   readonly facingYaw?: number;
+  readonly roleFamily: ReplayRoleFamily;
+  readonly engagementTarget: string | null;
+  readonly cadence: number;
+  readonly strideSeed: number;
   readonly note: string;
   readonly path: readonly { readonly t: number; readonly x: number; readonly z: number }[];
 };
@@ -94,6 +99,29 @@ export const REPLAY: {
   readonly actors: readonly ReplayActor[];
 };
 export function clampReplayTime(time: unknown): number;
-export function sampleActor(actor: ReplayActor | string, time: unknown): { x: number; z: number; yaw: number; speed: number };
+export function sampleActor(actor: ReplayActor | string, time: unknown): { x: number; z: number; vx: number; vz: number; yaw: number; speed: number };
+export type ReplayPose = {
+  readonly basis: "inferred";
+  readonly phase: "snap" | "develop" | "flight" | "finish" | "pursuit" | "settle";
+  readonly action: "drop" | "set" | "throw" | "follow-through" | "watch" | "release" | "stem" | "break" | "route" | "catch" | "carry" | "finish" | "pass-set" | "engage" | "brace" | "disengage" | "pursuit" | "first-step" | "counter" | "backpedal" | "turn" | "read" | "cover" | "check" | "dive" | "recover";
+  readonly actionLabel: string;
+  readonly actionDetail: string;
+  readonly roleFamily: ReplayRoleFamily;
+  readonly footMode: "run" | "shuffle" | "backpedal" | "plant" | "dive";
+  readonly gait: number;
+  readonly cadence: number;
+  /** Continuous unwrapped cycle count; use its fractional part for a step cycle. */
+  readonly stridePhase: number;
+  readonly lean: number;
+  readonly facingYaw: number;
+  readonly engagementTarget: string | null;
+  readonly engagement: number;
+  readonly reach: number;
+  readonly dive: number;
+  readonly catch: number;
+  readonly throw: number;
+  readonly carry: number;
+};
+export function samplePose(actor: ReplayActor | string, time: unknown): ReplayPose;
 export function sampleBall(time: unknown): { x: number; y: number; z: number };
 export function eventAt(time: unknown): ReplayEvent;

@@ -4,6 +4,7 @@ import { REPLAY } from "../src/lib/wilson-replay.mjs";
 import { TEACHING } from "../src/lib/wilson-teaching.mjs";
 
 const replayPath = "/film-room/replay/wilson-cleveland";
+const eventTime = (id: string) => REPLAY.events.find((event) => event.id === id)!.at;
 const article = "https://www.newyorkjets.com/news/jets-joe-cool-puts-cleveland-in-the-deep-freeze-with-a-stirring-comeback-victory";
 
 async function openReplay(page: Page) {
@@ -13,6 +14,15 @@ async function openReplay(page: Page) {
 
 async function expectTime(page: Page, expected: number) {
   await expect.poll(async () => Number(await page.getByLabel("Replay time", { exact: true }).inputValue())).toBeCloseTo(expected, 2);
+}
+
+async function seekTo(page: Page, time: number) {
+  await page.getByLabel("Replay time", { exact: true }).evaluate((element, value) => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(element, String(value));
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+  }, time);
+  await expectTime(page, time);
 }
 
 async function expectArticleSource(page: Page) {
@@ -44,10 +54,9 @@ async function disableWebGL(page: Page) {
   });
 }
 
-test("the source record and evidence limits are readable before 3D loads", async ({ page }) => {
+test("the source record and evidence limits remain readable during automatic 3D startup", async ({ page }) => {
   await openReplay(page);
-  await expect(page.getByRole("button", { name: "Load 3D replay", exact: true })).toBeVisible();
-  await expect(page.locator("[data-wilson-replay] canvas")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Load 3D replay", exact: true })).toHaveCount(0);
   await expectTime(page, 0);
   await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible();
   for (const label of ["Recorded", "Observed", "Reported", "Inferred"]) await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
@@ -61,6 +70,13 @@ test("the source record and evidence limits are readable before 3D loads", async
   expect(sourceUrl.searchParams.get("t")).toMatch(/^251s?$/);
   await expect(page.locator("[data-wilson-replay]")).toContainText("Related paused frame; this teaching timeline is not synchronized.");
   await expect(page.locator("[data-wilson-replay]")).toContainText("Teaching time, not a synchronized game or video clock.");
+  for (const [id, label, sourceClock, sourceSeconds] of [["release", "Throwing window", "4:14", 254], ["catch", "Catch and finish", "4:15", 255]] as const) {
+    await page.getByRole("button", { name: label, exact: true }).click();
+    await expectTime(page, eventTime(id));
+    const related = page.getByRole("link", { name: `Official replay at ${sourceClock}`, exact: true });
+    await expect(related).toBeVisible();
+    expect(new URL((await related.getAttribute("href"))!).searchParams.get("t")).toMatch(new RegExp(`^${sourceSeconds}s?$`));
+  }
   await expectArticleSource(page);
 });
 
@@ -71,8 +87,70 @@ test("the result, attribution and source links survive without JavaScript", asyn
   await expect(page.getByRole("main")).toContainText("Flacco");
   await expect(page.getByRole("main")).toContainText("15-yard touchdown");
   await expect(page.getByRole("main")).toContainText("Inferred");
+  await expect(page.locator("[data-fallback-player]")).toHaveCount(22);
+  await expect(page.getByRole("img", { name: /Top-down teaching diagram/ })).toBeVisible();
   await expectArticleSource(page);
   await context.close();
+});
+
+test("the all-22 field plays while the deferred 3D renderer is pending and hands over at the same time", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1050 });
+  let releaseChunk = () => {};
+  const heldChunk = new Promise<void>((resolve) => { releaseChunk = resolve; });
+  let holding = false;
+  await page.route("**/_next/static/chunks/*.js", async (route) => {
+    const response = await route.fetch();
+    const body = await response.text();
+    // The public canvas description identifies the renderer without coupling this
+    // check to a build-specific chunk filename or obstructing the client shell.
+    if (body.includes("Three-dimensional schematic of Garrett Wilson")) {
+      holding = true;
+      await heldChunk;
+    }
+    await route.fulfill({ response, body });
+  });
+  try {
+    await page.goto(replayPath, { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Wilson’s winning touchdown");
+    await expect.poll(() => holding, { timeout: 15_000, message: "Deferred scene chunk was identified" }).toBe(true);
+    const replay = page.locator("[data-wilson-replay]");
+    await expect(replay).toHaveAttribute("data-scene", "loading");
+    const diagram = page.getByRole("img", { name: /Top-down teaching diagram/ });
+    await expect(diagram).toBeVisible();
+    await expect(diagram.locator("[data-fallback-player]")).toHaveCount(22);
+    await expectTime(page, 0);
+    const start = await diagram.locator("[data-fallback-player]").evaluateAll((actors) => Object.fromEntries(actors.map((actor) => [actor.getAttribute("data-fallback-player"), [Number(actor.getAttribute("data-x")), Number(actor.getAttribute("data-z"))]])));
+    await page.getByRole("button", { name: "Play", exact: true }).click();
+    await expect.poll(async () => Number(await replay.getAttribute("data-time"))).toBeGreaterThan(0.2);
+    await page.getByRole("button", { name: "Pause", exact: true }).click();
+    const paused = Number(await replay.getAttribute("data-time"));
+    const moved = await diagram.locator("[data-fallback-player]").evaluateAll((actors) => Object.fromEntries(actors.map((actor) => [actor.getAttribute("data-fallback-player"), [Number(actor.getAttribute("data-x")), Number(actor.getAttribute("data-z"))]])));
+    for (const actor of REPLAY.actors) expect(moved[actor.id], actor.id).not.toEqual(start[actor.id]);
+    await page.getByRole("combobox", { name: "Focus player", exact: true }).selectOption("lt");
+    await expect(page.locator('[data-selected-player="lt"]')).toBeVisible();
+    await expect(replay.locator("canvas")).toHaveCount(0);
+    await page.evaluate(() => {
+      const root = document.querySelector("[data-wilson-replay]")!;
+      const result = { firstVisible: null as null | Record<string, string | undefined> };
+      (window as unknown as { __wilsonHandoff: typeof result }).__wilsonHandoff = result;
+      const observer = new MutationObserver(() => {
+        if (root.getAttribute("data-scene") !== "ready") return;
+        result.firstVisible = { ...(root.querySelector("canvas") as HTMLCanvasElement).dataset };
+        observer.disconnect();
+      });
+      observer.observe(root, { attributes: true, attributeFilter: ["data-scene"] });
+    });
+    releaseChunk();
+    await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
+    const firstVisible = await page.evaluate(() => (window as unknown as { __wilsonHandoff: { firstVisible: Record<string, string> } }).__wilsonHandoff.firstVisible);
+    expect(firstVisible.labelsVisible).toBe("false");
+    expect(firstVisible.routesVisible).toBe("false");
+    expect(firstVisible.selectedActor).toBe("lt");
+    expect(Number(firstVisible.renderedTime)).toBeCloseTo(paused, 2);
+    await expect.poll(async () => Number(await replay.locator("canvas").getAttribute("data-render-time"))).toBeCloseTo(paused, 2);
+    await expect(diagram).toHaveCount(0);
+    await expectTime(page, paused);
+  } finally { releaseChunk(); }
 });
 
 test("playback, slow motion, rewind and native keyboard scrubbing share one timeline", async ({ page }) => {
@@ -140,7 +218,6 @@ test("a controlled elapsed clock makes quarter speed slower and rewind run backw
 
 test("camera presets and player focus remain keyboard accessible", async ({ page }) => {
   await openReplay(page);
-  await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
   await expect(page.locator("[data-wilson-replay]")).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
   for (const name of ["Sideline", "End zone", "Overhead", "Behind Flacco"]) {
     const previousCamera = await page.locator("[data-wilson-replay] canvas").getAttribute("data-camera-position");
@@ -163,10 +240,20 @@ test("camera presets and player focus remain keyboard accessible", async ({ page
   await expect(focus.locator("option:checked")).toContainText("Flacco");
   await expect(page.locator("[data-selected-player=qb]").getByRole("heading", { level: 2, name: "Joe Flacco", exact: true })).toBeVisible();
   const routes = page.getByLabel("Show inferred routes", { exact: true });
+  await routes.check();
   await routes.uncheck();
   await expect(routes).not.toBeChecked();
   await routes.check();
   await expect(routes).toBeChecked();
+  const beforeExpand = (await page.locator("[data-wilson-replay] canvas").boundingBox())!;
+  await page.getByRole("button", { name: "Expand field", exact: true }).click();
+  await expect.poll(() => page.evaluate(() => document.fullscreenElement !== null)).toBe(true);
+  await expect.poll(async () => (await page.locator("[data-wilson-replay] canvas").boundingBox())!.width).toBeGreaterThan(beforeExpand.width);
+  await page.getByRole("button", { name: "Forward 1 second", exact: true }).click();
+  await expectTime(page, 1);
+  await page.getByRole("button", { name: "Exit expanded field", exact: true }).click();
+  await expect.poll(() => page.evaluate(() => document.fullscreenElement === null)).toBe(true);
+  await expectTime(page, 1);
 });
 
 test("all 22 players expose their position and teaching job without inventing assessments", async ({ page }) => {
@@ -216,14 +303,13 @@ test("all 22 players expose their position and teaching job without inventing as
   const assessment = page.locator('[data-selected-player="d5"] [data-player-assessment]');
   const originalAssessment = await assessment.innerText();
   await page.getByRole("button", { name: "Touchdown · 30–30", exact: true }).click();
-  await expectTime(page, 3);
+  await expectTime(page, eventTime("finish"));
   await expect(page.locator('[data-selected-player="d5"]')).toHaveAttribute("data-assessment-basis", "unknown");
   await expect(assessment).toHaveText(originalAssessment, { useInnerText: true });
 });
 
 test("movement, position labels and teaching responsibilities are independent rendered layers", async ({ page }) => {
   await openReplay(page);
-  await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
   const replay = page.locator("[data-wilson-replay]");
   await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
   const canvas = replay.locator("canvas");
@@ -232,6 +318,8 @@ test("movement, position labels and teaching responsibilities are independent re
   const routes = page.getByLabel("Show inferred routes", { exact: true });
   const labels = page.getByLabel("Position labels", { exact: true });
   const responsibilities = page.getByLabel("Teaching responsibilities", { exact: true });
+  await routes.check();
+  await labels.check();
   await expect(canvas).toHaveAttribute("data-routes-visible", "true");
   await expect(canvas).toHaveAttribute("data-labels-visible", "true");
   await expect(canvas).toHaveAttribute("data-responsibilities-visible", "false");
@@ -263,16 +351,16 @@ test("movement, position labels and teaching responsibilities are independent re
   await expect(canvas).toHaveAttribute("data-route-count", initialRoutes!);
   await expect(canvas).toHaveAttribute("data-labels-visible", "true");
   await expect(canvas).toHaveAttribute("data-selected-actor", "lt");
-  await expectTime(page, 1.7);
+  await expectTime(page, eventTime("release"));
   await expect(page.locator('[data-selected-player="lt"]')).toHaveAttribute("data-assessment-basis", "unknown");
 });
 
 test("follow player survives movement, selection and a narrow resize, then Show everyone restores the broad view", async ({ page }) => {
   await openReplay(page);
-  await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
   const replay = page.locator("[data-wilson-replay]");
   await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
   const canvas = replay.locator("canvas");
+  await page.getByLabel("Position labels", { exact: true }).check();
   const expectTargetAtSelection = async () => {
     await expect.poll(async () => vectorGap(await canvas.getAttribute("data-camera-target"), await canvas.getAttribute("data-selected-anchor"))).toBeLessThan(0.01);
   };
@@ -293,7 +381,7 @@ test("follow player survives movement, selection and a narrow resize, then Show 
   await expectTargetAtSelection();
   await expect(canvas).toHaveAttribute("data-follow-selection", "true");
   await page.getByRole("button", { name: "Catch and finish", exact: true }).click();
-  await expectTime(page, 2.4);
+  await expectTime(page, eventTime("catch"));
   await expectTargetAtSelection();
   await page.getByRole("combobox", { name: "Focus player", exact: true }).selectOption("lt");
   await expect(canvas).toHaveAttribute("data-selected-actor", "lt");
@@ -307,12 +395,11 @@ test("follow player survives movement, selection and a narrow resize, then Show 
   await expect.poll(() => canvas.getAttribute("data-camera-position")).not.toBe(closeCamera);
   await expect(canvas).toHaveAttribute("data-label-count", "22");
   await expect(canvas).toHaveAttribute("data-selected-actor", "lt");
-  await expectTime(page, 2.4);
+  await expectTime(page, eventTime("catch"));
 });
 
 test("the loaded 3D scene renders, accepts camera drags and stops rendering at rest", async ({ page }) => {
   await openReplay(page);
-  await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
   const replay = page.locator("[data-wilson-replay]");
   await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
   const canvas = replay.locator("canvas");
@@ -342,13 +429,129 @@ test("the loaded 3D scene renders, accepts camera drags and stops rendering at r
   await expect.poll(async () => Number(await canvas.getAttribute("data-render-frames"))).toBeGreaterThan(Number(idleFrames));
 });
 
-test("the rendered ball meets a player's hands at release and catch", async ({ page }) => {
+test("all 22 rendered bodies move continuously and seeking restores their actual pose", async ({ page }) => {
+  // The bounded dense scan performs nearly 300 UI seeks; allow it to complete
+  // on a busy desktop without relaxing any geometric continuity threshold.
+  test.setTimeout(60_000);
+  await page.setViewportSize({ width: 1440, height: 1050 });
   await openReplay(page);
-  await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
   const replay = page.locator("[data-wilson-replay]");
   await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
   const canvas = replay.locator("canvas");
-  for (const [event, time] of [["Throwing window", 1.7], ["Catch and finish", 2.4]] as const) {
+  type Motion = { action: string; position: number[]; joints: number[]; feet: boolean[]; footPositions: number[][]; dive: number };
+  const poseAt = async (time: number) => {
+    await seekTo(page, time);
+    await expect.poll(async () => Number(await canvas.getAttribute("data-render-time"))).toBeCloseTo(time, 3);
+    return JSON.parse((await canvas.getAttribute("data-actor-motion"))!) as Record<string, Motion>;
+  };
+  const sampleBatch = async (times: number[]) => page.evaluate(async (times) => {
+    const input = document.querySelector("#replay-time") as HTMLInputElement;
+    const canvas = document.querySelector("[data-wilson-replay] canvas") as HTMLCanvasElement;
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
+    const result: Record<string, Motion>[] = [];
+    for (const time of times) {
+      setter.call(input, String(time));
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      if (Math.abs(Number(canvas.dataset.renderedTime) - time) > 0.001) throw new Error(`The scene did not submit the requested ${time}s frame`);
+      result.push(JSON.parse(canvas.dataset.actorMotion!));
+    }
+    return result;
+  }, times);
+  await expect(page.getByLabel("Position labels", { exact: true })).not.toBeChecked();
+  await expect(page.getByLabel("Show inferred routes", { exact: true })).not.toBeChecked();
+  const first = await poseAt(0.91);
+  const next = await poseAt(1.01);
+  expect(Object.keys(first).sort()).toEqual(REPLAY.actors.map((actor) => actor.id).sort());
+  for (const { id } of REPLAY.actors) {
+    const movement = Math.hypot(...next[id].position.map((value, index) => value - first[id].position[index]));
+    expect(movement, `${id} moves during the same 100 ms interval`).toBeGreaterThan(0.001);
+    expect(movement, `${id} has no discontinuous position jump`).toBeLessThan(1);
+    expect(next[id].joints, `${id} has animated actual limb joints`).not.toEqual(first[id].joints);
+    expect(next[id].footPositions.flat().every(Number.isFinite), `${id} has finite actual feet`).toBe(true);
+  }
+  await page.getByRole("combobox", { name: "Focus player", exact: true }).selectOption("qb");
+  await expect(page.locator('[data-selected-player="qb"] [data-player-action]')).toHaveAttribute("data-player-action", "set");
+  await poseAt(eventTime("release"));
+  await expect(page.locator('[data-selected-player="qb"] [data-player-action]')).toHaveAttribute("data-player-action", "throw");
+  const late = await poseAt(5.4);
+  expect(late.d6.action).toBe("recover");
+  expect(late.d6.dive).toBeGreaterThan(0);
+  const restored = await poseAt(0.91);
+  // These are final rig transforms after IK, not values re-sampled from the model.
+  for (const { id } of REPLAY.actors) {
+    expect(restored[id].position, `${id} restores its position after rewind`).toEqual(first[id].position);
+    expect(restored[id].joints, `${id} restores its joints after rewind`).toEqual(first[id].joints);
+    expect(restored[id].footPositions, `${id} restores its planted feet after rewind`).toEqual(first[id].footPositions);
+  }
+  const continuityMetrics: Record<string, { samples: number; maxFootYardsPer10ms: number; maxJointRadiansPer10ms: number; footAt: string; jointAt: string }> = {};
+  const collectContinuity = (id: string, before: Motion, after: Motion, at: number) => {
+    const metric = continuityMetrics[id] ??= { samples: 0, maxFootYardsPer10ms: 0, maxJointRadiansPer10ms: 0, footAt: "", jointAt: "" };
+    metric.samples++;
+    for (let foot = 0; foot < 2; foot++) {
+      const displacement = Math.hypot(...after.footPositions[foot].map((value, axis) => value - before.footPositions[foot][axis]));
+      if (displacement >= metric.maxFootYardsPer10ms) metric.footAt = `${id} foot ${foot} at ${at.toFixed(2)}s`;
+      metric.maxFootYardsPer10ms = Math.max(metric.maxFootYardsPer10ms, displacement);
+    }
+    for (let joint = 0; joint < before.joints.length; joint += 4) {
+      const a = before.joints.slice(joint, joint + 4), b = after.joints.slice(joint, joint + 4);
+      const cosine = Math.abs(a.reduce((sum, value, axis) => sum + value * b[axis], 0)) / (Math.hypot(...a) * Math.hypot(...b));
+      const radians = 2 * Math.acos(Math.min(1, cosine));
+      if (radians >= metric.maxJointRadiansPer10ms) metric.jointAt = `${id} limb ${joint / 4} at ${at.toFixed(2)}s`;
+      metric.maxJointRadiansPer10ms = Math.max(metric.maxJointRadiansPer10ms, radians);
+    }
+  };
+  // These boundaries previously moved a foot more than a yard in 10ms. Root
+  // paths can be smooth while foot planting or a mode switch still visibly pops.
+  for (const [id, at] of [["d1", 0.6], ["d7", 1.95], ["lt", 4.5], ["d6", 5.28]] as const) {
+    const before = await poseAt(at - 0.01), after = await poseAt(at);
+    collectContinuity(id, before[id], after[id], at);
+  }
+  // Scan each 10ms interval through the QB set/throw, including the old .65s
+  // anchor resets. A single favorable sample would miss the planted-foot reset.
+  const qbSamples = await sampleBatch(Array.from({ length: 151 }, (_, index) => (index + 80) / 100));
+  for (let index = 1; index < qbSamples.length; index++) {
+    collectContinuity("qb", qbSamples[index - 1].qb, qbSamples[index].qb, (index + 80) / 100);
+  }
+  const plantedHeight = { samples: 0, maximum: -Infinity, minimum: Infinity, maximumAt: "", minimumAt: "" };
+  const collectPlantedHeight = (id: string, motion: Motion, at: number) => {
+    if (motion.dive > 0) return;
+    motion.feet.forEach((planted, foot) => {
+      if (!planted) return;
+      const height = motion.footPositions[foot][1];
+      plantedHeight.samples++;
+      if (height >= plantedHeight.maximum) plantedHeight.maximumAt = `${id} foot ${foot} at ${at.toFixed(2)}s`;
+      if (height <= plantedHeight.minimum) plantedHeight.minimumAt = `${id} foot ${foot} at ${at.toFixed(2)}s`;
+      plantedHeight.maximum = Math.max(plantedHeight.maximum, height);
+      plantedHeight.minimum = Math.min(plantedHeight.minimum, height);
+    });
+  };
+  for (const [id, at] of [["d8", 1.9], ["d7", 1.65], ["d10", 2.35]] as const) {
+    const poses = await poseAt(at);
+    expect(poses[id].feet.some(Boolean), `${id} has a planted foot in the reported case`).toBe(true);
+    collectPlantedHeight(id, poses[id], at);
+  }
+  const plantedSamples = await sampleBatch(Array.from({ length: REPLAY.duration * 20 + 1 }, (_, index) => index / 20));
+  for (let step = 0; step < plantedSamples.length; step++) {
+    for (const { id } of REPLAY.actors) collectPlantedHeight(id, plantedSamples[step][id], step / 20);
+  }
+  for (const metric of Object.values(continuityMetrics)) {
+    expect(metric.maxFootYardsPer10ms, metric.footAt).toBeLessThan(0.2);
+    expect(metric.maxJointRadiansPer10ms, metric.jointAt).toBeLessThan(0.25);
+  }
+  expect(plantedHeight.maximum, plantedHeight.maximumAt).toBeLessThan(0.15);
+  expect(plantedHeight.minimum, plantedHeight.minimumAt).toBeGreaterThan(-0.02);
+  expect(plantedHeight.samples).toBeGreaterThan(1_000);
+  await test.info().attach("actual-rig-continuity", { body: JSON.stringify({ continuityMetrics, plantedHeight }, null, 2), contentType: "application/json" });
+});
+
+test("the rendered ball meets a player's hands at release and catch", async ({ page }) => {
+  await openReplay(page);
+  const replay = page.locator("[data-wilson-replay]");
+  await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
+  const canvas = replay.locator("canvas");
+  for (const { label: event, at: time } of REPLAY.events.filter((event) => ["release", "catch"].includes(event.id))) {
     const previousFrames = Number(await canvas.getAttribute("data-render-frames"));
     await page.getByRole("button", { name: event, exact: true }).click();
     await expectTime(page, time);
@@ -364,7 +567,6 @@ test("the rendered ball meets a player's hands at release and catch", async ({ p
 
 test("a lost WebGL context recovers to the usable HTML controls", async ({ page }) => {
   await openReplay(page);
-  await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
   const replay = page.locator("[data-wilson-replay]");
   await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
   const lostContext = await replay.locator("canvas").evaluate((canvas) => {
@@ -384,7 +586,6 @@ test("a lost WebGL context recovers to the usable HTML controls", async ({ page 
 test("a failed WebGL context leaves the timeline and evidence usable", async ({ page }) => {
   await disableWebGL(page);
   await openReplay(page);
-  await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
   const unavailable = page.getByRole("status").filter({ hasText: /3D unavailable/i });
   await expect(unavailable).toBeVisible();
   const diagram = page.getByRole("img", { name: /Top-down teaching diagram/ });
@@ -416,7 +617,6 @@ test("label setup failure after WebGL allocation removes the canvas and allows a
     } as typeof original;
   });
   await openReplay(page);
-  await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
   await expect(page.locator("[data-wilson-replay]")).toHaveAttribute("data-scene", "failed");
   await expect(page.getByRole("status").filter({ hasText: /3D unavailable/i })).toBeVisible();
   const probe = await page.evaluate(() => (window as unknown as { __wilsonInitProbe: { webglContexts: number; rejected2dContexts: number } }).__wilsonInitProbe);
@@ -457,7 +657,6 @@ test("the narrow fallback reflows and passes light and dark accessibility checks
   await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
   await disableWebGL(page);
   await openReplay(page);
-  await page.getByRole("button", { name: "Load 3D replay", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: /3D unavailable/i })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.addScriptTag({ path: path.join(process.cwd(), "node_modules/axe-core/axe.min.js") });

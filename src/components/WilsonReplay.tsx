@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { REPLAY, clampReplayTime, eventAt, sampleActor } from "@/lib/wilson-replay.mjs";
+import { REPLAY, clampReplayTime, eventAt, sampleActor, sampleBall, samplePose } from "@/lib/wilson-replay.mjs";
 import { TEACHING } from "@/lib/wilson-teaching.mjs";
 import type { ReplayScene } from "@/lib/wilson-replay-scene";
 import styles from "./WilsonReplay.module.css";
@@ -38,6 +38,7 @@ function Roster({ selection, onSelect }: { selection: string; onSelect: (id: str
 
 function Diagram({ time, selection, routes, labels, responsibilities }: { time: number; selection: string; routes: boolean; labels: boolean; responsibilities: boolean }) {
   const point = (x: number, z: number) => ({ x: 250 + x * 7.5, y: 90 + z * 6 });
+  const ball = sampleBall(time), ballPoint = point(ball.x, ball.z);
   const selected = REPLAY.actors.find(actor => actor.id === selection)!;
   const route = selected.path.map((frame, index) => { const p = point(frame.x, frame.z); return `${index ? "L" : "M"}${p.x} ${p.y}`; }).join(" ");
   return <svg viewBox="0 0 500 300" role="img" aria-label="Top-down teaching diagram of all 22 inferred positions; choose a player from the roster for its job" className={styles.diagram}>
@@ -51,8 +52,9 @@ function Diagram({ time, selection, routes, labels, responsibilities }: { time: 
     }) : null}
     {REPLAY.actors.map(actor => {
       const pose = sampleActor(actor, time), p = point(pose.x, pose.z), role = TEACHING.players.find(item => item.id === actor.id)!;
-      return <g key={actor.id}><circle cx={p.x} cy={p.y} r={actor.id === selection ? 8 : 5} fill={actor.id === selection ? "#f2d16c" : actor.team === "NYJ" ? "#edf2e5" : "#da9664"} stroke="#173829" strokeWidth="1" />{labels ? <text x={p.x} y={p.y - 10} fill="#f4f3df" stroke="#173829" strokeWidth=".4" fontSize="7" textAnchor="middle">{actor.number ?? role.code}</text> : null}</g>;
+      return <g key={actor.id} data-fallback-player={actor.id} data-x={pose.x.toFixed(4)} data-z={pose.z.toFixed(4)}><circle cx={p.x} cy={p.y} r={actor.id === selection ? 8 : 5} fill={actor.id === selection ? "#f2d16c" : actor.team === "NYJ" ? "#edf2e5" : "#da9664"} stroke="#173829" strokeWidth="1" />{labels ? <text x={p.x} y={p.y - 10} fill="#f4f3df" stroke="#173829" strokeWidth=".4" fontSize="7" textAnchor="middle">{actor.number ?? role.code}</text> : null}</g>;
     })}
+    <ellipse cx={ballPoint.x} cy={ballPoint.y} rx="4" ry="2.5" fill="#a66c35" stroke="#ffefc9" strokeWidth="1" data-fallback-ball />
     <text x="250" y="63" textAnchor="middle" fill="#efe8da" fontSize="17" letterSpacing="6">CLEVELAND</text>
   </svg>;
 }
@@ -64,17 +66,20 @@ export default function WilsonReplay() {
   const [direction, setDirection] = useState(1);
   const [camera, setCamera] = useState<Camera>("overhead");
   const [selection, setSelection] = useState("wilson");
-  const [routes, setRoutes] = useState(true);
-  const [labels, setLabels] = useState(true);
+  const [routes, setRoutes] = useState(false);
+  const [labels, setLabels] = useState(false);
   const [responsibilities, setResponsibilities] = useState(false);
   const [following, setFollowing] = useState(false);
-  const [attempt, setAttempt] = useState(0);
-  const [sceneState, setSceneState] = useState<"idle" | "loading" | "ready" | "failed">("idle");
+  const [attempt, setAttempt] = useState(1);
+  const [sceneState, setSceneState] = useState<"loading" | "ready" | "failed">("loading");
   const [reducedMotion, setReducedMotion] = useState(false);
   const host = useRef<HTMLDivElement>(null);
+  const field = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [canExpand, setCanExpand] = useState(false);
   const scene = useRef<ReplayScene | null>(null);
   const clock = useRef({ time: 0, speed: 1, direction: 1 });
-  const settings = useRef({ selection: "wilson", routes: true, labels: true, responsibilities: false, following: false, camera: "overhead" as Camera });
+  const settings = useRef({ selection: "wilson", routes: false, labels: false, responsibilities: false, following: false, camera: "overhead" as Camera });
 
   const pause = useCallback(() => { setPlaying(false); setTime(clock.current.time); }, []);
   const seek = useCallback((value: number) => {
@@ -82,6 +87,16 @@ export default function WilsonReplay() {
     clock.current.time = next;
     scene.current?.setTime(next);
     setTime(next);
+  }, []);
+
+  useEffect(() => {
+    const changed = () => {
+      setExpanded(document.fullscreenElement === field.current);
+      setCanExpand(Boolean(document.fullscreenEnabled && field.current?.requestFullscreen));
+    };
+    changed();
+    document.addEventListener("fullscreenchange", changed);
+    return () => document.removeEventListener("fullscreenchange", changed);
   }, []);
 
   useEffect(() => {
@@ -96,14 +111,22 @@ export default function WilsonReplay() {
   }, [pause]);
 
   useEffect(() => {
-    if (!attempt || !host.current) return;
+    if (!host.current) return;
+    performance.mark("wilson:hydrated");
+    performance.mark("wilson:3d-import-start");
     let disposed = false;
     let owned: ReplayScene | null = null;
     const element = host.current;
-    void import("@/lib/wilson-replay-scene").then(({ createReplayScene }) => createReplayScene(element, {
-      onSelect: id => { if (disposed) return; settings.current.selection = id; setSelection(id); if (settings.current.following) scene.current?.frameSelection(); },
-      onFailure: () => { if (!disposed) { pause(); setSceneState("failed"); } },
-    })).then(instance => {
+    void import("@/lib/wilson-replay-scene").then(({ createReplayScene }) => {
+      if (disposed) return null;
+      performance.mark("wilson:3d-module-ready");
+      return createReplayScene(element, {
+        initialState: { time: clock.current.time, ...settings.current },
+        onSelect: id => { if (disposed) return; settings.current.selection = id; setSelection(id); if (settings.current.following) scene.current?.frameSelection(); },
+        onFailure: () => { if (!disposed) { pause(); setSceneState("failed"); } },
+      });
+    }).then(instance => {
+      if (!instance) return;
       if (disposed) { instance.dispose(); return; }
       owned = instance; scene.current = instance;
       instance.setTime(clock.current.time);
@@ -113,6 +136,7 @@ export default function WilsonReplay() {
       instance.setResponsibilities(settings.current.responsibilities);
       instance.setCamera(settings.current.camera);
       if (settings.current.following) { instance.frameSelection(); instance.setFollowSelection(true); }
+      performance.mark("wilson:3d-ready");
       setSceneState("ready");
     }).catch(() => { if (!disposed) { pause(); setSceneState("failed"); } });
     return () => { disposed = true; owned?.dispose(); if (scene.current === owned) scene.current = null; };
@@ -158,11 +182,16 @@ export default function WilsonReplay() {
     settings.current.following = true; setFollowing(true);
     scene.current?.frameSelection(); scene.current?.setFollowSelection(true);
   }
+  function expandField() {
+    if (document.fullscreenElement === field.current) void document.exitFullscreen().catch(() => {});
+    else void field.current?.requestFullscreen?.().catch(() => { /* The regular field remains usable if fullscreen is unavailable. */ });
+  }
   function load() { pause(); setSceneState("loading"); setAttempt(value => value + 1); }
   const active = eventAt(time);
   const sourceFrame = REPLAY.sourceFrames.find(frame => frame.id === active.sourceFrameId);
   const actor = REPLAY.actors.find(item => item.id === selection)!;
   const player = TEACHING.players.find(item => item.id === selection)!;
+  const pose = samplePose(selection, time);
   const interactions = TEACHING.relationships.filter(item => item.from === selection || item.to === selection);
   const playerEvidence = REPLAY.evidence.filter(source => player.evidenceIds.includes(source.id) || player.assessment.evidenceIds.includes(source.id));
 
@@ -181,20 +210,18 @@ export default function WilsonReplay() {
       </div>
 
       <div className={styles.studioGrid}><div className={styles.studioMain}>
-      <div className={styles.viewer}>
+      <div ref={field} className={styles.viewer}>
         <div className={styles.layerBar} aria-label="Replay layers">
           <label><input type="checkbox" checked={routes} onChange={event => { settings.current.routes = event.target.checked; setRoutes(event.target.checked); scene.current?.setRoutes(event.target.checked); }} />Show inferred routes</label>
           <label><input type="checkbox" checked={labels} onChange={event => { settings.current.labels = event.target.checked; setLabels(event.target.checked); scene.current?.setLabels(event.target.checked); }} />Position labels</label>
           <label><input type="checkbox" checked={responsibilities} onChange={event => { settings.current.responsibilities = event.target.checked; setResponsibilities(event.target.checked); scene.current?.setResponsibilities(event.target.checked); }} />Teaching responsibilities</label>
+          <button className={styles.expandField} type="button" disabled={!canExpand} onClick={expandField}>{expanded ? "Exit expanded field" : "Expand field"} <span aria-hidden="true">↗</span></button>
         </div>
         <div className={styles.viewport}>
           <div ref={host} className={styles.canvasHost} style={{ visibility: sceneState === "ready" ? "visible" : "hidden" }} aria-hidden={sceneState !== "ready"} />
           {sceneState !== "ready" ? <div className={styles.poster}>
             <Diagram time={time} selection={selection} routes={routes} labels={labels} responsibilities={responsibilities} />
-            {sceneState !== "failed" ? <div className={styles.loadCard}>
-              {sceneState === "idle" ? <><p>Step onto the field.</p><button type="button" className={styles.load} onClick={load}>Load 3D replay <span aria-hidden="true">↗</span></button><small>The replay starts paused. You control the camera and time.</small></> : null}
-              {sceneState === "loading" ? <p role="status">Preparing the field…</p> : null}
-            </div> : null}
+            {sceneState === "loading" ? <p className={styles.startupStatus} role="status">3D starts automatically. You can play or scrub the field now.</p> : null}
           </div> : null}
           <p className={styles.inferenceBanner}><span aria-hidden="true">◇</span> Inferred positions &amp; teaching times <a href="#evidence">See evidence</a></p>
           <div className={styles.cameraReadout} aria-hidden="true">{following ? "Following player" : CAMERAS.find(item => item.id === camera)?.label}<span>{player.code} / {actor.number ? actor.name : player.title}</span></div>
@@ -237,7 +264,7 @@ export default function WilsonReplay() {
           <p className={styles.eyebrow}>Selected player / {player.code}</p>
           <h2 id="player-heading">{actor.number ? actor.name : player.title}</h2>
           <p className={styles.positionLine}>{player.position} <span className={styles.badge} data-basis={player.roleBasis}>{player.roleBasis === "recorded" ? "Recorded role" : "Illustration"}</span></p>
-          <div className={styles.playerJob} data-teaching-job><span className={styles.badge} data-basis="inferred">Illustration</span><h3>Job in this teaching play</h3><p>{player.lesson}</p></div>
+          <div className={styles.playerJob} data-teaching-job><span className={styles.badge} data-basis="inferred">Illustration</span><h3>Job in this teaching play</h3><p>{player.lesson}</p><div className={styles.currentAction} data-player-action={pose.action}><h4>Now · {pose.actionLabel}</h4><p>{pose.actionDetail}</p></div></div>
           {player.sourceAction ? <div className={styles.claim}><span className={styles.badge} data-basis="recorded">Recorded action</span><h3>Source-supported action</h3><p>{player.sourceAction}</p></div> : null}
           {player.reportedConcept ? <div className={styles.claim}><span className={styles.badge} data-basis="reported">Player account / report</span><h3>The reported idea</h3><p>{player.reportedConcept}</p></div> : null}
           <div className={styles.assessment} data-player-assessment><span className={styles.badge} data-basis={player.assessment.basis}>{player.assessment.basis === "unknown" ? "Not established" : "Recorded result"}</span><h3>{player.result ? "The recorded contribution" : "Individual assessment"}</h3><p className={player.result ? styles.result : undefined}>{player.result ?? "The actual assignment and individual outcome are unestablished for this teaching role."}</p><details><summary>Assessment evidence</summary><p>{player.assessment.detail}</p></details></div>
@@ -262,7 +289,7 @@ export default function WilsonReplay() {
         <article><span className={styles.badge} data-basis="reported">Reported</span><h3>The slant and the window</h3><p>The Jets’ account identifies Wilson’s slant. Flacco recalled soft safeties and a throw behind the linebackers through a window. This is an attributed quarterback account, not a verified defensive call.</p></article>
         <article><span className={styles.badge} data-basis="inferred">Inferred</span><h3>The movement you see</h3><p>Starting alignments, route angles, every defender’s path, protection, ball arc, body motion and subsecond timing are authored teaching choices. They show one possible way to understand the account.</p></article>
       </div>
-      <details className={styles.sources}><summary>Sources &amp; replay provenance</summary><ul>{REPLAY.evidence.map(source => <li key={source.id}><span className={styles.badge} data-basis={source.basis}>{BASIS[source.basis as keyof typeof BASIS] ?? source.basis}</span>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.label} <span aria-hidden="true">↗</span></a> : <span> {source.label}</span>}<p>{source.summary}</p></li>)}</ul><p className={styles.teachingClock}>Official highlight observations come from four paused views. Analyst breakdown pages remain cataloged by metadata; their footage and spoken analysis are unreviewed. Neither establishes the exact 3D coordinates, Cleveland’s coverage call or individual protection assignments.</p></details>
+      <details className={styles.sources}><summary>Sources &amp; replay provenance</summary><ul>{REPLAY.evidence.map(source => <li key={source.id}><span className={styles.badge} data-basis={source.basis}>{BASIS[source.basis as keyof typeof BASIS] ?? source.basis}</span>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.label} <span aria-hidden="true">↗</span></a> : <span> {source.label}</span>}<p>{source.summary}</p></li>)}</ul><p className={styles.teachingClock}>Official highlight observations come from paused views and a frame-by-frame inspection of the snap through the touchdown finish (approximately 4:12–4:15). Analyst breakdown pages remain cataloged by metadata; their footage and spoken analysis are unreviewed. Neither establishes the exact 3D coordinates, Cleveland’s coverage call or individual protection assignments.</p></details>
     </section>
   </>;
 }

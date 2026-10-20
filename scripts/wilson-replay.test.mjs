@@ -1,8 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { REPLAY, clampReplayTime, eventAt, sampleActor, sampleBall } from "../src/lib/wilson-replay.mjs";
+import { REPLAY, clampReplayTime, eventAt, sampleActor, sampleBall, samplePose } from "../src/lib/wilson-replay.mjs";
 
 const distance = (a, b) => Math.hypot(a.x - b.x, (a.y ?? 0) - (b.y ?? 0), a.z - b.z);
+const releaseAt = REPLAY.events.find(({ id }) => id === "release").at;
+const catchAt = REPLAY.events.find(({ id }) => id === "catch").at;
+const finishAt = REPLAY.events.find(({ id }) => id === "finish").at;
+const carryAnchor = (id, time, height) => {
+  const actor = sampleActor(id, time);
+  return { x: actor.x - 0.25 * Math.cos(actor.yaw) + 0.15 * Math.sin(actor.yaw), y: height, z: actor.z + 0.25 * Math.sin(actor.yaw) + 0.15 * Math.cos(actor.yaw) };
+};
 
 test("the bounded replay is bound to the collected source record and immutable edition", () => {
   const row = REPLAY.record;
@@ -109,7 +116,7 @@ test("observed highlight locators supply related context without synchronizing a
   assert.match(REPLAY.sourceFrames.find((frame) => frame.id === "finish").observation, /exact catch instant is not established/);
   assert.ok(REPLAY.actors.every((actor) => actor.motionBasis === "inferred"));
   assert.equal(REPLAY.tracking.available, false);
-  assert.deepEqual(REPLAY.events.map(({ at }) => at), [0, 1, 1.7, 2.4, 3]);
+  assert.deepEqual(REPLAY.events.map(({ at }) => at), [0, 1.15, 2.05, 2.85, 3.65]);
   assert.equal(REPLAY.record.corpusEdition, "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc");
 });
 
@@ -126,16 +133,16 @@ test("authored paths stay within the field and form a complete finite teaching t
     }
   }
   assert.ok(sampleActor("wilson", 0).z > 15);
-  assert.ok(sampleActor("wilson", 2.4).z > 0);
-  assert.ok(sampleActor("wilson", 3).z < 0);
+  assert.ok(sampleActor("wilson", catchAt).z > 0);
+  assert.ok(sampleActor("wilson", finishAt).z < 0);
 });
 
 test("seeking backwards and in arbitrary order gives the same poses and ball with no hidden state", () => {
-  const times = Array.from({ length: 46 }, (_, i) => i / 10);
-  const snapshot = (time) => ({ actors: REPLAY.actors.map((actor) => sampleActor(actor, time)), ball: sampleBall(time), event: eventAt(time).id });
+  const times = [...Array.from({ length: 61 }, (_, i) => i / 10), releaseAt, catchAt, finishAt];
+  const snapshot = (time) => ({ actors: REPLAY.actors.map((actor) => sampleActor(actor, time)), poses: REPLAY.actors.map((actor) => samplePose(actor, time)), ball: sampleBall(time), event: eventAt(time).id });
   const reference = new Map(times.map((time) => [time, snapshot(time)]));
   for (const time of [...times].reverse()) assert.deepEqual(snapshot(time), reference.get(time));
-  for (const time of [2.4, 0, 4.5, 1.7, 1, 3, 0.2, 2.4, 1.7]) assert.deepEqual(snapshot(time), reference.get(time));
+  for (const time of [catchAt, 0, 6, releaseAt, 1, finishAt, 0.2, catchAt, releaseAt]) assert.deepEqual(snapshot(time), reference.get(time));
   assert.ok(Object.isFrozen(REPLAY.actors[0].path[0]));
 });
 
@@ -144,6 +151,7 @@ test("boundary and invalid inputs produce finite clamped results", () => {
     assert.equal(clampReplayTime(input), 0);
     assert.deepEqual(sampleBall(input), sampleBall(0));
     assert.deepEqual(sampleActor("wilson", input), sampleActor("wilson", 0));
+    assert.deepEqual(samplePose("wilson", input), samplePose("wilson", 0));
   }
   assert.deepEqual(sampleBall(-10), sampleBall(0));
   assert.deepEqual(sampleBall(100), sampleBall(REPLAY.duration));
@@ -167,21 +175,19 @@ test("yaw follows the mesh's local +z convention and preserves deterministic sta
 
 test("release and catch are continuous; after catch the ball follows the receiver without teleporting", () => {
   const epsilon = 1e-7;
-  for (const t of [1.4, 1.7, 2.4, 3, 3.6, REPLAY.duration]) {
+  for (const t of [releaseAt - 0.35, releaseAt, catchAt, finishAt, 4.3, REPLAY.duration]) {
     assert.ok(distance(sampleBall(t - epsilon), sampleBall(t)) < 0.0001, `left continuity at ${t}`);
     assert.ok(distance(sampleBall(t), sampleBall(t + epsilon)) < 0.0001, `right continuity at ${t}`);
   }
-  const from = sampleActor("qb", 1.7);
-  assert.ok(distance(sampleBall(1.7), { x: from.x + 0.25, y: 1.45, z: from.z - 0.15 }) < 1e-12);
-  for (const t of [2.4, 2.5, 3, 4.5]) {
-    const receiver = sampleActor("wilson", t);
-    assert.deepEqual(sampleBall(t), { x: receiver.x + 0.25, y: 1.15, z: receiver.z - 0.15 });
+  assert.ok(distance(sampleBall(releaseAt), carryAnchor("qb", releaseAt, 1.8)) < 1e-12);
+  for (const t of [catchAt, catchAt + 0.2, finishAt, REPLAY.duration]) {
+    assert.deepEqual(sampleBall(t), carryAnchor("wilson", t, 1.15));
   }
-  assert.ok(sampleBall(2.05).y > sampleBall(1.7).y);
+  assert.ok(sampleBall((releaseAt + catchAt) / 2).y > sampleBall(releaseAt).y);
 });
 
 test("event boundaries are inclusive and use teaching seconds", () => {
-  assert.deepEqual(REPLAY.events.map(({ id, at, time }) => [id, at, time]), [["snap", 0, 0], ["break", 1, 1], ["release", 1.7, 1.7], ["catch", 2.4, 2.4], ["finish", 3, 3]]);
+  assert.deepEqual(REPLAY.events.map(({ id, at, time }) => [id, at, time]), [["snap", 0, 0], ["break", 1.15, 1.15], ["release", 2.05, 2.05], ["catch", 2.85, 2.85], ["finish", 3.65, 3.65]]);
   for (let i = 1; i < REPLAY.events.length; i++) {
     const event = REPLAY.events[i];
     assert.equal(eventAt(event.at - 0.00001).id, REPLAY.events[i - 1].id);
@@ -189,4 +195,87 @@ test("event boundaries are inclusive and use teaching seconds", () => {
   }
   assert.equal(eventAt(-1).id, "snap");
   assert.equal(eventAt(999).id, "finish");
+});
+
+test("smooth authored motion has bounded speed, acceleration and field positions without body overlaps", () => {
+  const step = 0.02;
+  for (let t = step; t < REPLAY.duration; t += step) {
+    const poses = REPLAY.actors.map((actor) => ({ ...sampleActor(actor, t), id: actor.id }));
+    for (const pose of poses) {
+      assert.ok(Math.abs(pose.x) <= 80 / 3 && pose.z >= -10 && pose.z <= 30);
+      assert.ok(pose.speed <= 10.5, `${pose.id} exceeds the authored speed budget at ${t}`);
+      const before = sampleActor(pose.id, t - 0.005), after = sampleActor(pose.id, t + 0.005);
+      const acceleration = Math.hypot(after.vx - before.vx, after.vz - before.vz) / 0.01;
+      assert.ok(acceleration <= 20, `${pose.id} has an implausible authored velocity jump at ${t}: ${acceleration}`);
+      const left = sampleActor(pose.id, t - 1e-5), right = sampleActor(pose.id, t + 1e-5);
+      assert.ok(Math.abs(pose.vx - (right.x - left.x) / 2e-5) < 0.001);
+      assert.ok(Math.abs(pose.vz - (right.z - left.z) / 2e-5) < 0.001);
+    }
+    for (let i = 0; i < poses.length; i++) {
+      for (let j = i + 1; j < poses.length; j++) {
+        assert.ok(distance(poses[i], poses[j]) >= 0.8, `${poses[i].id}/${poses[j].id} bodies overlap at ${t}`);
+      }
+    }
+  }
+});
+
+test("five blockers keep a coordinated pocket against four paired rushers through the throw", () => {
+  assert.equal(REPLAY.actors.filter(({ roleFamily }) => roleFamily === "blocker").length, 5);
+  assert.equal(REPLAY.actors.filter(({ roleFamily }) => roleFamily === "rusher").length, 4);
+  for (const [blocker, rusher] of [["lt", "d1"], ["lg", "d2"], ["rg", "d3"], ["rt", "d4"]]) {
+    for (let t = 1; t <= 3.4; t += 0.1) {
+      const a = sampleActor(blocker, t), b = sampleActor(rusher, t), qb = sampleActor("qb", t);
+      assert.ok(distance(a, b) >= 0.9 && distance(a, b) <= 1.35, `${blocker}/${rusher} lose contact spacing`);
+      assert.ok(a.z < qb.z && b.z < qb.z, "rush/protection do not run through the passer");
+      assert.equal(samplePose(blocker, t).engagementTarget, rusher);
+      assert.equal(samplePose(rusher, t).engagementTarget, blocker);
+      assert.ok(samplePose(blocker, t).engagement > 0.5);
+    }
+  }
+  assert.ok(sampleActor("rt", releaseAt).z > sampleActor("lt", releaseAt).z + 0.5, "the edge sets are deliberately asymmetric");
+  assert.equal(samplePose("c", 1.5).action, "brace");
+  assert.equal(samplePose("c", 1.5).engagementTarget, null);
+});
+
+test("all 22 continue through the snap with differentiated, deterministic action and footwork", () => {
+  const families = new Set();
+  for (const actor of REPLAY.actors) {
+    families.add(actor.roleFamily);
+    assert.ok(distance(sampleActor(actor, 3), sampleActor(actor, 5.5)) > 0.5, `${actor.id} freezes before the finish`);
+    const actions = new Set();
+    for (let t = 0; t <= REPLAY.duration; t += 0.1) {
+      const pose = samplePose(actor, t);
+      actions.add(pose.action);
+      assert.equal(pose.basis, "inferred");
+      assert.equal(pose.roleFamily, actor.roleFamily);
+      assert.ok(pose.actionLabel.length > 4 && pose.actionDetail.length > 15);
+      assert.ok(["run", "shuffle", "backpedal", "plant", "dive"].includes(pose.footMode));
+      for (const key of ["gait", "engagement", "reach", "dive", "catch", "throw", "carry"]) assert.ok(pose[key] >= 0 && pose[key] <= 1);
+      assert.equal(pose.cadence, actor.cadence);
+      const next = samplePose(actor, t + 0.01);
+      if (t + 0.01 < REPLAY.duration) assert.ok(Math.abs(next.stridePhase - pose.stridePhase - pose.cadence * 0.01) < 1e-10);
+      if (pose.engagementTarget) assert.ok(REPLAY.actors.some(({ id }) => id === pose.engagementTarget));
+    }
+    assert.ok(actions.size >= 3, `${actor.id} repeats one generic gait for the entire snap`);
+  }
+  assert.equal(families.size, 6);
+  assert.equal(samplePose("d7", 0.5).footMode, "backpedal");
+  assert.equal(samplePose("d7", 1.5).action, "turn");
+  assert.equal(samplePose("d7", 3.5).action, "pursuit");
+  assert.ok(samplePose("d6", catchAt).dive > 0.5, "the authored dive reaches toward the reception window");
+  assert.equal(samplePose("d6", 4.8).action, "recover");
+  assert.equal(samplePose("wilson", catchAt).catch, 1);
+  assert.equal(samplePose("wilson", catchAt).carry, 1);
+  assert.equal(samplePose("qb", releaseAt).throw, 1);
+});
+
+test("cubic sampling preserves position and velocity through every authored waypoint", () => {
+  for (const actor of REPLAY.actors) {
+    for (const point of actor.path.slice(1, -1)) {
+      const exact = sampleActor(actor, point.t), before = sampleActor(actor, point.t - 1e-7), after = sampleActor(actor, point.t + 1e-7);
+      assert.ok(distance(exact, point) < 1e-10);
+      assert.ok(distance(before, after) < 0.00001);
+      assert.ok(Math.hypot(after.vx - before.vx, after.vz - before.vz) < 0.00001);
+    }
+  }
 });
