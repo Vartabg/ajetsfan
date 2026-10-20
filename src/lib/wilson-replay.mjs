@@ -36,32 +36,48 @@ const actors = [
     path: path([[0, 0, 20], [0.65, 0, 21.6], [1.2, 0.2, 22.1], [1.7, 0.35, 22.25], [2.05, 0.35, 22.25], [2.4, 0.4, 22.2], [3.65, 0.7, 21.9], [4.6, 0.85, 21.5], [6, 1.2, 20.8]]),
   },
   {
-    id: "wilson", name: "Garrett Wilson", team: "NYJ", number: "17", role: "Target receiver · reported slant",
+    id: "wilson", name: "Garrett Wilson", team: "NYJ", number: "17", role: "Target receiver · in-breaking route",
     gsisId: "00-0037740", identityBasis: "recorded", motionBasis: "inferred",
-    note: "Receiver, jersey and touchdown are recorded; the slant is reported in the Jets account. Starting side, route geometry, catch position and timing are authored.",
-    path: path([[0, -7, 16.2], [0.5, -7, 13.5], [0.85, -6.65, 11.9], [1.15, -5.8, 10.4], [1.55, -4.2, 8.6], [2.05, -1.7, 6.6], [2.85, 3, 2.2], [3.65, 5.1, -1.4], [4.3, 6, -4], [5.1, 8, -5], [6, 8.6, -6]]),
+    note: "Receiver, jersey and touchdown are recorded. PFF reports an outwide alignment; exact side and spacing remain authored. The Jets account calls the route a slant while NGS charts POST; the in-breaking geometry, catch position and timing remain authored.",
+    path: path([[0, -14, 15], [0.845, -14, 11.56], [1.205, -13.44, 9.88], [1.675, -11.27, 7.45], [2.05, -8.7, 5.4], [2.85, -4, 1], [3.65, -1.9, -2.6], [4.3, -1, -5.2], [5.1, 1, -6.2], [6, 1.6, -7.2]]),
   },
   anonymous("lt", "Left tackle · role", "NYJ", "Anonymous protection role", [[0, -3.2, 15], [0.55, -3.45, 15.8], [1.15, -3.65, 16.6], [2.05, -3.9, 17.4], [2.85, -4.4, 18], [3.65, -4.8, 18.1], [4.35, -4.6, 17.7], [5.1, -4, 16.2], [6, -3.2, 14.5]]),
   anonymous("lg", "Left guard · role", "NYJ", "Anonymous protection role", [[0, -1.6, 15], [0.55, -1.7, 15.7], [1.15, -1.8, 16.4], [2.05, -2, 17], [2.85, -2.2, 17.5], [3.65, -2.3, 17.8], [4.35, -2.1, 17.6], [5.1, -1.6, 16.6], [6, -1, 15]]),
   anonymous("c", "Center · role", "NYJ", "Anonymous protection role", [[0, 0, 15], [0.55, -0.1, 15.7], [1.15, -0.15, 16.2], [2.05, -0.35, 16.8], [2.85, -0.5, 17.1], [3.65, -0.6, 17.3], [4.35, -0.4, 17], [5.1, -0.2, 16.5], [6, 0, 15.9]]),
   anonymous("rg", "Right guard · role", "NYJ", "Anonymous protection role", [[0, 1.6, 15], [0.55, 1.7, 15.7], [1.15, 1.8, 16.4], [2.05, 2, 17], [2.85, 2.2, 17.5], [3.65, 2.3, 17.8], [4.35, 2.1, 17.6], [5.1, 1.6, 16.6], [6, 1, 15]]),
   anonymous("rt", "Right tackle · role", "NYJ", "Anonymous protection role", [[0, 3.2, 15], [0.55, 3.6, 16], [1.15, 3.95, 17], [2.05, 4.6, 18.2], [2.85, 5, 18.7], [3.65, 5.1, 18.9], [4.35, 5, 18.3], [5.1, 4.6, 16.8], [6, 3.8, 15]]),
-  anonymous("x", "Outside receiver A · role", "NYJ", "Anonymous complementary route", [[0, -20, 15], [0.5, -20.2, 12.4], [1.15, -20, 9], [2.05, -18, 4.5], [2.85, -14.5, 0], [3.65, -10.5, -3], [4.35, -7.8, -4.1], [5.1, -5.5, -4.7], [6, -3.5, -5]]),
-  anonymous("z", "Outside receiver B · role", "NYJ", "Anonymous complementary route", [[0, 21, 15], [0.5, 21.1, 12], [1.15, 20.8, 8], [2.05, 20.5, 3.3], [2.85, 20, -1], [3.65, 17.5, -3], [4.35, 15.6, -4.3], [5.1, 13.5, -5], [6, 12.2, -5.4]]),
-  anonymous("y", "Eligible receiver · role", "NYJ", "Anonymous outlet", [[0, 6, 16.2], [0.5, 6.8, 14.8], [1.15, 8.2, 13.3], [2.05, 11.5, 10.5], [2.85, 14.3, 7.5], [3.65, 15.5, 4.7], [4.35, 14.8, 2.6], [5.1, 13.5, 0.5], [6, 12.2, -0.9]]),
-  anonymous("rb", "Backfield player · role", "NYJ", "Anonymous check and outlet", [[0, -3, 21], [0.5, -3.3, 19.8], [1.15, -4.6, 18.2], [2.05, -7.3, 16.3], [2.85, -10, 12.4], [3.65, -11.4, 8], [4.35, -10.5, 5.4], [5.1, -8.5, 3.3], [6, -7.2, 2.1]]),
+  anonymous("x", "Inside receiver A · role", "NYJ", "Anonymous complementary route", [[0, -7, 16.2], [0.65, -7.2, 13.9], [1.15, -7.4, 10.6], [2.05, -8, 3.9], [2.85, -9.5, -0.6], [3.65, -10.5, -3], [4.35, -10, -3.8], [5.1, -9.3, -4.4], [6, -8.8, -4.7]]),
+  anonymous("z", "Outside receiver B · role", "NYJ", "Anonymous complementary route", [[0, 21, 15], [0.65, 21.1, 12.65], [1.15, 20.8, 9.2], [2.05, 20.5, 3.3], [2.85, 20, -1], [3.65, 17.5, -3], [4.35, 15.6, -4.3], [5.1, 13.5, -5], [6, 12.2, -5.4]]),
+  anonymous("y", "Eligible receiver · role", "NYJ", "Anonymous underneath stop", [[0, 6, 16.2], [0.59, 6.8, 14.8], [1.15, 7.1, 12.8], [1.8, 7.2, 10.5], [2.05, 7.2, 10.3], [2.85, 7.25, 10.25], [3.65, 7.6, 9.5], [4.35, 8.6, 8], [5.1, 9.8, 6], [6, 10.4, 4.6]], "An anonymous authored underneath stop illustrates how a short route can occupy space below a throwing window. It does not identify this reconstructed player as Conklin or assign any defender as Owusu-Koramoah; exact alignment, matchup and timing remain unverified."),
+  anonymous("rb", "Backfield player · role", "NYJ", "Anonymous check and outlet", [[0, -3, 21], [0.62, -3.3, 19.8], [1.15, -4.6, 18.2], [2.05, -7.3, 16.3], [2.85, -10, 12.4], [3.65, -11.4, 8], [4.35, -10.5, 5.4], [5.1, -8.5, 3.3], [6, -7.2, 2.1]]),
   anonymous("d1", "Edge defender A · role", "CLE", "Anonymous rush example", [[0, -4.3, 14], [0.55, -4.4, 15], [1.15, -4.45, 15.95], [2.05, -4.7, 16.65], [2.85, -5.2, 17.2], [3.65, -5.6, 17.3], [4.35, -5.8, 16.7], [5.1, -6.2, 15.2], [6, -5.5, 12.5]]),
   anonymous("d2", "Interior defender A · role", "CLE", "Anonymous rush example", [[0, -1.8, 14], [0.55, -2.1, 14.8], [1.15, -2.3, 15.4], [2.05, -2.6, 16], [2.85, -2.9, 16.5], [3.65, -3, 16.8], [4.35, -3.1, 16.4], [5.1, -3.5, 15.2], [6, -3.3, 13]]),
   anonymous("d3", "Interior defender B · role", "CLE", "Anonymous rush example", [[0, 1.8, 14], [0.55, 2.1, 14.8], [1.15, 2.3, 15.4], [2.05, 2.6, 16], [2.85, 2.9, 16.5], [3.65, 3, 16.8], [4.35, 3.1, 16.4], [5.1, 3.5, 15.2], [6, 3.3, 13]]),
   anonymous("d4", "Edge defender B · role", "CLE", "Anonymous rush example", [[0, 4.3, 14], [0.55, 4.6, 15.2], [1.15, 4.75, 16.25], [2.05, 5.4, 17.45], [2.85, 5.8, 17.9], [3.65, 5.9, 18.1], [4.35, 6.2, 17.2], [5.1, 6.4, 15.6], [6, 5.9, 13]]),
   anonymous("d5", "Underneath defender A · role", "CLE", "Anonymous reaction example", [[0, -4, 10], [0.55, -4.3, 8.8], [1.15, -4.5, 7], [2.05, -3, 5.5], [2.85, -1, 3.5], [3.65, 2.5, 0], [4.35, 4.2, -1.8], [5.1, 5.7, -3.3], [6, 6.6, -4.1]], "Underneath reaction illustrates Flacco's reported window. Identity, depth, leverage and responsibility are unverified; this is not an identified linebacker or coverage call."),
-  anonymous("d6", "Underneath defender B · role", "CLE", "Anonymous reaction example", [[0, 3, 10], [0.55, 3.2, 8.6], [1.15, 3.4, 7], [2.05, 3.7, 5.5], [2.85, 4.2, 3.2], [3.25, 4.8, 1.6], [3.65, 5.3, 0.2], [4.35, 5.9, -0.5], [5.1, 6.2, -0.9], [6, 6.7, -1.5]], "An anonymous authored pursuit, dive and recovery supplies the qualitative finish visible in the reviewed broadcast. It does not identify the actual defender, exact dive time or assignment."),
-  anonymous("d7", "Outside defender A · role", "CLE", "Anonymous coverage reaction", [[0, -19, 10], [0.55, -19.2, 8], [1.15, -19, 6], [2.05, -17.2, 2.2], [2.85, -13.7, -1], [3.65, -9.8, -3.7], [4.35, -6.8, -4.9], [5.1, -3.8, -5.6], [6, -1.5, -6.1]]),
-  anonymous("d8", "Outside defender B · role", "CLE", "Anonymous coverage reaction", [[0, 20, 10], [0.55, 20.1, 7.8], [1.15, 19.8, 5.2], [2.05, 19.5, 0.8], [2.85, 18.5, -3], [3.65, 15.7, -4.2], [4.35, 13.4, -5.5], [5.1, 11.5, -6.4], [6, 10.5, -7]]),
-  anonymous("d9", "Inside defensive back · role", "CLE", "Anonymous outlet reaction", [[0, 8, 11], [0.55, 8.8, 10.5], [1.15, 10, 10], [2.05, 12.5, 8], [2.85, 14.1, 5.8], [3.65, 13.8, 3.5], [4.35, 12.1, 1.1], [5.1, 10.2, -1], [6, 9.2, -2.3]]),
+  anonymous("d6", "Underneath defender B · role", "CLE", "Anonymous reaction example", [[0, -4, 8.8], [0.55, -3.8, 7.4], [1.15, -3.6, 5.8], [2.05, -3.3, 4.3], [2.85, -2.8, 2], [3.25, -2.2, 0.4], [3.65, -1.7, -1], [4.35, -1.1, -1.7], [5.1, -0.8, -2.1], [6, -0.3, -2.7]], "An anonymous authored pursuit, dive and recovery supplies the qualitative finish visible in the reviewed broadcast. It does not identify the actual defender, exact dive time or assignment."),
+  anonymous("d7", "Outside defender A · role", "CLE", "Anonymous coverage reaction", [[0, -13, 10], [0.69, -13.2, 8], [1.15, -13, 6], [2.05, -12.5, 2.2], [2.85, -12.3, -1], [3.65, -12.5, -2.7], [4.35, -12.8, -3.5], [5.1, -12.6, -4], [6, -12.4, -4.2]]),
+  anonymous("d8", "Outside defender B · role", "CLE", "Anonymous coverage reaction", [[0, 20, 10], [0.73, 20.1, 7.5], [1.15, 19.8, 5.2], [2.05, 19.5, 0.8], [2.85, 18.5, -3], [3.65, 15.7, -4.2], [4.35, 13.4, -5.5], [5.1, 11.5, -6.4], [6, 10.5, -7]]),
+  anonymous("d9", "Inside defensive back · role", "CLE", "Anonymous outlet reaction", [[0, 8, 11], [0.55, 8.8, 10.5], [1.15, 9, 9.8], [2.05, 8.8, 8.8], [2.85, 8.4, 8.1], [3.65, 8.2, 6.4], [4.35, 8.3, 4.5], [5.1, 8.5, 3], [6, 8.6, 2.5]]),
   anonymous("d10", "Deep defender A · role", "CLE", "Anonymous deep reaction", [[0, -7, 1], [0.55, -6.7, 0.6], [1.15, -6, 0.2], [2.05, -3, 0.3], [2.85, 0.8, 0.1], [3.65, 3.8, -2.1], [4.35, 5.2, -4], [5.1, 6.4, -5.2], [6, 7, -6.5]], "Deep alignment illustrates relatively soft safeties in Flacco's account. Exact depth, player identity, rotation and path are authored."),
   anonymous("d11", "Deep defender B · role", "CLE", "Anonymous deep reaction", [[0, 7, 1], [0.55, 7.1, 0.6], [1.15, 7.2, 0.2], [2.05, 6.8, -0.1], [2.85, 6.5, -0.6], [3.65, 7.5, -2.4], [4.35, 9, -3.5], [5.1, 10.2, -4.3], [6, 11, -5]]),
 ];
+
+// Small paired counters make the pocket breathe under pressure. These are
+// authored relationships, not an identification of historical matchups.
+const pocketSets = [
+  { ids: ["lt", "d1"], set: 0.51, contact: 1.04, lateral: [-0.08, 0.08, -0.11, 0.05, -0.06] },
+  { ids: ["lg", "d2"], set: 0.58, contact: 1.21, lateral: [0.05, -0.10, 0.12, -0.08, 0.06] },
+  { ids: ["rg", "d3"], set: 0.61, contact: 1.29, lateral: [-0.03, 0.13, -0.09, 0.10, -0.04] },
+  { ids: ["rt", "d4"], set: 0.55, contact: 1.01, lateral: [0.07, -0.06, 0.15, -0.07, 0.08] },
+];
+for (const { ids, set, contact, lateral } of pocketSets) {
+  for (const actor of actors.filter(({ id }) => ids.includes(id))) {
+    actor.path[1].t = set;
+    actor.path[2].t = contact;
+    for (let i = 0; i < lateral.length; i++) actor.path[i + 1].x += lateral[i];
+  }
+}
 
 const engagementPairs = { lt: "d1", lg: "d2", rg: "d3", rt: "d4", d1: "lt", d2: "lg", d3: "rg", d4: "rt" };
 for (const [index, actor] of actors.entries()) {
@@ -70,6 +86,19 @@ for (const [index, actor] of actors.entries()) {
   actor.cadence = ({ quarterback: 1.65, blocker: 2.3, rusher: 2.15, receiver: 2.05, back: 1.95, coverage: 1.85 })[actor.roleFamily] + (index % 3) * 0.06;
   actor.strideSeed = (index * 0.173) % 1;
 }
+
+// Distinct teaching reaction/contact windows keep the units from behaving as
+// one synchronized animation. These offsets are authored, never video timecodes.
+const contactWindows = {
+  lt: [0.43, 0.89, 3.44, 4.13], d1: [0.43, 0.89, 3.44, 4.13],
+  lg: [0.56, 0.98, 3.64, 4.41], d2: [0.56, 0.98, 3.64, 4.41],
+  rg: [0.62, 1.04, 3.55, 4.28], d3: [0.62, 1.04, 3.55, 4.28],
+  rt: [0.38, 0.84, 3.31, 4.06], d4: [0.38, 0.84, 3.31, 4.06],
+};
+const reactionWindows = {
+  d5: [1.72, 2.36], d6: [1.91, 2.51], d7: [0.98, 1.77],
+  d8: [1.18, 2.08], d9: [0.64, 1.43], d10: [1.82, 2.58], d11: [2.13, 2.94],
+};
 
 const event = (id, at, label, detail, basis, evidenceIds, sourceFrameId) => ({ id, at, time: at, label, detail, basis, evidenceIds, sourceFrameId });
 
@@ -116,7 +145,7 @@ export const REPLAY = deepFreeze({
   ],
   events: [
     event("snap", 0, "Shotgun start", "The PBP records shotgun. Teaching time begins with the ball in Flacco's hands; snap mechanics and alignment are illustrative.", "inferred", ["pbp", "model", "official-highlights"], "setup"),
-    event("break", 1.15, "Find the slant", "Wilson's slant is reported. The break point and angle shown here are authored; follow the highlighted receiver toward the middle.", "reported", ["slant", "model", "official-highlights"], "pocket"),
+    event("break", 1.15, "Find the window", "The sources describe an inward-breaking target with different route names. This break point and angle are authored; follow the highlighted receiver behind the underneath level.", "reported", ["slant", "model", "official-highlights"], "pocket"),
     event("release", RELEASE, "Throwing window", "Flacco recalled a window behind the linebackers against soft safeties. These anonymous defender positions illustrate that account.", "reported", ["window", "model", "official-highlights"], "flight"),
     event("catch", CATCH, "Catch and finish", "The source records a completed 15-yard touchdown to Wilson. This catch location, ball arc and receiver's remaining steps are inferred.", "recorded", ["pbp", "model", "official-highlights"], "finish"),
     event("finish", FINISH, "Touchdown · 30–30", "Wilson's touchdown ties the game. Zuerlein's following extra point supplies the winning 31–30 margin; it is outside this replay.", "recorded", ["pbp", "model", "official-highlights"], "finish"),
@@ -134,7 +163,8 @@ const smooth01 = (from, to, t) => {
   const u = Math.min(1, Math.max(0, (t - from) / (to - from)));
   return u * u * (3 - 2 * u);
 };
-const mixAngle = (a, b, weight) => a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * weight;
+const angleDelta = (from, to) => Math.atan2(Math.sin(to - from), Math.cos(to - from));
+const mixAngle = (a, b, weight) => a + angleDelta(a, b) * weight;
 function resolveActor(actor) {
   const selected = typeof actor === "string" ? REPLAY.actors.find((candidate) => candidate.id === actor) : actor;
   if (!selected?.path?.length) throw new Error(`Unknown replay actor: ${typeof actor === "string" ? actor : "missing path"}`);
@@ -145,7 +175,7 @@ function tangents(points, key) {
   if (points.length < 2) return [0];
   const gaps = points.slice(1).map((point, i) => point.t - points[i].t);
   const slopes = points.slice(1).map((point, i) => (point[key] - points[i][key]) / gaps[i]);
-  const values = [slopes[0]];
+  const values = [0]; // Authored snap begins from a stance, then accelerates into the first step.
   // Shape-preserving cubic Hermite slopes avoid overshoot and keep velocity
   // continuous through authored waypoints, rather than stopping at every key.
   for (let i = 1; i < points.length - 1; i++) {
@@ -199,11 +229,33 @@ function facingHeading(actor, t, motion) {
     return Math.atan2(target.x - motion.x, target.z - motion.z);
   };
   if (actor.roleFamily === "quarterback") return mixAngle(Math.PI, toward("wilson"), smooth01(1.2, 1.85, t));
-  if (actor.roleFamily === "blocker") return mixAngle(actor.engagementTarget ? toward(actor.engagementTarget) : Math.PI, heading, smooth01(3.7, 4.7, t));
-  if (actor.roleFamily === "rusher") return mixAngle(toward(actor.engagementTarget), heading, smooth01(3.55, 4.45, t));
+  if (actor.id === "y") {
+    const presenting = smooth01(1.45, 1.95, t) * (1 - smooth01(2.85, 3.55, t));
+    let delta = angleDelta(heading, toward("qb"));
+    if (delta < 0) delta += Math.PI * 2;
+    return heading + delta * presenting;
+  }
+  if (actor.roleFamily === "blocker" || actor.roleFamily === "rusher") {
+    const release = contactWindows[actor.id];
+    const contactYaw = actor.engagementTarget ? toward(actor.engagementTarget) : Math.PI;
+    // At the end of a contact path velocity can reverse through zero. Eyes and
+    // shoulders turn toward the developing play rather than snapping to that
+    // ill-defined instantaneous travel heading.
+    return mixAngle(contactYaw, toward("wilson"), smooth01(release?.[2] ?? 3.7, (release?.[3] ?? 4.3) + 0.4, t));
+  }
   if (actor.roleFamily === "coverage") {
-    const turn = ["d7", "d8"].includes(actor.id) ? [1.1, 1.95] : actor.id === "d9" ? [0.6, 1.5] : [1.65, 2.4];
-    return mixAngle(toward("qb"), heading, smooth01(turn[0], turn[1], t));
+    const turn = reactionWindows[actor.id] ?? [1.65, 2.4];
+    const readingYaw = toward("qb");
+    // A backpedal-to-run turn can be almost 180 degrees. Choose its authored
+    // branch once from the middle of the turn; recomputing shortest direction
+    // every sample otherwise flips the body when the difference crosses π.
+    const middle = (turn[0] + turn[1]) / 2;
+    const midMotion = sampleMotion(actor, middle), midQb = sampleMotion(resolveActor("qb"), middle);
+    const midReadingYaw = Math.atan2(midQb.x - midMotion.x, midQb.z - midMotion.z);
+    const reference = angleDelta(midReadingYaw, movementHeading(actor, middle, midMotion));
+    let delta = angleDelta(readingYaw, heading);
+    delta += Math.round((reference - delta) / (Math.PI * 2)) * Math.PI * 2;
+    return readingYaw + delta * smooth01(turn[0], turn[1], t);
   }
   return heading;
 }
@@ -216,11 +268,12 @@ export function sampleActor(actor, time) {
 
 const actionCopy = {
   drop: ["Drop into the pocket", "Take controlled backward steps while keeping the shoulders toward the play."],
-  set: ["Set to throw", "Gather the feet and keep the inside receiver in view."],
+  set: ["Set to throw", "Gather the feet and keep Wilson in view."],
   throw: ["Deliver the pass", "Plant, turn the shoulders and send the ball toward Wilson."],
   "follow-through": ["Follow the throw", "Complete the throwing motion and watch the ball travel."],
   watch: ["Watch the finish", "Turn toward the result and settle the feet."],
   release: ["Release off the line", "Accelerate into the route and establish space."],
+  settle: ["Settle underneath", "Lower the hips, gather the feet and present a short option below the throwing window. The route is an anonymous authored example."],
   stem: ["Run the stem", "Carry the route upfield before the inward break."],
   break: ["Break inside", "Plant and turn inward toward the middle of the field."],
   route: ["Continue the route", "Run the complementary lane as the pass develops."],
@@ -246,30 +299,38 @@ const actionCopy = {
 /**
  * Pure authored body/action state. stridePhase is an unwrapped cycle count;
  * cadence is constant cycles/second per actor, so planted-foot anchors can be
- * reconstructed at any seek time. All weights are 0..1; lean/yaw are radians.
+ * reconstructed at any seek time. Weights are 0..1 except signed hipOpen.
+ * facing/pelvis/torso yaw are absolute world radians; lean/roll are radians.
+ * Directed pelvis/chest offsets exclude cyclic gait twist owned by the rig.
  */
 export function samplePose(actor, time) {
   const selected = resolveActor(actor), t = clampReplayTime(time), motion = sampleActor(selected, t);
   const family = selected.roleFamily ?? "receiver";
+  const contact = contactWindows[selected.id];
+  const contactStart = contact?.[0] ?? 0.45, contactFull = contact?.[1] ?? 0.95;
+  const releaseStart = contact?.[2] ?? 3.5, releaseEnd = contact?.[3] ?? 4.3;
   let action = "route", footMode = "run";
   if (family === "quarterback") {
     action = t < 0.8 ? "drop" : t < RELEASE - 0.3 ? "set" : t < RELEASE + 0.3 ? "throw" : t < FINISH ? "follow-through" : "watch";
     footMode = t < 0.8 ? "backpedal" : t < 3.7 ? "plant" : "shuffle";
   } else if (family === "blocker") {
-    action = t < 0.75 ? "pass-set" : t < 3.7 ? selected.engagementTarget ? "engage" : "brace" : t < 4.5 ? "disengage" : "watch";
-    footMode = t < 4.5 ? "shuffle" : "run";
+    action = t < contactFull ? "pass-set" : t < releaseStart + 0.15 ? selected.engagementTarget ? "engage" : "brace" : t < releaseEnd + 0.2 ? "disengage" : "watch";
+    footMode = t < releaseEnd + 0.2 ? "shuffle" : "run";
   } else if (family === "rusher") {
-    action = t < 0.6 ? "first-step" : t < 2.55 ? "engage" : t < 3.7 ? "counter" : t < 4.4 ? "disengage" : "pursuit";
-    footMode = t < 0.6 || t >= 4.4 ? "run" : "shuffle";
+    action = t < contactStart + 0.1 ? "first-step" : t < 1.8 + (selected.strideSeed ?? 0) * 0.7 ? "engage" : t < releaseStart + 0.2 ? "counter" : t < releaseEnd + 0.15 ? "disengage" : "pursuit";
+    footMode = t < contactStart + 0.1 || t >= releaseEnd + 0.15 ? "run" : "shuffle";
   } else if (selected.id === "wilson") {
-    action = t < 0.4 ? "release" : t < 1.15 ? "stem" : t < 1.55 ? "break" : t < CATCH - 0.25 ? "route" : t < CATCH + 0.2 ? "catch" : t < 4.3 ? "carry" : "finish";
+    action = t < 0.5 ? "release" : t < 0.98 ? "stem" : t < 1.55 ? "break" : t < CATCH - 0.25 ? "route" : t < CATCH + 0.2 ? "catch" : t < 4.3 ? "carry" : "finish";
   } else if (family === "back") {
     action = t < 0.65 ? "check" : t < FINISH ? "route" : "finish";
     footMode = t < 0.65 ? "shuffle" : "run";
+  } else if (selected.id === "y") {
+    action = t < 0.4 ? "release" : t < 1.65 ? "route" : t < 3.05 ? "settle" : t < FINISH ? "route" : "finish";
+    footMode = t < 1.65 || t >= 3.05 ? "run" : "plant";
   } else if (family === "receiver") {
     action = t < 0.4 ? "release" : t < FINISH ? "route" : "finish";
   } else {
-    const turning = ["d7", "d8"].includes(selected.id) ? [1.1, 1.95] : selected.id === "d9" ? [0.6, 1.5] : [1.65, 2.4];
+    const turning = reactionWindows[selected.id] ?? [1.65, 2.4];
     action = t < turning[0] ? ["d7", "d8", "d10", "d11"].includes(selected.id) ? "backpedal" : "read" : t < turning[1] ? "turn" : t < CATCH ? "cover" : "pursuit";
     footMode = action === "backpedal" ? "backpedal" : action === "read" || action === "turn" ? "shuffle" : "run";
     if (selected.id === "d6" && t >= 2.55) {
@@ -277,19 +338,49 @@ export function samplePose(actor, time) {
       footMode = t < 5.8 ? "dive" : "shuffle";
     }
   }
-  const engagement = selected.engagementTarget ? smooth01(0.45, 0.95, t) * (1 - smooth01(3.5, 4.3, t)) : 0;
+  const engagement = selected.engagementTarget ? smooth01(contactStart, contactFull, t) * (1 - smooth01(releaseStart, releaseEnd, t)) : 0;
   const catching = selected.id === "wilson" ? smooth01(CATCH - 0.3, CATCH, t) * (1 - smooth01(CATCH + 0.1, CATCH + 0.5, t)) : 0;
   const throwing = family === "quarterback" ? smooth01(RELEASE - 0.35, RELEASE, t) * (1 - smooth01(RELEASE, RELEASE + 0.45, t)) : 0;
   const diving = selected.id === "d6" ? smooth01(2.55, 2.95, t) * (1 - smooth01(4.2, 5.8, t)) : 0;
-  const activeBase = ["set", "engage", "brace", "read"].includes(action) ? 0.16 : 0;
+  const activeBase = ["set", "engage", "brace", "read", "settle"].includes(action) ? 0.16 : 0;
   const gait = Math.max(activeBase, Math.min(1, motion.speed / (family === "blocker" ? 2.5 : family === "rusher" ? 3.5 : 6.5)));
   const lean = family === "blocker" ? 0.3 + 0.12 * engagement : family === "rusher" ? 0.23 + 0.17 * engagement : footMode === "backpedal" ? -0.08 : family === "quarterback" ? 0.035 : 0.08 + 0.09 * gait;
   const cadence = selected.cadence ?? 2;
+  // Symmetric velocity windows keep body weights continuous even across cubic
+  // waypoint acceleration changes, and independent of playback/seek direction.
+  const before = sampleMotion(selected, t - 0.12), after = sampleMotion(selected, t + 0.12);
+  const beforeSpeed = Math.hypot(before.vx, before.vz), afterSpeed = Math.hypot(after.vx, after.vz);
+  const acceleration = (afterSpeed - beforeSpeed) / 0.24;
+  const drive = Math.min(1, Math.max(0, acceleration / 12));
+  const braking = Math.min(1, Math.max(0, -acceleration / 9));
+  const heading = movementHeading(selected, t, motion);
+  const beforeHeading = movementHeading(selected, clampReplayTime(t - 0.12), before), afterHeading = movementHeading(selected, clampReplayTime(t + 0.12), after);
+  const signedTurn = Math.min(1, Math.max(-1, angleDelta(beforeHeading, afterHeading) / 0.65));
+  const slantPlant = selected.id === "wilson" ? smooth01(0.82, 1.07, t) * (1 - smooth01(1.30, 1.68, t)) : 0;
+  const cut = ["blocker", "rusher", "quarterback"].includes(family) ? 0 : Math.max(Math.abs(signedTurn) * Math.min(1, motion.speed / 2), slantPlant);
+  const brake = Math.max(braking, slantPlant * 0.7);
+  const turning = reactionWindows[selected.id];
+  const hipWindow = turning ? smooth01(turning[0] - 0.2, turning[0] + 0.2, t) * (1 - smooth01(turning[1] - 0.1, turning[1] + 0.35, t)) : 0;
+  const turnToRun = angleDelta(motion.yaw, heading);
+  // Use the fixed turn-side rather than the instantaneous shortest yaw for a
+  // nearly opposite backpedal, preventing a +1/-1 hip-opening sign reset.
+  const turnSide = family === "coverage" ? (["d8", "d9", "d11"].includes(selected.id) ? -1 : 1) : Math.sign(turnToRun);
+  const hipOpen = family === "coverage" ? turnSide * Math.min(1, Math.abs(turnToRun) / 0.8) * hipWindow : signedTurn * cut;
+  const counterCycle = Math.sin((t - contactStart) * 5.1 + (selected.strideSeed ?? 0) * Math.PI * 2);
+  const handFight = engagement * (0.3 + 0.7 * (0.5 + 0.5 * counterCycle));
+  const contactPulse = engagement * (0.35 + 0.65 * Math.sin((t - contactStart) * cadence * Math.PI + (selected.strideSeed ?? 0)) ** 2);
+  const line = family === "blocker" || family === "rusher";
+  const compression = Math.min(1, (line ? 0.12 + 0.4 * (1 - smooth01(releaseStart, releaseEnd + 0.3, t)) + engagement * 0.23 + contactPulse * 0.17 : family === "quarterback" ? 0.12 : 0.12 + brake * 0.43 + cut * 0.3 + drive * 0.1) * (1 - diving));
+  const pelvisOffset = Math.min(0.32, Math.max(-0.32, family === "coverage" ? hipOpen * 0.3 : line ? counterCycle * engagement * 0.12 : signedTurn * cut * 0.18));
+  const torsoOffset = Math.min(0.32, Math.max(-0.32, line ? -counterCycle * engagement * (family === "rusher" ? 0.24 : 0.16) : family === "coverage" ? -hipOpen * 0.2 : -signedTurn * cut * 0.12));
+  const bodyRoll = Math.min(0.16, Math.max(-0.16, line ? counterCycle * engagement * 0.055 : -signedTurn * Math.min(1, motion.speed / 5) * 0.16));
   const [actionLabel, actionDetail] = actionCopy[action];
   return {
     basis: "inferred", phase: t < 0.4 ? "snap" : t < RELEASE ? "develop" : t < CATCH ? "flight" : t < FINISH ? "finish" : t < 5.2 ? "pursuit" : "settle",
     action, actionLabel, actionDetail, roleFamily: family, footMode, gait, cadence,
     stridePhase: t * cadence + (selected.strideSeed ?? 0), lean, facingYaw: motion.yaw,
+    pelvisYaw: motion.yaw + pelvisOffset, torsoYaw: motion.yaw + torsoOffset,
+    bodyRoll, compression, drive, brake, cut, hipOpen, contactPulse, handFight,
     engagementTarget: engagement > 0 ? selected.engagementTarget : null, engagement,
     reach: Math.max(engagement * 0.85, catching, diving), dive: diving, catch: catching, throw: throwing,
     carry: selected.id === "qb" && t <= RELEASE || selected.id === "wilson" && t >= CATCH ? 1 : 0,

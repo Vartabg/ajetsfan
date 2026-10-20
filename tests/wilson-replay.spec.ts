@@ -7,9 +7,15 @@ const replayPath = "/film-room/replay/wilson-cleveland";
 const eventTime = (id: string) => REPLAY.events.find((event) => event.id === id)!.at;
 const article = "https://www.newyorkjets.com/news/jets-joe-cool-puts-cleveland-in-the-deep-freeze-with-a-stirring-comeback-victory";
 
-async function openReplay(page: Page) {
-  await page.goto(replayPath);
+async function openReplay(page: Page, waitUntil: "load" | "domcontentloaded" = "load") {
+  await page.goto(replayPath, { waitUntil });
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Wilson’s winning touchdown");
+}
+
+async function openPositionBrowser(page: Page) {
+  const browser = page.locator("details[data-position-browser]");
+  if (await browser.getAttribute("open") === null) await browser.locator("summary").filter({ hasText: "Browse all 22 positions" }).click();
+  await expect(browser).toHaveJSProperty("open", true);
 }
 
 async function expectTime(page: Page, expected: number) {
@@ -89,8 +95,43 @@ test("the result, attribution and source links survive without JavaScript", asyn
   await expect(page.getByRole("main")).toContainText("Inferred");
   await expect(page.locator("[data-fallback-player]")).toHaveCount(22);
   await expect(page.getByRole("img", { name: /Top-down teaching diagram/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "How the window opens", exact: true })).toBeVisible();
+  await expect(page.locator("#film-study")).toContainText("Conklin");
+  await expect(page.locator("#film-study")).toContainText("Owusu-Koramoah");
   await expectArticleSource(page);
   await context.close();
+});
+
+test("the tactical study binds the window, exact charting and analytics to source-specific claims", async ({ page }) => {
+  await openReplay(page);
+  const study = page.locator("#film-study");
+  await expect(study.getByRole("heading", { name: "How the window opens", exact: true })).toBeVisible();
+  await expect(study).toContainText("Conklin");
+  await expect(study).toContainText("Owusu-Koramoah");
+  await expect(study).toContainText("Cover 6 · zone");
+  await expect(study).toContainText("4 rushers · 0 blitzers");
+  await expect(study).toContainText("2.036 seconds");
+  await expect(study).toContainText("26.1% → 57.2%");
+  await expect(study).toContainText("14 air + 1 YAC");
+  await expect(study).toContainText("41.5%");
+  await page.getByRole("button", { name: "1 · Recognize the structure", exact: true }).click();
+  await expectTime(page, 0);
+  await expect(page.locator('[data-role-study="wilson"]')).toHaveAttribute("data-study-phase", "pre");
+  const before = await page.locator('[data-role-study="wilson"]').innerText();
+  await page.getByRole("button", { name: "3 · Deliver behind", exact: true }).click();
+  await expectTime(page, eventTime("release"));
+  await expect(page.locator('[data-role-study="wilson"]')).toHaveAttribute("data-study-phase", "flight");
+  expect(await page.locator('[data-role-study="wilson"]').innerText()).not.toBe(before);
+  await study.locator("summary").filter({ hasText: "Charting, route terminology" }).click();
+  await expect(study).toContainText("POST");
+  await study.locator("[data-analysis-provenance] > summary").click();
+  await expect(study).toContainText(/historical 2022 encoding remains unconfirmed/i);
+  await study.locator("summary").filter({ hasText: "The 22 charted participants" }).click();
+  await expect(study.locator("tbody tr")).toHaveCount(22);
+  await expect(study).toContainText("Braxton Berrios");
+  await expect(study).toContainText("Isaiah Thomas");
+  await expect(study.locator('a[href="https://www.pff.com/news/week-2-coverage-update"]').first()).toBeVisible();
+  await expect(study.locator('a[href="https://jetsxfactor.com/2022/09/21/zach-wilson-weeks-1-2-jets/"]').first()).toBeVisible();
 });
 
 test("the all-22 field plays while the deferred 3D renderer is pending and hands over at the same time", async ({ page }) => {
@@ -153,6 +194,51 @@ test("the all-22 field plays while the deferred 3D renderer is pending and hands
   } finally { releaseChunk(); }
 });
 
+test("optional CC0 turf maps load after usable 3D without resetting the study, and a failed map stays optional", async ({ page }) => {
+  let releaseMaps = () => {};
+  const heldMaps = new Promise<void>((resolve) => { releaseMaps = resolve; });
+  const pendingMaps = new Set<string>();
+  await page.route("**/film-room/art/**", async (route) => {
+    pendingMaps.add(new URL(route.request().url()).pathname);
+    await heldMaps;
+    await route.continue();
+  });
+  try {
+    await openReplay(page, "domcontentloaded");
+    const replay = page.locator("[data-wilson-replay]");
+    const canvas = replay.locator("canvas");
+    await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
+    await expect.poll(() => pendingMaps.size, { message: "Both optional turf maps are held" }).toBe(2);
+    await expect(canvas).toHaveAttribute("data-turf", "loading");
+    expect(Number(await canvas.getAttribute("data-render-frames"))).toBeGreaterThan(0);
+    await page.getByRole("combobox", { name: "Focus player", exact: true }).selectOption("lt");
+    await page.getByRole("button", { name: "Forward 1 second", exact: true }).click();
+    await expectTime(page, 1);
+    await expect(canvas).toHaveAttribute("data-selected-actor", "lt");
+    await expect.poll(async () => Number(await canvas.getAttribute("data-render-time"))).toBeCloseTo(1, 3);
+    await expect(canvas).toHaveAttribute("data-turf", "loading");
+    releaseMaps();
+    await expect(canvas).toHaveAttribute("data-turf", "ready", { timeout: 10_000 });
+    await expectTime(page, 1);
+    await expect(canvas).toHaveAttribute("data-selected-actor", "lt");
+    await expect(page.locator('[data-selected-player="lt"]')).toBeVisible();
+    await expect.poll(async () => Number(await canvas.getAttribute("data-render-time"))).toBeCloseTo(1, 3);
+  } finally { releaseMaps(); }
+
+  // A fresh navigation with the normal map unavailable must retain the usable
+  // renderer and HTML transport; the base-color request still loads normally.
+  await page.unroute("**/film-room/art/**");
+  await page.route("**/film-room/art/grass005-normalgl.webp", (route) => route.abort("failed"));
+  await page.reload({ waitUntil: "domcontentloaded" });
+  const replay = page.locator("[data-wilson-replay]");
+  await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
+  await expect(replay.locator("canvas")).toHaveAttribute("data-turf", "partial", { timeout: 10_000 });
+  await page.getByRole("button", { name: "Forward 1 second", exact: true }).click();
+  await expectTime(page, 1);
+  await expect(replay.locator("canvas")).toHaveAttribute("data-selected-actor", "wilson");
+  await expect(page.getByRole("status").filter({ hasText: /3D unavailable/i })).toHaveCount(0);
+});
+
 test("playback, slow motion, rewind and native keyboard scrubbing share one timeline", async ({ page }) => {
   await openReplay(page);
   const time = page.getByLabel("Replay time", { exact: true });
@@ -192,6 +278,9 @@ test("playback, slow motion, rewind and native keyboard scrubbing share one time
 test("a controlled elapsed clock makes quarter speed slower and rewind run backwards", async ({ page }) => {
   await page.clock.install();
   await openReplay(page);
+  // install() still advances during Playwright actionability waits. Freeze it
+  // before playback so runFor() is the only elapsed time in these assertions.
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1_000));
   const time = page.getByLabel("Replay time", { exact: true });
   const speed = page.getByRole("combobox", { name: "Playback speed", exact: true });
   await speed.selectOption("0.25");
@@ -259,9 +348,12 @@ test("camera presets and player focus remain keyboard accessible", async ({ page
 test("all 22 players expose their position and teaching job without inventing assessments", async ({ page }) => {
   await openReplay(page);
   const roster = page.locator("[data-all22]");
+  await expect(page.locator("details[data-position-browser]")).toHaveJSProperty("open", false);
   await expect(roster.locator("[data-roster-player]")).toHaveCount(22);
   await expect(roster.locator('[data-roster-player][data-unit="offense"]')).toHaveCount(11);
   await expect(roster.locator('[data-roster-player][data-unit="defense"]')).toHaveCount(11);
+  await expect(roster.locator("[data-roster-player]").first()).not.toBeVisible();
+  await openPositionBrowser(page);
   for (const player of TEACHING.players) {
     const actor = REPLAY.actors.find((item) => item.id === player.id)!;
     const button = roster.locator(`[data-roster-player="${player.id}"]`);
@@ -299,6 +391,7 @@ test("all 22 players expose their position and teaching job without inventing as
       await expect(evidence.locator("a")).toHaveCount(0);
     }
   }
+  await openPositionBrowser(page);
   await roster.locator('[data-roster-player="d5"]').click();
   const assessment = page.locator('[data-selected-player="d5"] [data-player-assessment]');
   const originalAssessment = await assessment.innerText();
@@ -355,11 +448,30 @@ test("movement, position labels and teaching responsibilities are independent re
   await expect(page.locator('[data-selected-player="lt"]')).toHaveAttribute("data-assessment-basis", "unknown");
 });
 
-test("follow player survives movement, selection and a narrow resize, then Show everyone restores the broad view", async ({ page }) => {
+test("the field dominates tablet and desktop layouts, and follow player survives a narrow resize", async ({ page }) => {
   await openReplay(page);
   const replay = page.locator("[data-wilson-replay]");
   await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
   const canvas = replay.locator("canvas");
+  for (const viewport of [{ width: 610, height: 760 }, { width: 1440, height: 1050 }]) {
+    await page.setViewportSize(viewport);
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    await expect.poll(async () => (await canvas.boundingBox())!.height / viewport.height, { message: `The actual field occupies half the ${viewport.width}×${viewport.height} viewport` }).toBeGreaterThanOrEqual(0.5);
+    const bounds = (await canvas.boundingBox())!;
+    expect(bounds.y, "The field starts near the top, before control browsing").toBeGreaterThanOrEqual(0);
+    expect(bounds.y, "The field starts within the first 170 pixels").toBeLessThanOrEqual(170);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "The layout has no horizontal overflow").toBe(true);
+    for (const control of [
+      page.getByRole("button", { name: "Play", exact: true }),
+      page.getByRole("button", { name: "Rewind", exact: true }),
+      page.getByLabel("Replay time", { exact: true }),
+      page.getByRole("combobox", { name: "Focus player", exact: true }),
+    ]) {
+      await control.scrollIntoViewIfNeeded();
+      await expect(control).toBeInViewport({ ratio: 1 });
+      await expect(control).toBeEnabled();
+    }
+  }
   await page.getByLabel("Position labels", { exact: true }).check();
   const expectTargetAtSelection = async () => {
     await expect.poll(async () => vectorGap(await canvas.getAttribute("data-camera-target"), await canvas.getAttribute("data-selected-anchor"))).toBeLessThan(0.01);
@@ -438,7 +550,7 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
   const replay = page.locator("[data-wilson-replay]");
   await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
   const canvas = replay.locator("canvas");
-  type Motion = { action: string; position: number[]; joints: number[]; feet: boolean[]; footPositions: number[][]; dive: number };
+  type Motion = { action: string; position: number[]; joints: number[]; bodyJoints: number[]; handPositions: number[][]; feet: boolean[]; footPositions: number[][]; dive: number };
   const poseAt = async (time: number) => {
     await seekTo(page, time);
     await expect.poll(async () => Number(await canvas.getAttribute("data-render-time"))).toBeCloseTo(time, 3);
@@ -470,6 +582,8 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
     expect(movement, `${id} has no discontinuous position jump`).toBeLessThan(1);
     expect(next[id].joints, `${id} has animated actual limb joints`).not.toEqual(first[id].joints);
     expect(next[id].footPositions.flat().every(Number.isFinite), `${id} has finite actual feet`).toBe(true);
+    expect(next[id].bodyJoints, `${id} exposes actual root, pelvis, torso and head rotations`).toHaveLength(16);
+    expect(next[id].handPositions.flat().every(Number.isFinite), `${id} has finite actual hands`).toBe(true);
   }
   await page.getByRole("combobox", { name: "Focus player", exact: true }).selectOption("qb");
   await expect(page.locator('[data-selected-player="qb"] [data-player-action]')).toHaveAttribute("data-player-action", "set");
@@ -481,9 +595,7 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
   const restored = await poseAt(0.91);
   // These are final rig transforms after IK, not values re-sampled from the model.
   for (const { id } of REPLAY.actors) {
-    expect(restored[id].position, `${id} restores its position after rewind`).toEqual(first[id].position);
-    expect(restored[id].joints, `${id} restores its joints after rewind`).toEqual(first[id].joints);
-    expect(restored[id].footPositions, `${id} restores its planted feet after rewind`).toEqual(first[id].footPositions);
+    expect(restored[id], `${id} restores all final body, hand and foot transforms after rewind`).toEqual(first[id]);
   }
   const continuityMetrics: Record<string, { samples: number; maxFootYardsPer10ms: number; maxJointRadiansPer10ms: number; footAt: string; jointAt: string }> = {};
   const collectContinuity = (id: string, before: Motion, after: Motion, at: number) => {
@@ -494,8 +606,9 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
       if (displacement >= metric.maxFootYardsPer10ms) metric.footAt = `${id} foot ${foot} at ${at.toFixed(2)}s`;
       metric.maxFootYardsPer10ms = Math.max(metric.maxFootYardsPer10ms, displacement);
     }
-    for (let joint = 0; joint < before.joints.length; joint += 4) {
-      const a = before.joints.slice(joint, joint + 4), b = after.joints.slice(joint, joint + 4);
+    const beforeJoints = [...before.joints, ...before.bodyJoints], afterJoints = [...after.joints, ...after.bodyJoints];
+    for (let joint = 0; joint < beforeJoints.length; joint += 4) {
+      const a = beforeJoints.slice(joint, joint + 4), b = afterJoints.slice(joint, joint + 4);
       const cosine = Math.abs(a.reduce((sum, value, axis) => sum + value * b[axis], 0)) / (Math.hypot(...a) * Math.hypot(...b));
       const radians = 2 * Math.acos(Math.min(1, cosine));
       if (radians >= metric.maxJointRadiansPer10ms) metric.jointAt = `${id} limb ${joint / 4} at ${at.toFixed(2)}s`;
@@ -533,8 +646,21 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
     collectPlantedHeight(id, poses[id], at);
   }
   const plantedSamples = await sampleBatch(Array.from({ length: REPLAY.duration * 20 + 1 }, (_, index) => index / 20));
+  const bodyContinuity = { samples: 0, maxRadiansPer50ms: 0, at: "" };
   for (let step = 0; step < plantedSamples.length; step++) {
-    for (const { id } of REPLAY.actors) collectPlantedHeight(id, plantedSamples[step][id], step / 20);
+    for (const { id } of REPLAY.actors) {
+      collectPlantedHeight(id, plantedSamples[step][id], step / 20);
+      if (step === 0) continue;
+      const before = plantedSamples[step - 1][id].bodyJoints, after = plantedSamples[step][id].bodyJoints;
+      for (let joint = 0; joint < before.length; joint += 4) {
+        const a = before.slice(joint, joint + 4), b = after.slice(joint, joint + 4);
+        const cosine = Math.abs(a.reduce((sum, value, axis) => sum + value * b[axis], 0)) / (Math.hypot(...a) * Math.hypot(...b));
+        const radians = 2 * Math.acos(Math.min(1, cosine));
+        bodyContinuity.samples++;
+        if (radians >= bodyContinuity.maxRadiansPer50ms) bodyContinuity.at = `${id} body joint ${joint / 4} at ${(step / 20).toFixed(2)}s`;
+        bodyContinuity.maxRadiansPer50ms = Math.max(bodyContinuity.maxRadiansPer50ms, radians);
+      }
+    }
   }
   for (const metric of Object.values(continuityMetrics)) {
     expect(metric.maxFootYardsPer10ms, metric.footAt).toBeLessThan(0.2);
@@ -543,7 +669,8 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
   expect(plantedHeight.maximum, plantedHeight.maximumAt).toBeLessThan(0.15);
   expect(plantedHeight.minimum, plantedHeight.minimumAt).toBeGreaterThan(-0.02);
   expect(plantedHeight.samples).toBeGreaterThan(1_000);
-  await test.info().attach("actual-rig-continuity", { body: JSON.stringify({ continuityMetrics, plantedHeight }, null, 2), contentType: "application/json" });
+  expect(bodyContinuity.maxRadiansPer50ms, bodyContinuity.at).toBeLessThan(0.45);
+  await test.info().attach("actual-rig-continuity", { body: JSON.stringify({ continuityMetrics, plantedHeight, bodyContinuity }, null, 2), contentType: "application/json" });
 });
 
 test("the rendered ball meets a player's hands at release and catch", async ({ page }) => {
@@ -662,6 +789,7 @@ test("the narrow fallback reflows and passes light and dark accessibility checks
   await page.addScriptTag({ path: path.join(process.cwd(), "node_modules/axe-core/axe.min.js") });
   expect(await seriousAxeViolations(page)).toEqual([]);
   await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await openPositionBrowser(page);
   await page.locator('[data-roster-player="d5"]').click();
   await page.getByLabel("Teaching responsibilities", { exact: true }).check();
   await expect(page.locator('[data-selected-player="d5"]')).toHaveAttribute("data-assessment-basis", "unknown");

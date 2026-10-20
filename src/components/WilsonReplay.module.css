@@ -35,3 +35,80 @@
 .currentAction{margin-top:12px;padding:10px 12px;border-left:2px solid #b19350;background:var(--faint);border-radius:0 4px 4px 0}.currentAction h4{font-size:12px;line-height:1.4;font-weight:650;margin:0 0 6px}.currentAction p{font-size:12px;line-height:1.5;color:var(--ink)}
 
 .expandField{margin-left:auto;min-height:40px;padding:6px 10px;border:1px solid #456853;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap}.expandField span{margin-left:8px}.viewer:fullscreen{width:100%;height:100%;display:flex;flex-direction:column;border:0;border-radius:0}.viewer:fullscreen .viewport{flex:1;height:auto;min-height:160px}.viewer:fullscreen .timeline{flex:none}.viewer:fullscreen .layerBar{flex:none}
+
+/* The replay is the stage. Navigation and study material stay around its edges. */
+:global(html):has(.studioShell){scroll-snap-type:none;scroll-padding-top:44px}
+.studioShell[data-focus-page]{display:block}
+.studioShell[data-focus-page]>aside{display:none}
+.studioShell[data-focus-page]>header{display:flex;height:44px;padding:0 16px;border-bottom:1px solid var(--faint)}
+.page{max-width:none;padding:10px 12px 28px}
+.titlebar{display:flex;align-items:center;justify-content:space-between;gap:10px 24px;min-height:62px;margin-bottom:8px}
+.heading{margin:0;min-width:0}
+.heading .eyebrow{font-size:9px;margin:0 0 3px}
+.heading h1{font-size:clamp(22px,2.4vw,32px);max-width:none;line-height:1.12;letter-spacing:-.035em}
+.matchbar{flex-shrink:0;gap:8px 18px;padding:0;border:0}
+.matchbar>div{gap:8px}.matchbar b{font-size:21px}
+.matchbar p{font-size:11px;gap:2px 10px}.matchbar small{font-size:9px}
+.studioGrid{grid-template-columns:minmax(0,1fr);gap:12px}
+.studioMain{display:contents}
+.viewer{display:flex;flex-direction:column;height:calc(100svh - 134px);min-height:500px;border-radius:8px}
+.viewport{height:auto;flex:1;min-height:280px}
+.layerBar{flex:none;gap:4px 18px;padding:3px 12px}
+.layerBar label{min-height:36px;font-size:11px}
+.expandField{min-height:34px;padding:5px 9px}
+.timeline{flex:none;padding:8px 14px}
+.timeHeading{font-size:10px}
+.timeline input[type=range]{min-height:28px;margin:0}
+.eventTicks{margin:0 0 4px;flex-wrap:nowrap}
+.eventTicks button{min-height:26px;padding:2px 7px;font-size:9px}
+.transport{flex-wrap:nowrap;gap:6px}
+.transport button{min-height:38px;padding:6px 11px;font-size:11px}
+.transport .primary{min-width:58px}
+.transport .speed{margin:0 0 0 auto;flex:0 0 auto}
+.speed select{min-height:38px;padding:5px 7px}
+.timeline .teachingClock{margin:4px 0 0;font-size:9px;line-height:1.4}
+.cameraPanel{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding:0 0 10px;border-bottom:1px solid var(--faint);min-width:0}
+.cameraPanel .focusActions,.cameraPanel .presets,.cameraPanel .cameraKeys{margin:0;gap:4px}
+.focusActions button,.presets button{min-height:38px;padding:6px 10px;font-size:11px;flex:none}
+.cameraKeys button{width:32px;height:34px;font-size:16px}
+.cameraPanel>p{margin:0;font-size:10px}
+.cameraPanel>.selectPlayer{order:-1;width:220px;gap:5px;font-size:10px}
+.selectPlayer select{min-height:38px;font-size:12px}
+.visualKey{flex-basis:100%;gap:5px 14px;font-size:9px!important}
+.cameraPanel .jumpToLesson{margin:0;min-height:34px;font-size:11px}
+.positionBrowser{min-width:0;border:1px solid var(--faint);border-radius:6px;padding:0 14px;align-self:start}
+.positionBrowser>summary{font-size:12px;font-weight:600;min-height:44px;padding:12px 0;cursor:pointer}
+.positionBrowser .roster{border:0;padding:6px 0 14px}
+.roster .eyebrow{display:none}.roster h2{font-size:18px}
+.roster>p:not(.eyebrow){font-size:11px;margin:7px 0 12px}
+.rosterPlayers button{min-height:44px;padding:6px 8px}
+.lesson{position:static;max-height:none;overflow:visible;padding:16px;border-radius:6px}
+.lesson>h2{font-size:22px}.lesson .positionLine{margin:7px 0 12px}
+@media(min-width:1100px){
+  .studioGrid{grid-template-columns:minmax(0,1fr) 340px}
+  .viewer,.cameraPanel{grid-column:1/-1}
+  .positionBrowser{grid-column:1}
+  .lesson{grid-column:2;grid-row:3/span 2}
+}
+@media(max-width:760px){
+  .page{padding:8px 8px 24px}
+  .titlebar{min-height:68px;gap:6px 10px;margin-bottom:6px}
+  .heading .eyebrow{font-size:8px;max-width:none}
+  .heading h1{font-size:23px;max-width:none}
+  .matchbar{display:block}.matchbar>div{gap:5px}.matchbar b{font-size:18px}
+  .team{font-size:10px}.matchbar p{font-size:9px;margin-top:3px;gap:2px 6px}.matchbar small{display:none}
+  .viewer{height:calc(100svh - 134px);min-height:470px}
+  .layerBar{gap:4px 12px;padding:3px 9px}
+  .layerBar label{font-size:10px;gap:5px}
+  .layerBar input{width:15px;height:15px}
+  .expandField{font-size:10px;padding:5px 7px}.expandField span{margin-left:4px}
+  .timeline{padding:7px 10px}.transport{gap:4px}.transport button{font-size:10px;padding:6px 8px}.transport .primary{min-width:52px}
+  .steppers{gap:2px}.speed select{font-size:11px;padding:5px}
+  .cameraPanel{gap:8px;padding:2px 4px 10px}
+  .cameraPanel>.selectPlayer{width:100%;display:flex;flex-wrap:nowrap;gap:10px}.selectPlayer select{flex:1;min-width:0}
+  .cameraPanel>.visualKey{font-size:8px!important}
+  .presets button{flex:none}.rosterPlayers{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rosterPlayers button{flex-direction:row;align-items:center;gap:6px}
+}
+@media(max-width:420px){.heading h1{font-size:20px}.matchbar p{max-width:108px}.matchbar .versus{display:none}.layerBar{gap:4px 9px}.transport button{padding:6px 6px}.transport .primary{min-width:48px}}
+.viewer:fullscreen{height:100%;min-height:0}.viewer:fullscreen .viewport{min-height:160px}

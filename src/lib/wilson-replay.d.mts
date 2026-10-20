@@ -103,7 +103,7 @@ export function sampleActor(actor: ReplayActor | string, time: unknown): { x: nu
 export type ReplayPose = {
   readonly basis: "inferred";
   readonly phase: "snap" | "develop" | "flight" | "finish" | "pursuit" | "settle";
-  readonly action: "drop" | "set" | "throw" | "follow-through" | "watch" | "release" | "stem" | "break" | "route" | "catch" | "carry" | "finish" | "pass-set" | "engage" | "brace" | "disengage" | "pursuit" | "first-step" | "counter" | "backpedal" | "turn" | "read" | "cover" | "check" | "dive" | "recover";
+  readonly action: "drop" | "set" | "throw" | "follow-through" | "watch" | "release" | "settle" | "stem" | "break" | "route" | "catch" | "carry" | "finish" | "pass-set" | "engage" | "brace" | "disengage" | "pursuit" | "first-step" | "counter" | "backpedal" | "turn" | "read" | "cover" | "check" | "dive" | "recover";
   readonly actionLabel: string;
   readonly actionDetail: string;
   readonly roleFamily: ReplayRoleFamily;
@@ -114,6 +114,21 @@ export type ReplayPose = {
   readonly stridePhase: number;
   readonly lean: number;
   readonly facingYaw: number;
+  /** Absolute world heading in radians; directed body mechanics, without cyclic gait twist. */
+  readonly pelvisYaw: number;
+  readonly torsoYaw: number;
+  /** Signed lateral body lean in radians, bounded to ±0.16. */
+  readonly bodyRoll: number;
+  /** Continuous authored knee/hip lowering, acceleration, braking and cutting weights (0..1). */
+  readonly compression: number;
+  readonly drive: number;
+  readonly brake: number;
+  readonly cut: number;
+  /** Signed defensive hip opening (-1..1); positive turns toward increasing world yaw. */
+  readonly hipOpen: number;
+  /** Continuous but asymmetric engagement pulse and hand counter weights (0..1). */
+  readonly contactPulse: number;
+  readonly handFight: number;
   readonly engagementTarget: string | null;
   readonly engagement: number;
   readonly reach: number;

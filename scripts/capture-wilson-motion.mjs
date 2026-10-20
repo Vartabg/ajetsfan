@@ -15,7 +15,7 @@ const browser = await chromium.launch({ channel: "chrome", headless: true });
 const captures = [];
 const quantile = (items, percentile) => items.length ? [...items].sort((a, b) => a - b)[Math.floor((items.length - 1) * percentile)] : null;
 try {
-  for (const view of ["full-snap", "protection", "wilson-finish"]) {
+  for (const view of ["full-snap", "protection", "coverage", "wilson-finish"]) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 }, deviceScaleFactor: 1, colorScheme: "light", reducedMotion: "reduce", recordVideo: { dir: values.output, size: { width: 1440, height: 1050 } } });
     const page = await context.newPage();
     await page.goto(values.url, { waitUntil: "domcontentloaded" });
@@ -25,7 +25,7 @@ try {
     await page.getByLabel("Teaching responsibilities", { exact: true }).uncheck();
     if (view === "full-snap") await page.getByRole("button", { name: "Show everyone", exact: true }).click();
     else {
-      await page.getByRole("combobox", { name: "Focus player", exact: true }).selectOption(view === "protection" ? "lt" : "wilson");
+      await page.getByRole("combobox", { name: "Focus player", exact: true }).selectOption(view === "protection" ? "lt" : view === "coverage" ? "d7" : "wilson");
       await page.getByRole("button", { name: "Follow player", exact: true }).click();
     }
     await page.getByRole("button", { name: "Return to snap", exact: true }).click();

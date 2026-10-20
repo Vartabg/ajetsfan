@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { REPLAY, clampReplayTime, eventAt, sampleActor, sampleBall, samplePose } from "@/lib/wilson-replay.mjs";
 import { TEACHING } from "@/lib/wilson-teaching.mjs";
 import type { ReplayScene } from "@/lib/wilson-replay-scene";
+import WilsonAnalysis, { PlayerStudy } from "./WilsonAnalysis";
 import styles from "./WilsonReplay.module.css";
 
 type Camera = "sideline" | "endzone" | "overhead" | "quarterback";
@@ -12,10 +13,11 @@ const CAMERAS: { id: Camera; label: string }[] = [
   { id: "overhead", label: "Overhead" }, { id: "quarterback", label: "Behind Flacco" },
 ];
 const BASIS = { recorded: "Recorded", observed: "Observed", reported: "Reported", inferred: "Inferred", unreviewed: "Unreviewed" };
+const EVENT_LABELS: Record<string, string> = { snap: "Snap", break: "Window", release: "Throw", catch: "Catch", finish: "Touchdown" };
 const sourceTime = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 const MOMENT_LESSONS: Record<string, string> = {
-  snap: "Start with the quarterback in shotgun and watch the receivers release.",
-  break: "Wilson’s reported slant turns toward the middle. Follow the highlighted route.",
+  snap: "Study the shotgun release against two levels of coverage. Exact-play charting supplies the personnel and coverage family below.",
+  break: "Wilson enters behind the underneath level. Compare his inward break with the defender’s hips and the space ahead.",
   release: "Flacco described a throwing window behind the linebackers against relatively soft safeties.",
   catch: "Follow the ball into Wilson’s hands, then watch the finish.",
   finish: "The touchdown ties the game 30–30. The following extra point supplies the 31–30 win.",
@@ -64,7 +66,7 @@ export default function WilsonReplay() {
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [direction, setDirection] = useState(1);
-  const [camera, setCamera] = useState<Camera>("overhead");
+  const [camera, setCamera] = useState<Camera>("sideline");
   const [selection, setSelection] = useState("wilson");
   const [routes, setRoutes] = useState(false);
   const [labels, setLabels] = useState(false);
@@ -79,7 +81,7 @@ export default function WilsonReplay() {
   const [canExpand, setCanExpand] = useState(false);
   const scene = useRef<ReplayScene | null>(null);
   const clock = useRef({ time: 0, speed: 1, direction: 1 });
-  const settings = useRef({ selection: "wilson", routes: false, labels: false, responsibilities: false, following: false, camera: "overhead" as Camera });
+  const settings = useRef({ selection: "wilson", routes: false, labels: false, responsibilities: false, following: false, camera: "sideline" as Camera });
 
   const pause = useCallback(() => { setPlaying(false); setTime(clock.current.time); }, []);
   const seek = useCallback((value: number) => {
@@ -88,6 +90,7 @@ export default function WilsonReplay() {
     scene.current?.setTime(next);
     setTime(next);
   }, []);
+  const seekStudy = useCallback((value: number) => { pause(); seek(value); }, [pause, seek]);
 
   useEffect(() => {
     const changed = () => {
@@ -198,23 +201,23 @@ export default function WilsonReplay() {
   return <>
     <section id="replay" data-focus-moment="replay" className={styles.page} aria-labelledby="replay-heading"
       data-wilson-replay data-playing={playing} data-time={time.toFixed(3)} data-scene={sceneState} data-focus-tools>
-      <header className={styles.heading}>
+      <div className={styles.titlebar}><header className={styles.heading}>
         <p className={styles.eyebrow}>Film Room / 3D study · September 18, 2022</p>
         <h1 id="replay-heading">Wilson’s winning touchdown</h1>
-        <p className={styles.dek}>See the whole play. Choose a player. Understand the job.</p>
       </header>
 
       <div className={styles.matchbar}>
         <div><span className={styles.team}>NYJ</span><b>24</b><span className={styles.versus}>at</span><span className={styles.team}>CLE</span><b>30</b></div>
         <p><strong>Q4 :25</strong><span>3rd &amp; 10 · CLE 15</span><small>Recorded situation before the snap</small></p>
       </div>
+      </div>
 
       <div className={styles.studioGrid}><div className={styles.studioMain}>
       <div ref={field} className={styles.viewer}>
         <div className={styles.layerBar} aria-label="Replay layers">
-          <label><input type="checkbox" checked={routes} onChange={event => { settings.current.routes = event.target.checked; setRoutes(event.target.checked); scene.current?.setRoutes(event.target.checked); }} />Show inferred routes</label>
-          <label><input type="checkbox" checked={labels} onChange={event => { settings.current.labels = event.target.checked; setLabels(event.target.checked); scene.current?.setLabels(event.target.checked); }} />Position labels</label>
-          <label><input type="checkbox" checked={responsibilities} onChange={event => { settings.current.responsibilities = event.target.checked; setResponsibilities(event.target.checked); scene.current?.setResponsibilities(event.target.checked); }} />Teaching responsibilities</label>
+          <label title="Show inferred routes"><input type="checkbox" aria-label="Show inferred routes" checked={routes} onChange={event => { settings.current.routes = event.target.checked; setRoutes(event.target.checked); scene.current?.setRoutes(event.target.checked); }} />Routes</label>
+          <label title="Position labels"><input type="checkbox" aria-label="Position labels" checked={labels} onChange={event => { settings.current.labels = event.target.checked; setLabels(event.target.checked); scene.current?.setLabels(event.target.checked); }} />Labels</label>
+          <label title="Teaching responsibility links"><input type="checkbox" aria-label="Teaching responsibilities" checked={responsibilities} onChange={event => { settings.current.responsibilities = event.target.checked; setResponsibilities(event.target.checked); scene.current?.setResponsibilities(event.target.checked); }} />Links</label>
           <button className={styles.expandField} type="button" disabled={!canExpand} onClick={expandField}>{expanded ? "Exit expanded field" : "Expand field"} <span aria-hidden="true">↗</span></button>
         </div>
         <div className={styles.viewport}>
@@ -233,20 +236,20 @@ export default function WilsonReplay() {
           <div className={styles.timeHeading}><p>{playing ? direction < 0 ? "Rewinding" : "Playing" : "Paused"} <span>· {speed}×</span></p><output htmlFor="replay-time" aria-label="Teaching elapsed time">{time.toFixed(2)} <span>/ {REPLAY.duration.toFixed(1)} s</span></output></div>
           <label className="sr-only" htmlFor="replay-time">Replay time</label>
           <input id="replay-time" type="range" min="0" max={REPLAY.duration} step=".01" value={time} aria-valuetext={`${time.toFixed(2)} seconds of inferred teaching time`} onChange={event => { pause(); seek(Number(event.target.value)); }} />
-          <div className={styles.eventTicks}>{REPLAY.events.filter(event => event.at < REPLAY.duration).map(event => <button type="button" key={event.id} onClick={() => { pause(); seek(event.at); }} aria-pressed={active.id === event.id}>{event.label}</button>)}</div>
+          <div className={styles.eventTicks}>{REPLAY.events.filter(event => event.at < REPLAY.duration).map(event => <button type="button" key={event.id} aria-label={event.label} title={event.label} onClick={() => { pause(); seek(event.at); }} aria-pressed={active.id === event.id}>{EVENT_LABELS[event.id] ?? event.label}</button>)}</div>
           <div className={styles.transport}>
             <button type="button" className={styles.primary} onClick={play}>{playing ? "Pause" : "Play"}</button>
             <button type="button" onClick={rewind}>Rewind</button>
-            <button type="button" onClick={() => { pause(); seek(0); }}>Return to snap</button>
+            <button type="button" aria-label="Return to snap" title="Return to snap" onClick={() => { pause(); seek(0); }}>Reset</button>
             <div className={styles.steppers}><button type="button" aria-label="Rewind 1 second" onClick={() => { pause(); seek(clock.current.time - 1); }}>−1s</button><button type="button" aria-label="Forward 1 second" onClick={() => { pause(); seek(clock.current.time + 1); }}>+1s</button></div>
-            <label className={styles.speed}>Playback speed<select value={speed} onChange={event => { const next = Number(event.target.value); clock.current.speed = next; setSpeed(next); }}><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label>
+            <label className={styles.speed}><span className="sr-only">Playback speed</span><select value={speed} onChange={event => { const next = Number(event.target.value); clock.current.speed = next; setSpeed(next); }}><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label>
           </div>
           <p className={styles.teachingClock}>Teaching time, not a synchronized game or video clock.{reducedMotion ? " Reduced motion is on; playback starts only when you press Play." : ""}</p>
         </div>
       </div>
 
         <div className={styles.cameraPanel}>
-          <h2>Choose your view</h2>
+          <h2 className="sr-only">Choose your view</h2>
           <div className={styles.focusActions}><button type="button" disabled={sceneState !== "ready"} aria-pressed={following} onClick={followPlayer}>Follow player</button><button type="button" disabled={sceneState !== "ready"} onClick={() => chooseCamera("overhead")}>Show everyone</button></div>
           <div className={styles.presets} aria-label="Camera presets">{CAMERAS.map(item => <button type="button" key={item.id} aria-pressed={camera === item.id} disabled={sceneState !== "ready"} onClick={() => chooseCamera(item.id)}>{item.label}</button>)}</div>
           <p>Drag to orbit · scroll or pinch to zoom · right-drag or two fingers to pan.</p>
@@ -258,13 +261,14 @@ export default function WilsonReplay() {
           <p className={styles.visualKey}><span>Solid trail: movement so far</span><span>Dashed line: authored path or relationship</span><span>Bright yellow: selected player</span></p>
           {responsibilities ? <p className={styles.schemeNote}>Responsibility links show an illustrative teaching scheme. Actual blocking and coverage assignments are unestablished.</p> : null}
         </div>
-        <Roster selection={selection} onSelect={selectPlayer} />
+        <details className={styles.positionBrowser} data-position-browser><summary>Browse all 22 positions</summary><Roster selection={selection} onSelect={selectPlayer} /></details>
         </div>
         <aside id="selected-player" className={styles.lesson} aria-labelledby="player-heading" data-selected-player={selection} data-assessment-basis={player.assessment.basis}>
           <p className={styles.eyebrow}>Selected player / {player.code}</p>
           <h2 id="player-heading">{actor.number ? actor.name : player.title}</h2>
           <p className={styles.positionLine}>{player.position} <span className={styles.badge} data-basis={player.roleBasis}>{player.roleBasis === "recorded" ? "Recorded role" : "Illustration"}</span></p>
-          <div className={styles.playerJob} data-teaching-job><span className={styles.badge} data-basis="inferred">Illustration</span><h3>Job in this teaching play</h3><p>{player.lesson}</p><div className={styles.currentAction} data-player-action={pose.action}><h4>Now · {pose.actionLabel}</h4><p>{pose.actionDetail}</p></div></div>
+          <div className={styles.playerJob} data-teaching-job><span className={styles.badge} data-basis="inferred">Illustration</span><div className={styles.currentAction} data-player-action={pose.action}><h4>Now · {pose.actionLabel}</h4><p>{pose.actionDetail}</p></div><details className={styles.playerDetails}><summary>Role basics in this model</summary><p>{player.lesson}</p></details></div>
+          <PlayerStudy actorId={selection} time={time} />
           {player.sourceAction ? <div className={styles.claim}><span className={styles.badge} data-basis="recorded">Recorded action</span><h3>Source-supported action</h3><p>{player.sourceAction}</p></div> : null}
           {player.reportedConcept ? <div className={styles.claim}><span className={styles.badge} data-basis="reported">Player account / report</span><h3>The reported idea</h3><p>{player.reportedConcept}</p></div> : null}
           <div className={styles.assessment} data-player-assessment><span className={styles.badge} data-basis={player.assessment.basis}>{player.assessment.basis === "unknown" ? "Not established" : "Recorded result"}</span><h3>{player.result ? "The recorded contribution" : "Individual assessment"}</h3><p className={player.result ? styles.result : undefined}>{player.result ?? "The actual assignment and individual outcome are unestablished for this teaching role."}</p><details><summary>Assessment evidence</summary><p>{player.assessment.detail}</p></details></div>
@@ -279,17 +283,19 @@ export default function WilsonReplay() {
       </div>
     </section>
 
+    <WilsonAnalysis time={time} onSeek={seekStudy} />
+
     <section id="evidence" data-focus-moment="evidence" className={styles.evidence} aria-labelledby="evidence-heading">
       <p className={styles.eyebrow}>The evidence behind the replay</p>
       <h2 id="evidence-heading">What we know. What we’ve filled in.</h2>
-      <p className={styles.evidenceIntro}>This is an evidence-based teaching reconstruction, not player tracking or recovered game footage. The 3D geometry, poses and timing are inferred. Twenty supporting players have generic roles because their identities and assignments are unverified.</p>
+      <p className={styles.evidenceIntro}>This is an evidence-based teaching reconstruction, not player tracking or recovered game footage. The 3D geometry, poses and timing are inferred. Exact-play participation identifies all 22 players below; the 20 supporting figures retain teaching roles because their coordinates and matchups are not mapped.</p>
       <div className={styles.evidenceGrid}>
         <article><span className={styles.badge} data-basis="recorded">Recorded</span><h3>The play and its result</h3><p>Flacco to Wilson: a 15-yard touchdown from shotgun, on 3rd-and-10 at the Cleveland 15. The score became 30–30; the extra point made the final 31–30.</p><p className={styles.record}>{REPLAY.record.desc}</p><small>{REPLAY.record.canonicalPlayId}</small></article>
         <article><span className={styles.badge} data-basis="observed">Observed</span><h3>Frames from the official replay</h3><p>These paused broadcast views corroborate the sequence. Their video locators do not establish exact event boundaries or measured movement.</p><ul className={styles.observations}>{REPLAY.sourceFrames.map(frame => <li key={frame.id}><a href={frame.url} target="_blank" rel="noreferrer">{sourceTime(frame.seconds)} <span aria-hidden="true">↗</span></a><span>{frame.observation}</span></li>)}</ul></article>
-        <article><span className={styles.badge} data-basis="reported">Reported</span><h3>The slant and the window</h3><p>The Jets’ account identifies Wilson’s slant. Flacco recalled soft safeties and a throw behind the linebackers through a window. This is an attributed quarterback account, not a verified defensive call.</p></article>
+        <article><span className={styles.badge} data-basis="reported">Reported</span><h3>The inward break and the window</h3><p>The Jets’ account calls the route a slant; participation charting and Boord’s film analysis call it a post. Flacco recalled a window behind the linebackers. <a href="#film-study">Inspect the tactical claims and charting</a>, including Cover 6 and the route-label disagreement.</p></article>
         <article><span className={styles.badge} data-basis="inferred">Inferred</span><h3>The movement you see</h3><p>Starting alignments, route angles, every defender’s path, protection, ball arc, body motion and subsecond timing are authored teaching choices. They show one possible way to understand the account.</p></article>
       </div>
-      <details className={styles.sources}><summary>Sources &amp; replay provenance</summary><ul>{REPLAY.evidence.map(source => <li key={source.id}><span className={styles.badge} data-basis={source.basis}>{BASIS[source.basis as keyof typeof BASIS] ?? source.basis}</span>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.label} <span aria-hidden="true">↗</span></a> : <span> {source.label}</span>}<p>{source.summary}</p></li>)}</ul><p className={styles.teachingClock}>Official highlight observations come from paused views and a frame-by-frame inspection of the snap through the touchdown finish (approximately 4:12–4:15). Analyst breakdown pages remain cataloged by metadata; their footage and spoken analysis are unreviewed. Neither establishes the exact 3D coordinates, Cleveland’s coverage call or individual protection assignments.</p></details>
+      <details className={styles.sources}><summary>Sources &amp; replay provenance</summary><ul>{REPLAY.evidence.map(source => <li key={source.id}><span className={styles.badge} data-basis={source.basis}>{BASIS[source.basis as keyof typeof BASIS] ?? source.basis}</span>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.label} <span aria-hidden="true">↗</span></a> : <span> {source.label}</span>}<p>{source.summary}</p></li>)}</ul><p className={styles.teachingClock}>Official highlight observations come from paused views and a frame-by-frame inspection of the snap through the touchdown finish (approximately 4:12–4:15). The film study adds attributed written analysis and exact-play provider charting. Baldinger’s and Enunwa’s video pages remain metadata-only references; their spoken analysis is unreviewed. Exact coordinates and individual protection assignments remain authored.</p></details>
     </section>
   </>;
 }

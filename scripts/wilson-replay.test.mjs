@@ -132,7 +132,7 @@ test("authored paths stay within the field and form a complete finite teaching t
       if (i > 0) assert.ok(point.t > actor.path[i - 1].t);
     }
   }
-  assert.ok(sampleActor("wilson", 0).z > 15);
+  assert.equal(sampleActor("wilson", 0).z, 15);
   assert.ok(sampleActor("wilson", catchAt).z > 0);
   assert.ok(sampleActor("wilson", finishAt).z < 0);
 });
@@ -278,4 +278,72 @@ test("cubic sampling preserves position and velocity through every authored wayp
       assert.ok(Math.hypot(after.vx - before.vx, after.vz - before.vz) < 0.00001);
     }
   }
+});
+
+test("the snap accelerates from a stance and the slant gathers before reaccelerating", () => {
+  for (const actor of REPLAY.actors) {
+    assert.equal(sampleActor(actor, 0).speed, 0, `${actor.id} starts in a stance rather than sliding at full speed`);
+    assert.ok(sampleActor(actor, 0.25).speed > 0.1, `${actor.id} responds to the authored snap`);
+  }
+  for (const id of ["wilson", "x", "z", "y"]) {
+    assert.ok(sampleActor(id, 0.5).speed > sampleActor(id, 0.1).speed + 1, `${id} accelerates into the release`);
+  }
+  const stem = sampleActor("wilson", 0.5), gathered = sampleActor("wilson", 0.95), burst = sampleActor("wilson", 1.8);
+  assert.ok(gathered.speed < stem.speed - 0.3, "the break includes real speed reduction");
+  assert.ok(burst.speed > gathered.speed + 2, "the receiver accelerates out of the cut");
+  assert.ok(samplePose("wilson", 1.2).compression > samplePose("wilson", 1.8).compression + 0.3);
+  assert.ok(samplePose("wilson", 1.2).cut > 0.9);
+  assert.ok(samplePose("wilson", 1.2).brake > 0.5);
+});
+
+test("contact and defensive turns have distinct reactions and continuous body mechanics", () => {
+  const contact = ["lt", "lg", "rg", "rt"].map((id) => samplePose(id, 0.7).engagement);
+  assert.ok(new Set(contact.map((value) => value.toFixed(2))).size === 4, "the protection does not engage on one shared beat");
+  const reactions = ["d5", "d6", "d7", "d8", "d9", "d10", "d11"].map((id) => Array.from({ length: 301 }, (_, i) => i / 100).find((time) => Math.abs(samplePose(id, time).hipOpen) > 0.1));
+  assert.ok(reactions.every((time) => Number.isFinite(time)));
+  assert.ok(new Set(reactions).size === 7, "defenders do not share one reactive hip-turn onset");
+  const keys = ["compression", "drive", "brake", "cut", "contactPulse", "handFight"];
+  const angles = ["facingYaw", "pelvisYaw", "torsoYaw"];
+  for (const actor of REPLAY.actors) {
+    let previous = samplePose(actor, 0);
+    for (let i = 1; i <= 1200; i++) {
+      const current = samplePose(actor, i * 0.005);
+      for (const key of keys) {
+        assert.ok(current[key] >= 0 && current[key] <= 1, `${actor.id}/${key} is bounded`);
+        assert.ok(Math.abs(current[key] - previous[key]) < 0.06, `${actor.id}/${key} changes without a phase reset`);
+      }
+      assert.ok(Math.abs(current.bodyRoll) <= 0.16);
+      assert.ok(Math.abs(current.hipOpen) <= 1);
+      assert.ok(Math.abs(current.hipOpen - previous.hipOpen) < 0.08, `${actor.id} does not flip the hip-opening sign`);
+      for (const key of angles) {
+        const angle = Math.atan2(Math.sin(current[key] - previous[key]), Math.cos(current[key] - previous[key]));
+        assert.ok(Math.abs(angle) < 0.06, `${actor.id}/${key} has no 180-degree shortest-angle branch flip`);
+      }
+      assert.ok(Math.abs(current.pelvisYaw - current.facingYaw) <= 0.32 + 1e-12);
+      assert.ok(Math.abs(current.torsoYaw - current.facingYaw) <= 0.32 + 1e-12);
+      previous = current;
+    }
+  }
+});
+
+test("the authored alignment keeps Wilson outside and the anonymous short option settles beneath the throw", () => {
+  const wilson = REPLAY.actors.find(({ id }) => id === "wilson");
+  const x = REPLAY.actors.find(({ id }) => id === "x");
+  const offense = REPLAY.actors.filter(({ team }) => team === "NYJ");
+  assert.equal(wilson.path[0].z, 15);
+  assert.equal(wilson.path[0].x, Math.min(...offense.map((actor) => actor.path[0].x)), "Wilson occupies the outside end rather than the inside slot");
+  assert.ok(x.path[0].x > wilson.path[0].x && x.path[0].z > 15.5);
+  assert.equal(offense.filter((actor) => actor.path[0].z === 15).length, 7);
+  assert.equal(sampleActor("wilson", catchAt).z, 1, "the authored catch sits near the goal after a 14-yard gain in depth");
+  assert.match(wilson.role, /in-breaking route/);
+  assert.equal(wilson.motionBasis, "inferred");
+  const atThrow = sampleActor("y", releaseAt), atCatch = sampleActor("y", catchAt);
+  assert.ok(distance(atThrow, atCatch) < 0.2, "the short option gathers rather than running through the window");
+  for (let time = releaseAt; time <= catchAt; time += 0.1) {
+    assert.equal(samplePose("y", time).action, "settle");
+    assert.ok(sampleActor("y", time).speed < 0.25);
+    assert.ok(sampleActor("y", time).z >= 10, "the authored stop remains below the throwing window");
+  }
+  assert.ok(sampleActor("y", 4.35).speed > 1, "the short option resumes controlled movement after the throw");
+  assert.equal(REPLAY.actors.find(({ id }) => id === "y").identityBasis, "inferred");
 });

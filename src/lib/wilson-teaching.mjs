@@ -30,16 +30,16 @@ function supporting(id, code, position, group, teachingJob) {
 }
 
 const lessons = {
-  qb: "Set behind the line, find the inside receiver, and throw through the window.",
+  qb: "Set behind the line, find Wilson entering behind the underneath level, and deliver through the window.",
   wilson: "Run upfield, break inward toward the middle, and finish across the goal line.",
   lt: "Retreat to the left edge of the pocket and meet an outside rush.",
   lg: "Set inside the left tackle and hold the pocket's left interior.",
   c: "Hold the middle of the pocket in front of the quarterback.",
   rg: "Set inside the right tackle and hold the pocket's right interior.",
   rt: "Retreat to the right edge of the pocket and meet an outside rush.",
-  x: "Run up the left outside lane, then angle inward to create space.",
+  x: "Run a complementary inside lane and preserve spacing beside Wilson’s outside release.",
   z: "Run up the right outside lane and keep the defense wide.",
-  y: "Release from behind the line into the right underneath space as an outlet.",
+  y: "Release underneath, settle through the throw, then turn toward the finish.",
   rb: "Step toward the pocket, then release to the left as an underneath outlet.",
   d1: "Rush around the outside of the left protection edge.",
   d2: "Push toward the left interior of the pocket.",
@@ -62,7 +62,7 @@ const players = [
   {
     id: "qb", code: "QB", position: "Quarterback", unit: "offense", group: "Backfield",
     title: "Joe Flacco · quarterback", roleBasis: "recorded",
-    teachingJob: "Set behind the line, find the inside receiver and deliver through the illustrated window. The drop, read order, release point and teaching timing are authored.",
+    teachingJob: "Set behind the line, find Wilson entering behind the underneath level and deliver through the illustrated window. The drop, read order, release point and teaching timing are authored.",
     sourceAction: "The play record credits Flacco with a completed shotgun pass to Wilson for a 15-yard touchdown.",
     reportedIntent: "Joe Flacco said he wanted the ball behind the linebackers against relatively soft safeties and expected a small throwing window for Wilson.",
     result: "Completed 15-yard touchdown pass; the touchdown tied the score 30–30.",
@@ -92,9 +92,9 @@ const players = [
   supporting("c", "C", "Center", "Offensive line", "In this study, hold the middle of the protection and settle in front of the quarterback. The animation begins with the ball in the passer's hands; snapping mechanics and any help assignment are unestablished."),
   supporting("rg", "RG", "Right guard", "Offensive line", "In this study, set inside the right tackle and form the pocket's right interior boundary against a nearby rush example. The actual protection assignment is unknown."),
   supporting("rt", "RT", "Right tackle", "Offensive line", "In this study, retreat to the right edge of the pocket and meet the outside rush example. The real blocker, leverage and matchup are unverified."),
-  supporting("x", "X", "Outside wide receiver", "Receivers", "In this study, release from the left outside lane and angle inward to provide complementary spacing. This receiver's actual route and its effect on the defense are unknown."),
+  supporting("x", "WR", "Wide receiver / complementary route", "Receivers", "In this study, release from the left inside lane and provide complementary spacing. This receiver's actual route and its effect on the defense are unknown."),
   supporting("z", "Z", "Outside wide receiver", "Receivers", "In this study, carry an outside lane toward the end zone and keep width opposite Wilson. The real receiver and route combination are unverified."),
-  supporting("y", "TE", "Tight end / eligible receiver", "Receivers", "In this study, release from an off-line alignment into the right underneath space as an outlet. Tight end is a teaching role here; the real personnel and route are unknown."),
+  supporting("y", "TE", "Tight end / eligible receiver", "Receivers", "In this study, release from an off-line alignment and settle in the right underneath space. The exact personnel list is available separately; this figure’s route geometry and matchup remain authored."),
   supporting("rb", "RB", "Running back / backfield player", "Backfield", "In this study, step toward the pocket, then release to the left underneath as a check-and-outlet example. The real back, pickup and release decision are unverified."),
   supporting("d1", "DE", "Defensive end / edge", "Defensive line", "In this study, approach the outside of the left protection set to make the pocket edge visible. The real rusher, rush move and matchup are unknown."),
   supporting("d2", "DT", "Defensive tackle / interior", "Defensive line", "In this study, advance toward the left interior protection example. This supplies an interior pocket boundary without identifying a real gap, technique or pass-rush outcome."),
@@ -104,7 +104,7 @@ const players = [
   supporting("d6", "LB", "Linebacker / underneath defender", "Linebackers", "In this study, keep another underneath body near the middle, then converge toward the receiver's finish. This does not identify a man assignment, zone landmark or actual coverage decision."),
   supporting("d7", "CB", "Cornerback / outside defender", "Secondary", "In this study, retreat alongside the left outside route example and follow its inward angle. This authored reaction is not a recovered matchup or proof of man coverage."),
   supporting("d8", "CB", "Cornerback / outside defender", "Secondary", "In this study, retreat alongside the right outside release to preserve depth. The actual cornerback, leverage and coverage responsibility are unknown."),
-  supporting("d9", "NB", "Nickel back / inside defensive back", "Secondary", "In this study, widen toward the right underneath outlet. Nickel back is a teaching role; the real package, identity and assignment are unverified."),
+  supporting("d9", "NB", "Nickel back / inside defensive back", "Secondary", "In this study, widen toward the right underneath outlet. Nickel back is a teaching role; the figure’s exact player mapping, leverage and assignment are unverified."),
   supporting("d10", "S", "Safety / deep defender", "Secondary", "In this study, begin deeper than the underneath roles, then react toward Wilson's finish. The position and path illustrate space for the throwing-window explanation; no real safety rotation is identified."),
   supporting("d11", "S", "Safety / deep defender", "Secondary", "In this study, hold opposite-side depth and close toward the finish. Safety is a teaching role here; the actual defender's location, read and responsibility are unverified."),
 ].map((player) => ({ ...player, lesson: lessons[player.id], reportedConcept: reportedConcepts[player.id] ?? null }));
@@ -136,9 +136,9 @@ export const TEACHING = deepFreeze({
     relationship("right-deep", "d11", "wilson", "coverage", "Authored opposite deep reaction"),
   ],
   legend: {
-    roles: "Only Flacco and Wilson have established identities. All other position labels are anonymous teaching roles; the actual personnel, formation and individual assignments remain unverified.",
+    roles: "Only Flacco and Wilson are identified on the 3D figures. All other position labels are anonymous teaching roles. Exact-play participation now supplies a separate list of all 22 players; their positions and assignments are not mapped to these coordinates.",
     relationships: "Every relationship line is authored and inferred, including the geometry of the recorded pass. Protection and coverage lines illustrate a teaching scheme; they do not establish actual matchups, coverage calls or responsibilities.",
-    assessments: "A recorded result can be stated without grading how a player performed. Anonymous players are not graded; the evidence does not establish missed assignments, wins, losses or overperformance.",
+    assessments: "A recorded result can be stated without grading how a player performed. Anonymous players are not graded by this animation. The film study attributes PFF's coverage-unit assessment without transferring it to any individual figure.",
     sourceActions: "Recorded actions and results are supplied only for Flacco and Wilson. The reported slant and quarterback account add explanation; four reviewed stills provide limited context without supplying full routes, tracking or exact event timing.",
   },
 });

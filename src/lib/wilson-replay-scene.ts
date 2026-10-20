@@ -3,6 +3,9 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { REPLAY, sampleActor, sampleBall, samplePose } from "./wilson-replay.mjs";
 import { TEACHING } from "./wilson-teaching.mjs";
+import { addWilsonDaylight } from "./wilson-lighting";
+import { addWilsonStadium } from "./wilson-stadium";
+import { loadWilsonTurf } from "./wilson-turf";
 
 export type ReplayCamera = "sideline" | "endzone" | "overhead" | "quarterback";
 export type ReplayCameraMove = "left" | "right" | "up" | "down" | "in" | "out";
@@ -40,6 +43,7 @@ type Actor = (typeof REPLAY.actors)[number];
 type PlayerRig = {
   actor: Actor;
   root: Three.Group;
+  pelvis: Three.Group;
   torso: Three.Group;
   head: Three.Group;
   shadow: Three.Mesh;
@@ -47,6 +51,7 @@ type PlayerRig = {
   rightArm: Three.Group;
   leftForearm: Three.Group;
   rightForearm: Three.Group;
+  leftHand: Three.Mesh;
   rightHand: Three.Mesh;
   leftLeg: Three.Group;
   rightLeg: Three.Group;
@@ -56,7 +61,7 @@ type PlayerRig = {
   rightFoot: Three.Group;
 };
 
-/** Original procedural artwork. Every player position is a teaching reconstruction. */
+/** Procedural geometry with CC0 turf maps. Every player position is a teaching reconstruction. */
 export async function createReplayScene(
   host: HTMLElement,
   callbacks: {
@@ -73,8 +78,6 @@ export async function createReplayScene(
   const instances = new Set<Three.InstancedMesh>();
   const cleanupListeners: (() => void)[] = [];
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#101e20");
-  scene.fog = new THREE.Fog("#101e20", 88, 182);
   let disposed = false;
   let contextLost = false;
   let frameRequest = 0;
@@ -122,7 +125,7 @@ export async function createReplayScene(
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
+  renderer.toneMappingExposure = 1.02;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   const canvas = renderer.domElement;
@@ -160,25 +163,94 @@ export async function createReplayScene(
     material(new THREE.MeshStandardMaterial({ color, roughness, metalness: 0 }));
   const grassDark = standard("#235f47");
   const grassLight = standard("#296c51");
+  const apronGrass = standard("#4d702e", 0.98);
   const endZone = standard("#3b281d");
-  const fieldWhite = material(new THREE.MeshBasicMaterial({ color: "#d7e8db" }));
+  const fieldWhite = standard("#f3f1df", 0.98);
   const goalYellow = standard("#f1c75a", 0.55);
-  const stadiumMaterial = standard("#1d3031");
-  const trimMaterial = standard("#405053");
-  const whiteUniform = standard("#f1f0df");
-  const greenUniform = standard("#0d503d");
-  const brownUniform = standard("#522f24");
-  const orangeHelmet = standard("#e46d29", 0.6);
-  const darkTrim = standard("#172d2b");
+  const weaveCanvas = document.createElement("canvas");
+  weaveCanvas.width = weaveCanvas.height = 64;
+  const weaveContext = weaveCanvas.getContext("2d")!;
+  weaveContext.fillStyle = "#ffffff";
+  weaveContext.fillRect(0, 0, 64, 64);
+  for (let y = 0; y < 64; y += 2) for (let x = 0; x < 64; x += 2) {
+    const value = 234 + ((x * 13 + y * 7) % 20);
+    weaveContext.fillStyle = `rgb(${value} ${value} ${value})`;
+    weaveContext.fillRect(x + (y % 4 === 0 ? 0 : 1), y, 1, 2);
+  }
+  const clothWeave = new THREE.CanvasTexture(weaveCanvas);
+  clothWeave.colorSpace = THREE.SRGBColorSpace;
+  clothWeave.wrapS = clothWeave.wrapT = THREE.RepeatWrapping;
+  clothWeave.repeat.set(3, 3);
+  textures.add(clothWeave);
+  const cloth = (color: string) => material(new THREE.MeshStandardMaterial({ color, map: clothWeave, roughness: 0.94, metalness: 0 }));
+  const whiteUniform = cloth("#f5f6f0");
+  const greenUniform = cloth("#075c43");
+  const brownUniform = cloth("#34221d");
+  const jetHelmet = material(new THREE.MeshStandardMaterial({ color: "#065a40", roughness: 0.28, metalness: 0.14 }));
+  const orangeHelmet = material(new THREE.MeshStandardMaterial({ color: "#ee7624", roughness: 0.43, metalness: 0.03 }));
   const brownTrim = standard("#291b17");
   const skin = standard("#b38160");
   const ballMaterial = standard("#814528");
   const whiteTrim = standard("#e4e4d8");
   const unitBox = geometry(new THREE.BoxGeometry(1, 1, 1));
   const limbGeometry = geometry(new THREE.CylinderGeometry(0.11, 0.095, 1, 7));
-  const helmetGeometry = geometry(new THREE.SphereGeometry(0.238, 12, 9));
+  function fittedGeometry(rings: { y: number; width: number; depth: number }[], segments = 12) {
+    const points: number[] = [], uv: number[] = [], indices: number[] = [];
+    const ascending = rings[rings.length - 1].y > rings[0].y;
+    rings.forEach((ring, row) => {
+      for (let side = 0; side <= segments; side++) {
+        const angle = side / segments * Math.PI * 2;
+        // A flatter chest and back with rounded side seams, rather than an
+        // ellipsoid or a block standing in for a fitted jersey.
+        const sx = Math.sin(angle), sz = Math.cos(angle);
+        points.push(Math.sign(sx) * Math.abs(sx) ** 0.7 * ring.width, ring.y, Math.sign(sz) * Math.abs(sz) ** 0.7 * ring.depth);
+        uv.push(side / segments, row / (rings.length - 1));
+        if (row < rings.length - 1 && side < segments) {
+          const a = row * (segments + 1) + side, b = a + segments + 1;
+          indices.push(...(ascending ? [a, a + 1, b, a + 1, b + 1, b] : [a, b, a + 1, a + 1, b, b + 1]));
+        }
+      }
+    });
+    for (const row of [0, rings.length - 1]) for (let side = 1; side < segments - 1; side++) {
+      const a = row * (segments + 1);
+      indices.push(...((row === 0) === ascending ? [a, a + side + 1, a + side] : [a, a + side, a + side + 1]));
+    }
+    const mesh = new THREE.BufferGeometry();
+    mesh.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
+    mesh.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+    mesh.setIndex(indices);
+    mesh.computeVertexNormals();
+    return geometry(mesh);
+  }
+  const jerseyGeometry = fittedGeometry([{ y: -0.07, width: 0.225, depth: 0.14 }, { y: 0.08, width: 0.25, depth: 0.155 }, { y: 0.31, width: 0.31, depth: 0.18 }, { y: 0.5, width: 0.37, depth: 0.175 }, { y: 0.6, width: 0.285, depth: 0.145 }]);
+  const hipGeometry = fittedGeometry([{ y: -0.01, width: 0.215, depth: 0.14 }, { y: 0.1, width: 0.245, depth: 0.15 }, { y: 0.16, width: 0.225, depth: 0.135 }]);
+  const thighGeometry = fittedGeometry([{ y: 0, width: 0.135, depth: 0.135 }, { y: -0.18, width: 0.145, depth: 0.14 }, { y: -0.36, width: 0.108, depth: 0.105 }, { y: -0.42, width: 0.095, depth: 0.095 }], 10);
+  const calfGeometry = fittedGeometry([{ y: 0, width: 0.09, depth: 0.09 }, { y: -0.1, width: 0.112, depth: 0.105 }, { y: -0.26, width: 0.077, depth: 0.072 }, { y: -0.4, width: 0.06, depth: 0.065 }], 10);
+  const upperArmGeometry = fittedGeometry([{ y: 0, width: 0.105, depth: 0.115 }, { y: -0.12, width: 0.115, depth: 0.12 }, { y: -0.31, width: 0.075, depth: 0.08 }], 10);
+  const forearmGeometry = fittedGeometry([{ y: 0, width: 0.078, depth: 0.08 }, { y: -0.1, width: 0.085, depth: 0.08 }, { y: -0.3, width: 0.048, depth: 0.052 }], 10);
+  const sleeveGeometry = fittedGeometry([{ y: 0.025, width: 0.115, depth: 0.125 }, { y: -0.07, width: 0.13, depth: 0.13 }, { y: -0.15, width: 0.11, depth: 0.113 }], 10);
+  const helmetGeometry = geometry(new THREE.SphereGeometry(1, 20, 14));
+  const shellPositions = helmetGeometry.getAttribute("position");
+  const shellIndices = helmetGeometry.index!.array;
+  const openShell: number[] = [];
+  for (let index = 0; index < shellIndices.length; index += 3) {
+    const face = [shellIndices[index], shellIndices[index + 1], shellIndices[index + 2]];
+    const y = face.reduce((sum, vertex) => sum + shellPositions.getY(vertex), 0) / 3;
+    const z = face.reduce((sum, vertex) => sum + shellPositions.getZ(vertex), 0) / 3;
+    if (y < -0.76 || z > 0.38 && y < 0.28) continue;
+    openShell.push(...face);
+  }
+  helmetGeometry.setIndex(openShell);
+  helmetGeometry.scale(0.215, 0.245, 0.235);
+  const faceGeometry = geometry(new THREE.SphereGeometry(0.5, 10, 8));
+  const shoeGeometry = fittedGeometry([{ y: -0.045, width: 0.084, depth: 0.185 }, { y: 0.005, width: 0.089, depth: 0.18 }, { y: 0.065, width: 0.068, depth: 0.135 }], 10);
+  const cleatStudGeometry = geometry(new THREE.CylinderGeometry(0.012, 0.017, 0.018, 5));
+  const helmetPadding = material(new THREE.MeshStandardMaterial({ color: "#242721", roughness: 1, side: THREE.DoubleSide }));
+  const brownSocks = cloth("#3d251b");
+  const blackEquipment = standard("#171e1c", 0.65);
+  const stripeOrange = cloth("#e96b20");
+  const skinTones = [skin, standard("#774d38"), standard("#9c684a"), standard("#c49779")];
   const jointGeometry = geometry(new THREE.SphereGeometry(0.105, 7, 5));
-  const shoeGeometry = geometry(new THREE.BoxGeometry(0.19, 0.13, 0.36));
   const groundCircle = geometry(new THREE.CircleGeometry(0.53, 24));
   const groundShadow = material(new THREE.MeshBasicMaterial({ color: "#062c22", transparent: true, opacity: 0.37, depthWrite: false }));
 
@@ -242,24 +314,10 @@ export async function createReplayScene(
     return mesh;
   }
 
-  scene.add(new THREE.HemisphereLight("#edf6f4", "#2b4537", 2.8));
-  const keyLight = new THREE.DirectionalLight("#fff4d8", 3.5);
-  cleanupListeners.push(() => keyLight.shadow.dispose());
-  keyLight.position.set(-26, 44, -16);
-  keyLight.castShadow = true;
-  keyLight.shadow.mapSize.set(1024, 1024);
-  keyLight.shadow.camera.left = -32;
-  keyLight.shadow.camera.right = 32;
-  keyLight.shadow.camera.top = 32;
-  keyLight.shadow.camera.bottom = -22;
-  keyLight.shadow.camera.near = 1;
-  keyLight.shadow.camera.far = 120;
-  keyLight.shadow.normalBias = 0.035;
-  keyLight.target.position.set(0, 0, 9);
-  scene.add(keyLight, keyLight.target);
+  cleanupListeners.push(addWilsonDaylight(scene, renderer));
 
   // Yard coordinates: Cleveland goal line z=0; Jets attack toward decreasing z.
-  box(scene, grassDark, 69, 0.3, 141, 0, -0.19, 48).receiveShadow = true;
+  box(scene, apronGrass, 69, 0.3, 141, 0, -0.19, 48).receiveShadow = true;
   for (let z = 0; z < 100; z += 5) {
     box(scene, z % 10 === 0 ? grassLight : grassDark, 53.333, 0.05, 5, 0, -0.018, z + 2.5).receiveShadow = true;
   }
@@ -292,17 +350,6 @@ export async function createReplayScene(
   fieldText("SNAP · CLE 15", 20, 16.1, 9.4, 1.0, 0, "#ffe3a0");
   fieldText("FIRST DOWN", 20, 6, 8, 0.8, 0, "#9cdaf5");
 
-  // A quiet, original stadium surround gives scale without suggesting licensed footage.
-  for (const side of [-1, 1]) {
-    box(scene, trimMaterial, 1.3, 1.1, 128, side * 32.8, 0.3, 49);
-    for (let tier = 0; tier < 6; tier++) {
-      box(scene, stadiumMaterial, 4, 0.9, 126, side * (36 + tier * 3.1), 1.1 + tier * 1.8, 49);
-      box(scene, trimMaterial, 3.6, 0.08, 125, side * (36 + tier * 3.1), 1.59 + tier * 1.8, 49);
-    }
-  }
-  for (let tier = 0; tier < 5; tier++) {
-    box(scene, stadiumMaterial, 67 + tier * 5, 1.2, 3.6, 0, 1.2 + tier * 1.7, -19 - tier * 3);
-  }
   const goal = new THREE.Group();
   cylinder(goal, goalYellow, new THREE.Vector3(0, 0, -13), new THREE.Vector3(0, 3.45, -13), 0.12);
   cylinder(goal, goalYellow, new THREE.Vector3(0, 3.45, -13), new THREE.Vector3(0, 3.45, -10), 0.12);
@@ -313,7 +360,7 @@ export async function createReplayScene(
     for (const z of [0, -10]) box(scene, orangeHelmet, 0.16, 0.55, 0.16, x, 0.275, z);
   }
 
-  // The hundreds of repeated field marks and terrace blocks share a few draws.
+  // The hundreds of repeated field marks share a few draws.
   const staticBoxes = new Map<Three.Material, Three.Mesh[]>();
   for (const child of [...scene.children]) {
     if (!(child instanceof THREE.Mesh) || child.geometry !== unitBox || Array.isArray(child.material)) continue;
@@ -334,35 +381,96 @@ export async function createReplayScene(
     scene.add(batch);
   }
 
-  function limb(parent: Three.Group, mat: Three.Material, x: number, y: number, length: number, foreLength: number, isLeg: boolean) {
+  addWilsonStadium(scene, {
+    geometry,
+    material,
+    texture<T extends Three.Texture>(value: T): T { textures.add(value); return value; },
+    instance<T extends Three.InstancedMesh>(value: T): T { instances.add(value); return value; },
+  });
+
+  const sleeveBandGeometry = geometry(new THREE.CylinderGeometry(0.123, 0.123, 0.014, 12, 1, true));
+  const ankleTapeGeometry = geometry(new THREE.CylinderGeometry(0.06, 0.06, 0.065, 10, 1, true));
+  const palmGeometry = geometry(new THREE.SphereGeometry(0.5, 8, 6));
+  const stripeRibbons = new Map<string, Three.BufferGeometry>();
+  function pantsRibbon(side: number, centre: number, width: number) {
+    const key = `${side}:${centre}:${width}`;
+    if (stripeRibbons.has(key)) return stripeRibbons.get(key)!;
+    const vertices: number[] = [], faces: number[] = [];
+    [{ y: -0.015, x: 0.138 }, { y: -0.18, x: 0.148 }, { y: -0.36, x: 0.111 }, { y: -0.405, x: 0.1 }].forEach((point, i) => {
+      vertices.push(side * point.x, point.y, centre - width / 2, side * point.x, point.y, centre + width / 2);
+      if (i < 3) { const v = i * 2; faces.push(...(side > 0 ? [v, v + 1, v + 2, v + 1, v + 3, v + 2] : [v, v + 2, v + 1, v + 1, v + 2, v + 3])); }
+    });
+    const ribbon = geometry(new THREE.BufferGeometry());
+    ribbon.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+    ribbon.setIndex(faces); ribbon.computeVertexNormals();
+    stripeRibbons.set(key, ribbon);
+    return ribbon;
+  }
+
+  function limb(parent: Three.Group, actor: Actor, skinMaterial: Three.Material, x: number, y: number, length: number, foreLength: number, isLeg: boolean) {
+    const offense = actor.team === "NYJ", side = Math.sign(x);
     const joint = new THREE.Group();
     joint.position.set(x, y, 0);
-    const upper = new THREE.Mesh(limbGeometry, mat);
-    upper.scale.set(isLeg ? 1.25 : 1, length, isLeg ? 1.25 : 1);
-    upper.position.y = -length / 2;
+    const upper = new THREE.Mesh(isLeg ? thighGeometry : upperArmGeometry, isLeg ? whiteUniform : skinMaterial);
+    upper.scale.y = length / (isLeg ? 0.42 : 0.31);
     upper.castShadow = true;
     joint.add(upper);
+    if (isLeg) {
+      if (offense) joint.add(new THREE.Mesh(pantsRibbon(side, 0, 0.045), greenUniform));
+      else for (const [centre, stripeMat] of [[-0.035, stripeOrange], [0, brownUniform], [0.035, stripeOrange]] as const) joint.add(new THREE.Mesh(pantsRibbon(side, centre, 0.025), stripeMat));
+    } else {
+      const sleeve = new THREE.Mesh(sleeveGeometry, offense ? whiteUniform : brownUniform);
+      sleeve.castShadow = true;
+      joint.add(sleeve);
+      const bands = offense ? [{ at: -0.105, mat: greenUniform }] : [-0.025, -0.05, -0.075, -0.1, -0.125].map((at, i) => ({ at, mat: i % 2 === 0 ? whiteTrim : stripeOrange }));
+      for (const band of bands) {
+        const stripe = new THREE.Mesh(sleeveBandGeometry, band.mat);
+        stripe.position.y = band.at;
+        stripe.scale.setScalar(offense ? 0.95 : 1);
+        joint.add(stripe);
+      }
+    }
     const lowerJoint = new THREE.Group();
     lowerJoint.position.y = -length;
-    const lower = new THREE.Mesh(limbGeometry, isLeg ? mat : skin);
-    lower.scale.set(isLeg ? 1.02 : 0.81, foreLength, isLeg ? 1.02 : 0.81);
-    lower.position.y = -foreLength / 2;
+    const lower = new THREE.Mesh(isLeg ? calfGeometry : forearmGeometry, isLeg ? offense ? whiteUniform : brownSocks : skinMaterial);
+    lower.scale.y = foreLength / (isLeg ? 0.4 : 0.3);
     lower.castShadow = true;
     lowerJoint.add(lower);
     let hand: Three.Mesh | null = null;
     let foot: Three.Group | null = null;
     if (isLeg) {
+      const ankleTape = new THREE.Mesh(ankleTapeGeometry, whiteTrim);
+      ankleTape.position.y = -foreLength + 0.055;
+      lowerJoint.add(ankleTape);
       foot = new THREE.Group();
       foot.position.y = -foreLength;
-      const shoe = new THREE.Mesh(shoeGeometry, darkTrim);
-      shoe.position.set(0, 0.01, 0.085);
+      const shoe = new THREE.Mesh(shoeGeometry, offense ? whiteTrim : blackEquipment);
+      shoe.position.z = 0.07;
+      shoe.castShadow = true;
       foot.add(shoe);
+      const sole = new THREE.Mesh(shoeGeometry, blackEquipment);
+      sole.scale.set(1.025, 0.22, 1.025);
+      sole.position.set(0, -0.042, 0.07);
+      foot.add(sole);
+      for (const z of [-0.045, 0.07, 0.18]) for (const x of [-0.055, 0.055]) {
+        const stud = new THREE.Mesh(cleatStudGeometry, blackEquipment);
+        stud.position.set(x, -0.06, z);
+        foot.add(stud);
+      }
+      for (const z of [0.02, 0.055, 0.09]) box(foot, offense ? blackEquipment : whiteTrim, 0.065, 0.008, 0.009, 0, 0.063, z);
       lowerJoint.add(foot);
-      box(lowerJoint, whiteTrim, 0.16, 0.12, 0.17, 0, -foreLength + 0.15, 0);
     } else {
-      hand = new THREE.Mesh(jointGeometry, whiteTrim);
-      hand.scale.set(0.75, 1, 0.8);
+      const wrist = new THREE.Mesh(ankleTapeGeometry, whiteTrim);
+      wrist.scale.set(0.9, 0.7, 0.9);
+      wrist.position.y = -foreLength + 0.035;
+      lowerJoint.add(wrist);
+      hand = new THREE.Mesh(palmGeometry, actor.id === "qb" ? skinMaterial : whiteTrim);
+      hand.scale.set(0.105, 0.145, 0.07);
       hand.position.y = -foreLength;
+      const thumb = new THREE.Mesh(palmGeometry, hand.material);
+      thumb.scale.set(0.34, 0.44, 0.8);
+      thumb.position.set(-side * 0.43, 0.1, 0.06);
+      hand.add(thumb);
       lowerJoint.add(hand);
     }
     joint.add(lowerJoint);
@@ -370,50 +478,136 @@ export async function createReplayScene(
     return { joint, lowerJoint, hand, foot };
   }
 
+  const helmetStripeGeometry = geometry(new THREE.SphereGeometry(1, 20, 14));
+  // The Browns' three crown stripes follow the helmet curve. The Jets'
+  // metallic-green 2022 shell has no centre stripe.
+  const stripePositions = helmetStripeGeometry.getAttribute("position"), stripeIndices = helmetStripeGeometry.index!.array;
+  const crownIndices: number[] = [];
+  for (let index = 0; index < stripeIndices.length; index += 3) {
+    const face = [stripeIndices[index], stripeIndices[index + 1], stripeIndices[index + 2]];
+    const x = face.reduce((sum, vertex) => sum + stripePositions.getX(vertex), 0) / 3;
+    const y = face.reduce((sum, vertex) => sum + stripePositions.getY(vertex), 0) / 3;
+    if (Math.abs(x) < 0.105 && y > 0.16) crownIndices.push(...face);
+  }
+  helmetStripeGeometry.setIndex(crownIndices);
+  helmetStripeGeometry.scale(0.218, 0.248, 0.238);
+  const brownCrownGeometry = geometry(helmetStripeGeometry.clone());
+  brownCrownGeometry.scale(0.43, 1.005, 1.005);
+  const wordmarkAssets = new Map<string, { geometry: Three.BufferGeometry; material: Three.Material }>();
+  function wordmark(parent: Three.Group, text: string, color: string, width: number, height: number, x: number, y: number, z: number, yaw = 0) {
+    const key = `${text}:${color}:${width}:${height}`;
+    let asset = wordmarkAssets.get(key);
+    if (!asset) {
+      const texture = textTexture(text, { foreground: color, width: 256, height: 64, fontSize: 45 });
+      asset = { geometry: geometry(new THREE.PlaneGeometry(width, height)), material: material(new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false })) };
+      wordmarkAssets.set(key, asset);
+    }
+    const patch = new THREE.Mesh(asset.geometry, asset.material);
+    patch.position.set(x, y, z); patch.rotation.y = yaw; parent.add(patch);
+  }
+  const shoulderStripes = new Map<string, Three.BufferGeometry>();
+  function shoulderStripe(side: number, front: number) {
+    const key = `${side}:${front}`;
+    if (shoulderStripes.has(key)) return shoulderStripes.get(key)!;
+    const points = [side * 0.12, 0.578, front * 0.15, side * 0.36, 0.525, front * 0.18, side * 0.395, 0.485, front * 0.175, side * 0.125, 0.565, front * 0.158];
+    const stripe = geometry(new THREE.BufferGeometry());
+    stripe.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
+    stripe.setIndex(front * side > 0 ? [0, 2, 1, 0, 3, 2] : [0, 1, 2, 0, 2, 3]); stripe.computeVertexNormals();
+    shoulderStripes.set(key, stripe);
+    return stripe;
+  }
+
   function createPlayer(actor: Actor): PlayerRig {
     const root = new THREE.Group();
     root.userData.actorId = actor.id;
     const offense = actor.team === "NYJ";
     const jersey = offense ? whiteUniform : brownUniform;
-    const pants = whiteUniform;
-    const trim = offense ? greenUniform : whiteTrim;
+    const skinMaterial = actor.id === "qb" ? skinTones[3] : actor.id === "wilson" ? skinTones[1] : skinTones[Math.floor(actor.strideSeed * skinTones.length)];
     const torso = new THREE.Group();
     torso.position.y = 0.98;
     root.add(torso);
-    const chest = box(torso, jersey, 0.67, 0.58, 0.36, 0, 0.3, 0);
+    const pelvis = new THREE.Group();
+    pelvis.position.y = 0.87;
+    root.add(pelvis);
+    const chest = new THREE.Mesh(jerseyGeometry, jersey);
     chest.castShadow = true;
-    box(torso, jersey, 0.86, 0.25, 0.42, 0, 0.52, 0).castShadow = true;
-    box(torso, pants, 0.47, 0.19, 0.32, 0, -0.02, 0);
-    box(torso, darkTrim, 0.5, 0.075, 0.35, 0, 0.025, 0);
-    // Jersey stripes, helmet and open face mask read as football at field scale.
-    for (const x of [-0.405, 0.405]) box(torso, trim, 0.035, 0.15, 0.43, x, 0.48, 0);
-    const neck = new THREE.Mesh(jointGeometry, skin);
-    neck.position.set(0, 0.67, 0.015);
+    torso.add(chest);
+    const hips = new THREE.Mesh(hipGeometry, whiteUniform);
+    hips.castShadow = true;
+    pelvis.add(hips);
+    box(pelvis, offense ? greenUniform : brownUniform, 0.44, 0.035, 0.27, 0, 0.145, 0);
+    // The 2022 Jets shoulder stripe tapers toward the collar. It is a flat
+    // cloth panel on the fitted jersey, rather than a throwback sleeve hoop.
+    if (offense) for (const side of [-1, 1]) for (const front of [-1, 1]) {
+      torso.add(new THREE.Mesh(shoulderStripe(side, front), greenUniform));
+    }
+    const collarMat = offense ? greenUniform : brownUniform;
+    cylinder(torso, collarMat, new THREE.Vector3(-0.12, 0.605, 0.105), new THREE.Vector3(0, 0.55, 0.155), 0.014);
+    cylinder(torso, collarMat, new THREE.Vector3(0, 0.55, 0.155), new THREE.Vector3(0.12, 0.605, 0.105), 0.014);
+    const neck = new THREE.Mesh(jointGeometry, skinMaterial);
+    neck.scale.set(0.72, 0.85, 0.72);
+    neck.position.set(0, 0.66, 0.015);
     torso.add(neck);
     const head = new THREE.Group();
     head.position.set(0, 0.84, 0.02);
     torso.add(head);
-    const helmet = new THREE.Mesh(helmetGeometry, offense ? greenUniform : orangeHelmet);
+    const liner = new THREE.Mesh(helmetGeometry, helmetPadding);
+    liner.scale.setScalar(0.965);
+    head.add(liner);
+    const helmet = new THREE.Mesh(helmetGeometry, offense ? jetHelmet : orangeHelmet);
     helmet.castShadow = true;
     head.add(helmet);
-    box(head, skin, 0.245, 0.23, 0.11, 0, -0.05, 0.2);
-    const maskMaterial = offense ? darkTrim : brownTrim;
-    for (const y of [-0.11, 0.02]) cylinder(head, maskMaterial, new THREE.Vector3(-0.16, y, 0.27), new THREE.Vector3(0.16, y, 0.27), 0.019);
-    for (const x of [-0.17, 0.17]) cylinder(head, maskMaterial, new THREE.Vector3(x, -0.16, 0.25), new THREE.Vector3(x, 0.06, 0.25), 0.018);
-    box(head, trim, 0.055, 0.019, 0.365, 0, 0.229, 0);
-    const leftArm = limb(torso, jersey, 0.43, 0.51, 0.31, 0.3, false);
-    const rightArm = limb(torso, jersey, -0.43, 0.51, 0.31, 0.3, false);
-    const leftLeg = limb(root, pants, 0.17, 0.87, 0.42, 0.4, true);
-    const rightLeg = limb(root, pants, -0.17, 0.87, 0.42, 0.4, true);
+    const face = new THREE.Mesh(faceGeometry, skinMaterial);
+    face.scale.set(0.265, 0.345, 0.24);
+    face.position.set(0, -0.04, 0.035);
+    head.add(face);
+    const nose = new THREE.Mesh(palmGeometry, skinMaterial);
+    nose.scale.set(0.045, 0.06, 0.06); nose.position.set(0, -0.035, 0.165); head.add(nose);
+    box(head, helmetPadding, 0.14, 0.015, 0.008, 0, 0.015, 0.154);
+    const maskMaterial = offense ? blackEquipment : brownTrim;
+    const bar = (a: number[], b: number[], radius = 0.011) => cylinder(head, maskMaterial, new THREE.Vector3(...a as [number, number, number]), new THREE.Vector3(...b as [number, number, number]), radius);
+    for (const y of [-0.055, -0.135]) {
+      bar([-0.19, y + 0.035, 0.155], [-0.145, y, 0.29]);
+      bar([-0.145, y, 0.29], [0.145, y, 0.29]);
+      bar([0.145, y, 0.29], [0.19, y + 0.035, 0.155]);
+    }
+    for (const x of [-0.11, 0.11]) bar([x, -0.145, 0.292], [x, 0.025, 0.255]);
+    for (const side of [-1, 1]) {
+      const jaw = new THREE.Mesh(faceGeometry, offense ? jetHelmet : orangeHelmet);
+      jaw.scale.set(0.055, 0.17, 0.13); jaw.position.set(side * 0.175, -0.12, 0.11); jaw.rotation.z = side * -0.22; head.add(jaw);
+      cylinder(head, whiteTrim, new THREE.Vector3(side * 0.18, -0.075, 0.13), new THREE.Vector3(side * 0.095, -0.225, 0.19), 0.009);
+      const ear = new THREE.Mesh(palmGeometry, helmetPadding);
+      ear.scale.set(0.008, 0.052, 0.045); ear.position.set(side * 0.211, -0.055, 0.025); head.add(ear);
+      if (offense) wordmark(head, "JETS", "#f8fcf7", 0.16, 0.065, side * 0.212, 0.045, 0, side * Math.PI / 2);
+    }
+    const chin = new THREE.Mesh(palmGeometry, whiteTrim);
+    chin.scale.set(0.11, 0.055, 0.055); chin.position.set(0, -0.225, 0.19); head.add(chin);
+    if (!offense) { head.add(new THREE.Mesh(helmetStripeGeometry, whiteTrim)); head.add(new THREE.Mesh(brownCrownGeometry, brownUniform)); }
+    const leftArm = limb(torso, actor, skinMaterial, 0.43, 0.51, 0.31, 0.3, false);
+    const rightArm = limb(torso, actor, skinMaterial, -0.43, 0.51, 0.31, 0.3, false);
+    const leftLeg = limb(pelvis, actor, skinMaterial, 0.17, 0, 0.42, 0.4, true);
+    const rightLeg = limb(pelvis, actor, skinMaterial, -0.17, 0, 0.42, 0.4, true);
+    if (offense) wordmark(torso, "NEW YORK", "#075638", 0.21, 0.037, 0, 0.5, 0.182);
     if (actor.number !== null && actor.number !== undefined) {
-      const texture = textTexture(String(actor.number), { foreground: "#0b4938", width: 128, height: 128, fontSize: 104 });
+      const numberCanvas = document.createElement("canvas");
+      numberCanvas.width = numberCanvas.height = 128;
+      const numberContext = numberCanvas.getContext("2d")!;
+      numberContext.font = "900 106px 'Arial Black', system-ui, sans-serif";
+      numberContext.textAlign = "center"; numberContext.textBaseline = "middle";
+      numberContext.lineWidth = 4; numberContext.strokeStyle = "#17221d";
+      numberContext.strokeText(String(actor.number), 64, 66, 117);
+      numberContext.fillStyle = "#075638";
+      numberContext.fillText(String(actor.number), 64, 66, 117);
+      const texture = new THREE.CanvasTexture(numberCanvas);
+      texture.colorSpace = THREE.SRGBColorSpace; textures.add(texture);
       const numberMaterial = material(new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false }));
       for (const front of [-1, 1]) {
-        const number = new THREE.Mesh(geometry(new THREE.PlaneGeometry(0.33, 0.34)), numberMaterial);
-        number.position.set(0, 0.3, front * 0.186);
+        const number = new THREE.Mesh(geometry(new THREE.PlaneGeometry(0.3, 0.32)), numberMaterial);
+        number.position.set(0, 0.29, front * 0.184);
         if (front < 0) number.rotation.y = Math.PI;
         torso.add(number);
       }
+      wordmark(torso, actor.id === "qb" ? "FLACCO" : "WILSON", "#075638", 0.28, 0.05, 0, 0.5, -0.182, Math.PI);
     }
     const shadow = new THREE.Mesh(groundCircle, groundShadow);
     shadow.rotation.x = -Math.PI / 2;
@@ -421,7 +615,7 @@ export async function createReplayScene(
     root.add(shadow);
     root.traverse((child) => { child.userData.actorId = actor.id; });
     scene.add(root);
-    return { actor, root, torso, head, shadow, leftArm: leftArm.joint, rightArm: rightArm.joint, leftForearm: leftArm.lowerJoint, rightForearm: rightArm.lowerJoint, rightHand: rightArm.hand!, leftLeg: leftLeg.joint, rightLeg: rightLeg.joint, leftShin: leftLeg.lowerJoint, rightShin: rightLeg.lowerJoint, leftFoot: leftLeg.foot!, rightFoot: rightLeg.foot! };
+    return { actor, root, pelvis, torso, head, shadow, leftArm: leftArm.joint, rightArm: rightArm.joint, leftForearm: leftArm.lowerJoint, rightForearm: rightArm.lowerJoint, leftHand: leftArm.hand!, rightHand: rightArm.hand!, leftLeg: leftLeg.joint, rightLeg: rightLeg.joint, leftShin: leftLeg.lowerJoint, rightShin: rightLeg.lowerJoint, leftFoot: leftLeg.foot!, rightFoot: rightLeg.foot! };
   }
 
   const rigs = REPLAY.actors.map(createPlayer);
@@ -610,13 +804,13 @@ export async function createReplayScene(
     forearm.quaternion.slerp(lowerRotation, weight);
   }
 
-  function placeLeg(rig: PlayerRig, side: "left" | "right", target: Three.Vector3, footYaw: number) {
+  function placeLeg(rig: PlayerRig, side: "left" | "right", target: Three.Vector3, footYaw: number, footPitch = 0) {
     const leg = side === "left" ? rig.leftLeg : rig.rightLeg;
     const shin = side === "left" ? rig.leftShin : rig.rightShin;
     const foot = side === "left" ? rig.leftFoot : rig.rightFoot;
-    rig.root.updateWorldMatrix(true, false);
+    rig.pelvis.updateWorldMatrix(true, false);
     const hip = leg.position.clone();
-    const destination = rig.root.worldToLocal(target.clone());
+    const destination = rig.pelvis.worldToLocal(target.clone());
     const direction = destination.clone().sub(hip);
     const distance = THREE.MathUtils.clamp(direction.length(), 0.05, 0.8199);
     direction.normalize();
@@ -631,6 +825,7 @@ export async function createReplayScene(
     shin.updateWorldMatrix(true, false);
     const parentRotation = shin.getWorldQuaternion(new THREE.Quaternion());
     const groundedRotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), footYaw);
+    groundedRotation.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), footPitch));
     foot.quaternion.copy(parentRotation.invert().multiply(groundedRotation));
   }
 
@@ -644,10 +839,11 @@ export async function createReplayScene(
     const phase = cycle - Math.floor(cycle);
     const plantTime = time - phase / cadence;
     const sideSign = side === "left" ? 1 : -1;
-    const width = motion.roleFamily === "blocker" || motion.roleFamily === "rusher" ? 0.24 : 0.17;
+    const lineFamily = motion.roleFamily === "blocker" || motion.roleFamily === "rusher";
+    const width = lineFamily ? 0.24 : 0.17;
     const anchor = (at: number) => {
       const position = sampleActor(rig.actor, at);
-      const facing = samplePose(rig.actor, at).facingYaw;
+      const facing = position.yaw;
       const before = sampleActor(rig.actor, Math.max(0, at) - 0.03);
       const after = sampleActor(rig.actor, Math.max(0, at) + 0.15 / cadence);
       const direction = new THREE.Vector3(after.x - before.x, 0, after.z - before.z);
@@ -657,19 +853,59 @@ export async function createReplayScene(
       // reachable with .82-yard legs, including an accelerating first step.
       const stance = THREE.MathUtils.clamp(0.66 * cadence / Math.max(0.1, cycleSpeed), 0.10, 0.72);
       const lead = Math.min(0.33, cycleSpeed * stance / (2 * cadence));
-      return { point: new THREE.Vector3(position.x + Math.cos(facing) * width * sideSign + direction.x * lead, 0.07, position.z - Math.sin(facing) * width * sideSign + direction.z * lead), yaw: facing, stance };
+      // Tight kick-slide steps use a split base, rather than putting the two
+      // ankles on the same cross-field line throughout the pocket.
+      const setSide = ["lt", "lg", "d1", "d2"].includes(rig.actor.id) ? -1 : 1;
+      const stagger = lineFamily ? sideSign * setSide * 0.115 * (1 - THREE.MathUtils.smoothstep(at, 3.7, 4.7)) : 0;
+      return { point: new THREE.Vector3(position.x + Math.cos(facing) * width * sideSign + direction.x * lead + Math.sin(facing) * stagger, 0.07, position.z - Math.sin(facing) * width * sideSign + direction.z * lead + Math.cos(facing) * stagger), yaw: facing, stance };
     };
     const from = anchor(plantTime);
     const stance = from.stance;
-    if (phase < stance) return { ...from, planted: true };
+    if (phase < stance) return { ...from, planted: true, pitch: 0 };
     const to = anchor(plantTime + 1 / cadence);
     const progress = (phase - stance) / (1 - stance);
     const eased = progress * progress * (3 - 2 * progress);
     from.point.lerp(to.point, eased);
-    const lift = motion.roleFamily === "blocker" ? 0.11 : motion.roleFamily === "quarterback" ? 0.13 : motion.roleFamily === "rusher" ? 0.22 : 0.32;
+    const lift = motion.roleFamily === "blocker" ? 0.08 : motion.roleFamily === "quarterback" ? 0.11 : motion.roleFamily === "rusher" ? 0.19 : 0.34;
     from.point.y += Math.sin(progress * Math.PI) * lift * motion.gait;
     const yawDelta = Math.atan2(Math.sin(to.yaw - from.yaw), Math.cos(to.yaw - from.yaw));
-    return { ...from, yaw: from.yaw + yawDelta * eased, planted: false };
+    return { ...from, yaw: from.yaw + yawDelta * eased, planted: false, pitch: -Math.sin(progress * Math.PI) * 0.32 * motion.gait };
+  }
+
+  function sampleGaze(actor: Actor, at: number, motion: ReturnType<typeof samplePose>, pose: ReturnType<typeof sampleActor>, rootHeight: number, torsoX: number, torsoY: number) {
+    const eyeHeight = rootHeight + 0.98 + Math.cos(torsoX) * 0.84;
+    const toward = (target: { x: number; z: number; y?: number }) => {
+      const dx = target.x - pose.x, dz = target.z - pose.z;
+      const distance = Math.hypot(dx, dz);
+      const angle = Math.atan2(dx, dz) - motion.facingYaw - torsoY;
+      // A nearby hand/receiver passing the body should not spin the neck.
+      // Fold behind-body targets continuously and soften very close checks.
+      return { yaw: Math.asin(Math.sin(angle)) * THREE.MathUtils.smoothstep(distance, 0.35, 1.5), pitch: Math.atan2(eyeHeight - (target.y ?? 1.45), Math.max(0.8, distance)) - torsoX };
+    };
+    const blend = (from: { yaw: number; pitch: number }, to: { yaw: number; pitch: number }, weight: number) => ({ yaw: THREE.MathUtils.lerp(from.yaw, to.yaw, weight), pitch: THREE.MathUtils.lerp(from.pitch, to.pitch, weight) });
+    const quarterback = sampleActor("qb", at), receiver = sampleActor("wilson", at);
+    let gaze = toward({ x: pose.x + Math.sin(motion.facingYaw) * 12, z: pose.z + Math.cos(motion.facingYaw) * 12, y: 1.55 });
+    if (motion.roleFamily === "quarterback") gaze = toward({ ...receiver, y: 1.4 });
+    if (motion.roleFamily === "receiver" || motion.roleFamily === "back") {
+      const lookBack = actor.id === "wilson"
+        ? THREE.MathUtils.smoothstep(at, catchAt - 1.02, catchAt - 0.34) * (1 - THREE.MathUtils.smoothstep(at, catchAt + 0.12, catchAt + 0.46))
+        : THREE.MathUtils.smoothstep(at, 1.25 + actor.strideSeed * 0.6, 2.15 + actor.strideSeed * 0.6) * (1 - THREE.MathUtils.smoothstep(at, releaseAt + 0.15, catchAt + 0.4)) * 0.6;
+      gaze = blend(gaze, toward(quarterback), lookBack);
+      if (actor.id === "wilson") gaze = blend(gaze, toward(sampleBall(catchAt)), motion.catch);
+    }
+    if (motion.roleFamily === "coverage") {
+      const routeId = ({ d7: "x", d8: "z", d9: "y", d11: "y" } as Record<string, string>)[actor.id] ?? "wilson";
+      const route = sampleActor(routeId, at);
+      const routeRead = THREE.MathUtils.smoothstep(at, 1.35 + actor.strideSeed * 0.7, 2.2 + actor.strideSeed * 0.7);
+      const reaction = THREE.MathUtils.smoothstep(at, catchAt + 0.12 + actor.strideSeed * 0.4, catchAt + 0.65 + actor.strideSeed * 0.5);
+      // Blend directions, not target positions: the latter can pass through
+      // this player's centre and reverse the head during a read handoff.
+      gaze = blend(toward(quarterback), toward(route), routeRead);
+      gaze = blend(gaze, toward(receiver), reaction * 0.65);
+    }
+    if (motion.engagementTarget) gaze = blend(gaze, toward({ ...sampleActor(motion.engagementTarget, at), y: 1.4 }), motion.engagement);
+    const diveWeight = 1 - motion.dive * 0.75;
+    return { x: THREE.MathUtils.clamp(gaze.pitch, -0.58, 0.35) * diveWeight, y: Math.tanh(gaze.yaw / 0.85) * 0.68 * diveWeight, z: -motion.bodyRoll * 0.4 };
   }
 
   function sizeSelectionLabel() {
@@ -821,26 +1057,37 @@ export async function createReplayScene(
       const motion = samplePose(rig.actor, time);
       const phase = motion.stridePhase * Math.PI * 2;
       const lineFamily = motion.roleFamily === "blocker" || motion.roleFamily === "rusher";
-      const contactWeight = lineFamily ? Math.max(motion.engagement, (1 - THREE.MathUtils.smoothstep(time, 0, 0.8)) * 0.55, motion.roleFamily === "blocker" ? 0.55 * (1 - THREE.MathUtils.smoothstep(time, 3.5, 4.3)) : 0) : 0;
+      const contactWeight = lineFamily ? Math.max(motion.engagement, (1 - THREE.MathUtils.smoothstep(time, 0, 0.8)) * 0.7, motion.roleFamily === "blocker" ? 0.5 * (1 - THREE.MathUtils.smoothstep(time, 3.5, 4.3)) : 0) : 0;
       const direction = new THREE.Vector3(pose.vx, 0, pose.vz);
+      if (direction.lengthSq() <= 0.00001) {
+        const before = sampleActor(rig.actor, time - 0.06), after = sampleActor(rig.actor, time + 0.06);
+        direction.set(after.x - before.x, 0, after.z - before.z);
+      }
       const forwardness = direction.lengthSq() > 0.00001 ? (1 + direction.normalize().dot(new THREE.Vector3(Math.sin(motion.facingYaw), 0, Math.cos(motion.facingYaw)))) / 2 : 1;
-      const walkingHeight = motion.roleFamily === "quarterback" ? -0.035 : -0.035 - (0.06 + 0.055 * forwardness) * motion.gait;
-      const crouch = THREE.MathUtils.lerp(walkingHeight, -0.22, contactWeight);
-      const weightShift = Math.sin(phase * 2) * THREE.MathUtils.lerp(0.022 * motion.gait, 0.012, contactWeight);
+      const runWeight = motion.gait * forwardness * (1 - contactWeight);
+      const walkingHeight = motion.roleFamily === "quarterback" ? -0.052 : -0.055 - (0.04 + 0.065 * forwardness) * motion.gait;
+      const crouch = THREE.MathUtils.lerp(walkingHeight - motion.compression * 0.035, -0.27 - motion.compression * 0.035, contactWeight);
+      const weightShift = Math.sin(phase * 2) * THREE.MathUtils.lerp(0.025 * motion.gait, 0.009, contactWeight);
       const rootHeight = THREE.MathUtils.lerp(crouch + weightShift, 0.15 + Math.sin(motion.dive * Math.PI) * 0.48, motion.dive);
       rig.root.position.set(pose.x, rootHeight, pose.z);
       rig.root.rotation.set(0, motion.facingYaw, 0);
       rig.root.rotateX(motion.dive * 1.42);
       const recovering = motion.action.includes("recover");
       if (recovering) rig.root.rotateZ(Math.sin(motion.dive * Math.PI) * 0.35);
-      const shoulderCounter = THREE.MathUtils.lerp(Math.sin(phase) * 0.055 * motion.gait, Math.sin(phase * 0.5) * 0.06, contactWeight);
-      const lean = motion.roleFamily === "coverage" ? THREE.MathUtils.lerp(-0.08, 0.08 + 0.09 * motion.gait, forwardness) : motion.lean;
-      rig.torso.rotation.set(lean * (1 - motion.dive), shoulderCounter, Math.sin(phase) * 0.025 * motion.gait * (1 - contactWeight));
-      const armSwing = Math.sin(phase) * THREE.MathUtils.lerp(0.28, 0.82, forwardness) * motion.gait * (1 - 0.85 * contactWeight);
-      rig.leftArm.rotation.set(armSwing - 0.15, 0, 0.13);
-      rig.rightArm.rotation.set(-armSwing - 0.15, 0, -0.13);
-      rig.leftForearm.rotation.set(-0.6, 0, 0);
-      rig.rightForearm.rotation.set(-0.6, 0, 0);
+      const yawOffset = (absolute: number) => Math.atan2(Math.sin(absolute - motion.facingYaw), Math.cos(absolute - motion.facingYaw));
+      const hipCounter = Math.sin(phase) * 0.065 * runWeight;
+      const shoulderCounter = -Math.sin(phase) * 0.16 * runWeight;
+      rig.pelvis.rotation.set(-0.025 * motion.drive, yawOffset(motion.pelvisYaw) + hipCounter, -motion.bodyRoll * 0.28);
+      const lean = lineFamily ? THREE.MathUtils.lerp(motion.lean, motion.roleFamily === "blocker" ? 0.58 : 0.55, contactWeight) + 0.035 * motion.contactPulse : motion.roleFamily === "coverage" ? THREE.MathUtils.lerp(-0.1, 0.12 + 0.13 * motion.drive, forwardness) : (motion.roleFamily === "quarterback" ? THREE.MathUtils.lerp(-0.08, 0.035, THREE.MathUtils.smoothstep(time, 0.6, 1)) : motion.lean) + 0.055 * motion.drive - 0.04 * motion.brake;
+      rig.torso.rotation.set(lean * (1 - motion.dive), yawOffset(motion.torsoYaw) + shoulderCounter, motion.bodyRoll + Math.sin(phase) * 0.025 * motion.gait * (1 - contactWeight));
+      rig.torso.position.z = -0.13 * contactWeight - 0.035 * motion.brake;
+      const armSwing = Math.sin(phase) * THREE.MathUtils.lerp(0.25, 0.91, forwardness) * motion.gait * (1 - 0.85 * contactWeight);
+      rig.leftArm.rotation.set(armSwing - 0.18, 0.08 * runWeight, 0.08 + 0.035 * runWeight);
+      rig.rightArm.rotation.set(-armSwing - 0.18, -0.08 * runWeight, -0.08 - 0.035 * runWeight);
+      // Flexed elbows drive past the ribs; their recovery is out of phase,
+      // rather than a single shallow angle on every runner throughout the snap.
+      rig.leftForearm.rotation.set(-0.95 - 0.25 * (0.5 + Math.sin(phase) * 0.5) * motion.gait, 0, 0);
+      rig.rightForearm.rotation.set(-0.95 - 0.25 * (0.5 - Math.sin(phase) * 0.5) * motion.gait, 0, 0);
       rig.leftLeg.rotation.set(0, 0, 0);
       rig.rightLeg.rotation.set(0, 0, 0);
       rig.leftShin.rotation.set(0, 0, 0);
@@ -848,23 +1095,44 @@ export async function createReplayScene(
       rig.leftFoot.rotation.set(0, 0, 0);
       rig.rightFoot.rotation.set(0, 0, 0);
       if (lineFamily) {
-        rig.leftArm.rotation.x = THREE.MathUtils.lerp(rig.leftArm.rotation.x, -1.15, contactWeight);
-        rig.rightArm.rotation.x = THREE.MathUtils.lerp(rig.rightArm.rotation.x, -1.15, contactWeight);
-        rig.leftForearm.rotation.x = THREE.MathUtils.lerp(-0.6, -0.8, contactWeight);
-        rig.rightForearm.rotation.x = THREE.MathUtils.lerp(-0.6, -0.8, contactWeight);
-        if (motion.roleFamily === "rusher") {
-          // Alternate a rip/swim attempt while maintaining the authored contact.
-          const counter = Math.sin(phase * 0.5);
-          rig.leftArm.rotation.z += Math.max(0, counter) * 0.25 * contactWeight;
-          rig.rightArm.rotation.z -= Math.max(0, -counter) * 0.25 * contactWeight;
-          rig.torso.rotation.z = counter * 0.045 * contactWeight;
+        rig.leftArm.rotation.x = THREE.MathUtils.lerp(rig.leftArm.rotation.x, -0.82 - 0.12 * motion.contactPulse, contactWeight);
+        rig.rightArm.rotation.x = THREE.MathUtils.lerp(rig.rightArm.rotation.x, -0.88, contactWeight);
+        rig.leftForearm.rotation.x = THREE.MathUtils.lerp(rig.leftForearm.rotation.x, -1.25, contactWeight);
+        rig.rightForearm.rotation.x = THREE.MathUtils.lerp(rig.rightForearm.rotation.x, -1.2, contactWeight);
+        if (rig.actor.id === "c") {
+          const helpReady = THREE.MathUtils.smoothstep(time, 0.15, 0.7) * (1 - THREE.MathUtils.smoothstep(time, 3.6, 4.4));
+          rig.torso.rotation.y += Math.sin(time * 1.7) * 0.12 * helpReady;
+          rig.leftForearm.rotation.x -= Math.sin(phase * 0.5) * 0.12 * helpReady;
+          rig.rightForearm.rotation.x += Math.sin(phase * 0.5) * 0.12 * helpReady;
         }
         if (motion.engagementTarget) {
           const opponent = sampleActor(motion.engagementTarget, time);
           const midpoint = new THREE.Vector3((pose.x + opponent.x) / 2, 1.04, (pose.z + opponent.z) / 2);
-          const lateral = new THREE.Vector3(Math.cos(motion.facingYaw) * 0.19, 0, -Math.sin(motion.facingYaw) * 0.19);
-          reachArm(rig, "left", midpoint.clone().add(lateral), motion.engagement);
-          reachArm(rig, "right", midpoint.clone().sub(lateral), motion.engagement);
+          const lateral = new THREE.Vector3(Math.cos(motion.facingYaw) * 0.16, 0, -Math.sin(motion.facingYaw) * 0.16);
+          const strikePhase = time * 2 * Math.PI * 1.6 + rig.actor.strideSeed * 7;
+          rig.torso.updateWorldMatrix(true, false);
+          for (const side of ["left", "right"] as const) {
+            const sign = side === "left" ? 1 : -1;
+            const strike = 0.5 + Math.sin(strikePhase + (side === "left" ? 0 : Math.PI * 0.72)) * 0.5;
+            const retract = rig.torso.localToWorld(new THREE.Vector3(sign * 0.23, 0.43, 0.25));
+            const handTarget = midpoint.clone().addScaledVector(lateral, sign);
+            handTarget.y += (strike - 0.5) * 0.15;
+            if (motion.roleFamily === "rusher") {
+              // An outside arm works over/under pressure while the inside
+              // hand stays available: the two wrists do not share one lock.
+              handTarget.y += Math.max(0, Math.sin(strikePhase * 0.6 + sign)) * 0.2 * motion.handFight;
+              handTarget.addScaledVector(lateral, sign * 0.35 * motion.handFight);
+            }
+            retract.lerp(handTarget, 0.42 + strike * 0.58);
+            reachArm(rig, side, retract, motion.engagement);
+          }
+        }
+        if (rig.actor.id === "d4") {
+          // The source shows a high outside hand near the delivery window;
+          // this anonymous rusher is an authored passing-lane reach example.
+          const laneReach = THREE.MathUtils.smoothstep(time, releaseAt - 0.25, releaseAt + 0.02) * (1 - THREE.MathUtils.smoothstep(time, releaseAt + 0.12, releaseAt + 0.55));
+          rig.torso.updateWorldMatrix(true, false);
+          reachArm(rig, "left", rig.torso.localToWorld(new THREE.Vector3(0.3, 1, 0.22)), laneReach);
         }
       }
       if (motion.roleFamily === "quarterback") {
@@ -874,7 +1142,7 @@ export async function createReplayScene(
           rig.leftForearm.rotation.x = -1.0;
           rig.rightForearm.rotation.x = -1.0;
           reachArm(rig, "left", ballTarget.clone().add(new THREE.Vector3(-0.12, 0, 0)), 1 - motion.throw * 0.8);
-          rig.torso.rotation.y += -0.25 + motion.throw * 0.45;
+          rig.torso.rotation.y += -0.35 + motion.throw * 0.6;
         } else {
           const followThrough = Math.max(0, 1 - (time - releaseAt) / 0.75);
           const followProgress = THREE.MathUtils.smoothstep(time, releaseAt, releaseAt + 0.65);
@@ -899,23 +1167,12 @@ export async function createReplayScene(
         rig.rightArm.rotation.x = THREE.MathUtils.lerp(rig.rightArm.rotation.x, -0.7, motion.carry);
         rig.rightForearm.rotation.x = THREE.MathUtils.lerp(rig.rightForearm.rotation.x, -1.5, motion.carry);
       }
-      const quarterback = sampleActor("qb", time);
-      const receiver = sampleActor("wilson", time);
-      const lookProgress = motion.roleFamily === "coverage" ? THREE.MathUtils.smoothstep(time, catchAt - 0.2, catchAt + 0.3) : 0;
-      const lookBase = motion.roleFamily === "quarterback" ? receiver : quarterback;
-      const watch = { x: THREE.MathUtils.lerp(lookBase.x, receiver.x, lookProgress), z: THREE.MathUtils.lerp(lookBase.z, receiver.z, lookProgress) };
-      if (motion.engagementTarget) {
-        const opponent = sampleActor(motion.engagementTarget, time);
-        watch.x = THREE.MathUtils.lerp(watch.x, opponent.x, motion.engagement);
-        watch.z = THREE.MathUtils.lerp(watch.z, opponent.z, motion.engagement);
-      }
-      const headAngle = Math.atan2(watch.x - pose.x, watch.z - pose.z) - motion.facingYaw;
-      const relativeHead = Math.atan2(Math.sin(headAngle), Math.cos(headAngle));
-      rig.head.rotation.set(motion.roleFamily === "blocker" ? -0.12 : -0.025, THREE.MathUtils.clamp(relativeHead, -0.6, 0.6) * (motion.carry > 0 ? 0.15 : 0.75), 0);
+      const gaze = sampleGaze(rig.actor, time, motion, pose, rootHeight, rig.torso.rotation.x, rig.torso.rotation.y);
+      rig.head.rotation.set(gaze.x, gaze.y, gaze.z);
       const leftFoot = sampleFoot(rig, motion, "left");
       const rightFoot = sampleFoot(rig, motion, "right");
-      placeLeg(rig, "left", leftFoot.point, leftFoot.yaw);
-      placeLeg(rig, "right", rightFoot.point, rightFoot.yaw);
+      placeLeg(rig, "left", leftFoot.point, leftFoot.yaw, leftFoot.pitch);
+      placeLeg(rig, "right", rightFoot.point, rightFoot.yaw, rightFoot.pitch);
       if (motion.dive > 0) {
         blendJoint(rig.leftLeg, 0.2 + Math.sin(phase) * 0.12, 0, 0.08, motion.dive);
         blendJoint(rig.rightLeg, -0.12, 0, -0.08, motion.dive);
@@ -930,7 +1187,7 @@ export async function createReplayScene(
       const shadowTarget = rig.root.worldToLocal(new THREE.Vector3(pose.x, 0.012, pose.z));
       rig.shadow.position.copy(shadowTarget);
       rig.shadow.quaternion.copy(rig.root.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2)));
-      actionDiagnostics[rig.actor.id] = { action: motion.action, phase: motion.phase, gait: motion.footMode, position: [pose.x, rootHeight, pose.z].map((number) => Number(number.toFixed(4))), torso: rig.torso.rotation.toArray().slice(0, 3), arms: [rig.leftArm.rotation.x, rig.rightArm.rotation.x, rig.leftForearm.rotation.x, rig.rightForearm.rotation.x].map((number) => Number(number.toFixed(4))), feet: [leftFoot.planted, rightFoot.planted], dive: motion.dive };
+      actionDiagnostics[rig.actor.id] = { action: motion.action, phase: motion.phase, gait: motion.footMode, position: [pose.x, rootHeight, pose.z].map((number) => Number(number.toFixed(4))), torso: rig.torso.rotation.toArray().slice(0, 3), arms: [rig.leftArm.rotation.x, rig.rightArm.rotation.x, rig.leftForearm.rotation.x, rig.rightForearm.rotation.x].map((number) => Number(number.toFixed(4))), feet: [leftFoot.planted, rightFoot.planted], dive: motion.dive, bodyAction: { compression: motion.compression, drive: motion.drive, brake: motion.brake, cut: motion.cut, hipOpen: motion.hipOpen, contactPulse: motion.contactPulse, handFight: motion.handFight } };
       if (rig.actor.id === selected) {
         selectionRing.position.set(pose.x, 0.045, pose.z);
         selectionLabel.position.set(pose.x, 3.0, pose.z);
@@ -953,6 +1210,10 @@ export async function createReplayScene(
       rig.root.updateWorldMatrix(true, true);
       const actual = actionDiagnostics[rig.actor.id] as Record<string, unknown>;
       actual.joints = [rig.leftArm, rig.rightArm, rig.leftLeg, rig.rightLeg].flatMap((joint) => joint.quaternion.toArray().map((number) => Number(number.toFixed(4))));
+      actual.bodyJoints = [rig.root, rig.pelvis, rig.torso, rig.head].flatMap((joint) => joint.quaternion.toArray().map((number) => Number(number.toFixed(4))));
+      actual.pelvis = rig.pelvis.rotation.toArray().slice(0, 3).map((number) => Number(Number(number).toFixed(4)));
+      actual.head = rig.head.rotation.toArray().slice(0, 3).map((number) => Number(Number(number).toFixed(4)));
+      actual.handPositions = [rig.leftHand, rig.rightHand].map((hand) => hand.getWorldPosition(new THREE.Vector3()).toArray().map((number) => Number(number.toFixed(4))));
       actual.footPositions = [rig.leftFoot, rig.rightFoot].map((foot) => foot.getWorldPosition(new THREE.Vector3()).toArray().map((number) => Number(number.toFixed(4))));
     }
     canvas.dataset.actorMotion = JSON.stringify(actionDiagnostics);
@@ -1028,9 +1289,10 @@ export async function createReplayScene(
     cameraPreset = preset;
     const portrait = camera.aspect < 0.85;
     const spread = portrait ? 1.28 : 1;
+    const sidelineSpread = portrait ? Math.max(1.28, 1.05 / camera.aspect) : camera.aspect < 1.6 ? 1.08 : 1;
     const overviewHeight = Math.max(42, 25 / (Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * Math.max(0.25, camera.aspect)));
     const poses = {
-      sideline: { position: [43 * spread, 30 * spread, 17], target: [0, 0.5, 7] },
+      sideline: { position: [3 + 26 * sidelineSpread, 1 + 18 * sidelineSpread, 9 + 27 * sidelineSpread], target: [3, 1, 9] },
       endzone: { position: [0, 23 * spread, -32 * spread], target: [0, 0.6, 8] },
       overhead: { position: [0, overviewHeight, 7.5 + overviewHeight * 0.2], target: [0, 0.3, 7.5] },
       quarterback: { position: [0.4, 6.3, 34], target: [2, 1, 6] },
@@ -1122,6 +1384,16 @@ export async function createReplayScene(
   render();
   canvas.dataset.initFirstFrameMs = (performance.now() - buildStarted).toFixed(2);
   if (contextLost) throw new Error("The first 3D frame could not be rendered");
+
+  canvas.dataset.turf = "loading";
+  queueMicrotask(() => {
+    if (disposed) return;
+    cleanupListeners.push(loadWilsonTurf([
+      { material: grassDark, tint: "#c3cfb4" },
+      { material: grassLight, tint: "#e4e8d6" },
+      { material: endZone, tint: "#68452c" },
+    ], (texture) => textures.add(texture), invalidate, renderer.capabilities.getMaxAnisotropy(), (state) => { canvas.dataset.turf = state; }));
+  });
 
   return {
     setTime(value) { if (!disposed) { applyTime(value); invalidate(); } },
