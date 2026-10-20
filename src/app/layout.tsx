@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Telemetry from "@/components/Telemetry";
 import { indexableSite, siteOrigin } from "@/lib/site";
-import { Anton, Archivo_Narrow, Source_Serif_4, Geist_Mono, Manrope } from "next/font/google";
 import { loadGames, loadCurrent } from "@/lib/load-games";
 import { mergeResults, selectLead } from "@/lib/current";
 import { currentStreak, wearLevel } from "@/lib/paper";
@@ -10,13 +9,8 @@ import LegacyNavigation from "@/components/LegacyNavigation";
 import FootballRefresh from "@/components/football-refresh";
 import { loadFootballViewerStatus } from "@/lib/football-viewer-status";
 import { publishedGames } from "@/lib/published-pages";
+import { focusFonts } from "./focus-fonts";
 import "./globals.css";
-
-const hed = Anton({ variable: "--font-hed", subsets: ["latin"], weight: "400" });
-const narrow = Archivo_Narrow({ variable: "--font-sans-narrow", subsets: ["latin"] });
-const serif = Source_Serif_4({ variable: "--font-serif", subsets: ["latin"] });
-const mono = Geist_Mono({ variable: "--font-mono", subsets: ["latin"], preload: false });
-const sans = Manrope({ variable: "--font-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: siteOrigin(),
@@ -42,7 +36,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html
       lang="en"
       data-wear={wear}
-      className={`${hed.variable} ${narrow.variable} ${serif.variable} ${mono.variable} ${sans.variable}`}
+      className={focusFonts}
     >
       <body>
         <a className="skip-link" href="#main">Skip to content</a>

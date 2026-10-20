@@ -1,13 +1,13 @@
 .main { width: min(1100px, 100% - 3rem); margin: 0 auto; padding: 2.5rem 0 5rem; counter-reset: chapter; }
 .header { position: relative; padding: 1rem 15rem 2rem 0; border-top: 3px solid var(--forest); border-bottom: 1px solid var(--rule); }
-.kicker { margin: 0; color: var(--stamp, #8b3e32); font: 800 .74rem/1.6 var(--font-sans-narrow), sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+.kicker { margin: 0; color: var(--stamp, #8b3e32); font: 800 .8rem/1.6 var(--font-sans-narrow), sans-serif; }
 .header h1 { max-width: 12ch; font-size: clamp(3.5rem, 7.6vw, 6.4rem); line-height: 1.02; margin: 1.25rem 0; }
 .lede { margin: 1.2rem 0; font: 400 clamp(1.15rem, 2.1vw, 1.45rem)/1.55 var(--font-serif), Georgia, serif; max-width: 43ch; }
 .byline { margin: 1.25rem 0 0; color: var(--ink-2); font-size: .8rem; line-height: 1.75; }
-.proofStamp { position: absolute; right: .6rem; bottom: 2.8rem; padding: .8rem 1rem; color: var(--stamp, #8b3e32); border: 2px solid currentColor; outline: 1px solid currentColor; outline-offset: 4px; font: 700 1.25rem/1.1 var(--font-sans-narrow), sans-serif; letter-spacing: .12em; text-align: center; text-transform: uppercase; transform: rotate(-4deg); }
+.proofStamp { position: absolute; right: .6rem; bottom: 2.8rem; padding: .8rem 1rem; color: var(--stamp, #8b3e32); border: 2px solid currentColor; outline: 1px solid currentColor; outline-offset: 4px; font: 700 1.25rem/1.1 var(--font-sans-narrow), sans-serif; text-align: center; transform: rotate(-4deg); }
 .main > section { position: relative; counter-increment: chapter; border-top: 1px solid var(--rule-soft); margin-top: 2.75rem; padding: 2.2rem 0 0 8.5rem; scroll-margin-top: 1.5rem; }
 .main > section::before { content: counter(chapter, decimal-leading-zero); position: absolute; left: 0; top: 2rem; color: var(--forest); font: 400 3.5rem/1 var(--font-hed), Impact, sans-serif; }
-.main > section::after { content: attr(data-note); position: absolute; left: 0; top: 6.1rem; max-width: 7rem; color: var(--stamp, #8b3e32); font: 700 .72rem/1.5 var(--font-sans-narrow), sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.main > section::after { content: attr(data-note); position: absolute; left: 0; top: 6.1rem; max-width: 7rem; color: var(--stamp, #8b3e32); font: 700 .8rem/1.5 var(--font-sans-narrow), sans-serif; }
 .main > section:first-of-type::after { content: "Paper specimen"; }
 .main h2 { max-width: 31ch; font: 700 clamp(1.65rem, 2.9vw, 2.2rem)/1.18 var(--font-sans-narrow), "Arial Narrow", sans-serif; }
 .main p, .main li { max-width: 74ch; }

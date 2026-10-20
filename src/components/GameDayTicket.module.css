@@ -1,9 +1,9 @@
 .ticket { margin: 2.5rem 0; padding: 1.6rem 1.8rem 1.3rem; border: 1px solid var(--rule); border-top: 5px solid var(--spot); background: var(--paper-2); min-width: 0; }
 .header { display: flex; justify-content: space-between; gap: 1.5rem; align-items: flex-start; }
-.kicker, .label { margin: 0 0 .65rem; font: 700 .72rem/1.4 var(--font-sans-narrow), sans-serif; text-transform: uppercase; letter-spacing: .12em; color: var(--spot); }
+.kicker, .label { margin: 0 0 .65rem; font: 700 .8rem/1.4 var(--font-sans-narrow), sans-serif; color: var(--spot); }
 .header h2 { font: 700 clamp(1.8rem, 4vw, 2.7rem)/1.08 var(--font-sans-narrow), sans-serif; max-width: 24ch; overflow-wrap: anywhere; }
 .header p:last-child { margin: .65rem 0 0; max-width: 56ch; font-size: .88rem; }
-.seal { flex-shrink: 0; padding: .7rem .8rem; border: 1px solid var(--stamp); color: var(--stamp); text-align: center; font: .65rem/1.4 var(--font-mono), monospace; text-transform: uppercase; }
+.seal { flex-shrink: 0; padding: .7rem .8rem; border: 1px solid var(--stamp); color: var(--stamp); text-align: center; font: .8rem/1.4 var(--font-mono), monospace; }
 .seal strong { display: block; margin: .2rem 0; font: 700 1.3rem/1.1 var(--font-sans-narrow), sans-serif; }
 .fixture { margin: 1.25rem 0; padding: .65rem 0; border-top: 1px solid var(--rule-soft); border-bottom: 1px solid var(--rule-soft); font: 700 .9rem/1.5 var(--font-sans-narrow), sans-serif; }
 .saved { padding: .4rem 0 1rem; }

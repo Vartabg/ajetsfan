@@ -5,8 +5,8 @@
 .rankings button,.rankings select,.rankings input{min-width:44px}
 .rankings button:focus-visible,.rankings select:focus-visible,.rankings input:focus-visible,.rankings summary:focus-visible,.rankings a:focus-visible{outline:3px solid var(--spot);outline-offset:4px}
 .heading{margin-bottom:.5rem}
-.kicker{font:700 .68rem/1.6 var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--forest);margin:0 0 .35rem}
-.heading h2{font:400 clamp(1.65rem,3vw,2.4rem)/1.1 var(--font-hed),Impact,sans-serif;text-transform:uppercase;margin:0}
+.kicker{font:700 .8rem/1.6 var(--font-mono),monospace;color:var(--forest);margin:0 0 .35rem}
+.heading h2{font:400 clamp(1.65rem,3vw,2.4rem)/1.1 var(--font-hed),Impact,sans-serif;margin:0}
 .scope{font:400 .72rem/1.7 var(--font-mono),monospace;color:var(--ink-2);margin:.5rem 0 1rem}
 .coverageGap{background:#ede6ce;border-left:3px solid #68551f;margin:.75rem 0;padding:0 .85rem}
 .coverageGap summary{font-size:.75rem;font-weight:700}
@@ -67,7 +67,7 @@
 .playerIdentity p{font:400 .62rem/1.8 var(--font-mono),monospace;color:var(--ink-2);margin:.3rem 0 0}
 .playerList dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;margin:0}
 .playerList dl>div{min-width:0}
-.playerList dt{font:400 .61rem/1.6 var(--font-mono),monospace;text-transform:uppercase;color:var(--ink-2)}
+.playerList dt{font:400 .8rem/1.6 var(--font-mono),monospace;color:var(--ink-2)}
 .playerList dd{margin:.4rem 0 0;font:700 1.3rem/1.3 var(--font-sans),sans-serif;color:var(--forest);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .playerList dd small{display:block;font:400 .62rem/1.8 var(--font-mono),monospace;color:var(--ink-2);margin-top:.3rem}
 .playerList .rankNumber>strong{font-size:1.85rem}

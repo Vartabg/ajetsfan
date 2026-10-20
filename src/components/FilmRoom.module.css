@@ -2,15 +2,15 @@
 .room p { margin: 0; }
 .header { display: flex; align-items: end; justify-content: space-between; gap: 2rem; padding: 1.5rem 0 2rem; border-top: 3px solid var(--forest); }
 .header > div { min-width: 0; }
-.kicker { display: block; margin: 0 0 .6rem !important; color: var(--spot); font: 800 .7rem/1.6 var(--font-sans-narrow), sans-serif; text-transform: uppercase; letter-spacing: .12em; }
-.header h2 { font: 400 clamp(2.5rem, 4vw, 3.75rem)/1 var(--font-hed), Impact, sans-serif; letter-spacing: -.03em; text-transform: uppercase; overflow-wrap: anywhere; }
+.kicker { display: block; margin: 0 0 .6rem !important; color: var(--spot); font: 800 .8rem/1.6 var(--font-sans-narrow), sans-serif; }
+.header h2 { font: 400 clamp(2.5rem, 4vw, 3.75rem)/1 var(--font-hed), Impact, sans-serif; letter-spacing: -.03em; overflow-wrap: anywhere; }
 .header > div > p:last-child { max-width: 62ch; margin-top: 1rem; color: var(--ink-2); font: 1rem/1.75 var(--font-serif), Georgia, serif; }
 .headerIndex { display: flex; align-items: center; gap: .9rem; flex-shrink: 0; color: var(--spot); }
 .headerIndex strong { font: 400 5rem/1 var(--font-hed), Impact, sans-serif; }
-.headerIndex span { padding-left: .9rem; border-left: 1px solid var(--rule-soft); color: var(--ink-2); font: .65rem/1.7 var(--font-mono), monospace; text-transform: uppercase; }
+.headerIndex span { padding-left: .9rem; border-left: 1px solid var(--rule-soft); color: var(--ink-2); font: .8rem/1.7 var(--font-mono), monospace; }
 .screening { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1.9fr); gap: 2rem; align-items: start; }
 .tape { min-width: 0; }
-.tape h3 { font: 800 .85rem/1.6 var(--font-sans-narrow), sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+.tape h3 { font: 800 .85rem/1.6 var(--font-sans-narrow), sans-serif; }
 .filters { display: flex; flex-wrap: wrap; gap: .4rem; margin: .8rem 0 1rem; }
 .filters button { min-height: 44px; padding: .5rem .7rem; border: 1px solid var(--rule-soft); font: 700 .65rem/1.6 var(--font-sans), sans-serif; }
 .filters button[aria-pressed="true"] { color: var(--paper); background: var(--forest); border-color: var(--forest); }
@@ -25,7 +25,7 @@
 .tape em { display: block; color: var(--ink-2); font: .68rem/1.7 var(--font-sans), sans-serif; }
 .tapeNote { margin-top: 1rem !important; color: var(--ink-2); font: .67rem/1.8 var(--font-sans), sans-serif; }
 .selected { min-width: 0; background: var(--forest); color: var(--paper); border-top: 4px solid var(--accent); }
-.caseFiling { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1rem; padding: .8rem 1.25rem; border-bottom: 1px solid #f8f5ed30; color: #bdd0c3; font: .62rem/1.7 var(--font-mono), monospace; text-transform: uppercase; letter-spacing: .05em; }
+.caseFiling { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1rem; padding: .8rem 1.25rem; border-bottom: 1px solid #f8f5ed30; color: #bdd0c3; font: .8rem/1.7 var(--font-mono), monospace; }
 .caseFiling > span:first-child { color: var(--accent); }
 .caseFiling strong { color: var(--paper); margin-left: .4rem; }
 .caseHeader { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, .7fr); gap: 1.5rem; padding: 1.5rem 1.25rem 1.2rem; }
@@ -34,7 +34,7 @@
 .caseHeader h3 { margin-top: .55rem; font: 600 clamp(1.8rem, 3vw, 3rem)/1.08 var(--font-serif), Georgia, serif; letter-spacing: -.04em; text-wrap: balance; overflow-wrap: anywhere; }
 .caseHeader > div > p:last-child { margin-top: .85rem; color: #bdd0c3; font: .78rem/1.75 var(--font-sans), sans-serif; }
 .final { padding-left: 1rem; border-left: 1px solid #f8f5ed30; }
-.final > span { display: block; margin-bottom: .55rem; color: var(--accent); font: 700 .6rem/1.7 var(--font-mono), monospace; text-transform: uppercase; }
+.final > span { display: block; margin-bottom: .55rem; color: var(--accent); font: 700 .8rem/1.7 var(--font-mono), monospace; }
 .final strong { display: block; font: 700 1rem/1.65 var(--font-sans-narrow), sans-serif; }
 .clockNote { padding: 0 1.25rem 1rem; color: #bdd0c3; font: .66rem/1.8 var(--font-sans), sans-serif; }
 .sourceViewer { min-width: 0; }
@@ -43,24 +43,24 @@
 .sceneImage { display: block; width: 100%; height: 100%; object-fit: cover; }
 .sceneUnavailable { display: flex; flex-direction: column; justify-content: center; gap: .65rem; min-height: 220px; padding: 2rem; color: #bdd0c3; font: .8rem/1.8 var(--font-sans), sans-serif; }
 .scene figcaption { display: grid; gap: .5rem; padding: .95rem 1.25rem; background: #001b1366; border-bottom: 1px solid #f8f5ed30; }
-.scene figcaption > strong { color: var(--accent); font: 800 .62rem/1.7 var(--font-mono), monospace; text-transform: uppercase; letter-spacing: .065em; }
+.scene figcaption > strong { color: var(--accent); font: 800 .8rem/1.7 var(--font-mono), monospace; letter-spacing: .065em; }
 .scene figcaption > p { color: #bdd0c3; font: .72rem/1.75 var(--font-sans), sans-serif; }
 .scene figcaption a { color: var(--paper); font: .64rem/1.7 var(--font-sans), sans-serif; text-underline-offset: .25em; }
 .scene figcaption small { color: #bdd0c3; font: .62rem/1.7 var(--font-sans), sans-serif; }
 .replayCover { display: flex; flex-direction: column; justify-content: center; min-height: 290px; padding: 2.5rem 1.75rem; background: repeating-linear-gradient(0deg, transparent 0 38px, #ffffff07 39px 40px), #001b13; }
-.replayKicker { color: var(--accent); font: 700 .63rem/1.7 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; }
-.replayCover > strong { max-width: 18ch; margin-top: 1rem; font: 400 clamp(2rem, 4vw, 3.75rem)/1.03 var(--font-hed), Impact, sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
+.replayKicker { color: var(--accent); font: 700 .8rem/1.7 var(--font-mono), monospace; }
+.replayCover > strong { max-width: 18ch; margin-top: 1rem; font: 400 clamp(2rem, 4vw, 3.75rem)/1.03 var(--font-hed), Impact, sans-serif; overflow-wrap: anywhere; }
 .replayCover > p { max-width: 48ch; margin-top: 1rem; color: #bdd0c3; font: .8rem/1.8 var(--font-serif), Georgia, serif; }
 .filmStrip { display: block; margin-top: 1.75rem; color: #bdd0c3; font: .6rem/1.7 var(--font-mono), monospace; letter-spacing: .15em; }
 .videoControls { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.2rem; padding: 1rem 1.25rem .65rem; }
 .videoControls > div { flex: 1; min-width: 160px; }
-.videoLabel { display: block; margin-bottom: .2rem; color: var(--accent); font: 700 .6rem/1.7 var(--font-mono), monospace; text-transform: uppercase; }
+.videoLabel { display: block; margin-bottom: .2rem; color: var(--accent); font: 700 .8rem/1.7 var(--font-mono), monospace; }
 .videoControls p { color: #bdd0c3; font: .7rem/1.7 var(--font-sans), sans-serif; }
 .videoControls a.replayButton { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .7rem; min-height: 44px; padding: .65rem .85rem; color: var(--forest); background: var(--accent); font: 800 .68rem/1.6 var(--font-sans), sans-serif; text-decoration:none; }
 .videoControls a { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .45rem; min-height: 44px; color: var(--accent); font: 700 .65rem/1.7 var(--font-sans), sans-serif; text-underline-offset: .25em; }
 .videoNote { padding: 0 1.25rem 1rem; color: #bdd0c3; font: .62rem/1.7 var(--font-sans), sans-serif; }
 .recordedPlay { padding: 1.15rem 1.25rem 1.5rem; border-top: 1px solid #f8f5ed30; }
-.recordedLabel { color: var(--accent); font: 700 .6rem/1.7 var(--font-mono), monospace; text-transform: uppercase; letter-spacing: .07em; }
+.recordedLabel { color: var(--accent); font: 700 .8rem/1.7 var(--font-mono), monospace; }
 .recordedPlay > p:not(.estimateNote) { margin-top: .55rem; font: .87rem/1.8 var(--font-serif), Georgia, serif; overflow-wrap: anywhere; }
 .recordedPlay dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; margin: 1rem 0 .6rem; }
 .recordedPlay dl > div { min-width: 0; }
@@ -74,7 +74,7 @@
 .notebook > header p { color: var(--ink-2); font: .85rem/1.75 var(--font-sans), sans-serif; }
 .notebookColumns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem 2.5rem; margin-top: 1.5rem; }
 .notebookColumns > section { min-width: 0; padding-top: .85rem; border-top: 1px solid var(--rule-soft); }
-.notebook h4 { margin-bottom: .65rem; font: 800 .8rem/1.7 var(--font-sans-narrow), sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+.notebook h4 { margin-bottom: .65rem; font: 800 .8rem/1.7 var(--font-sans-narrow), sans-serif; }
 .record dl { margin: 0; }
 .record dl > div { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.4fr); gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--rule-soft); }
 .record dt { color: var(--ink-2); font: .7rem/1.7 var(--font-sans), sans-serif; }

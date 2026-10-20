@@ -1,7 +1,7 @@
 .lab { margin: 2.5rem 0 1.5rem; padding-top: 1.5rem; min-width: 0; border-top: 3px solid var(--forest); }
 .heading { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: end; gap: 1.5rem; margin-bottom: 1.5rem; }
 .heading > div { min-width: 0; }
-.heading span { display: block; margin-bottom: .6rem; color: var(--spot); font: 800 .7rem/1.7 var(--font-sans-narrow), sans-serif; text-transform: uppercase; letter-spacing: .1em; }
+.heading span { display: block; margin-bottom: .6rem; color: var(--spot); font: 800 .8rem/1.7 var(--font-sans-narrow), sans-serif; }
 .heading h3 { font: 600 clamp(2rem, 3.5vw, 3rem)/1.1 var(--font-serif), Georgia, serif; letter-spacing: -.04em; overflow-wrap: anywhere; }
 .heading p { color: var(--ink-2); font: .85rem/1.8 var(--font-sans), sans-serif; }
 .workspace { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0, 1.7fr); gap: 2rem; }

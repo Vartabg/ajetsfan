@@ -1,13 +1,13 @@
 .section { margin: 3.5rem 0; padding-top: 1.5rem; border-top: 4px double var(--rule); scroll-margin-top: 1.5rem; }
 .heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem 1.5rem; align-items: end; margin-bottom: 1.75rem; }
-.kicker { color: var(--spot); font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 .75rem; }
+.kicker { color: var(--spot); font-size: .8rem; font-weight: 800; margin: 0 0 .75rem; }
 .heading h2 { font-size: clamp(2.6rem, 3.6vw, 3.3rem); line-height: 1; }
 .heading > p { font-size: .74rem; color: var(--ink-2); margin: 0; }
 .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.75rem; }
 .card { min-width: 0; padding-right: 1.75rem; border-right: 1px solid var(--rule-soft); }
 .card:last-child { border-right: 0; }
 .cardTop { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem; padding: .7rem 1rem; margin-bottom: .75rem; background: var(--forest); color: var(--paper); }
-.cardTop > span { min-width: 0; max-width: 100%; font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: .84rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; overflow-wrap: anywhere; }
+.cardTop > span { min-width: 0; max-width: 100%; font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: .84rem; font-weight: 700; overflow-wrap: anywhere; }
 .cardTop > b { display: flex; align-items: baseline; gap: .25rem; font-size: .72rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .shirtLabel { font: .7rem/1 var(--font-mono), monospace; }
 .shirtNumber { font: 400 2.65rem/.9 var(--font-hed), Impact, sans-serif; }

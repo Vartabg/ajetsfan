@@ -1,16 +1,16 @@
 .story { --story-rule: var(--faint); container: visual-story / inline-size; position: relative; min-width: 0; margin-top: 12px; background: var(--bg); color: var(--ink); border: 1px solid var(--faint); border-radius: 16px; overflow: hidden; scroll-margin-top: 5.5rem; }
 .story p { margin: 0; }
-.filing { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1.5rem; padding: 1rem 2rem; border-bottom: 1px solid var(--story-rule); color: var(--quiet); font: 700 .65rem/1.6 var(--font-mono), monospace; text-transform: uppercase; letter-spacing: .08em; }
+.filing { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1.5rem; padding: 1rem 2rem; border-bottom: 1px solid var(--story-rule); color: var(--quiet); font: 700 .8rem/1.6 var(--font-mono), monospace; }
 .filing > span:first-child { display: flex; align-items: center; gap: .65rem; color: var(--green); }
 .filing i { width: .5rem; height: .5rem; border-radius: 50%; background: currentColor; }
 .header { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, .6fr); align-items: end; gap: 3rem; padding: 2.5rem 2rem 2rem; }
 .header > div { min-width: 0; }
-.eyebrow { color: var(--quiet); font: 700 .7rem/1.7 var(--font-sans-narrow), sans-serif; letter-spacing: .065em; text-transform: uppercase; }
+.eyebrow { color: var(--quiet); font: 700 .8rem/1.7 var(--font-sans-narrow), sans-serif; letter-spacing: .065em; }
 .eyebrow span { margin-inline: .4rem; }
 .header h2 { margin-top: .65rem; max-width: 15ch; font: 600 clamp(3rem, 6.3vw, 5.8rem)/.98 var(--font-serif), Georgia, serif; letter-spacing: -.06em; text-wrap: balance; overflow-wrap: anywhere; }
 .header .dek { max-width: 60ch; margin-top: 1.25rem; color: var(--quiet); font: .93rem/1.75 var(--font-sans), sans-serif; }
 .final { padding-left: 1.25rem; border-left: 1px solid var(--story-rule); container: story-score / inline-size; }
-.final > span { display: block; color: var(--green); font: 700 .65rem/1.6 var(--font-mono), monospace; letter-spacing: .07em; text-transform: uppercase; }
+.final > span { display: block; color: var(--green); font: 700 .8rem/1.6 var(--font-mono), monospace; }
 .final > div { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .8rem; }
 .final p { display: grid; gap: .35rem; }
 .final b { color: var(--quiet); font: 800 .7rem/1.4 var(--font-sans-narrow), sans-serif; letter-spacing: .09em; }
@@ -27,15 +27,15 @@
 .stage { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0, 1.5fr) minmax(0, .9fr); gap: 2rem; padding: 2.4rem 2rem 1.7rem; }
 .stage > * { min-width: 0; }
 .clockPanel { padding-right: 1.5rem; border-right: 1px solid var(--story-rule); }
-.period { color: var(--green); font: 700 .68rem/1.7 var(--font-mono), monospace; text-transform: uppercase; letter-spacing: .12em; }
+.period { color: var(--green); font: 700 .8rem/1.7 var(--font-mono), monospace; }
 .clock { margin-top: .7rem !important; font: 400 clamp(3.2rem, 7.8vw, 7.6rem)/1 var(--font-hed), Impact, sans-serif; letter-spacing: -.05em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.sequence { margin-top: .6rem !important; color: var(--quiet); font: .64rem/1.7 var(--font-mono), monospace; text-transform: uppercase; }
+.sequence { margin-top: .6rem !important; color: var(--quiet); font: .8rem/1.7 var(--font-mono), monospace; }
 .sequence strong { color: var(--ink); }
 .lowPoint { display: grid; gap: .3rem; margin-top: 1.85rem; padding-top: 1rem; border-top: 1px solid var(--story-rule); }
 .lowPoint span { max-width: 20ch; color: var(--quiet); font: .68rem/1.6 var(--font-sans), sans-serif; }
 .lowPoint strong { color: var(--green); font: 400 clamp(1.85rem, 3vw, 2.5rem)/1.15 var(--font-hed), Impact, sans-serif; }
 .lowPoint small { color: var(--quiet); font: .6rem/1.6 var(--font-mono), monospace; }
-.actionLabel { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; color: var(--quiet); font: 700 .63rem/1.6 var(--font-mono), monospace; letter-spacing: .055em; text-transform: uppercase; }
+.actionLabel { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; color: var(--quiet); font: 700 .8rem/1.6 var(--font-mono), monospace; letter-spacing: .055em; }
 .actionLabel > span:first-child { color: var(--green); }
 .actionHeadline { max-width: 15ch; margin-top: .75rem; font: 600 clamp(1.7rem, 3vw, 2.65rem)/1.12 var(--font-serif), Georgia, serif; letter-spacing: -.04em; text-wrap: balance; overflow-wrap: anywhere; }
 .action { margin-top: 1rem !important; color: var(--quiet); font: .85rem/1.8 var(--font-sans), sans-serif; overflow-wrap: anywhere; }
@@ -47,7 +47,7 @@
 .probabilities dd.change { color: var(--ink); font: 700 .83rem/1.6 var(--font-mono), monospace; }
 .modelNote { color: var(--quiet); font: .62rem/1.7 var(--font-sans), sans-serif; }
 .chapters { padding-left: 1.4rem; border-left: 1px solid var(--story-rule); }
-.railLabel { margin-bottom: .65rem !important; color: var(--quiet); font: 700 .65rem/1.7 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; }
+.railLabel { margin-bottom: .65rem !important; color: var(--quiet); font: 700 .8rem/1.7 var(--font-mono), monospace; }
 .chapters button { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .65rem; width: 100%; min-height: 56px; padding: .75rem .4rem; text-align: left; border-top: 1px solid var(--story-rule); color: var(--quiet); }
 .chapters button:hover { color: var(--ink); }
 .chapters button[aria-pressed="true"] { color: var(--green); }
@@ -91,7 +91,7 @@
 .inspector summary { min-height: 48px; font: 700 .72rem/1.65 var(--font-sans), sans-serif; cursor: pointer; }
 .inspector > div { padding: .6rem 0 1rem; }
 .inspector > div > p:not(.sourceLabel, .sourceReadout) { margin-top: .6rem; font: .8rem/1.8 var(--font-serif), Georgia, serif; overflow-wrap: anywhere; }
-.sourceLabel { color: var(--green); font: 700 .63rem/1.7 var(--font-mono), monospace; text-transform: uppercase; }
+.sourceLabel { color: var(--green); font: 700 .8rem/1.7 var(--font-mono), monospace; }
 .sourceReadout { margin-top: .65rem !important; color: var(--quiet); font: .65rem/1.8 var(--font-sans), sans-serif; }
 .inspector a { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; color: var(--green); font: 700 .68rem/1.6 var(--font-sans), sans-serif; text-underline-offset: .25em; }
 .share { min-width: 0; text-align: right; }
