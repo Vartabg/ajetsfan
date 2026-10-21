@@ -60,6 +60,17 @@ async function disableWebGL(page: Page) {
   });
 }
 
+async function openFallbackReplay(page: Page) {
+  await disableWebGL(page);
+  await openReplay(page);
+  // Renderer initialization failure pauses playback. Start transport assertions
+  // only after that transition has completed and the usable diagram is shown.
+  await expect(page.locator("[data-wilson-replay]")).toHaveAttribute("data-scene", "failed", { timeout: 20_000 });
+  const diagram = page.getByRole("img", { name: /Top-down teaching diagram/ });
+  await expect(diagram).toBeVisible();
+  await expect(diagram.locator("[data-fallback-player]")).toHaveCount(22);
+}
+
 test("the source record and evidence limits remain readable during automatic 3D startup", async ({ page }) => {
   await openReplay(page);
   await expect(page.getByRole("button", { name: "Load 3D replay", exact: true })).toHaveCount(0);
@@ -300,7 +311,9 @@ test("optional CC0 turf maps load after usable 3D without resetting the study, a
 });
 
 test("playback, slow motion, rewind and native keyboard scrubbing share one timeline", async ({ page }) => {
-  await openReplay(page);
+  // Exercise the shared transport independently of the GPU. Actual 3D
+  // playback is covered by the rendered-scene test below.
+  await openFallbackReplay(page);
   const time = page.getByLabel("Replay time", { exact: true });
   await page.getByRole("button", { name: "Forward 1 second", exact: true }).click();
   await expectTime(page, 1);
@@ -337,7 +350,7 @@ test("playback, slow motion, rewind and native keyboard scrubbing share one time
 
 test("a controlled elapsed clock makes quarter speed slower and rewind run backwards", async ({ page }) => {
   await page.clock.install();
-  await openReplay(page);
+  await openFallbackReplay(page);
   // install() advances during RPC/actionability waits. Keep the freeze target
   // beyond this test's wall-time budget so a busy CI renderer cannot overtake
   // it between evaluate() and pauseAt(). Playback is still paused here.
@@ -408,7 +421,7 @@ test("camera presets and player focus remain keyboard accessible", async ({ page
 });
 
 test("all 22 players expose their position and teaching job without inventing assessments", async ({ page }) => {
-  await openReplay(page);
+  await openFallbackReplay(page);
   const roster = page.locator("[data-all22]");
   await expect(page.locator("details[data-position-browser]")).toHaveJSProperty("open", false);
   await expect(roster.locator("[data-roster-player]")).toHaveCount(22);
@@ -573,6 +586,7 @@ test("the field dominates tablet and desktop layouts, and follow player survives
 });
 
 test("the loaded 3D scene renders, accepts camera drags and stops rendering at rest", async ({ page }) => {
+  test.setTimeout(60_000);
   await openReplay(page);
   const replay = page.locator("[data-wilson-replay]");
   await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
@@ -612,11 +626,31 @@ test("the loaded 3D scene renders, accepts camera drags and stops rendering at r
   await expect(canvas).toHaveAttribute("data-render-frames", idleFrames!);
   await page.getByRole("button", { name: "Forward 1 second", exact: true }).click();
   await expect.poll(async () => Number(await canvas.getAttribute("data-render-frames"))).toBeGreaterThan(Number(idleFrames));
+  // Keep a real, unmocked WebGL playback check: both the submitted frame and
+  // the shared timeline must advance. Software renderers need more wall time.
+  await page.getByRole("button", { name: "Return to snap", exact: true }).click();
+  await expect.poll(async () => Number(await canvas.getAttribute("data-rendered-time"))).toBeCloseTo(0, 3);
+  const resetFrames = Number(await canvas.getAttribute("data-render-frames"));
+  await page.getByRole("button", { name: "Play", exact: true }).click();
+  await expect.poll(async () => Number(await canvas.getAttribute("data-rendered-time")), { timeout: 20_000 }).toBeGreaterThan(0.15);
+  expect(Number(await canvas.getAttribute("data-render-frames"))).toBeGreaterThan(resetFrames);
+  await page.getByRole("button", { name: "Pause", exact: true }).click();
+  const pausedTime = await page.getByLabel("Replay time", { exact: true }).inputValue();
+  const pausedPose = Number(await canvas.getAttribute("data-render-time"));
+  expect(Number(pausedTime)).toBeGreaterThan(0.15);
+  // The native range input rounds to its .01s step; the scene retains substeps.
+  expect(Number(pausedTime)).toBeCloseTo(pausedPose, 2);
+  await expect.poll(async () => Number(await canvas.getAttribute("data-rendered-time"))).toBeCloseTo(pausedPose, 3);
+  const pausedFrames = await canvas.getAttribute("data-render-frames");
+  await page.waitForTimeout(220);
+  await expect(page.getByLabel("Replay time", { exact: true })).toHaveValue(pausedTime);
+  await expect(canvas).toHaveAttribute("data-render-frames", pausedFrames!);
 });
 
 test("all 22 rendered bodies move continuously and seeking restores their actual pose", async ({ page }) => {
-  // The bounded dense scan performs nearly 300 UI seeks; allow it to complete
-  // on a busy desktop without relaxing any geometric continuity threshold.
+  // The full grid reads actual final bones after synchronous UI seeks. The
+  // representative poseAt samples and each batch's final pose also rasterize.
+  // This avoids hundreds of redundant shadow passes on software-only CI GPUs.
   test.setTimeout(60_000);
   await page.setViewportSize({ width: 1440, height: 1050 });
   await openReplay(page);
@@ -626,7 +660,7 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
   type Motion = { action: string; position: number[]; joints: number[]; bodyJoints: number[]; handPositions: number[][]; feet: boolean[]; footPositions: number[][]; dive: number; footCycles: { plantAt: number; liftOffAt: number }[]; visibleBody: { handPositions: number[][]; footPositions: number[][]; endpointErrors: number[]; bodyJoints: number[]; limbJoints: number[]; clipCount: number; meshCount: number; boneCount: number } };
   const poseAt = async (time: number) => {
     await seekTo(page, time);
-    await expect.poll(async () => Number(await canvas.getAttribute("data-render-time"))).toBeCloseTo(time, 3);
+    await expect.poll(async () => Number(await canvas.getAttribute("data-rendered-time"))).toBeCloseTo(time, 3);
     return JSON.parse((await canvas.getAttribute("data-actor-motion"))!) as Record<string, Motion>;
   };
   const sampleBatch = async (times: number[]) => page.evaluate(async (times) => {
@@ -638,10 +672,15 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
       setter.call(input, String(time));
       input.dispatchEvent(new Event("input", { bubbles: true }));
       input.dispatchEvent(new Event("change", { bubbles: true }));
-      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-      if (Math.abs(Number(canvas.dataset.renderedTime) - time) > 0.001) throw new Error(`The scene did not submit the requested ${time}s frame`);
+      // onChange calls scene.setTime synchronously. actorMotion is populated
+      // from the imported bones after IK, not by re-sampling the path model.
+      const applied = Number(canvas.dataset.renderTime);
+      if (!Number.isFinite(applied) || Math.abs(applied - time) > 0.001) throw new Error(`The scene did not apply the requested ${time}s pose`);
       result.push(JSON.parse(canvas.dataset.actorMotion!));
     }
+    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    const rendered = Number(canvas.dataset.renderedTime);
+    if (!Number.isFinite(rendered) || Math.abs(rendered - times.at(-1)!) > 0.001) throw new Error("The scene did not submit the batch's final pose");
     return result;
   }, times);
   await expect(page.getByLabel("Position labels", { exact: true })).not.toBeChecked();
@@ -881,7 +920,7 @@ test("label setup failure after WebGL allocation removes the canvas and allows a
 
 test("reduced motion starts static and hiding the document pauses playback", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await openReplay(page);
+  await openFallbackReplay(page);
   await expectTime(page, 0);
   await page.waitForTimeout(180);
   await expectTime(page, 0);
