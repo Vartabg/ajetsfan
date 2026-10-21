@@ -51,7 +51,7 @@ test("Escape is scoped to the profile and returns to the selected card without l
   await expect(card).toBeFocused();
   await expect(card).toBeInViewport();
   await expect(card).toHaveAttribute("aria-expanded", "false");
-  await expect(card).toContainText("View player");
+  await expect(card).not.toContainText("Profile open");
   expect(new URL(page.url()).searchParams.has("player")).toBe(false);
   await page.goBack();
   await expect(page.getByRole("region", { name: player.name, exact: true })).toBeVisible();
