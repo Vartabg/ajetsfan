@@ -22,10 +22,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/weeb-ewbank.webp",
-      "alt": "Weeb Ewbank",
+      "src": "/legends/enhanced/weeb-ewbank.webp",
+      "alt": "AI-enhanced black-and-white portrait of Jets coach Weeb Ewbank",
       "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/weeb-ewbank"
+      "sourceUrl": "https://www.profootballhof.com/players/weeb-ewbank",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/weeb-ewbank.jpeg"
     },
     "sources": [
       {
@@ -79,10 +81,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/winston-hill.webp",
-      "alt": "Winston Hill",
+      "src": "/legends/enhanced/winston-hill.webp",
+      "alt": "AI-enhanced portrait of Winston Hill in his white Jets No.75 uniform",
       "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/winston-hill"
+      "sourceUrl": "https://www.profootballhof.com/players/winston-hill",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/winston-hill.jpeg"
     },
     "sources": [
       {
@@ -133,10 +137,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/joe-klecko.webp",
-      "alt": "Joe Klecko",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/joe-klecko"
+      "src": "/legends/enhanced/joe-klecko.webp",
+      "alt": "AI-enhanced photograph of Joe Klecko beside his actual Hall of Fame bust.",
+      "credit": "AP/David Dermer, Pool",
+      "sourceUrl": "https://www.newyorkjets.com/photos/gallery-best-photos-of-darelle-revis-joe-klecko-at-the-2023-pro-football-hall-of",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/joe-klecko.jpg"
     },
     "sources": [
       {
@@ -191,10 +197,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/curtis-martin.webp",
-      "alt": "Curtis Martin",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/curtis-martin"
+      "src": "/legends/enhanced/curtis-martin.webp",
+      "alt": "AI-enhanced photograph of Curtis Martin in his gold jacket beside his actual Hall of Fame bust.",
+      "credit": "Ben Liebenberg/NFL",
+      "sourceUrl": "https://www.nfl.com/photos/2012-hall-of-fame-enshrinement-09000d5d82b11962",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/curtis-martin.jpg"
     },
     "sources": [
       {
@@ -258,10 +266,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/don-maynard.webp",
-      "alt": "Don Maynard",
+      "src": "/legends/enhanced/don-maynard.webp",
+      "alt": "AI-enhanced portrait of Don Maynard in Jets green",
       "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/don-maynard"
+      "sourceUrl": "https://www.profootballhof.com/players/don-maynard",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/don-maynard.jpeg"
     },
     "sources": [
       {
@@ -316,10 +326,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/joe-namath.webp",
-      "alt": "Joe Namath",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/joe-namath"
+      "src": "/legends/enhanced/joe-namath.webp",
+      "alt": "AI-enhanced photograph of Joe Namath in his Jets No.12 uniform throwing a pass.",
+      "credit": "AP/NFL Photos",
+      "sourceUrl": "https://www.newyorkjets.com/photos/happy-birthday-to-joe-namath-x0425",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/joe-namath.jpg"
     },
     "sources": [
       {
@@ -372,10 +384,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/larry-grantham.jpg",
-      "alt": "Larry Grantham",
-      "credit": "New York Jets",
-      "sourceUrl": "https://www.newyorkjets.com/photos/ny-jets-ring-of-honor-2011-inductees-5936479"
+      "src": "/legends/enhanced/larry-grantham.webp",
+      "alt": "AI-enhanced black-and-white portrait of Larry Grantham in Jets No.60",
+      "credit": "New York Jets archive",
+      "sourceUrl": "https://www.newyorkjets.com/photos/ny-jets-ring-of-honor-2011-inductees-5936479",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/larry-grantham.jpg"
     },
     "sources": [
       {
@@ -416,10 +430,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/freeman-mcneil.jpg",
-      "alt": "Freeman McNeil",
+      "src": "/legends/enhanced/freeman-mcneil.webp",
+      "alt": "AI-enhanced photograph of Freeman McNeil carrying the football in his Jets No.24 uniform.",
       "credit": "New York Jets",
-      "sourceUrl": "https://www.newyorkjets.com/photos/ny-jets-ring-of-honor-2011-inductees-5936479"
+      "sourceUrl": "https://www.newyorkjets.com/photos/ny-jets-ring-of-honor-2011-inductees-5936479",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/freeman-mcneil.jpg"
     },
     "sources": [
       {
@@ -460,10 +476,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/gerry-philbin.jpg",
-      "alt": "Gerry Philbin",
+      "src": "/legends/enhanced/gerry-philbin.webp",
+      "alt": "AI-enhanced photograph of Gerry Philbin in Jets No.81 leaping to obstruct a pass",
       "credit": "David Durochik / AP",
-      "sourceUrl": "https://www.newyorkjets.com/news/where-are-they-now-gerry-philbin"
+      "sourceUrl": "https://www.newyorkjets.com/news/where-are-they-now-gerry-philbin",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/gerry-philbin.jpeg"
     },
     "sources": [
       {
@@ -504,10 +522,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/al-toon.jpg",
-      "alt": "Al Toon",
+      "src": "/legends/enhanced/al-toon.webp",
+      "alt": "AI-enhanced photograph of Al Toon carrying the football in his Jets No.88 uniform.",
       "credit": "Tom Berg / NFL",
-      "sourceUrl": "https://www.newyorkjets.com/photos/happy-birthday-to-jets-legend-al-toon"
+      "sourceUrl": "https://www.newyorkjets.com/photos/happy-birthday-to-jets-legend-al-toon",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/al-toon.jpg"
     },
     "sources": [
       {
@@ -548,10 +568,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/mark-gastineau.jpg",
-      "alt": "Mark Gastineau",
-      "credit": "New York Jets",
-      "sourceUrl": "https://www.newyorkjets.com/news/the-honor-is-incredible-for-mark-gastineau-8479860"
+      "src": "/legends/enhanced/mark-gastineau.webp",
+      "alt": "AI-enhanced photograph of Mark Gastineau tackling Bernie Kosar in his Jets No.99 uniform, in black and white.",
+      "credit": "Bill Kostroun / Associated Press",
+      "sourceUrl": "https://www.newyorkjets.com/photos/throwback-gallery-jets-vs-browns",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/mark-gastineau.jpg"
     },
     "sources": [
       {
@@ -588,10 +610,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/wesley-walker.jpg",
-      "alt": "Wesley Walker",
+      "src": "/legends/enhanced/wesley-walker.webp",
+      "alt": "AI-enhanced photograph of Wesley Walker running in his Jets No.85 uniform, in black and white.",
       "credit": "New York Jets",
-      "sourceUrl": "https://www.newyorkjets.com/news/where-are-they-now-wesley-walker"
+      "sourceUrl": "https://www.newyorkjets.com/news/where-are-they-now-wesley-walker",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/wesley-walker.jpg"
     },
     "sources": [
       {
@@ -628,10 +652,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/marty-lyons.jpg",
-      "alt": "Marty Lyons",
-      "credit": "Kathy Willens / AP",
-      "sourceUrl": "https://www.newyorkjets.com/news/marty-lyons-new-role-for-jets"
+      "src": "/legends/enhanced/marty-lyons.webp",
+      "alt": "AI-enhanced photograph of Marty Lyons in his Jets No.93 uniform rushing past a Cleveland blocker.",
+      "credit": "Al Messerschmidt / Associated Press",
+      "sourceUrl": "https://www.newyorkjets.com/photos/gallery-jets-opponents-through-the-years-07-14-2025",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/marty-lyons.jpg"
     },
     "sources": [
       {
@@ -668,10 +694,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/wayne-chrebet.jpg",
-      "alt": "Wayne Chrebet",
+      "src": "/legends/enhanced/wayne-chrebet.webp",
+      "alt": "AI-enhanced photograph of Wayne Chrebet seen from behind raising the football in his Jets No.80 uniform.",
       "credit": "New York Jets",
-      "sourceUrl": "https://www.newyorkjets.com/news/emotional-night-game-for-wayne-chrebet-13832160"
+      "sourceUrl": "https://www.newyorkjets.com/news/emotional-night-game-for-wayne-chrebet-13832160",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/wayne-chrebet.jpg"
     },
     "sources": [
       {
@@ -716,7 +744,14 @@
         "text": "Wayne Chrebet recalled Hess standing by the plane and thanking players individually after the 1998 AFC Championship Game loss."
       }
     ],
-    "photo": null,
+    "photo": {
+      "src": "/legends/enhanced/leon-hess.webp",
+      "alt": "AI-enhanced photograph of Leon Hess in a black-and-white formal portrait.",
+      "credit": "New York Jets",
+      "sourceUrl": "https://www.newyorkjets.com/photos/leon-hess-to-be-inducted-in-jets-ring-of-honor-13831876",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/leon-hess.jpg"
+    },
     "sources": [
       {
         "label": "Jets Ring induction announcement",
@@ -764,10 +799,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/emerson-boozer.jpg",
-      "alt": "Emerson Boozer",
-      "credit": "New York Jets",
-      "sourceUrl": "https://www.newyorkjets.com/news/emerson-boozer-kicks-off-a-super-weekend-16388339"
+      "src": "/legends/enhanced/emerson-boozer.webp",
+      "alt": "AI-enhanced photograph of Emerson Boozer carrying the football in his Jets No.32 uniform, in black and white.",
+      "credit": "New York Jets archive",
+      "sourceUrl": "https://www.newyorkjets.com/news/emerson-boozer-hugh-douglas-enter-black-college-football-hall-of-fame",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/emerson-boozer.jpg"
     },
     "sources": [
       {
@@ -812,10 +849,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/matt-snell.jpg",
-      "alt": "Matt Snell",
-      "credit": "Vernon Biever / AP",
-      "sourceUrl": "https://www.newyorkjets.com/news/matt-snell-jets-legend-super-bowl-iii-obituary-03-10-2026"
+      "src": "/legends/enhanced/matt-snell.webp",
+      "alt": "AI-enhanced photograph of Matt Snell, right in No.41, taking Joe Namath’s handoff in Super Bowl III",
+      "credit": "Associated Press",
+      "sourceUrl": "https://www.newyorkjets.com/photos/throwback-jets-colts-through-the-years",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/matt-snell.jpg"
     },
     "sources": [
       {
@@ -853,10 +892,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/kevin-mawae.webp",
-      "alt": "Kevin Mawae",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/kevin-mawae"
+      "src": "/legends/enhanced/kevin-mawae.webp",
+      "alt": "AI-enhanced photograph of Kevin Mawae raising his fist at the lectern with his Hall of Fame bust alongside.",
+      "credit": "Caitlyn Epes/NFL",
+      "sourceUrl": "https://www.newyorkjets.com/photos/best-images-of-kevin-mawae-at-the-hall-of-fame-enshrinement-ceremony",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/kevin-mawae.jpg"
     },
     "sources": [
       {
@@ -910,10 +951,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/dbrickashaw-ferguson.jpg",
-      "alt": "D'Brickashaw Ferguson",
+      "src": "/legends/enhanced/dbrickashaw-ferguson.webp",
+      "alt": "AI-enhanced photograph of D'Brickashaw Ferguson in his Jets No.60 uniform in a blocking stance.",
       "credit": "Thomas Jefferson University",
-      "sourceUrl": "https://magazine.jefferson.edu/issues/fall-2025/dbrickashaw-ferguson.html"
+      "sourceUrl": "https://magazine.jefferson.edu/issues/fall-2025/dbrickashaw-ferguson.html",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/dbrickashaw-ferguson.jpg"
     },
     "sources": [
       {
@@ -967,10 +1010,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/nick-mangold.png",
-      "alt": "Nick Mangold",
-      "credit": "New York Jets",
-      "sourceUrl": "https://www.newyorkjets.com/news/nick-mangold-obituary-new-york-jets-ohio-state-10-26-2025"
+      "src": "/legends/enhanced/nick-mangold.webp",
+      "alt": "AI-enhanced photograph of Nick Mangold calling line assignments in his Jets No.74 uniform.",
+      "credit": "New York Jets archive",
+      "sourceUrl": "https://www.newyorkjets.com/photos/nick-mangold-through-the-years-12424488",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/nick-mangold.jpg"
     },
     "sources": [
       {
@@ -1021,10 +1066,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/darrelle-revis.webp",
-      "alt": "Darrelle Revis",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/darrelle-revis"
+      "src": "/legends/enhanced/darrelle-revis.webp",
+      "alt": "AI-enhanced photograph of Darrelle Revis and his mother Diana Askew unveiling his Hall of Fame bust.",
+      "credit": "Luke Hales/NFL",
+      "sourceUrl": "https://www.newyorkjets.com/photos/gallery-best-photos-of-darelle-revis-joe-klecko-at-the-2023-pro-football-hall-of",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/darrelle-revis.jpg"
     },
     "sources": [
       {
@@ -1082,10 +1129,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/steve-atwater.webp",
-      "alt": "Steve Atwater",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/steve-atwater"
+      "src": "/legends/enhanced/steve-atwater.webp",
+      "alt": "AI-enhanced photograph of Steve Atwater speaking at a Hall of Fame ceremony in his gold jacket.",
+      "credit": "New York Jets",
+      "sourceUrl": "https://www.newyorkjets.com/history/hall-of-fame/steve-atwater",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/steve-atwater.jpg"
     },
     "sources": [
       {
@@ -1123,10 +1172,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/alan-faneca.webp",
-      "alt": "Alan Faneca",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/alan-faneca"
+      "src": "/legends/enhanced/alan-faneca.webp",
+      "alt": "AI-enhanced photograph of Alan Faneca in his gold Hall of Fame jacket beside his bronze bust.",
+      "credit": "New York Jets",
+      "sourceUrl": "https://www.newyorkjets.com/history/hall-of-fame/alan-faneca",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/alan-faneca.jpg"
     },
     "sources": [
       {
@@ -1172,10 +1223,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/brett-favre.webp",
-      "alt": "Brett Favre",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/brett-favre"
+      "src": "/legends/enhanced/brett-favre.webp",
+      "alt": "AI-enhanced photograph of Brett Favre in his gold Hall of Fame jacket beside his bronze bust.",
+      "credit": "New York Jets",
+      "sourceUrl": "https://www.newyorkjets.com/history/hall-of-fame/brett-favre",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/brett-favre.jpg"
     },
     "sources": [
       {
@@ -1217,10 +1270,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/ty-law.webp",
-      "alt": "Ty Law",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/ty-law"
+      "src": "/legends/enhanced/ty-law.webp",
+      "alt": "AI-enhanced photograph of Ty Law in his gold Hall of Fame jacket beside his bronze bust.",
+      "credit": "New York Jets",
+      "sourceUrl": "https://www.newyorkjets.com/history/hall-of-fame/ty-law",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/ty-law.jpg"
     },
     "sources": [
       {
@@ -1262,10 +1317,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/ronnie-lott.webp",
-      "alt": "Ronnie Lott",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/ronnie-lott"
+      "src": "/legends/enhanced/ronnie-lott.webp",
+      "alt": "AI-enhanced photograph of Ronnie Lott standing beside his Hall of Fame bust against a stone wall.",
+      "credit": "New York Jets",
+      "sourceUrl": "https://www.newyorkjets.com/history/hall-of-fame/ronnie-lott",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/ronnie-lott.jpg"
     },
     "sources": [
       {
@@ -1301,10 +1358,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/art-monk.webp",
-      "alt": "Art Monk",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/art-monk"
+      "src": "/legends/enhanced/art-monk.webp",
+      "alt": "AI-enhanced photograph of Art Monk in his gold Hall of Fame jacket beside his bronze bust.",
+      "credit": "New York Jets",
+      "sourceUrl": "https://www.newyorkjets.com/history/hall-of-fame/art-monk",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/art-monk.jpg"
     },
     "sources": [
       {
@@ -1340,10 +1399,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/bill-parcells.webp",
-      "alt": "Bill Parcells",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/bill-parcells"
+      "src": "/legends/enhanced/bill-parcells.webp",
+      "alt": "AI-enhanced photograph of Bill Parcells in his green Jets coaching jacket",
+      "credit": "New York Jets",
+      "sourceUrl": "https://www.newyorkjets.com/photos/best-of-bill-parcells-10623201",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/bill-parcells.jpg"
     },
     "sources": [
       {
@@ -1380,10 +1441,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/ed-reed.webp",
-      "alt": "Ed Reed",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/ed-reed"
+      "src": "/legends/enhanced/ed-reed.webp",
+      "alt": "AI-enhanced photograph of Ed Reed in Jets No.22 returning the ball between Raiders defenders",
+      "credit": "New York Jets",
+      "sourceUrl": "https://www.newyorkjets.com/photos/throwback-thursday-2013-free-agent-signings-12744275",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/ed-reed.jpg"
     },
     "sources": [
       {
@@ -1428,10 +1491,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/john-riggins.webp",
-      "alt": "John Riggins",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/john-riggins"
+      "src": "/legends/enhanced/john-riggins.webp",
+      "alt": "AI-enhanced black-and-white photograph of John Riggins waving at his 1992 Hall of Fame induction.",
+      "credit": "New York Jets",
+      "sourceUrl": "https://www.newyorkjets.com/history/hall-of-fame/john-riggins",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/john-riggins.jpg"
     },
     "sources": [
       {
@@ -1464,10 +1529,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/jason-taylor.webp",
-      "alt": "Jason Taylor",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/jason-taylor"
+      "src": "/legends/enhanced/jason-taylor.webp",
+      "alt": "AI-enhanced photograph of Jason Taylor in his white Jets No.99 uniform",
+      "credit": "New York Jets",
+      "sourceUrl": "https://www.newyorkjets.com/news/jason-taylor-initially-surprised-at-hof-nod-18535604",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/jason-taylor.jpg"
     },
     "sources": [
       {
@@ -1509,10 +1576,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/ladainian-tomlinson.webp",
-      "alt": "LaDainian Tomlinson",
-      "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/ladainian-tomlinson"
+      "src": "/legends/enhanced/ladainian-tomlinson.webp",
+      "alt": "AI-enhanced photograph of LaDainian Tomlinson in Jets No.21 running with the football",
+      "credit": "AP/Joe Mahoney",
+      "sourceUrl": "https://www.newyorkjets.com/photos/throwback-gallery-jets-vs-broncos",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/ladainian-tomlinson.jpg"
     },
     "sources": [
       {
@@ -1558,10 +1627,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/ron-wolf.webp",
-      "alt": "Ron Wolf",
+      "src": "/legends/enhanced/ron-wolf.webp",
+      "alt": "AI-enhanced photograph of Ron Wolf speaking at a microphone",
       "credit": "Pro Football Hall of Fame",
-      "sourceUrl": "https://www.profootballhof.com/players/ron-wolf"
+      "sourceUrl": "https://www.profootballhof.com/players/ron-wolf",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/originals/ron-wolf.jpeg"
     },
     "sources": [
       {
@@ -1606,10 +1677,12 @@
       }
     ],
     "photo": {
-      "src": "/legends/dennis-byrd.jpg",
-      "alt": "Dennis Byrd",
+      "src": "/legends/enhanced/dennis-byrd.webp",
+      "alt": "AI-enhanced photograph of Dennis Byrd in his Jets helmet and No.90 uniform.",
       "credit": "New York Jets",
-      "sourceUrl": "https://www.newyorkjets.com/news/inspirational-jets-dl-dennis-byrd-dies-at-50-17888417"
+      "sourceUrl": "https://www.newyorkjets.com/news/inspirational-jets-dl-dennis-byrd-dies-at-50-17888417",
+      "treatment": "ai-enhanced",
+      "originalSrc": "/legends/dennis-byrd.jpg"
     },
     "sources": [
       {

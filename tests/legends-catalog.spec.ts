@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import sharp from "sharp";
 import { legends, legendBySlug, filterLegends } from "../src/lib/legends";
 
 const ring = ["weeb-ewbank", "winston-hill", "joe-klecko", "curtis-martin", "don-maynard", "joe-namath", "larry-grantham", "freeman-mcneil", "gerry-philbin", "al-toon", "mark-gastineau", "wesley-walker", "marty-lyons", "wayne-chrebet", "leon-hess", "emerson-boozer", "matt-snell", "kevin-mawae", "dbrickashaw-ferguson", "nick-mangold", "darrelle-revis"];
@@ -39,11 +40,31 @@ test("every story has safe sources, valid connections and its own verified photo
     }
     for (const link of person.archive) expect(link.href).toMatch(/^\/seasons\/(1999|20\d\d)$/);
     if (person.photo) {
-      expect(person.photo.src).toMatch(/^\/legends\/[a-z0-9-]+\.(webp|jpg|png)$/);
+      expect(person.photo.src).toMatch(/^\/legends\/(?:enhanced\/)?[a-z0-9-]+\.(webp|jpg|png)$/);
       expect(existsSync(path.join(process.cwd(), "public", person.photo.src))).toBe(true);
       expect(person.photo.alt).toContain(person.name);
     } else expect(person.slug).toBe("leon-hess");
   }
   expect(filterLegends({ honor: "hall", era: "1960s" }).map((person) => person.slug).sort()).toEqual(["don-maynard", "joe-namath", "weeb-ewbank", "winston-hill"]);
   expect(filterLegends({ q: "  Wayne  " }).map((person) => person.slug)).toEqual(["wayne-chrebet"]);
+});
+
+test("altered portraits meet the shared format and retain their original reference", async () => {
+  const altered = legends.filter((person) => person.photo?.treatment);
+  expect(altered).toHaveLength(34);
+  for (const person of altered) {
+    const photo = person.photo!;
+    expect(["ai-enhanced", "ai-generated"]).toContain(photo.treatment);
+    expect(photo.alt).toMatch(photo.treatment === "ai-enhanced" ? /AI-enhanced/i : /AI-generated/i);
+    const image = await sharp(path.join(process.cwd(), "public", photo.src)).metadata();
+    expect(image.width).toBe(960);
+    expect(image.height).toBe(1200);
+    expect(image.width! * 5).toBe(image.height! * 4);
+    if (photo.treatment === "ai-enhanced") expect(photo.originalSrc).toBeDefined();
+    if (photo.originalSrc) {
+      expect(photo.originalSrc).toMatch(/^\/legends\/(?:originals\/)?[a-z0-9-]+\.(webp|jpe?g|png)$/);
+      expect(photo.originalSrc).not.toBe(photo.src);
+      expect(existsSync(path.join(process.cwd(), "public", photo.originalSrc))).toBe(true);
+    }
+  }
 });

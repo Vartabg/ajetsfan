@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import path from "node:path";
+import { legends } from "../src/lib/legends";
 
 async function shell(page: Page) {
   await expect(page.locator("h1")).toHaveCount(1);
@@ -108,6 +109,25 @@ test("portrait errors preserve the person's story and credited original source",
   await expect(portrait.getByRole("link", { name: /^Photo source for Curtis Martin/ })).toHaveAttribute("href", /^https:\/\//);
   await expect(page.locator("h1")).toHaveText("Curtis Martin");
   await expect(page.locator("#story")).toContainText("Their Jets story.");
+  const photo = legends.find((person) => person.slug === "curtis-martin")!.photo!;
+  if (photo.originalSrc) await expect(portrait.getByRole("link", { name: /^View original photo of Curtis Martin/ })).toHaveAttribute("href", photo.originalSrc);
+  if (photo.treatment) await expect(portrait.locator("figcaption")).toContainText(photo.treatment === "ai-enhanced" ? "AI-enhanced" : "AI-generated");
+});
+
+test("altered portraits disclose their treatment beside the source and original", async ({ page }) => {
+  const examples = ["ai-enhanced", "ai-generated"].map((treatment) => legends.find((person) => person.photo?.treatment === treatment)).filter((person) => !!person);
+  expect(examples.length).toBeGreaterThan(0);
+  for (const person of examples) {
+    const photo = person.photo!;
+    await page.goto(`/legends/${person.slug}`);
+    const portrait = page.locator(`[data-legend-portrait="${person.name}"]`);
+    await expect(portrait.locator("figcaption")).toContainText(photo.treatment === "ai-enhanced"
+      ? "AI-enhanced from the original photograph." : "AI-generated illustration.");
+    await expect(portrait.getByRole("img")).toHaveAttribute("alt", photo.alt);
+    await expect(portrait.getByRole("link", { name: /^Photo source for / })).toHaveAttribute("href", photo.sourceUrl);
+    if (photo.originalSrc) await expect(portrait.getByRole("link", { name: /^View original photo of / })).toHaveAttribute("href", photo.originalSrc);
+    expect(await portrait.getByRole("img").evaluate((image) => getComputedStyle(image).objectFit)).toBe("cover");
+  }
 });
 
 test("people pages retain semantic access, readable reflow and visible controls", async ({ page }) => {
