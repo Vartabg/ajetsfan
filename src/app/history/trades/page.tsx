@@ -1,6 +1,7 @@
 import Link from "@/components/IntentLink";
 import FocusShell from "@/components/FocusShell";
 import FocusMoment from "@/components/FocusMoment";
+import LinkedFolds from "@/components/LinkedFolds";
 import shared from "@/components/Focus.module.css";
 import { focusFonts } from "../../focus-fonts";
 import { formatCheckedAt, formatDate } from "@/lib/current";
@@ -41,13 +42,14 @@ export default async function TradesPage() {
       <p className={shared.caption}>Every pick, followed to what it became. See the player selected with it, or the later deal that moved it again.</p>
       {ledger ? <>
       <p className={styles.standfirst}><strong>{ledger.counts.trades} recorded trades, {ledger.firstSeason}–{ledger.lastSeason}.</strong> {ledger.counts.picksGiven} picks sent and {ledger.counts.picksReceived} received, counting picks that moved again. Checked <time dateTime={ledger.checkedAt}>{formatCheckedAt(ledger.checkedAt)}</time>.</p>
-      <nav className={styles.seasonNav} aria-label="Trade seasons">{seasons.map(({ season, trades }) => <a key={season} href={`#trades-${season}`}>{season}<small>{trades.length}</small></a>)}</nav>
-      </> : <p className={styles.standfirst}>The trade ledger is unavailable in this edition.</p>}
+      </> : <p className={styles.standfirst}>The trade ledger is unavailable right now.</p>}
     </FocusMoment>
     {ledger ? <>
       <FocusMoment id="trades-ledger" hosts>
-      {seasons.map(({ season, trades }) => <section key={season} id={`trades-${season}`} className={styles.season} aria-labelledby={`trades-${season}-heading`}>
-        <h2 id={`trades-${season}-heading`} className="hed">{season}</h2>
+      {/* One closed row per year keeps the ledger short; the newest year starts open, and a link to a year opens it. */}
+      {seasons.map(({ season, trades }, at) => <details key={season} id={`trades-${season}`} className={styles.season} open={at === 0} data-fold>
+        <summary className="disclosure"><h2 id={`trades-${season}-heading`} className={styles.year}>{season}</h2><span className={styles.count}>{`${trades.length} ${trades.length === 1 ? "trade" : "trades"}`}</span></summary>
+        <div className={styles.deals}>
         {trades.map((trade) => <article key={trade.id} className={styles.trade} data-trade={trade.id} style={{ "--rival": teamColor(trade.partners[0]), "--rival-2": teamColor(trade.partners[0], 1) } as CSSProperties}>
           <header className={styles.tradeHead}><time dateTime={trade.date}>{formatDate(trade.date)}</time><h3>With {trade.partners.map((code) => teamName(code)).join(" and ")}</h3></header>
           <div className={styles.sides}>
@@ -55,7 +57,9 @@ export default async function TradesPage() {
             <div><h4>Jets received</h4>{trade.received.length ? <ul>{trade.received.map((asset, index) => <Asset key={index} asset={asset} />)}</ul> : <p>Nothing recorded</p>}</div>
           </div>
         </article>)}
-      </section>)}
+        </div>
+      </details>)}
+      <LinkedFolds />
       </FocusMoment>
       <FocusMoment id="trade-sources" label="The trade ledger" heading="Every connection, sourced.">
       <footer className={styles.sources}>
