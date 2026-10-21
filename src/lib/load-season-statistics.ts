@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { RankingsCollection, SeasonRankings } from './season-rankings';
 import type { NextGenCollection } from './nextgen-stats';
-import { isNextGenCollection, nextGenSeason } from './nextgen-stats';
+import { isNextGenCollection, mergeNextGenCollections, nextGenSeasonCheck } from './nextgen-stats';
 import { loadAnalysisState } from './load-analysis';
 
 async function dataFile(name: string): Promise<unknown | null> {
@@ -32,9 +32,9 @@ export async function loadNextGenCollection(): Promise<NextGenCollection | null>
   const value = await dataFile('nextgen-stats.json');
   if (!value) return runtime?.nextgen ?? null;
   if (!isNextGenCollection(value)) throw new Error('Invalid Next Gen snapshot');
-  return runtime?.nextgen && Date.parse(runtime.nextgen.checkedAt) >= Date.parse(value.checkedAt) ? runtime.nextgen : value;
+  return mergeNextGenCollections(runtime?.nextgen, value);
 }
 export async function loadNextGenSeason(year: number) {
   const collection = await loadNextGenCollection();
-  return { nextgen: nextGenSeason(collection, year), checkedAt: collection?.checkedAt ?? null };
+  return nextGenSeasonCheck(collection, year);
 }

@@ -1,12 +1,12 @@
 .head { position: relative; z-index: 3; width: var(--shell); margin-inline: auto; padding-top: .5rem; }
-.folio { display: flex; flex-wrap: wrap; gap: .25rem 1rem; justify-content: space-between; padding: .5rem 0; color: var(--ink-2); font: 700 .65rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .1em; border-bottom: 1px solid var(--rule-soft); }
+.folio { display: flex; flex-wrap: wrap; gap: .25rem 1rem; justify-content: space-between; padding: .5rem 0; color: var(--ink-2); font: 700 .8rem/1.5 var(--font-sans), sans-serif; border-bottom: 1px solid var(--rule-soft); }
 .brandRow { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.25rem 0; }
 .brand { display: inline-flex; align-items: center; gap: 1rem; min-width: 0; text-decoration: none; color: var(--forest); }
 .crest { display: block; width: 72px; height: 64px; flex-shrink: 0; transform: rotate(-8deg); }
 .wordmark { display: grid; gap: .35rem; min-width: 0; }
-.brandNote { font: 700 .6rem/1.4 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .18em; color: var(--ink-2); }
+.brandNote { font: 700 .8rem/1.4 var(--font-sans), sans-serif; color: var(--ink-2); }
 .brandName { font-size: clamp(2.2rem, 4.3vw, 3.8rem); line-height: 1.05; letter-spacing: -.025em; }
-.tagline { margin: 0; text-align: right; color: var(--spot); font: italic 400 1.15rem/1.4 var(--font-serif), Georgia, serif; }
+.tagline { margin: 0; text-align: right; color: var(--spot); font: 400 1.15rem/1.4 var(--font-serif), Georgia, serif; }
 .tagline br { display: block; }
 .mobileWear { display: none; }
 .navigation { position: sticky; top: 0; z-index: 40; background: var(--paper); border-top: 2px solid var(--rule); border-bottom: 1px solid var(--rule-soft); box-shadow: 0 3px 10px #062c2108; }
@@ -17,7 +17,7 @@
 .section:hover:not([aria-current="page"]) { background: var(--paper-2); }
 .sections .section:has([data-link-pending="true"]) { background: var(--forest); color: var(--paper); }
 .section:focus-visible { outline-color: var(--spot); outline-offset: 2px; }
-.wear { align-self: center; margin-left: auto; padding: .4rem 0 .4rem 1rem; color: var(--spot); font: 700 .75rem/1.5 var(--font-sans), sans-serif; text-transform: uppercase; letter-spacing: .05em; }
+.wear { align-self: center; margin-left: auto; padding: .4rem 0 .4rem 1rem; color: var(--spot); font: 700 .8rem/1.5 var(--font-sans), sans-serif; }
 .wear::before { content: ''; display: inline-block; width: .45rem; height: .45rem; margin-right: .45rem; border-radius: 50%; background: var(--spot); }
 @media (max-width: 640px) { .folio { display: grid; grid-template-columns: 1fr auto; font-size: .6rem; letter-spacing: .04em; } .domain { display: none; } .checkTime { grid-column: 1 / -1; } .mobileWear { display: block; color: var(--spot); } .brandRow { padding: .8rem 0; } .brand { gap: .55rem; } .crest { width: 44px; height: 40px; } .brandNote { font-size: .5rem; letter-spacing: .08em; } .brandName { font-size: clamp(1.65rem, 7vw, 2.6rem); } .wordmark { gap: .2rem; } .tagline, .wear { display: none; } .sections { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .15rem; } .sections .section { font-size: .67rem; padding: .5rem .2rem; letter-spacing: .02em; border-right: 0; } }
 @media (min-width: 641px) and (max-width: 900px) { .sections { display:grid;grid-template-columns:repeat(6,minmax(0,1fr)); } .sections .section { padding:.6rem .3rem;border-right:0; } .wear { display:none; } }

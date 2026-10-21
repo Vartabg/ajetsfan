@@ -3,6 +3,7 @@ import FocusMoment from "@/components/FocusMoment";
 import FootballLiveCard, { footballOpponent, showFootballMoment } from "@/components/football-live-card";
 import Link from "@/components/IntentLink";
 import LivePlays from "@/components/LivePlays";
+import LegendHomeFeature from "@/components/LegendHomeFeature";
 import { selectLead } from "@/lib/current";
 import { buildFocus } from "@/lib/focus";
 import { loadCurrent, loadCurve, loadGames } from "@/lib/load-games";
@@ -20,7 +21,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 180;
 export const metadata = pageMetadata({
   path: "/", title: "ajetsfan · the Jets, one thing at a time",
-  description: "The latest Jets result, the next game, the season, the division, a big play, surprising archive discoveries and the newest coverage, one at a time.",
+  description: "Jets legends and their stories, the latest result, the next game, the season, a big play and surprising archive discoveries, one at a time.",
 });
 
 export default async function Home() {
@@ -42,5 +43,6 @@ export default async function Home() {
         : <FootballLiveCard feed={live} id="home-football-score" />}</figure>
     </FocusMoment>,
   } : undefined;
-  return <FocusHome data={data} today={today} className={focusFonts} liveMoment={liveMoment} />;
+  return <FocusHome data={data} today={today} className={focusFonts} liveMoment={liveMoment}
+    peopleMoment={{ title: "Jets legends", answer: "Meet Curtis Martin", content: <LegendHomeFeature /> }} />;
 }

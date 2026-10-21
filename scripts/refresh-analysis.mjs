@@ -10,6 +10,7 @@ import { extractVerifiedDrives, RESULTS } from './drives.mjs';
 import { buildHistory } from './league-history.mjs';
 import { analysisEnvelope, validateAnalysisEnvelope, validateAnalysisCurve } from '../src/lib/analysis-envelope.mjs';
 import { validateRuntimeDrives, validateRuntimeHistory } from '../src/lib/postgame-evidence.mjs';
+import { mergeNextGenCollections } from '../src/lib/nextgen-stats.ts';
 
 const checkedSource = (value, attemptedAt, retained = false) => ({ checkedAt: value?.checkedAt ?? null, attemptedAt,
   status: value?.checkedAt ? retained ? 'retained' : value.status ?? 'ready' : 'unavailable' });
@@ -96,7 +97,7 @@ export async function refreshAnalysis({ baked, previous = null, football, now = 
     analysisUpdatedAt: baked.current.analysisUpdatedAt, latestAnalyzedGameId: baked.current.latestAnalyzedGameId }) };
   const baselineAnalytics = preferPrior ? prior.analytics : baked.analytics ?? null;
   const baselineRankings = newest(prior?.rankings, baked.rankingsCollection?.seasons.find((entry) => entry.year === season)) ?? null;
-  const baselineNextgen = newest(prior?.nextgen, baked.nextgen) ?? null;
+  const baselineNextgen = mergeNextGenCollections(prior?.nextgen, baked.nextgen);
   const baselineHistory = historyBaseline(prior?.history, baked.history, attemptedAt) ?? null;
   const baselineDrives = driveBaseline(prior?.drives, baked.drives?.season === season ? baked.drives : null, football.current, attemptedAt) ?? null;
   if (baselineHistory) validateRuntimeHistory(baselineHistory);
@@ -219,7 +220,9 @@ export async function refreshAnalysis({ baked, previous = null, football, now = 
       latestAnalyzedGameId: games.sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id)).at(-1)?.id ?? null };
     const rankings = results[1].status === 'fulfilled' ? results[1].value.seasons.find((entry) => entry.year === season) ?? null
       : baselineRankings ? { ...baselineRankings, status: 'retained', attemptedAt } : null;
-    const nextgen = results[2].status === 'fulfilled' ? results[2].value : baselineNextgen ? { ...baselineNextgen, status: 'retained', attemptedAt } : null;
+    const nextgen = results[2].status === 'fulfilled' ? results[2].value : baselineNextgen ? { ...baselineNextgen, status: 'retained', attemptedAt,
+      seasons: baselineNextgen.seasons.map((entry) => ({ ...entry, checkedAt: entry.checkedAt ?? baselineNextgen.checkedAt,
+        status: 'retained', attemptedAt, retentionReason: 'The latest source check failed. Showing the last verified measurements.' })) } : null;
     const history = results[3].status === 'fulfilled' ? results[3].value : baselineHistory
       ? validateRuntimeHistory({ ...baselineHistory, status: 'retained', attemptedAt }) : null;
     const drives = results[4].status === 'fulfilled' ? results[4].value : retainedDrives(baselineDrives, football.current, attemptedAt);

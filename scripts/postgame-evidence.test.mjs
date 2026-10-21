@@ -5,10 +5,14 @@ import { makeBakedDrivesEvidence, validateRuntimeDrives, validateRuntimeHistory 
 import { analysisEnvelope, validateAnalysisEnvelope } from '../src/lib/analysis-envelope.mjs';
 import { analysisSourceChecks } from '../src/lib/analysis-refresh-coordinator.mjs';
 import { editionHealth } from '../src/lib/edition-health.ts';
+import { beforeGame, footballAt } from './baked-snapshot.mjs';
 
 const read = async (name) => JSON.parse(await readFile(new URL(`../public/data/${name}.json`, import.meta.url), 'utf8'));
-const [current, rawDrives, history, analytics, games, rankings, nextgen, coverage] = await Promise.all(
+const [bakedCurrent, bakedDrives, bakedHistory, analytics, bakedGames, rankings, nextgen, bakedCoverage] = await Promise.all(
   ['current', 'drives/2026', 'league-history', 'analytics', 'games', 'season-rankings', 'nextgen-stats', 'coverage'].map(read));
+// The season before week 6, with no analysis newer than the compiled drive check, whatever the latest data refresh wrote.
+const rewound = beforeGame({ current: bakedCurrent, coverage: bakedCoverage, drives: bakedDrives, history: bakedHistory, games: bakedGames }, '2026_06_NYJ_NE');
+const { drives: rawDrives, history, games } = rewound, { current, coverage } = footballAt(rewound, rawDrives.checkedAt);
 const at = new Date(Math.max(...[current.analysisCheck.attemptedAt, current.analysisUpdatedAt, analytics.analysisUpdatedAt,
   ...rankings.seasons.flatMap((entry) => [entry.checkedAt, entry.attemptedAt]), nextgen.checkedAt, nextgen.attemptedAt,
   history.checkedAt, history.attemptedAt, rawDrives.checkedAt].map((value) => Date.parse(value ?? '')).filter(Number.isFinite)) + 60_000).toISOString();

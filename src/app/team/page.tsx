@@ -53,7 +53,8 @@ export default async function TeamPage() {
     <FocusMoment id="players" label={roster?.week != null ? `Roster · Week ${roster.week}` : "Roster"}
       heading={roster ? <>{roster.count} players <em>on the roster, by position.</em></> : "The roster is not available yet."}
       status={roster?.retained ? <p className={shared.stale}>The latest roster check failed, so this is the last verified roster.</p> : null}
-      actions={roster ? <Link href="/team/roster" className={shared.go}>Find a player <span aria-hidden="true">→</span></Link> : null}>
+      actions={<>{roster ? <Link href="/team/roster" className={shared.go}>Find a player <span aria-hidden="true">→</span></Link> : null}
+        <Link href="/legends" className={shared.go}>Meet the Jets legends <span aria-hidden="true">→</span></Link></>}>
       {roster ? <figure className={shared.shape}>
         <div className={styles.units}><div className={styles.unitGrid}>{roster.units.map((unit) => <div key={unit.group} data-unit={unit.group}>
           <p className={styles.unit}>{unit.label} <b>{unit.count}</b></p>

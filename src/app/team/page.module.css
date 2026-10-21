@@ -9,7 +9,7 @@
 .sectionNav a:hover { background: var(--paper-2); }
 .sectionNav a[aria-current="page"] { color: var(--paper); background: var(--forest); }
 .sectionNav a:focus-visible { outline-color: var(--spot); }
-.kicker { color: var(--spot); font-size: .7rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; margin: 0 0 .7rem; }
+.kicker { color: var(--spot); font-size: .8rem; font-weight: 800; margin: 0 0 .7rem; }
 .pageHeader { margin-bottom: 1.75rem; }
 .pageHeader h1 { font-size: clamp(2.6rem, 4vw, 3.8rem); line-height: 1.05; }
 .pageHeader > p:last-child { margin: .85rem 0 0; color: var(--ink-2); max-width: 62ch; font-size: .9rem; }

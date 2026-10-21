@@ -14,6 +14,9 @@
   --stamp: #8b3e32;
   --tape: #ede2bb;
   --shell: min(1240px, 100% - 3rem);
+  /* One readable face everywhere; the older role names all point at it. */
+  --font-sans: var(--font-lexend), system-ui, sans-serif;
+  --font-hed: var(--font-sans); --font-sans-narrow: var(--font-sans); --font-serif: var(--font-sans); --font-mono: var(--font-sans);
 }
 /* A subtle stock tint still follows the streak; the specimen shows the full range. */
 [data-wear="1"] { --paper: #f7f4eb; --paper-2: #eeeddf; }
@@ -41,8 +44,8 @@ details[open] > .disclosure::after { transform: rotate(225deg); margin-bottom: -
 .when-open { display: none; }
 details[open] > summary .when-open { display: inline; }
 details[open] > summary .when-closed { display: none; }
-.hed { font-family: var(--font-hed), Impact, sans-serif; text-transform: uppercase; line-height: .95; letter-spacing: -.015em; }
-.deck, .label { font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; text-transform: uppercase; letter-spacing: .12em; }
+.hed { font-family: var(--font-hed), Impact, sans-serif; line-height: .95; letter-spacing: -.015em; }
+.deck, .label { font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; }
 .label { font-size: .72rem; }
 .agate { font-family: var(--font-mono), ui-monospace, monospace; font-size: .72rem; font-variant-numeric: tabular-nums; line-height: 1.5; }
 .rule { border-top: 1px solid var(--rule); }

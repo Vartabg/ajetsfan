@@ -3,6 +3,8 @@ import { execFile } from 'node:child_process';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs, promisify } from 'node:util';
+import { freshAnalysisScheduler, verifiedRetainedNextGen } from './verify-analysis-source.mjs';
+import { isNextGenCollection } from '../src/lib/nextgen-stats.ts';
 
 const runCommand = promisify(execFile);
 
@@ -42,7 +44,7 @@ function validHealth(value, status) {
 /** Match the exact publication, rather than mistaking a healthy older deployment for success. */
 export async function verifyPublishedData({
   origin, expected, fetcher = fetch, pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
-  attempts = 16, intervalMs = 15_000, timeoutMs = 10_000, allowLoopback = false, onAttempt = () => {},
+  attempts = 16, intervalMs = 15_000, timeoutMs = 10_000, allowLoopback = false, onAttempt = () => {}, now = Date.now,
 }) {
   const site = publicSiteOrigin(origin, { allowLoopback });
   if (!record(expected) || !Number.isInteger(expected.season) || expected.season < 1999 || expected.season > 2200 || !timestamp(expected.checkedAt)) {
@@ -101,11 +103,27 @@ export async function verifyPublishedData({
         && timestamp(health.mediaScheduler?.updatedAt);
       const mediaMatches = (actual, checkedAt) => actual === checkedAt || runtimeMedia
         && timestamp(actual) && timestamp(checkedAt) && Date.parse(actual) >= Date.parse(checkedAt);
-      const runtimeAnalysis = health.analysisScheduler?.mode === 'runtime' && health.analysisScheduler?.status === 'ready'
-        && timestamp(health.analysisScheduler?.updatedAt);
-      const matches = (name, actual, minimum) => actual === minimum ||
-        (['results', 'news', 'roster', 'stats'].includes(name) && runtimeFootball
-          || ['analysis', 'rankings', 'nextgen'].includes(name) && runtimeAnalysis) && newer(actual, minimum);
+      const runtimeAnalysis = freshAnalysisScheduler(health.analysisScheduler, now());
+      if (health.analysisScheduler && !runtimeAnalysis && !(health.analysisScheduler.mode === 'snapshot' && health.analysisScheduler.status === 'not_configured')) {
+        issue = 'runtime analysis delivery is unavailable or overdue';
+        onAttempt({ attempt, attempts, issue });
+        if (attempt < attempts) await pause(intervalMs);
+        continue;
+      }
+      const analysisCheck = (name) => runtimeAnalysis && health.feeds[name]?.status === 'ready'
+        && (health.feeds[name].checkedAt === expected.feeds?.[name] || newer(health.analysisScheduler.updatedAt, health.feeds[name].checkedAt));
+      let retainedNextGen = false;
+      if (runtimeAnalysis && health.feeds.nextgen.status === 'retained' && expected.feeds?.nextgen
+        && newer(health.feeds.nextgen.checkedAt, expected.feeds.nextgen)) {
+        retainedNextGen = await verifiedRetainedNextGen({ expected: expected.nextgen, health: { ...health.feeds.nextgen, season: health.season },
+          scheduler: health.analysisScheduler, site, fetcher, timeoutMs });
+      }
+      const matches = (name, actual, minimum) => {
+        if (runtimeAnalysis && ['analysis', 'rankings', 'nextgen'].includes(name)) {
+          return (analysisCheck(name) || name === 'nextgen' && retainedNextGen) && newer(actual, minimum);
+        }
+        return actual === minimum || ['results', 'news', 'roster', 'stats'].includes(name) && runtimeFootball && newer(actual, minimum);
+      };
       if (expected.feeds && Object.entries(expected.feeds).some(([name, checkedAt]) => name === 'media'
         ? !mediaMatches(health.feeds[name]?.checkedAt, checkedAt) : !matches(name, health.feeds[name]?.checkedAt, checkedAt))
         || expected.mediaSources && Object.entries(expected.mediaSources).some(([name, checkedAt]) => !mediaMatches(health.mediaSources?.[name]?.checkedAt, checkedAt))) {
@@ -135,10 +153,13 @@ async function main() {
     JSON.parse(await readFile(path.join(process.cwd(), 'public/data', `${name}.json`), 'utf8'))));
   const mediaChecks = media.sources.map((source) => source.checkedAt);
   expected.feeds = {
+    analysis: expected.analysisCheck?.checkedAt ?? null,
     media: mediaChecks.some((check) => check === null) ? null : mediaChecks.sort()[0],
     rankings: rankings.seasons.find((season) => season.year === expected.season)?.checkedAt ?? null,
     nextgen: nextgen.checkedAt, trades: trades.checkedAt,
   };
+  if (!isNextGenCollection(nextgen)) throw new DeploymentVerificationError('The local tracking publication is invalid.');
+  expected.nextgen = nextgen;
   expected.mediaSources = Object.fromEntries(media.sources.map((source) => [source.id, source.checkedAt]));
   const result = await verifyPublishedData({ origin: values.origin, expected,
     onAttempt: ({ attempt, attempts, issue }) => console.log(`Deployment check ${attempt}/${attempts}: ${issue}.`),

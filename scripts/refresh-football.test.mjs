@@ -1,14 +1,32 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { refreshFootball, validateFootballEdition, footballActiveWindow } from './refresh-football.mjs';
-import { SCHEDULE_SOURCE } from './data-refresh.mjs';
+import { SCHEDULE_SOURCE, pbpSource } from './data-refresh.mjs';
 import { footballScheduleSource } from './football-live.mjs';
+import { NEWS_SOURCE, rosterSource, playerStatsSource } from './coverage.mjs';
 
-const bakedCurrent = JSON.parse(await readFile(new URL('../public/data/current.json', import.meta.url), 'utf8'));
-const bakedCoverage = JSON.parse(await readFile(new URL('../public/data/coverage.json', import.meta.url), 'utf8'));
 const gameId = '2026_06_NYJ_NE', kickoff = '2026-10-18T17:00:00.000Z';
 const checked = '2026-10-18T17:00:00.000Z', now = new Date('2026-10-18T17:01:00.000Z');
+// Explicit week-six pregame evidence must not turn into a later final after a daily refresh.
+const sourceAt = '2026-10-13T12:00:00.000Z', priorId = '2026_05_CLE_NYJ', playerId = '00-0030565';
+const scheduled = { id: gameId, season: 2026, week: 6, seasonType: 'REG', date: '2026-10-18', kickoff,
+  opponent: 'NE', opponentDisplay: 'NE', atHome: false, status: 'scheduled', jetsScore: null, oppScore: null, outcome: null };
+const bakedCurrent = { schemaVersion: 1, season: 2026, checkedAt: sourceAt, analysisUpdatedAt: sourceAt, latestAnalyzedGameId: priorId,
+  analysisCheck: { status: 'ready', checkedAt: sourceAt, attemptedAt: sourceAt, reason: null },
+  sources: { schedule: SCHEDULE_SOURCE, pbp: pbpSource(2026) }, schedule: [
+    { ...scheduled, id: priorId, week: 5, date: '2026-10-11', kickoff: '2026-10-11T17:00:00.000Z', opponent: 'CLE', opponentDisplay: 'CLE',
+      atHome: true, status: 'final', jetsScore: 17, oppScore: 12, outcome: 'win' }, scheduled,
+    { ...scheduled, id: '2026_07_MIA_NYJ', week: 7, date: '2026-10-25', kickoff: '2026-10-25T17:00:00.000Z', opponent: 'MIA', opponentDisplay: 'MIA', atHome: true },
+  ] };
+const feed = (source) => ({ source, status: 'ready', checkedAt: sourceAt, attemptedAt: sourceAt, sourceUpdatedAt: sourceAt });
+const bakedCoverage = { schemaVersion: 1, season: 2026,
+  news: { ...feed(NEWS_SOURCE), items: [{ id: 'fixture-news', title: 'Jets pregame fixture', url: 'https://www.newyorkjets.com/news/fixture', publishedAt: sourceAt }] },
+  roster: { ...feed(rosterSource(2026)), season: 2026, week: 6, players: [{ id: playerId, name: 'Geno Smith', position: 'QB', jersey: '7', group: 'offense',
+    status: 'ACT', statusLabel: 'Active roster', espnId: null, profileUrl: null, headshot: null, height: null, weight: null, college: null, experience: null }] },
+  stats: { ...feed(playerStatsSource(2026)), season: 2026, throughWeek: 5, throughDate: '2026-10-11', analyzedGameIds: [priorId], pendingGameIds: [],
+    playerGameIds: { [playerId]: [priorId] }, players: [{ id: playerId, name: 'Geno Smith', position: 'QB', headshot: null, games: 1,
+      passing: { completions: 17, attempts: 30, yards: 182, touchdowns: 1, interceptions: 0 }, rushing: { carries: 5, yards: 7, touchdowns: 0 },
+      receiving: { receptions: 0, targets: 0, yards: 0, touchdowns: 0 } }] } };
 const clone = (value) => structuredClone(value);
 function live(at = checked, state = 'scheduled', scores = [null, null]) {
   const match = bakedCurrent.schedule.find((game) => game.id === gameId);
@@ -147,5 +165,9 @@ test('invalid editions fail before any publication and malformed provider payloa
   const invalid = edition(); invalid.current.schedule[0].status = 'live';
   assert.throws(() => validateFootballEdition(invalid), /Invalid football edition/);
   await assert.rejects(refresh(invalid), /Invalid football edition/);
+  const futureAnalysis = edition(); futureAnalysis.current.analysisUpdatedAt = now.toISOString();
+  assert.throws(() => validateFootballEdition(futureAnalysis), /Invalid football edition/);
+  const futureRoster = edition(); futureRoster.coverage.roster.sourceUpdatedAt = now.toISOString();
+  assert.throws(() => validateFootballEdition(futureRoster), /Invalid coverage freshness metadata/);
   await assert.rejects(refresh(edition(), { refreshLive: async () => ({ ...live(now.toISOString()), checkedAt: 'invalid' }) }), /Invalid live football/);
 });

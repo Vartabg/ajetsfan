@@ -8,9 +8,14 @@ import { SCHEDULE_SOURCE, pbpSource } from './data-refresh.mjs';
 import { PbpAvailabilityError } from './build-data.mjs';
 import { analysisEnvelope } from '../src/lib/analysis-envelope.mjs';
 import { DuckDBInstance } from '@duckdb/node-api';
+import { beforeGame } from './baked-snapshot.mjs';
 
 const data = async (name) => JSON.parse(await readFile(new URL(`../public/data/${name}.json`, import.meta.url), 'utf8'));
-const [current, coverage, games, analytics, rankingsCollection, nextgen] = await Promise.all(['current', 'coverage', 'games', 'analytics', 'season-rankings', 'nextgen-stats'].map(data));
+const [bakedCurrent, bakedCoverage, games, analytics, rankingsCollection, nextgen] = await Promise.all(['current', 'coverage', 'games', 'analytics', 'season-rankings', 'nextgen-stats'].map(data));
+// Fixtures start from a fully analyzed season: a final the baked analysis has not reached yet (its PBP is not out) is still to be played.
+const analyzedDate = bakedCurrent.schedule.find((game) => game.id === bakedCurrent.latestAnalyzedGameId)?.date ?? '';
+const unanalyzed = bakedCurrent.schedule.filter((game) => game.date > analyzedDate).toSorted((a, b) => a.date.localeCompare(b.date))[0];
+const { current, coverage } = unanalyzed ? beforeGame({ current: bakedCurrent, coverage: bakedCoverage }, unanalyzed.id) : { current: bakedCurrent, coverage: bakedCoverage };
 const baked = { current, coverage, games, analytics, rankingsCollection, nextgen };
 const historyBackup = await data('league-history');
 const now = new Date(Math.max(Date.parse('2026-10-13T18:00:00Z'), ...[

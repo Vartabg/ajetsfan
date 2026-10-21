@@ -1,0 +1,13 @@
+# Jets legends: source and editorial record
+
+Checked October 20, 2026. This collection joins 21 Jets Ring of Honor members, 20 Jets-associated Pro Football Hall of Fame enshrinees and Dennis Byrd's retired-number tribute. Eight people appear in both the Ring and Canton groups, giving 34 distinct people. Coaches, the owner and personnel staff have their actual roles displayed. Canton honors an entire career; a short Jets stay is not presented as a Jets career achievement.
+
+Each profile carries direct source links, original short editorial copy, precise Jets years, separate honor years and an identified photograph with a source credit. Publisher photographs are stored unchanged as local public assets so readers do not depend on third-party image requests. No synthetic portraits or guessed identities. Leon Hess has a named missing-portrait state because the available photograph was not positively identified.
+
+Primary membership references are the Jets' published Ring induction announcements and 2025 media guide, the Hall's Jets directory (marked through September 2025), and the separately checked 2026 Hall class. Profile sources are in `src/lib/legends-data.json`. Review membership on future induction announcements; the checked date describes editorial verification, not a live feed.
+
+Source disagreements were resolved against individual announcements and biographies: Jason Taylor played for the Jets in 2010 and entered Canton in 2017; Revis returned in 2015–16; Martin's played seasons ended in 2005 (roster through 2006); Ewbank coached through 1973 and remained GM through 1974; Parcells coached through 1999 and led football operations in 2000; Ron Wolf directed personnel in 1990–91. Mike Westhoff's Award of Excellence is not Canton enshrinement. Mangold and Snell are described with their deaths accounted for. Byrd's No. 90 is a team honor, not Ring or Canton membership.
+
+Related people connect verified shared Jets chapters. Local season links use the existing archive from 1999 onward. Earlier stories link to primary sources rather than invented local game reports. Portrait loading errors leave the biography and original photo-source link usable. Search, honor and era filters use a native GET form; all matching names and links render on the server.
+
+The full biography catalog stays on the server. Home and History render only Curtis Martin's featured story; the directory sends card metadata and portrait props. New directory/profile page-weight budgets cover both entry paths. Original research notes and the independent content review are saved in this chat's `outputs/back-page-legends-*` artifacts.

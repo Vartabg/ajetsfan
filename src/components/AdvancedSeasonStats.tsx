@@ -65,6 +65,7 @@ export default function AdvancedSeasonStats({ year, phase, nextgen, checkedAt, g
     <div className={styles.tracking} data-nextgen-stats>
       <div className={styles.providerHead}><h3>NFL Next Gen Stats</h3><span className={styles.scope}>Regular season</span></div>
       {postseason ? <p className={styles.gap} data-nextgen-unavailable>Next Gen tracking is available for the regular season only.</p> : nextgen ? <>
+        {nextgen.status === 'retained' ? <p className={styles.gap} role="status" data-nextgen-retained>{nextgen.retentionReason ?? 'The latest source check failed. Showing the last verified measurements.'}{checkedAt ? ` Last verified ${formatMediaDate(checkedAt)}.` : ''}</p> : null}
         <div className={styles.tabs} role="group" aria-label="Next Gen player group">{groups.map((item) => <button type="button" key={item} aria-pressed={group === item} onClick={() => chooseGroup(item)} data-nextgen-group={item}>{groupLabels[item]} <span>{nextgen[item].length}</span></button>)}</div>
         {player ? <>
           <div className={styles.playerChoice}><label htmlFor={playerSelectId}>Player</label><select id={playerSelectId} value={player.id} onChange={(event) => { setSelections((previous) => ({ ...previous, [group]: event.target.value })); selectPlayer(group, event.target.value); }} data-nextgen-player-select>{players.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}</select></div>

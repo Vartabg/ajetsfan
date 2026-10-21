@@ -21,6 +21,11 @@ export type NextGenPlayer = {
 export type NextGenSeason = {
   year: number;
   phase: "regular";
+  /** A retained season keeps its own successful check when other seasons refresh. */
+  checkedAt?: string;
+  status?: "ready" | "retained";
+  attemptedAt?: string;
+  retentionReason?: string;
   passing: NextGenPlayer[];
   receiving: NextGenPlayer[];
   rushing: NextGenPlayer[];
@@ -42,6 +47,7 @@ const text = (value: unknown): value is string => typeof value === "string" && v
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 const integer = (value: unknown, min: number): value is number => finite(value) && Number.isInteger(value) && value >= min;
 const team = (value: unknown): value is string => typeof value === "string" && /^[A-Z]{2,3}$/.test(value);
+const timestamp = (value: unknown): value is string => typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value) && Number.isFinite(Date.parse(value));
 const url = (value: unknown): value is string => {
   if (!text(value)) return false;
   try { return new URL(value).protocol === "https:"; } catch { return false; }
@@ -75,6 +81,13 @@ export function isNextGenCollection(value: unknown): value is NextGenCollection 
   for (const season of value.seasons) {
     if (!record(season) || !integer(season.year, 2016) || season.year > maxYear || years.has(season.year) || season.phase !== "regular"
         || !Array.isArray(season.notes) || !season.notes.every(text)) return false;
+    const hasCheck = ["checkedAt", "status", "attemptedAt", "retentionReason"].some((key) => season[key] !== undefined);
+    if (hasCheck && (!timestamp(season.checkedAt) || Date.parse(season.checkedAt) > Date.parse(value.checkedAt)
+        || season.year > new Date(season.checkedAt as string).getUTCFullYear()
+        || !["ready", "retained"].includes(String(season.status)) || !timestamp(season.attemptedAt)
+        || Date.parse(season.attemptedAt) < Date.parse(season.checkedAt)
+        || (season.retentionReason !== undefined && (season.status !== "retained" || !text(season.retentionReason)))
+        || (season.status === "retained" && value.status !== "retained"))) return false;
     years.add(season.year);
     for (const kind of ["passing", "receiving", "rushing"] as const) {
       const players = season[kind];
@@ -87,4 +100,47 @@ export function isNextGenCollection(value: unknown): value is NextGenCollection 
 /** NGS data in this snapshot cover regular-season aggregates only. */
 export function nextGenSeason(collection: NextGenCollection | null, year: number): NextGenSeason | null {
   return collection?.seasons.find((season) => season.year === year && season.phase === "regular") ?? null;
+}
+
+/** Page freshness follows this season, not a successful check of a different year. */
+export function nextGenSeasonCheck(collection: NextGenCollection | null, year: number) {
+  const season = nextGenSeason(collection, year);
+  const checkedAt = season?.checkedAt ?? collection?.checkedAt ?? null;
+  // Older snapshots recorded only collection-level outages.
+  const nextgen = season && season.status === undefined && collection?.status === "retained"
+    ? { ...season, status: "retained" as const } : season;
+  return { nextgen, checkedAt };
+}
+
+/** A current-season runtime check must not hide a newer compiled historical record. */
+export function mergeNextGenCollections(first: NextGenCollection | null | undefined, second: NextGenCollection | null | undefined): NextGenCollection | null {
+  for (const value of [first, second]) if (value && !isNextGenCollection(value)) throw new Error("Invalid Next Gen merge source");
+  if (!first || !second) return first ?? second ?? null;
+  type CheckedSeason = NextGenSeason & Required<Pick<NextGenSeason, "checkedAt" | "status" | "attemptedAt">>;
+  const normalized = (collection: NextGenCollection, season: NextGenSeason): CheckedSeason => ({ ...season,
+    checkedAt: season.checkedAt ?? collection.checkedAt,
+    attemptedAt: season.attemptedAt ?? collection.attemptedAt ?? season.checkedAt ?? collection.checkedAt,
+    status: season.status ?? collection.status ?? "ready" });
+  const byYear = new Map<number, CheckedSeason[]>();
+  for (const collection of [first, second]) for (const season of collection.seasons) {
+    byYear.set(season.year, [...(byYear.get(season.year) ?? []), normalized(collection, season)]);
+  }
+  const seasons = [...byYear.values()].map((candidates): CheckedSeason => {
+    const selected = candidates.reduce((a, b) => Date.parse(a.checkedAt) >= Date.parse(b.checkedAt) ? a : b);
+    const measurements = { ...selected };
+    delete measurements.retentionReason;
+    const failures = candidates.filter((candidate) => candidate.status === "retained" && Date.parse(candidate.attemptedAt) >= Date.parse(selected.checkedAt));
+    const failure = failures.length ? failures.reduce((a, b) => Date.parse(a.attemptedAt) >= Date.parse(b.attemptedAt) ? a : b) : null;
+    return { ...measurements, status: failure ? "retained" : "ready",
+      attemptedAt: new Date(Math.max(...candidates.map((candidate) => Date.parse(candidate.attemptedAt)))).toISOString(),
+      ...(failure ? { retentionReason: failure.retentionReason ?? "The latest source check failed. Showing the last verified measurements." } : {}) };
+  }).sort((a, b) => b.year - a.year);
+  const latest = Date.parse(first.checkedAt) >= Date.parse(second.checkedAt) ? first : second;
+  if (!seasons.length) return latest;
+  const merged: NextGenCollection = { ...latest, seasons,
+    checkedAt: new Date(Math.max(...seasons.map((season) => Date.parse(season.checkedAt)))).toISOString(),
+    attemptedAt: new Date(Math.max(...seasons.map((season) => Date.parse(season.attemptedAt)))).toISOString(),
+    status: seasons.some((season) => season.status === "retained") ? "retained" : "ready" };
+  if (!isNextGenCollection(merged)) throw new Error("Invalid Next Gen merge result");
+  return merged;
 }

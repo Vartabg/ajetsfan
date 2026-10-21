@@ -1,25 +1,33 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { coordinateFootballRefresh, selectLatestFootballEdition, FOOTBALL_COLLECTION_PATH, FOOTBALL_LEASE_PATH,
   FOOTBALL_LEASE_TTL_MS, FootballRefreshCoordinatorError } from '../src/lib/football-refresh-coordinator.mjs';
 import { validateFootballEdition } from './refresh-football.mjs';
 import { footballScheduleSource } from './football-live.mjs';
+import { SCHEDULE_SOURCE, pbpSource } from './data-refresh.mjs';
+import { NEWS_SOURCE, rosterSource, playerStatsSource } from './coverage.mjs';
 
-const bakedCurrent = JSON.parse(await readFile(new URL('../public/data/current.json', import.meta.url), 'utf8'));
-const bakedCoverage = JSON.parse(await readFile(new URL('../public/data/coverage.json', import.meta.url), 'utf8'));
 const oldTime = '2026-10-18T17:00:00.000Z', freshTime = '2026-10-18T17:10:00.000Z';
+const sourceTime = '2026-10-16T12:00:00.000Z';
 const clone = (value) => structuredClone(value);
 function edition(at = oldTime) {
-  const coverage = clone(bakedCoverage);
-  for (const name of ['news', 'roster', 'stats']) Object.assign(coverage[name], { checkedAt: at, attemptedAt: at, status: 'ready' });
-  const scheduled = bakedCurrent.schedule.find((game) => game.id === '2026_06_NYJ_NE');
+  // This clock fixture must not inherit publication/source dates from tomorrow's data refresh.
+  const feed = (source) => ({ source, checkedAt: at, attemptedAt: at, sourceUpdatedAt: sourceTime, status: 'ready' });
+  const coverage = { schemaVersion: 1, season: 2026,
+    news: { ...feed(NEWS_SOURCE), items: [{ id: 'fixture-news', title: 'Jets fixture news', url: 'https://www.newyorkjets.com/news/fixture', publishedAt: sourceTime }] },
+    roster: { ...feed(rosterSource(2026)), season: 2026, week: 6, players: [{ id: '00-0030565', espnId: null, name: 'Geno Smith', position: 'QB',
+      jersey: '7', group: 'offense', status: 'ACT', statusLabel: 'Active', headshot: null, height: null, weight: null, college: null, experience: null, profileUrl: null }] },
+    stats: { ...feed(playerStatsSource(2026)), season: 2026, throughWeek: null, throughDate: null, analyzedGameIds: [], pendingGameIds: [], players: [] } };
+  const scheduled = { id: '2026_06_NYJ_NE', season: 2026, week: 6, seasonType: 'REG', date: '2026-10-18', kickoff: '2026-10-18T17:00:00.000Z',
+    opponent: 'NE', opponentDisplay: 'NE', atHome: false, status: 'scheduled', jetsScore: null, oppScore: null, outcome: null };
+  const current = { schemaVersion: 1, season: 2026, checkedAt: at, analysisUpdatedAt: null, latestAnalyzedGameId: null,
+    sources: { schedule: SCHEDULE_SOURCE, pbp: pbpSource(2026) }, schedule: [scheduled] };
   const game = { eventId: '401999001', gameId: scheduled.id, season: 2026, week: 6, seasonType: 'REG', kickoff: scheduled.kickoff,
     opponent: scheduled.opponent, opponentDisplay: scheduled.opponentDisplay, atHome: false, state: 'scheduled', jetsScore: null, oppScore: null,
     period: 0, clock: null, detail: 'Scheduled', provisional: false, players: [] };
-  return validateFootballEdition({ schemaVersion: 1, current: { ...clone(bakedCurrent), checkedAt: at }, coverage,
+  return validateFootballEdition({ schemaVersion: 1, current, coverage,
     live: { schemaVersion: 1, season: 2026, source: footballScheduleSource(2026), checkedAt: at, attemptedAt: at, status: 'ready', games: [game], featured: game },
-    scheduleCheck: { source: bakedCurrent.sources.schedule, status: 'ready', checkedAt: at, attemptedAt: at } });
+    scheduleCheck: { source: SCHEDULE_SOURCE, status: 'ready', checkedAt: at, attemptedAt: at } });
 }
 const conflict = () => Object.assign(new Error('Conditional write conflict'), { code: 'CONFLICT' });
 function memoryStore(initial = []) {
@@ -60,12 +68,23 @@ test('the active clock throttles healthy duplicate calls for forty seconds; idle
   const active = setup(undefined, '2026-10-18T17:00:30.000Z');
   assert.equal((await active.run({ refresh: () => assert.fail('active duplicate must not call providers') })).status, 'fresh');
   active.advance(10_000); assert.equal((await active.run()).status, 'published');
-  // Use the idle day before the active fixture, after its compiled evidence dates.
+  // The day before kickoff is outside the active window, independent of compiled data dates.
   const idleTime = '2026-10-17T12:00:00.000Z';
   const idle = setup([[FOOTBALL_COLLECTION_PATH, edition(idleTime)]], '2026-10-17T12:03:00.000Z');
   idle.options.baked = edition(idleTime);
   assert.equal((await idle.run({ refresh: () => assert.fail('idle duplicate must not call providers') })).status, 'fresh');
   idle.advance(60_000); assert.equal((await idle.run()).status, 'published');
+});
+
+test('fixture clocks stay internally consistent while future source metadata still fails validation', () => {
+  for (const at of ['2026-10-17T12:00:00.000Z', oldTime, freshTime]) {
+    const value = edition(at);
+    for (const name of ['news', 'roster', 'stats']) {
+      assert.ok(value.coverage[name].sourceUpdatedAt <= at);
+      const future = clone(value); future.coverage[name].sourceUpdatedAt = new Date(Date.parse(at) + 1).toISOString();
+      assert.throws(() => validateFootballEdition(future), /Invalid coverage freshness metadata/);
+    }
+  }
 });
 
 test('persistent failed sources retry on the next invocation while their last success remains unchanged', async () => {

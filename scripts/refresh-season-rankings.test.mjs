@@ -161,10 +161,12 @@ test('NextGen outage, corrupt or empty feeds retain prior measurements without f
   const file = path.join(outDir, 'nextgen-stats.json');
   const previousBytes = JSON.stringify(previous);
   await writeFile(file, previousBytes);
-  for (const options of [{ fail: true }, { corrupt: true }, { empty: true }, { missingKind: 'receiving' }]) {
+  for (const options of [{ fail: true }, { corrupt: true }, { empty: true }]) {
     const errors = [];
     const result = await refreshNextGen({ outDir, now, fetcher: nextgenFetcher(options), onError: (message) => errors.push(message) });
-    assert.deepEqual(result, { ...previous, status: 'retained', attemptedAt: now.toISOString() });
+    assert.deepEqual(result, { ...previous, status: 'retained', attemptedAt: now.toISOString(), seasons: previous.seasons.map((season) => ({
+      ...season, checkedAt: oldCheckedAt, status: 'retained', attemptedAt: now.toISOString(), retentionReason: 'The latest source check failed. Showing the last verified measurements.',
+    })) });
     assert.equal(result.checkedAt, oldCheckedAt);
     assert.deepEqual(JSON.parse(await readFile(file, 'utf8')), result);
     assert.match(errors[0], /Retaining Next Gen measurements checked/);

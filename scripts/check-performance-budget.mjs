@@ -17,6 +17,9 @@ export const performanceBudgets = [
   { route: "/media", file: "media", html: 38, js: 205 },
   { route: "/media/rants", file: "media/rants", html: 18, js: 200 },
   { route: "/team", file: "team", html: 12, js: 200 },
+  // 34 server-rendered portrait cards; full biographies stay off the client and home bundle.
+  { route: "/legends", file: "legends", html: 26, js: 200 },
+  { route: "/legends/curtis-martin", file: "legends/curtis-martin", html: 14, js: 200 },
   { route: "/game-day", file: "game-day", html: 28, js: 200 },
   { route: "/stories", file: "stories", html: 18, js: 200 },
   // Deep cuts carries two recorded paths; their charts also print in the static fallback.

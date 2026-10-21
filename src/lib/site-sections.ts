@@ -1,12 +1,13 @@
 /** Pages rebuilt as focus views; they carry their own navigation instead of the site header and footer. */
-export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/film-room", "/media", "/seasons", "/morgue", "/discover", "/stories", "/history", "/history/trades", "/history/quarterbacks", "/puzzle", "/how-made"];
+export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/legends", "/film-room", "/media", "/seasons", "/morgue", "/discover", "/stories", "/history", "/history/trades", "/history/quarterbacks", "/puzzle", "/how-made"];
 /** Every published destination shares the focus frame, including its detail pages. */
-export const isFocusRoute = (pathname: string) => FOCUS_ROUTES.includes(pathname) || /^\/seasons\/\d{4}(?:\/guide)?$/.test(pathname) || pathname.startsWith("/games/") || pathname.startsWith("/players/");
+export const isFocusRoute = (pathname: string) => FOCUS_ROUTES.includes(pathname) || /^\/seasons\/\d{4}(?:\/guide)?$/.test(pathname) || pathname.startsWith("/games/") || pathname.startsWith("/players/") || pathname.startsWith("/legends/");
 
 /** Every destination the home page offers, in the order a visitor scans them. */
 export const SECTIONS = [
   { href: "/game-day", label: "Game Day", note: "Schedule, standings and the matchup" },
   { href: "/team", label: "Team", note: "Roster, player stats and news" },
+  { href: "/legends", label: "Legends", note: "Ring of Honor, Hall of Famers and their stories" },
   { href: "/film-room", label: "Film Room", note: "Big plays, drawn out" },
   { href: "/media", label: "Media", note: "Video, posts, articles and audio" },
   { href: "/seasons", label: "Seasons", note: "Every season’s results" },
