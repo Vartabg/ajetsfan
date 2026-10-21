@@ -12,12 +12,13 @@ type Props = {
 export default function LegendPortrait(props: Props) {
   return <Portrait key={`${props.name}:${props.photo?.src ?? "none"}`} {...props} />;
 }
+// Card widths follow the people grid: two columns below 860px, three to 1024px, two beside the rail to 1240px, then three (max 1120px).
 function Portrait({ name, photo, eager = false, card = false }: Props) {
   const [failed, setFailed] = useState(false);
   return <figure className={`${styles.portrait} ${card ? styles.cardPortrait : ""}`} data-legend-portrait={name}>
     <div className={styles.photoFrame}>
       {photo && !failed ? <Image key={photo.src} src={photo.src} alt={photo.alt} fill
-        sizes={card ? "(min-width: 1400px) 320px, (min-width: 700px) 42vw, 92vw" : "(min-width: 1400px) 500px, (min-width: 700px) 45vw, 92vw"}
+        sizes={card ? "(min-width: 1564px) 358px, (min-width: 1240px) calc(30vw - 112px), (min-width: 1024px) calc(45vw - 156px), (min-width: 860px) calc(33.4vw - 27px), (min-width: 700px) calc(50vw - 28px), calc(50vw - 22px)" : "(min-width: 1400px) 500px, (min-width: 700px) 45vw, 92vw"}
         loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : "auto"}
         className={styles.photo} onError={() => setFailed(true)} />
         : <div className={styles.photoMissing} role="status"><p>{name}&rsquo;s photograph is unavailable here.</p>
