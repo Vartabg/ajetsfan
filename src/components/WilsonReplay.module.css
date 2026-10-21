@@ -1,0 +1,114 @@
+.page,.evidence{min-width:0;padding:30px 24px 44px;scroll-snap-align:start;max-width:1600px;margin:0 auto}
+.heading{margin-bottom:22px}.eyebrow{margin:0 0 9px;font:500 11px/1.5 var(--data,monospace);letter-spacing:.09em;text-transform:uppercase;color:var(--quiet)}
+.heading h1{max-width:20ch;font:650 clamp(32px,4.3vw,58px)/1.05 var(--display,system-ui);letter-spacing:-.04em}.dek{margin:12px 0 0;color:var(--quiet);font-size:16px}
+.matchbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-top:1px solid var(--faint)}.matchbar>div{display:flex;align-items:center;gap:13px}.team{font-size:12px;letter-spacing:.08em;font-weight:700}.matchbar b{font:600 27px/1 var(--data,monospace)}.versus{color:var(--quiet);font-size:11px}.matchbar p{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:3px 14px;font-size:12px}.matchbar small{width:100%;color:var(--quiet);font-size:10px}.matchbar p strong{font-family:var(--data,monospace)}
+.viewer{border:1px solid #213f32;border-radius:14px;overflow:hidden;background:#0e211b;color:#eaf1e8;box-shadow:0 10px 45px #08271b14}.viewport{height:clamp(350px,48vw,560px);position:relative;background:#10251d;isolation:isolate}.canvasHost{width:100%;height:100%;position:absolute;inset:0}.canvasHost canvas{display:block;width:100%;height:100%;touch-action:none}.poster{height:100%;position:relative;display:grid;place-items:center;overflow:hidden}.diagram{position:absolute;width:100%;height:100%;object-fit:cover;opacity:.56}.loadCard{position:relative;z-index:1;display:grid;justify-items:center;text-align:center;gap:12px;max-width:330px;padding:24px;background:#10251de8;border:1px solid #64857366;border-radius:12px;backdrop-filter:blur(8px)}.loadCard p{margin:0;font:600 23px/1.2 var(--display,system-ui)}.loadCard small{font-size:12px;color:#c9d9cf;max-width:30ch}.load{padding:12px 22px;border-radius:6px;background:#d3efb2;color:#152b20;min-height:48px;font-weight:700}.load span{margin-left:14px}.inferenceBanner{position:absolute;top:14px;left:14px;right:14px;z-index:2;margin:0;display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.02em;color:#fff0d8;pointer-events:none}.inferenceBanner>span{font-size:17px;color:#f5bf7b}.inferenceBanner a{margin-left:auto;min-height:36px;display:inline-flex;align-items:center;pointer-events:auto;text-underline-offset:4px;background:#10251de6;padding:0 10px;border-radius:4px}.cameraReadout{position:absolute;bottom:15px;left:18px;right:18px;display:flex;justify-content:space-between;gap:10px;color:#e8f0e5;font:500 10px/1.5 var(--data,monospace);text-transform:uppercase;letter-spacing:.07em;pointer-events:none;text-shadow:0 1px 4px #000}
+.timeline{padding:16px 20px 12px;background:#10271e}.timeHeading{display:flex;justify-content:space-between;align-items:center;font:600 12px/1.4 var(--data,monospace)}.timeHeading p{margin:0}.timeHeading span{color:#aac3b3;font-weight:400}.timeHeading output{font-variant-numeric:tabular-nums}.timeline input[type=range]{width:100%;min-height:40px;margin:4px 0 0;accent-color:#d3efb2;cursor:ew-resize}.eventTicks{display:flex;justify-content:space-between;gap:4px;flex-wrap:wrap;margin:-2px 0 12px}.eventTicks button{min-height:36px;padding:4px 8px;font:500 10px/1.4 var(--data,monospace);color:#bfd2c4;border-bottom:2px solid transparent}.eventTicks button[aria-pressed=true]{color:#e3f6d0;border-color:#d3efb2}.transport{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.transport button{min-height:44px;padding:8px 14px;border:1px solid #456853;border-radius:5px;font-size:12px;font-weight:600}.transport .primary{background:#d3efb2;color:#152b20;border-color:#d3efb2;min-width:75px}.steppers{display:flex;gap:4px}.transport .speed{margin-left:auto}.speed{display:flex;align-items:center;gap:9px;font-size:11px;color:#c8dacc}.speed select{min-height:44px;padding:8px;border-radius:4px;background:#1e3b2c;border:1px solid #456853;color:#f0f5ec;font:600 12px var(--data,monospace)}.teachingClock{font-size:11px;color:var(--quiet);line-height:1.6;margin:12px 0 0}.timeline .teachingClock{color:#a8c2b0}.viewer :is(button,a,input,select):focus-visible{outline:3px solid #f3c985;outline-offset:3px}
+.studyGrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;margin-top:26px}.studyGrid h2{font:600 20px/1.2 var(--display,system-ui);letter-spacing:-.02em}.cameraPanel>p{font-size:12px;color:var(--quiet);margin:10px 0}.presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.presets button{padding:8px 13px;min-height:44px;border:1px solid var(--faint);border-radius:5px;font-size:12px}.presets button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}.cameraKeys{display:flex;gap:6px;margin:10px 0 16px}.cameraKeys button{width:44px;height:44px;border:1px solid var(--faint);border-radius:5px;font-size:19px}.cameraPanel button:disabled{opacity:.45}.selectPlayer{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:12px;font-weight:600}.selectPlayer select{width:100%;min-height:44px;border:1px solid var(--faint);border-radius:5px;padding:8px 10px;background:var(--bg);color:var(--ink);font:400 13px var(--text,system-ui)}.routeSwitch{display:flex;align-items:center;gap:9px;min-height:44px;font-size:13px}.routeSwitch input{width:18px;height:18px;accent-color:var(--green)}.lesson{border-left:1px solid var(--faint);padding-left:28px}.lesson .eyebrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.lesson>p:not(.eyebrow){font-size:14px;line-height:1.6;margin:12px 0}.playerNote{margin-top:20px;padding-top:16px;border-top:1px solid var(--faint)}.playerNote h3{font-size:13px;font-weight:700}.playerNote p{font-size:12px;line-height:1.6;margin:5px 0;color:var(--quiet)}.playerNote small{font-size:10px;letter-spacing:.02em;color:var(--quiet)}
+.evidence{border-top:1px solid var(--faint);padding-top:40px;padding-bottom:60px;min-height:90svh}.evidence>h2{max-width:23ch;font:600 clamp(28px,3vw,44px)/1.07 var(--display,system-ui);letter-spacing:-.03em}.evidenceIntro{max-width:65ch;font-size:14px;line-height:1.7;color:var(--quiet);margin:18px 0 28px}.evidenceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}.evidenceGrid article{border-top:1px solid var(--faint);padding-top:16px;min-width:0}.badge{display:inline-block;vertical-align:middle;font:600 10px/1.5 var(--text,system-ui);letter-spacing:.03em;text-transform:none;padding:3px 7px;border:1px solid var(--faint);border-radius:3px}.badge[data-basis=recorded]{background:#d7eae0;color:#164c38;border-color:#a2c2ad}.badge[data-basis=reported]{background:#dce7f1;color:#294c6c;border-color:#b0c3d4}.badge[data-basis=inferred]{background:#f1e7cf;color:#695027;border-color:#d9c49b}.evidenceGrid h3{font:600 18px/1.25 var(--display,system-ui);margin:12px 0}.evidenceGrid p{font-size:13px;line-height:1.65;color:var(--quiet)}.evidenceGrid .record{padding-left:12px;border-left:2px solid var(--faint);font-size:12px}.evidenceGrid small{font:400 10px/1.5 var(--data,monospace);overflow-wrap:anywhere;color:var(--quiet)}.sources{margin-top:32px;border-top:1px solid var(--faint);padding-top:12px}.sources summary{cursor:pointer;min-height:44px;display:list-item;font-size:14px;font-weight:600;padding:9px 0}.sources ul{padding:0;list-style:none;display:grid;gap:17px}.sources li{min-width:0}.sources li a{margin-left:10px;font-size:13px;text-underline-offset:4px;overflow-wrap:anywhere}.sources li p{font-size:12px;color:var(--quiet);max-width:80ch;margin:6px 0}
+/* Keep the field and transport together on shorter desktop windows. */
+.cameraKeys{flex-wrap:wrap}
+.sourceFrame{padding:12px 0;border-top:1px solid var(--faint);font-size:12px;line-height:1.6}.sourceFrame a{font-weight:600;text-underline-offset:4px}.sourceFrame p{margin:8px 0;color:var(--quiet)}.sourceFrame small{color:var(--quiet);font-size:11px}.observations{list-style:none;padding:0;display:grid;gap:12px;font-size:12px;line-height:1.6;color:var(--quiet)}.observations li{display:grid;grid-template-columns:50px minmax(0,1fr);gap:8px}.observations a{color:var(--ink);font-family:var(--data,monospace);text-underline-offset:4px}.evidenceGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.badge[data-basis=observed]{background:#d9e7e9;color:#244c56;border-color:#a9c6cb}
+.failureCard{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 20px;background:#10271e;border-bottom:1px solid #456853}.failureCard p{margin:0 0 3px;font-weight:600;font-size:14px}.failureCard small{font-size:12px;color:#bfd2c4}.failureCard button{min-height:44px;padding:8px 12px;white-space:nowrap}
+@media(min-width:761px){.viewport{height:clamp(300px,calc(100svh - 440px),560px)}}
+@media(min-width:1450px){.page,.evidence{padding-left:40px;padding-right:40px}}
+.inferenceBanner{padding:4px 8px;border-radius:5px;background:#10251de8}
+@media(max-width:760px){.page,.evidence{padding:22px 16px 32px}.heading h1{font-size:36px}.dek{font-size:14px;max-width:32ch}.viewport{height:360px}.studyGrid{grid-template-columns:1fr;gap:24px}.lesson{border-left:0;padding-left:0;border-top:1px solid var(--faint);padding-top:20px}.evidenceGrid{grid-template-columns:1fr;gap:18px}.matchbar{gap:12px}.matchbar p{font-size:11px;gap:3px 10px}.timeline{padding:13px 12px}.transport{gap:6px}.transport button{padding:8px 10px}.transport .speed{margin-left:0;flex:1 1 100%;justify-content:space-between;margin-top:4px}.eventTicks button{font-size:9px;padding:4px}.inferenceBanner{font-size:9px;left:10px;right:10px;gap:5px}.inferenceBanner a{padding:0 6px;font-size:9px}.cameraReadout{font-size:8px;left:12px;right:12px}.loadCard{max-width:280px;padding:18px}.presets button{flex:1 1 42%}.selectPlayer select{max-width:100%}.evidence>h2{font-size:31px}}
+
+/* Replay studio: see the play, choose a role, inspect its evidence. */
+.studioGrid{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;align-items:start}.studioMain{min-width:0}
+.layerBar{display:flex;flex-wrap:wrap;gap:4px 18px;padding:8px 14px;border-bottom:1px solid #456853;font-size:11px}.layerBar label{display:flex;align-items:center;gap:7px;min-height:40px;cursor:pointer}.layerBar input{width:17px;height:17px;accent-color:#d3efb2}
+.cameraPanel{padding:20px 0}.cameraPanel h2,.roster h2{font:600 21px/1.2 var(--display,system-ui)}.focusActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.focusActions button{min-height:44px;padding:8px 16px;border:1px solid var(--faint);border-radius:5px;font-size:12px;font-weight:600}.focusActions button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.visualKey{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:10px!important}.visualKey span:before{content:"";display:inline-block;width:12px;border-top:2px solid currentColor;margin-right:5px;vertical-align:middle}.visualKey span:nth-child(2):before{border-top-style:dashed}.visualKey span:nth-child(3):before{color:#b58b24}.schemeNote{padding:10px 12px;background:var(--faint);border-radius:5px;line-height:1.6}
+.roster{border-top:1px solid var(--faint);padding-top:24px}.roster>p:not(.eyebrow){color:var(--quiet);font-size:13px;line-height:1.6;margin:10px 0 18px}.rosterUnits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.rosterUnits h3{font-size:12px;font-weight:650;margin-bottom:10px}.rosterPlayers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.rosterPlayers button{display:flex;align-items:center;gap:8px;min-width:0;min-height:52px;padding:8px;text-align:left;border:1px solid var(--faint);border-radius:6px;background:var(--bg)}.rosterPlayers strong{font:650 11px/1.3 var(--data,monospace);color:var(--green);min-width:28px}.rosterPlayers [data-unit=defense] strong{color:#9c5c2d}.rosterPlayers span{font-size:11px;line-height:1.4}.rosterPlayers [aria-pressed=true]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);background:var(--faint)}.lessonLink{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:12px;text-underline-offset:4px;margin-top:8px}
+.lesson{padding:22px;border:1px solid var(--faint);border-radius:10px;min-width:0;scroll-margin-top:16px}.lesson>h2{font:650 25px/1.15 var(--display,system-ui);letter-spacing:-.02em}.lesson .positionLine{font-size:12px;margin:10px 0 18px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.playerJob,.claim,.assessment{padding:14px 0;border-top:1px solid var(--faint)}.playerJob h3,.claim h3,.assessment h3,.momentNote h3{font-size:13px;font-weight:650;line-height:1.4;margin:8px 0}.playerJob p,.claim p,.assessment p,.momentNote>p{font-size:13px;line-height:1.6;margin:0;color:var(--quiet)}.assessment .result{margin-top:8px;font-weight:600;color:var(--ink)}.badge[data-basis=unknown]{background:var(--faint);color:var(--quiet)}
+.momentNote{padding-top:18px;border-top:1px solid var(--faint);margin-top:10px}.momentNote .eyebrow{font-size:9px}.playerDetails{border-top:1px solid var(--faint);padding-top:5px;font-size:12px;line-height:1.6}.playerDetails summary,.sourceFrame summary{min-height:44px;padding:10px 0;cursor:pointer;font-weight:600}.playerDetails p,.playerDetails ul{margin:0 0 12px;color:var(--quiet)}.playerDetails ul{padding-left:18px}.playerDetails a{text-underline-offset:3px;overflow-wrap:anywhere}.sourceFrame small{display:block;margin-top:7px;line-height:1.5}.sourceFrame details{margin-top:4px}.sourceFrame summary{min-height:36px;padding:6px 0;font-size:11px}
+.studioGrid :is(button,a,input,select,summary):focus-visible{outline:3px solid #c49a46;outline-offset:3px}
+.assessment details{font-size:11px;line-height:1.6;margin-top:8px}.assessment summary{min-height:36px;cursor:pointer;padding:7px 0}.assessment details p{font-size:12px}.diagram{opacity:.86}
+.jumpToLesson{display:none}@media(max-width:1439px){.jumpToLesson{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:12px;text-underline-offset:4px}}
+.rosterPlayers [data-unit=defense] strong,.badge[data-basis=unknown],.cameraPanel>.schemeNote{color:var(--ink)}
+@media(min-width:1440px){.studioGrid{grid-template-columns:minmax(0,1fr) 300px;gap:24px}.lesson{position:sticky;top:20px;max-height:calc(100svh - 40px);overflow-y:auto;scrollbar-width:thin}.viewport{height:clamp(360px,calc(100svh - 450px),520px)}}
+@media(max-width:760px){.studioGrid{gap:20px}.layerBar{gap:2px 12px;padding:8px 12px;font-size:10px}.layerBar label{min-height:36px}.rosterUnits{grid-template-columns:1fr;gap:18px}.rosterPlayers{grid-template-columns:repeat(3,minmax(0,1fr))}.rosterPlayers button{flex-direction:column;align-items:flex-start;gap:3px;min-height:64px}.rosterPlayers span{font-size:10px}.lesson{padding:18px}.viewport{height:390px}}
+
+.startupStatus{position:absolute;left:14px;right:14px;bottom:46px;margin:0;padding:8px 12px;background:#10251de6;color:#d7e8d5;border:1px solid #64857366;border-radius:5px;font-size:11px;line-height:1.5;text-align:center;pointer-events:none}
+
+.currentAction{margin-top:12px;padding:10px 12px;border-left:2px solid #b19350;background:var(--faint);border-radius:0 4px 4px 0}.currentAction h4{font-size:12px;line-height:1.4;font-weight:650;margin:0 0 6px}.currentAction p{font-size:12px;line-height:1.5;color:var(--ink)}
+
+.expandField{margin-left:auto;min-height:40px;padding:6px 10px;border:1px solid #456853;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap}.expandField span{margin-left:8px}.viewer:fullscreen{width:100%;height:100%;display:flex;flex-direction:column;border:0;border-radius:0}.viewer:fullscreen .viewport{flex:1;height:auto;min-height:160px}.viewer:fullscreen .timeline{flex:none}.viewer:fullscreen .layerBar{flex:none}
+
+/* The replay is the stage. Navigation and study material stay around its edges. */
+:global(html):has(.studioShell){scroll-snap-type:none;scroll-padding-top:44px}
+.studioShell[data-focus-page]{display:block}
+.studioShell[data-focus-page]>aside{display:none}
+.studioShell[data-focus-page]>header{display:flex;height:44px;padding:0 16px;border-bottom:1px solid var(--faint)}
+.page{max-width:none;padding:10px 12px 28px}
+.titlebar{display:flex;align-items:center;justify-content:space-between;gap:10px 24px;min-height:62px;margin-bottom:8px}
+.heading{margin:0;min-width:0}
+.heading .eyebrow{font-size:9px;margin:0 0 3px}
+.heading h1{font-size:clamp(22px,2.4vw,32px);max-width:none;line-height:1.12;letter-spacing:-.035em}
+.matchbar{flex-shrink:0;gap:8px 18px;padding:0;border:0}
+.matchbar>div{gap:8px}.matchbar b{font-size:21px}
+.matchbar p{font-size:11px;gap:2px 10px}.matchbar small{font-size:9px}
+.studioGrid{grid-template-columns:minmax(0,1fr);gap:12px}
+.studioMain{display:contents}
+.viewer{display:flex;flex-direction:column;height:calc(100svh - 134px);min-height:500px;border-radius:8px}
+.viewport{height:auto;flex:1;min-height:280px}
+.layerBar{flex:none;gap:4px 18px;padding:3px 12px}
+.layerBar label{min-height:36px;font-size:11px}
+.expandField{min-height:34px;padding:5px 9px}
+.timeline{flex:none;padding:8px 14px}
+.timeHeading{font-size:10px}
+.timeline input[type=range]{min-height:28px;margin:0}
+.eventTicks{margin:0 0 4px;flex-wrap:nowrap}
+.eventTicks button{min-height:26px;padding:2px 7px;font-size:9px}
+.transport{flex-wrap:nowrap;gap:6px}
+.transport button{min-height:38px;padding:6px 11px;font-size:11px}
+.transport .primary{min-width:58px}
+.transport .speed{margin:0 0 0 auto;flex:0 0 auto}
+.speed select{min-height:38px;padding:5px 7px}
+.timeline .teachingClock{margin:4px 0 0;font-size:9px;line-height:1.4}
+.cameraPanel{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding:0 0 10px;border-bottom:1px solid var(--faint);min-width:0}
+.cameraPanel .focusActions,.cameraPanel .presets,.cameraPanel .cameraKeys{margin:0;gap:4px}
+.focusActions button,.presets button{min-height:38px;padding:6px 10px;font-size:11px;flex:none}
+.cameraKeys button{width:32px;height:34px;font-size:16px}
+.cameraPanel>p{margin:0;font-size:10px}
+.cameraPanel>.selectPlayer{order:-1;width:220px;gap:5px;font-size:10px}
+.selectPlayer select{min-height:38px;font-size:12px}
+.visualKey{flex-basis:100%;gap:5px 14px;font-size:9px!important}
+.cameraPanel .jumpToLesson{margin:0;min-height:34px;font-size:11px}
+.positionBrowser{min-width:0;border:1px solid var(--faint);border-radius:6px;padding:0 14px;align-self:start}
+.positionBrowser>summary{font-size:12px;font-weight:600;min-height:44px;padding:12px 0;cursor:pointer}
+.positionBrowser .roster{border:0;padding:6px 0 14px}
+.roster .eyebrow{display:none}.roster h2{font-size:18px}
+.roster>p:not(.eyebrow){font-size:11px;margin:7px 0 12px}
+.rosterPlayers button{min-height:44px;padding:6px 8px}
+.lesson{position:static;max-height:none;overflow:visible;padding:16px;border-radius:6px}
+.lesson>h2{font-size:22px}.lesson .positionLine{margin:7px 0 12px}
+@media(min-width:1100px){
+  .studioGrid{grid-template-columns:minmax(0,1fr) 340px}
+  .viewer,.cameraPanel{grid-column:1/-1}
+  .positionBrowser{grid-column:1}
+  .lesson{grid-column:2;grid-row:3/span 2}
+}
+@media(max-width:760px){
+  .page{padding:8px 8px 24px}
+  .titlebar{min-height:68px;gap:6px 10px;margin-bottom:6px}
+  .heading .eyebrow{font-size:8px;max-width:none}
+  .heading h1{font-size:23px;max-width:none}
+  .matchbar{display:block}.matchbar>div{gap:5px}.matchbar b{font-size:18px}
+  .team{font-size:10px}.matchbar p{font-size:9px;margin-top:3px;gap:2px 6px}.matchbar small{display:none}
+  .viewer{height:calc(100svh - 134px);min-height:470px}
+  .layerBar{gap:4px 12px;padding:3px 9px}
+  .layerBar label{font-size:10px;gap:5px}
+  .layerBar input{width:15px;height:15px}
+  .expandField{font-size:10px;padding:5px 7px}.expandField span{margin-left:4px}
+  .timeline{padding:7px 10px}.transport{gap:4px}.transport button{font-size:10px;padding:6px 8px}.transport .primary{min-width:52px}
+  .steppers{gap:2px}.speed select{font-size:11px;padding:5px}
+  .cameraPanel{gap:8px;padding:2px 4px 10px}
+  .cameraPanel>.selectPlayer{width:100%;display:flex;flex-wrap:nowrap;gap:10px}.selectPlayer select{flex:1;min-width:0}
+  .cameraPanel>.visualKey{font-size:8px!important}
+  .presets button{flex:none}.rosterPlayers{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rosterPlayers button{flex-direction:row;align-items:center;gap:6px}
+}
+@media(max-width:420px){.heading h1{font-size:20px}.matchbar p{max-width:108px}.matchbar .versus{display:none}.layerBar{gap:4px 9px}.transport button{padding:6px 6px}.transport .primary{min-width:48px}}
+.viewer:fullscreen{height:100%;min-height:0}.viewer:fullscreen .viewport{min-height:160px}

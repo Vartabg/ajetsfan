@@ -23,3 +23,11 @@ jobs:
           for attempt in 1 2 3; do npx playwright install --with-deps chrome && exit 0; sleep 15; done
           exit 1
       - run: npm run test:a11y
+      - name: Preserve failed browser traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-failure-traces
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
