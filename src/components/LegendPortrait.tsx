@@ -8,7 +8,7 @@ import styles from "./Legends.module.css";
 type Props = {
   name: string; photo: Legend["photo"]; eager?: boolean; card?: boolean;
 };
-/** A verified photograph stays a photograph; a missing image is never replaced with another person. */
+/** Altered portraits disclose their treatment and retain the credited original. */
 export default function LegendPortrait(props: Props) {
   return <Portrait key={`${props.name}:${props.photo?.src ?? "none"}`} {...props} />;
 }
@@ -24,8 +24,14 @@ function Portrait({ name, photo, eager = false, card = false }: Props) {
           {photo ? <p>The original is linked below.</p> : <p>The story continues below.</p>}
         </div>}
     </div>
-    <figcaption className={styles.photoCredit}>{photo ? <a href={photo.sourceUrl} target="_blank" rel="noopener noreferrer"
-      aria-label={`Photo source for ${name}: ${photo.credit} (opens in a new tab)`}>{photo.credit} <span aria-hidden="true">↗</span></a>
+    <figcaption className={styles.photoCredit}>{photo ? <>
+      {photo.treatment ? <span className={styles.photoTreatment}>{photo.treatment === "ai-enhanced"
+        ? "AI-enhanced from the original photograph." : "AI-generated illustration."}</span> : null}
+      <span className={styles.photoLinks}><a href={photo.sourceUrl} target="_blank" rel="noopener noreferrer"
+        aria-label={`Photo source for ${name}: ${photo.credit} (opens in a new tab)`}>{photo.credit} <span aria-hidden="true">↗</span></a>
+        {photo.originalSrc ? <a href={photo.originalSrc} target="_blank" rel="noopener noreferrer"
+          aria-label={`View original photo of ${name} (opens in a new tab)`}>View original photo <span aria-hidden="true">↗</span></a> : null}</span>
+    </>
       : "No verified portrait in this edition."}</figcaption>
   </figure>;
 }
