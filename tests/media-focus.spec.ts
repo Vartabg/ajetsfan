@@ -66,10 +66,13 @@ test("Media's compact presentation does not change the landing page focus layout
   await page.setViewportSize({ width: 1280, height: 1000 });
   await page.goto("/media");
   const mediaHeading = await page.locator("#watch > h2").evaluate((heading) => Number.parseFloat(getComputedStyle(heading).fontSize));
+  const mediaPadding = await page.locator("#watch").evaluate((moment) => Number.parseFloat(getComputedStyle(moment).paddingTop));
   await page.goto("/");
   const landingHeading = await page.locator("#media > h2").evaluate((heading) => Number.parseFloat(getComputedStyle(heading).fontSize));
+  const landingPadding = await page.locator("#media").evaluate((moment) => Number.parseFloat(getComputedStyle(moment).paddingTop));
   expect(landingHeading).toBeGreaterThan(mediaHeading);
-  expect((await page.locator("#media").boundingBox())!.height).toBeGreaterThanOrEqual(1000);
+  // Every moment fits its content; the landing page keeps the roomier spacing Media tightens.
+  expect(landingPadding).toBeGreaterThan(mediaPadding);
 });
 
 test("page navigation shortcuts leave a focused inline media control at its own location", async ({ page }) => {

@@ -1,5 +1,5 @@
-/* The focus pages: one thing per screen; everything else recedes. Phones: full-height moments under a slim bar.
-   Wide screens: an index of moments beside one stage. Short landscape screens: words beside the shape. */
+/* The focus pages: one thing at a time; everything else recedes. Each moment is as tall as what it shows.
+   Phones: moments under a slim bar. Wide screens: an index of moments beside the stage. Short landscape screens: words beside the shape. */
 :global(html):has([data-focus-page]) {
   --bg: #f2f4f0; --raise: #e5eae3; --tint: #d8eadf; --ink: #10201a; --quiet: #55635b; --faint: #c6d0c7;
   --green: #125740; --loss: #a14b37; --tie: #7d8a83;
@@ -7,8 +7,8 @@
   --paper: var(--bg); --paper-2: var(--raise); --ink-2: var(--quiet); --ink-3: var(--quiet); --rule: var(--ink); --rule-soft: var(--faint);
   --spot: var(--green); --spot-bright: var(--green); --forest: var(--green); --accent: var(--tint); --stamp: var(--loss); --tape: var(--raise);
   background: var(--bg); color-scheme: light;
-  /* Let short swipes stop where the reader leaves them. Mobile proximity snapping
-     can pull the page back to the previous moment, especially in iPhone Safari. */
+  /* Let every scroll stop where the reader leaves it. Proximity snapping pulled the page back
+     to the previous moment, in iPhone Safari and with short mouse-wheel scrolls on desktop. */
   scroll-snap-type: none; scroll-padding-top: 56px;
 }
 @media (prefers-color-scheme: dark) {
@@ -36,13 +36,13 @@
 .menu { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px 0 10px; font: 600 14px/1 var(--text); text-decoration: none; }
 .rail { display: none; }
 
-.moment { box-sizing: border-box; min-height: calc(100svh - 56px - 28px); scroll-snap-align: start; display: flex; flex-direction: column; gap: 12px; padding: 18px 16px 24px; }
-/* On phones each screen stops a little short, so the hairline of the next one shows: there is more below, without saying so. */
+/* A moment keeps its words, shape and actions together, with no empty screen around them; a hairline divides it from the next. */
+.moment { box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; padding: 32px 16px 40px; }
 .moment + .moment { border-top: 1px solid var(--faint); }
 .label { margin: 0; font: 500 14px/1.4 var(--data); color: var(--quiet); }
 .say { margin: 0; font: 650 clamp(30px, 8.4vw, 64px)/1.04 var(--display); letter-spacing: -.035em; text-wrap: balance; overflow-wrap: anywhere; }
 .say em { font-style: normal; font-weight: 400; }
-.shape { flex: 1 1 auto; min-height: 0; margin: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+.shape { margin: 0; display: flex; flex-direction: column; gap: 12px; }
 .shape figcaption, .caption { max-width: 38em; margin: 0; font-size: 16px; line-height: 1.55; color: var(--quiet); text-wrap: pretty; }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
 .button { min-height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: var(--ink); color: var(--bg); font: 600 15px/1 var(--text); cursor: pointer; }
@@ -110,7 +110,7 @@
 .sections a:hover b, .sections a[aria-current="page"] b { color: var(--green); }
 
 @media (min-width: 1024px) {
-  :global(html):has([data-focus-page]) { scroll-snap-type: y proximity; scroll-padding-top: 0; }
+  :global(html):has([data-focus-page]) { scroll-padding-top: 0; }
   .app { display: grid; grid-template-columns: 288px minmax(0, 1fr); }
   .bar { display: none; }
   .rail { position: sticky; top: 0; height: 100svh; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px; padding: 32px 24px 28px 32px; border-right: 1px solid var(--faint); }
@@ -124,8 +124,7 @@
   .rail ol b { font: 600 16px/1.25 var(--display); letter-spacing: -.01em; }
   .rail .note { margin-top: auto; }
   .stack { min-width: 0; }
-  .moment { min-height: 100svh; gap: 16px; padding: 48px clamp(32px, 5vw, 88px) 44px; }
-  .moment + .moment { border-top: 0; }
+  .moment { gap: 16px; padding: 64px clamp(32px, 5vw, 88px); }
   .say { font-size: clamp(44px, 4.4vw, 76px); max-width: 16em; }
   .sections ul { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); column-gap: 32px; max-width: 980px; }
 }
