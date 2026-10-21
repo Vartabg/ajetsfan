@@ -338,9 +338,11 @@ test("playback, slow motion, rewind and native keyboard scrubbing share one time
 test("a controlled elapsed clock makes quarter speed slower and rewind run backwards", async ({ page }) => {
   await page.clock.install();
   await openReplay(page);
-  // install() still advances during Playwright actionability waits. Freeze it
-  // before playback so runFor() is the only elapsed time in these assertions.
-  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1_000));
+  // install() advances during RPC/actionability waits. Keep the freeze target
+  // beyond this test's wall-time budget so a busy CI renderer cannot overtake
+  // it between evaluate() and pauseAt(). Playback is still paused here.
+  const freezeLead = Math.max(test.info().timeout, 60_000);
+  await page.clock.pauseAt(await page.evaluate(lead => Date.now() + lead, freezeLead));
   const time = page.getByLabel("Replay time", { exact: true });
   const speed = page.getByRole("combobox", { name: "Playback speed", exact: true });
   await speed.selectOption("0.25");

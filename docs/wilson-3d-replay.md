@@ -2,6 +2,8 @@
 
 The dedicated study at `/film-room/replay/wilson-cleveland` explains Garrett Wilson’s winning touchdown on September 18, 2022. Fans can choose any of the 22 players, read the position’s teaching job, follow the selected player, move around the field, pause, slow the replay, scrub in either direction and return to the snap. The movement is an educational reconstruction anchored to collected evidence and a later bounded review of official footage. Its coordinates, body motion and teaching clock remain authored; it is not recovered player tracking or a synchronized reproduction of the video.
 
+The [complete local handoff](wilson-handoff.md) indexes the synchronized checkouts, preserved original assets and packaging scripts, integration checks and review recordings.
+
 ## What the labels mean
 
 | Label | Supported content | Limits |

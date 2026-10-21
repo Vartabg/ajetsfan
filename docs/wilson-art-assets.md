@@ -2,6 +2,8 @@
 
 License and file verification: October 20, 2026. These are presentation assets, not historical game evidence. They do not establish the appearance, weather or lighting of the actual Cleveland play.
 
+The complete acquisition sources, packaging scripts, original licenses and bounded CPU audits are also preserved in the durable `source-assets/` directory listed in [wilson-handoff.md](wilson-handoff.md). Its inventory and checksums verify all 174 copied source files. The `/tmp/` paths below retain their original acquisition meaning; the handoff copy survives temporary-storage cleanup.
+
 Actually incorporated: the two Grass 005 WebP maps and the selected free Quaternius body/four animation clips listed below. The football gear, uniforms, motion constraints, crowd, stadium and generated daylight/reflection environment are authored application work. No paid asset or downloaded Poly Haven sky is incorporated.
 
 ## Grass 005 — ambientCG
