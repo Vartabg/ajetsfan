@@ -21,6 +21,11 @@ function envelope(at = oldTime, options = {}) {
   const ranking = clone(rankingCollection.seasons.find((record) => record.year === current.season));
   Object.assign(ranking, { status: 'ready', checkedAt: at, attemptedAt: at });
   const next = { ...clone(nextgen), status: 'ready', checkedAt: at, attemptedAt: at };
+  // This is a healthy provider fixture even when today's baked history retains a season.
+  for (const season of next.seasons) {
+    Object.assign(season, { status: 'ready', checkedAt: at, attemptedAt: at });
+    delete season.retentionReason;
+  }
   const fields = { season: current.season, current: { analysisCheck: { ...clone(current.analysisCheck), status: 'ready', checkedAt: at, attemptedAt: at },
     analysisUpdatedAt: current.analysisUpdatedAt, latestAnalyzedGameId: current.latestAnalyzedGameId }, analytics: clone(analytics), games: clone(seasonGames),
     curves: Object.fromEntries(seasonGames.map((game) => [game.id, `analysis/v1/curves/${createHash('sha256').update(game.id).digest('hex')}.json`])),
@@ -59,6 +64,16 @@ test('initial missing storage passes null to the worker and atomically creates i
   assert.equal(result.status, 'published'); assert.equal(result.season, current.season); assert.deepEqual(result.failedSourceIds, []);
   assert.deepEqual(storage.writes.find((record) => record.path === ANALYSIS_COLLECTION_PATH).options, { createOnly: true });
   assert.equal(Date.parse(storage.entries.get(ANALYSIS_LEASE_PATH).value.expiresAt), 0);
+});
+
+test('healthy fixture seasons share its simulated clock and invalid retained metadata still fails closed', () => {
+  const value = envelope(after(86_400_000));
+  for (const season of value.nextgen.seasons) {
+    assert.equal(season.status, 'ready'); assert.equal(season.checkedAt, after(86_400_000));
+    assert.equal(season.attemptedAt, after(86_400_000)); assert.equal(season.retentionReason, undefined);
+  }
+  value.nextgen.seasons[0].retentionReason = 'A retained reason cannot describe a ready season.';
+  assert.throws(() => analysisEnvelope(value, { startedAt: new Date(value.updatedAt), completedAt: new Date(value.updatedAt) }), /Invalid advanced analysis edition/);
 });
 
 test('healthy duplicate invocations reuse all checked providers until the eight-minute boundary', async () => {
@@ -163,6 +178,7 @@ test('same-season source checks and attempts cannot regress behind verified publ
     const result = await run({ refresh: async () => {
       const fresh = envelope(freshTime); const source = dataset === 'analysis' ? fresh.current.analysisCheck : fresh[dataset];
       source.checkedAt = after(-60_000); source.attemptedAt = freshTime; source.status = 'retained';
+      if (dataset === 'nextgen') for (const season of source.seasons) season.checkedAt = source.checkedAt;
       return fresh;
     } });
     assert.equal(result.status, 'superseded'); assert.deepEqual(storage.entries.get(ANALYSIS_COLLECTION_PATH), before);
