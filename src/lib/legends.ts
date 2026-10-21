@@ -6,7 +6,10 @@ export type Legend = {
   tagline: string; intro: string; why: string;
   moments: { title: string; text: string }[];
   sources: { label: string; url: string }[];
-  photo: { src: string; alt: string; credit: string; sourceUrl: string } | null;
+  photo: {
+    src: string; alt: string; credit: string; sourceUrl: string;
+    treatment?: "ai-enhanced" | "ai-generated"; originalSrc?: string;
+  } | null;
   related: string[]; archive: { label: string; href: string }[];
 };
 export const legends = people as Legend[];
