@@ -153,3 +153,26 @@ test("people pages retain semantic access, readable reflow and visible controls"
   await search.press("Enter");
   await expect(page.locator("[data-legend-card]")).toHaveCount(1);
 });
+
+test("the people list shows two portraits per row on a phone and three on a laptop", async ({ page }) => {
+  for (const [width, columns] of [[320, 2], [390, 2], [1280, 3], [1920, 3]] as const) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/legends#people");
+    const lefts = await page.locator("[data-legend-card]").evaluateAll((cards) => new Set(cards.map((card) => Math.round(card.getBoundingClientRect().left))).size);
+    expect(lefts, `${width}px`).toBe(columns);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    // Every name, role and honor stays inside its own card, even the longest names at 320px.
+    const spill = await page.locator("[data-legend-card]").evaluateAll((cards) => cards.flatMap((card) => { const edge = card.getBoundingClientRect().right; return [...card.querySelectorAll("h3, h3 *, p, li")].filter((part) => part.getBoundingClientRect().right > edge + 1).map((part) => `${(card as HTMLElement).dataset.legendCard} ${part.tagName}`); }));
+    expect(spill, `${width}px`).toEqual([]);
+  }
+});
+
+test("a missing portrait still explains itself inside a phone card", async ({ page }) => {
+  await page.route("**/_next/image?**", (route) => route.abort());
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.goto("/legends#people");
+  const notes = page.locator("[data-legend-card] [role=status]");
+  await expect(notes.first()).toBeVisible();
+  const clipped = await notes.evaluateAll((all) => all.filter((note) => note.scrollHeight > note.parentElement!.clientHeight + 1).length);
+  expect(clipped).toBe(0);
+});
