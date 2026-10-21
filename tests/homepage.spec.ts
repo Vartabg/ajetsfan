@@ -100,9 +100,12 @@ test("each moment shows one thing and opens its detail in place", async ({ page 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  const heights = await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.getBoundingClientRect().height));
-  // Each phone screen stops 28px short so the next one's edge shows.
-  expect(Math.min(...heights)).toBeGreaterThanOrEqual(844 - 56 - 28 - 1);
+  // Each moment is as tall as what it shows: below its last visible element there is only its own padding.
+  const slack = await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => {
+    const bottom = Math.max(...[...moment.children].map((child) => child.getBoundingClientRect()).filter((box) => box.height > 0).map((box) => box.bottom));
+    return moment.getBoundingClientRect().bottom - bottom - Number.parseFloat(getComputedStyle(moment).paddingBottom);
+  }));
+  expect(Math.max(...slack)).toBeLessThanOrEqual(24);
   if (focus.last && focus.last.line.length >= 2) {
     const chart = page.locator("[data-focus-chart]");
     await expect(chart).toHaveAttribute("aria-label", new RegExp(`${Math.round(focus.last.line[0][0] * 100)}% at kickoff`));

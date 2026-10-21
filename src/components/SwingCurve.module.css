@@ -1,5 +1,5 @@
 .card { margin: 0; border: 1px solid var(--rule-soft); border-top: 4px double var(--spot); background: var(--paper); }
-.head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2rem; align-items: center; padding: 1.75rem 1.5rem; border-bottom: 1px solid var(--rule-soft); background: #f0eadf; color: var(--ink); container: case-header / inline-size; }
+.head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2rem; align-items: center; padding: 1.75rem 1.5rem; border-bottom: 1px solid var(--rule-soft); background: var(--raise, #f0eadf); color: var(--ink); container: case-header / inline-size; }
 .identity { min-width: 0; }
 .eyebrow { margin: 0 0 .7rem; color: var(--spot); font: .8rem/1.5 var(--font-mono), monospace; }
 .matchup { font: 700 clamp(1.9rem, 3.3vw, 2.9rem)/1.12 var(--font-serif), Georgia, serif; letter-spacing: -.035em; scroll-margin-top: 1.5rem; }

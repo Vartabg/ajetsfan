@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import styles from "./Focus.module.css";
 
 /**
- * One screen of a focus page: a label, one plain heading, one shape and one action.
+ * One moment of a focus page, as tall as what it shows: a label, one plain heading, one shape and one action.
  * A moment that hosts a component which is already a labelled section (`hosts`) stays a plain container,
  * so assistive technology hears that section once.
  */

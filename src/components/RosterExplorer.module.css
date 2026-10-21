@@ -73,7 +73,7 @@
 .empty { padding: 3rem 1.5rem; text-align: center; background: var(--paper-2); border-block: 1px solid var(--rule); }
 .empty h2 { font-size: 1.7rem; font-weight: 700; }
 .empty p { color: var(--ink-2); }
-.empty button { min-height: 44px; padding: .8rem 1rem; background: var(--spot); color: #fff; border-radius: var(--radius, 2px); font-size: .85rem; font-weight: 700; }
+.empty button { min-height: 44px; padding: .8rem 1rem; background: var(--spot); color: var(--paper); border-radius: var(--radius, 2px); font-size: .85rem; font-weight: 700; }
 @media (max-width: 900px) { .cardText { display: flex; flex-direction: column; } .cardLink { padding-top: .5rem; align-self: stretch; } }
 @media (max-width: 800px) { .profileGrid { grid-template-columns: 1fr; gap: 1.4rem; } .profileIdentity { display: flex; align-items: center; gap: 1.5rem; } .profileIdentity > .portrait { width: 160px; flex: none; margin-bottom: 0; } }
 @media (max-width: 640px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 1rem 0; gap: 1rem .8rem; } .searchField { grid-column: 1 / -1; } .grid { grid-template-columns: 1fr; } .grid > li:nth-child(odd) { border-right: 0; } .playerCard { grid-template-columns: 56px minmax(0, 1fr); padding: 1rem .75rem; } .cardPhoto, .cardPhoto .portrait { width: 56px; } .cardPhoto .portrait { height: 56px; } .profileGrid { padding: 1.25rem; } .profileIdentity { display: block; } .profileIdentity > .portrait { width: 128px; height: 128px; margin-bottom: 1rem; } .profileTop { padding: .7rem 1rem; } .profileLinks { padding: .75rem 1.25rem; } .statLines > div { grid-template-columns: 1fr; gap: .2rem; } .unitTabs { gap: .45rem; } .unitTabs button { padding: .6rem .8rem; font-size: .78rem; } }
