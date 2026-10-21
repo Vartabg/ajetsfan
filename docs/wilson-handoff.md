@@ -6,8 +6,8 @@ The implementation, runtime assets, source provenance and regression tests are s
 
 | Contents | Location |
 | --- | --- |
-| Task branch and preview workspace | `/Users/vartny/.codex/worktrees/wilson-3d-replay/ajetsfan` |
-| Checkout attached to this chat, synchronized to the completed task revision | `/Users/vartny/.codex/worktrees/cee1/ajetsfan` |
+| Canonical task branch, checkout attached to this chat and preview workspace | `/Users/vartny/.codex/worktrees/cee1/ajetsfan` |
+| Earlier isolated build workspace, now a clean checkout of the repository base | `/Users/vartny/.codex/worktrees/wilson-3d-replay/ajetsfan` |
 | Tracked runtime assets and CC0 license | `public/film-room/art/` |
 | Evidence, motion, implementation and verification notes | [wilson-3d-replay.md](wilson-3d-replay.md) |
 | Asset origins, selected derivatives, licenses and hashes | [wilson-art-assets.md](wilson-art-assets.md) |
@@ -17,6 +17,8 @@ The implementation, runtime assets, source provenance and regression tests are s
 `source-assets/README.md`, `inventory.json` and `SHA256SUMS` index the preserved source material. All 174 copied files, totaling 396,850,151 bytes, were verified against their originals by size and SHA-256. The inventory hash is `beb867554b09c4349fab576ff06e3f25394e91a50af01a2b6766eb5a280cac3b`. The unused optional HDRI has its own `unused/` folder. These original archives and review media stay outside the application payload and Git; the compact runtime derivatives and license are tracked.
 
 The earlier `/tmp/ajetsfan-quaternius-assets/` and `/tmp/wilson-grass005-assets/` paths in acquisition notes describe the original working locations. Their durable copies above preserve the complete sources and reproduction scripts after temporary storage is cleared.
+
+The named replay branch is checked out in the canonical directory above. The earlier build workspace keeps a clean base checkout, so two worktrees do not claim the same task changes. Previous proof records retain their original build paths and IDs.
 
 ## Working with the replay
 
