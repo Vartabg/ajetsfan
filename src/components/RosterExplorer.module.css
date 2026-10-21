@@ -3,11 +3,15 @@
 .unitTabs button { display: flex; align-items: center; gap: .65rem; min-height: 44px; padding: .6rem 1rem; border: 1px solid var(--rule-soft); border-radius: var(--radius, 2px); background: var(--paper); font: 700 .82rem/1.5 var(--font-sans), Arial, sans-serif; }
 .unitTabs button:hover { border-color: var(--spot); }
 .unitTabs button.unitOn { color: var(--paper); border-color: var(--forest); background: var(--forest); }
-.unitTabs span { font: .72rem/1.5 var(--font-mono), monospace; opacity: .8; }
-.filters { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.2fr); gap: 1rem; padding: 1.25rem 0; margin-top: 1.25rem; border-block: 1px solid var(--rule-soft); }
+.unitTabs span { font: 13px/1.5 var(--font-mono), monospace; opacity: .8; }
+.filters { display: grid; gap: .5rem; padding: 1.25rem 0 .5rem; margin-top: 1.25rem; border-block: 1px solid var(--rule-soft); }
 .filters > div { min-width: 0; }
-.filters label { display: block; margin-bottom: .5rem; font-weight: 700; font-size: .76rem; color: var(--ink-2); }
+.filters label { display: block; margin-bottom: .5rem; font-weight: 700; font-size: 13px; color: var(--ink-2); }
 .filters input, .filters select { width: 100%; min-width: 0; min-height: 46px; padding: .65rem .75rem; background: var(--paper); color: var(--ink); border: 1px solid var(--rule-soft); border-radius: var(--radius, 2px); font: 1rem/1.4 var(--font-sans), Arial, sans-serif; }
+/* Position and roster status, folded under the search */
+.moreFilters > summary { min-height: 44px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.moreFilters > summary span { margin-inline-start: -.4rem; font-size: 13px; font-weight: 400; color: var(--ink-2); }
+.extraFilters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; padding: .25rem 0 .75rem; }
 .searchControl { position: relative; }
 .searchControl input { padding-inline: 2.4rem 3rem; }
 .searchControl input::-webkit-search-cancel-button { -webkit-appearance: none; }
@@ -18,10 +22,11 @@
 .results p { margin: 0; }
 .results strong { color: var(--ink); }
 .results button { min-height: 44px; padding: .5rem; font-weight: 700; color: var(--spot); text-decoration: underline; text-underline-offset: 3px; }
-.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; list-style: none; padding: 0; margin: 0; border-top: 2px solid var(--rule); }
+/* As many columns as fit: one on phones, two beside the rail at 1024px, three at 1440px, four at 1920px. */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0 1.5rem; list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--rule-soft); }
 .grid > li { min-width: 0; border-bottom: 1px solid var(--rule-soft); }
-.grid > li:nth-child(odd) { border-right: 1px solid var(--rule-soft); }
-.playerCard { width: 100%; height: 100%; display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 1rem; padding: 1.1rem 1.25rem; text-align: left; background: transparent; transition: background-color .15s; }
+/* Cards in a row share one top edge, whether or not a status line follows the name. */
+.playerCard { width: 100%; height: 100%; display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: start; gap: 1rem; padding: 1.1rem 1.25rem; text-align: left; background: transparent; transition: background-color .15s; }
 .playerCard:hover { background: var(--paper-2); }
 .selectedCard { box-shadow: inset 3px 0 0 var(--spot); background: color-mix(in srgb, var(--spot) 5%, var(--paper)); }
 .selectedCard .cardLink { font-weight: 800; }
@@ -29,12 +34,11 @@
 .portrait { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; flex: none; aspect-ratio: 1; border-radius: var(--radius, 2px); overflow: hidden; background: color-mix(in srgb, var(--spot) 6%, var(--paper-2)); }
 .portrait img { width: 100%; height: 100%; object-fit: contain; object-position: center bottom; }
 .initials { font: 400 1.7rem/1 var(--font-hed), Impact, sans-serif; color: var(--spot); letter-spacing: -.03em; }
-.jersey { color: var(--ink); font: 700 1.1rem/1.2 var(--font-mono), monospace; font-variant-numeric: tabular-nums; }
-.cardText { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: .8rem; min-width: 0; }
-.cardPosition { grid-column: 1 / -1; font-size: .8rem; color: var(--spot); font-weight: 800; }
+.cardText { display: flex; flex-direction: column; min-width: 0; }
+.cardPosition { font-size: 13px; color: var(--spot); font-weight: 800; }
 .cardText > strong { display: block; margin-top: .3rem; font: 700 1.4rem/1.15 var(--font-sans-narrow), Arial, sans-serif; overflow-wrap: anywhere; }
-.cardStatus { display: block; grid-column: 1; margin-top: .4rem; color: var(--ink-2); font-size: .74rem; }
-.cardLink { display: flex; grid-column: 2; grid-row: 2 / 4; align-self: center; justify-content: space-between; gap: .4rem; color: var(--spot); font-size: .72rem; font-weight: 700; white-space: nowrap; }
+.cardStatus { display: block; margin-top: .3rem; color: var(--ink-2); font-size: 13px; }
+.cardLink { display: inline-flex; gap: .4rem; margin-top: .3rem; color: var(--spot); font-size: 13px; font-weight: 700; }
 .profile { margin-bottom: 2rem; border: 1px solid var(--rule); border-radius: var(--radius, 2px); overflow: hidden; background: var(--paper); scroll-margin-top: 1.5rem; }
 .profileTop { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .7rem; padding: .65rem 1.5rem; background: var(--forest); color: #fff; }
 .profileTop p { margin: 0; font-size: .8rem; }
@@ -74,8 +78,7 @@
 .empty h2 { font-size: 1.7rem; font-weight: 700; }
 .empty p { color: var(--ink-2); }
 .empty button { min-height: 44px; padding: .8rem 1rem; background: var(--spot); color: var(--paper); border-radius: var(--radius, 2px); font-size: .85rem; font-weight: 700; }
-@media (max-width: 900px) { .cardText { display: flex; flex-direction: column; } .cardLink { padding-top: .5rem; align-self: stretch; } }
 @media (max-width: 800px) { .profileGrid { grid-template-columns: 1fr; gap: 1.4rem; } .profileIdentity { display: flex; align-items: center; gap: 1.5rem; } .profileIdentity > .portrait { width: 160px; flex: none; margin-bottom: 0; } }
-@media (max-width: 640px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 1rem 0; gap: 1rem .8rem; } .searchField { grid-column: 1 / -1; } .grid { grid-template-columns: 1fr; } .grid > li:nth-child(odd) { border-right: 0; } .playerCard { grid-template-columns: 56px minmax(0, 1fr); padding: 1rem .75rem; } .cardPhoto, .cardPhoto .portrait { width: 56px; } .cardPhoto .portrait { height: 56px; } .profileGrid { padding: 1.25rem; } .profileIdentity { display: block; } .profileIdentity > .portrait { width: 128px; height: 128px; margin-bottom: 1rem; } .profileTop { padding: .7rem 1rem; } .profileLinks { padding: .75rem 1.25rem; } .statLines > div { grid-template-columns: 1fr; gap: .2rem; } .unitTabs { gap: .45rem; } .unitTabs button { padding: .6rem .8rem; font-size: .78rem; } }
-@media (max-width: 360px) { .playerCard { grid-template-columns: 48px minmax(0, 1fr); gap: .8rem; } .cardPhoto, .cardPhoto .portrait { width: 48px; } .cardPhoto .portrait { height: 48px; } .filters { grid-template-columns: 1fr; } .searchField { grid-column: auto; } }
+@media (max-width: 640px) { .filters { padding: 1rem 0 .25rem; } .grid { grid-template-columns: 1fr; } .playerCard { grid-template-columns: 56px minmax(0, 1fr); padding: .75rem; } .cardText > strong { font-size: 18px; } .cardPhoto, .cardPhoto .portrait { width: 56px; } .cardPhoto .portrait { height: 56px; } .profileGrid { padding: 1.25rem; } .profileIdentity { display: block; } .profileIdentity > .portrait { width: 128px; height: 128px; margin-bottom: 1rem; } .profileTop { padding: .7rem 1rem; } .profileLinks { padding: .75rem 1.25rem; } .statLines > div { grid-template-columns: 1fr; gap: .2rem; } .unitTabs { gap: .45rem; } .unitTabs button { padding: .6rem .8rem; font-size: 13px; } }
+@media (max-width: 360px) { .playerCard { grid-template-columns: 48px minmax(0, 1fr); gap: .8rem; } .cardPhoto, .cardPhoto .portrait { width: 48px; } .cardPhoto .portrait { height: 48px; } .extraFilters { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .playerCard { transition: none; } }

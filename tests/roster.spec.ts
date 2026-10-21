@@ -125,6 +125,9 @@ test("roster filters combine unit, position, status and exact jersey search, wit
   const query = player.jersey !== null ? `#${player.jersey}` : player.name;
   await page.goto(playerHref(player.id));
   await page.getByRole("group", { name: "Roster unit" }).getByRole("button", { name: new RegExp(`^${unitLabel}\\s*\\d+$`) }).click();
+  // Position and roster status fold under the search until a reader opens them.
+  await expect(page.getByRole("combobox", { name: "Position", exact: true })).toBeHidden();
+  await page.locator("summary", { hasText: "More filters" }).click();
   await page.getByRole("combobox", { name: "Position", exact: true }).selectOption(player.position);
   await page.getByRole("combobox", { name: "Source roster status", exact: true }).selectOption(player.status);
   await page.getByLabel("Find a player", { exact: true }).fill(query);
@@ -136,8 +139,8 @@ test("roster filters combine unit, position, status and exact jersey search, wit
   await expect(page).not.toHaveURL(/player=/);
   await page.getByRole("button", { name: "Reset filters", exact: true }).first().click();
   await expect(page.getByLabel("Find a player", { exact: true })).toHaveValue("");
-  await expect(page.getByRole("combobox", { name: "Position", exact: true })).toHaveValue("all");
-  await expect(page.getByRole("combobox", { name: "Source roster status", exact: true })).toHaveValue("all");
+  await expect(page.locator("#roster-position")).toHaveValue("all");
+  await expect(page.locator("#roster-status")).toHaveValue("all");
   await expect(page.getByRole("list", { name: "Roster players" }).locator("li")).toHaveCount(coverage.roster.players.length);
 });
 
@@ -243,3 +246,31 @@ for (const width of [1280, 390, 320]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }
+
+test("players come first: no empty units, short rows on a phone, and columns that fit the screen", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/team/roster");
+  const counts = await page.getByRole("group", { name: "Roster unit" }).getByRole("button").evaluateAll((units) => units.map((unit) => unit.querySelector("span")?.textContent));
+  expect(counts).not.toContain("0");
+  const rows = page.getByRole("list", { name: "Roster players" }).locator("li");
+  await expect(rows).toHaveCount(coverage.roster.players.length);
+  const heights = await rows.evaluateAll((all) => all.map((row) => row.getBoundingClientRect().height));
+  expect(Math.max(...heights)).toBeLessThanOrEqual(110);
+  for (const [width, columns] of [[1024, 2], [1440, 3], [1920, 4]] as const) {
+    await page.setViewportSize({ width, height: 900 });
+    // The list settles after the resize; count the column edges once it has.
+    await expect.poll(() => rows.evaluateAll((all) => new Set(all.map((row) => Math.round(row.getBoundingClientRect().left))).size), { message: `${width}px` }).toBe(columns);
+  }
+});
+
+test("setting a folded filter back to All keeps the fold open and the reader in place", async ({ page }) => {
+  await page.goto("/team/roster");
+  await page.locator("summary", { hasText: "More filters" }).click();
+  const position = page.locator("#roster-position");
+  const value = await position.locator("option").nth(1).getAttribute("value");
+  await position.selectOption(value!);
+  await position.focus();
+  await position.selectOption("all");
+  await expect(page.locator("details", { has: position })).toHaveAttribute("open", "");
+  await expect(position).toBeFocused();
+});
