@@ -32,7 +32,7 @@ test('metadata checks do not change the content revision while status, pending g
   modified.nextgen.checkedAt = start.toISOString(); modified.nextgen.attemptedAt = start.toISOString();
   modified.providerChecks = { pbp: { url: `https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_${current.season}.parquet`, etag: '"verified"', contentLength: 100, lastModified: null } };
   assert.equal(analysisEnvelope(modified, { startedAt: start, completedAt: finish }).revision, first.revision);
-  modified.current.analysisCheck.status = 'retained';
+  modified.current.analysisCheck.status = first.current.analysisCheck.status === 'ready' ? 'retained' : 'ready';
   assert.notEqual(analysisEnvelope(modified, { startedAt: start, completedAt: finish }).revision, first.revision);
 });
 

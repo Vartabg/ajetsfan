@@ -3,11 +3,15 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { makeBakedDrivesEvidence, validateRuntimeDrives } from '../src/lib/postgame-evidence.mjs';
 import { selectDriveSeason as selectDrives, selectLeagueHistory } from '../src/lib/postgame-consumers.mjs';
+import { beforeGame, footballAt } from './baked-snapshot.mjs';
 
 const read = async (file) => JSON.parse(await readFile(new URL(`../public/data/${file}`, import.meta.url), 'utf8'));
-const [current, drives, history, analyzed] = await Promise.all([read('current.json'), read('drives/2026.json'), read('league-history.json'), read('games.json')]);
-const selectDriveSeason = (options) => selectDrives({ compiledGames: analyzed, ...options });
 const id = '2026_05_CLE_NYJ', nextId = '2026_06_NYJ_NE';
+// The season before the next game, with no analysis newer than the compiled drive check, whatever the latest data refresh wrote.
+const [bakedCurrent, bakedDrives, bakedHistory, bakedGames] = await Promise.all([read('current.json'), read('drives/2026.json'), read('league-history.json'), read('games.json')]);
+const { current: rewound, drives, history, games: analyzed } = beforeGame({ current: bakedCurrent, drives: bakedDrives, history: bakedHistory, games: bakedGames }, nextId);
+const { current } = footballAt({ current: rewound }, drives.checkedAt);
+const selectDriveSeason = (options) => selectDrives({ compiledGames: analyzed, ...options });
 const baselineClock = Math.max(...[current, drives, history].map((value) => Date.parse(value.checkedAt)));
 const clock = (offset) => new Date(baselineClock + 86_400_000 + offset * 60_000).toISOString();
 const checkedAt = clock(0), compiledAt = clock(5), attemptedAt = clock(10);
