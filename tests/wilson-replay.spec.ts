@@ -194,11 +194,71 @@ test("the all-22 field plays while the deferred 3D renderer is pending and hands
   } finally { releaseChunk(); }
 });
 
+test("the field stays usable while player bodies load and the first visible bodies inherit the current study", async ({ page }) => {
+  let releaseBody = () => {};
+  const heldBody = new Promise<void>(resolve => { releaseBody = resolve; });
+  let requests = 0;
+  await page.route("**/film-room/art/*.glb", async route => {
+    requests++;
+    await heldBody;
+    await route.continue();
+  });
+  try {
+    await openReplay(page, "domcontentloaded");
+    const replay = page.locator("[data-wilson-replay]");
+    await expect.poll(() => requests, { timeout: 15_000 }).toBeGreaterThan(0);
+    await expect(replay).toHaveAttribute("data-scene", "loading");
+    await expect(page.getByRole("img", { name: /Top-down teaching diagram/ })).toBeVisible();
+    await page.getByRole("button", { name: "Forward 1 second", exact: true }).click();
+    await page.getByRole("combobox", { name: "Focus player", exact: true }).selectOption("lt");
+    await expectTime(page, 1);
+    await page.evaluate(() => {
+      const root = document.querySelector("[data-wilson-replay]")!;
+      const result = { firstVisible: null as null | Record<string, string | undefined> };
+      (window as unknown as { __wilsonBodyHandoff: typeof result }).__wilsonBodyHandoff = result;
+      const observer = new MutationObserver(() => {
+        if (root.getAttribute("data-scene") !== "ready") return;
+        result.firstVisible = { ...(root.querySelector("canvas") as HTMLCanvasElement).dataset };
+        observer.disconnect();
+      });
+      observer.observe(root, { attributes: true, attributeFilter: ["data-scene"] });
+    });
+    releaseBody();
+    await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
+    const first = await page.evaluate(() => (window as unknown as { __wilsonBodyHandoff: { firstVisible: Record<string, string> } }).__wilsonBodyHandoff.firstVisible);
+    expect(first.playerBodiesReady).toBe("true");
+    expect(first.skinnedPlayerCount).toBe("22");
+    expect(first.playerAsset).toBe("quaternius-standard");
+    expect(Number(first.playerAssetBytes)).toBeGreaterThan(0);
+    expect(requests, "body and motion are each requested once for all 22 players").toBe(2);
+    expect(first.selectedActor).toBe("lt");
+    expect(Number(first.renderedTime)).toBeCloseTo(1, 2);
+  } finally { releaseBody(); }
+});
+
+test("a failed player download keeps the diagram working and retries at the same study time", async ({ page }) => {
+  await page.route("**/film-room/art/*.glb", route => route.abort("failed"));
+  await openReplay(page, "domcontentloaded");
+  const replay = page.locator("[data-wilson-replay]");
+  await expect(replay).toHaveAttribute("data-scene", "failed", { timeout: 20_000 });
+  await expect(replay.locator("canvas")).toHaveCount(0);
+  await expect(page.getByRole("img", { name: /Top-down teaching diagram/ })).toBeVisible();
+  await page.getByRole("button", { name: "Forward 1 second", exact: true }).click();
+  await expectTime(page, 1);
+  await page.unroute("**/film-room/art/*.glb");
+  await page.getByRole("button", { name: "Try 3D again", exact: true }).click();
+  await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
+  await expect(replay.locator("canvas")).toHaveCount(1);
+  await expect(replay.locator("canvas")).toHaveAttribute("data-skinned-player-count", "22");
+  await expect.poll(async () => Number(await replay.locator("canvas").getAttribute("data-render-time"))).toBeCloseTo(1, 3);
+  await expectTime(page, 1);
+});
+
 test("optional CC0 turf maps load after usable 3D without resetting the study, and a failed map stays optional", async ({ page }) => {
   let releaseMaps = () => {};
   const heldMaps = new Promise<void>((resolve) => { releaseMaps = resolve; });
   const pendingMaps = new Set<string>();
-  await page.route("**/film-room/art/**", async (route) => {
+  await page.route("**/film-room/art/grass005-*.webp", async (route) => {
     pendingMaps.add(new URL(route.request().url()).pathname);
     await heldMaps;
     await route.continue();
@@ -227,7 +287,7 @@ test("optional CC0 turf maps load after usable 3D without resetting the study, a
 
   // A fresh navigation with the normal map unavailable must retain the usable
   // renderer and HTML transport; the base-color request still loads normally.
-  await page.unroute("**/film-room/art/**");
+  await page.unroute("**/film-room/art/grass005-*.webp");
   await page.route("**/film-room/art/grass005-normalgl.webp", (route) => route.abort("failed"));
   await page.reload({ waitUntil: "domcontentloaded" });
   const replay = page.locator("[data-wilson-replay]");
@@ -523,6 +583,17 @@ test("the loaded 3D scene renders, accepts camera drags and stops rendering at r
   await page.mouse.click(pickBounds.x + anchors.qb.x, pickBounds.y + anchors.qb.y);
   await expect(page.locator("[data-selected-player=qb]")).toBeVisible();
   await expect(canvas).toHaveAttribute("data-selected-actor", "qb");
+  // The snap click has already queried every body's bounds. Moving native
+  // bodies must remain pickable without rebuilding all skinned bounds per frame.
+  for (const [time, id] of [[3, "wilson"], [0.35, "qb"]] as const) {
+    await seekTo(page, time);
+    await expect.poll(async () => Number(await canvas.getAttribute("data-render-time"))).toBeCloseTo(time, 3);
+    await canvas.scrollIntoViewIfNeeded();
+    const currentBounds = (await canvas.boundingBox())!;
+    const currentAnchors = JSON.parse((await canvas.getAttribute("data-player-anchors"))!) as Record<string, { x: number; y: number }>;
+    await page.mouse.click(currentBounds.x + currentAnchors[id].x, currentBounds.y + currentAnchors[id].y);
+    await expect(canvas, `The moved ${id} is pickable at ${time}s`).toHaveAttribute("data-selected-actor", id);
+  }
   const cameraPosition = await canvas.getAttribute("data-camera-position");
   const bounds = (await canvas.boundingBox())!;
   await page.mouse.move(bounds.x + bounds.width * 0.5, bounds.y + bounds.height * 0.55);
@@ -550,7 +621,7 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
   const replay = page.locator("[data-wilson-replay]");
   await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
   const canvas = replay.locator("canvas");
-  type Motion = { action: string; position: number[]; joints: number[]; bodyJoints: number[]; handPositions: number[][]; feet: boolean[]; footPositions: number[][]; dive: number };
+  type Motion = { action: string; position: number[]; joints: number[]; bodyJoints: number[]; handPositions: number[][]; feet: boolean[]; footPositions: number[][]; dive: number; footCycles: { plantAt: number; liftOffAt: number }[]; visibleBody: { handPositions: number[][]; footPositions: number[][]; endpointErrors: number[]; bodyJoints: number[]; limbJoints: number[]; clipCount: number; meshCount: number; boneCount: number } };
   const poseAt = async (time: number) => {
     await seekTo(page, time);
     await expect.poll(async () => Number(await canvas.getAttribute("data-render-time"))).toBeCloseTo(time, 3);
@@ -584,6 +655,16 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
     expect(next[id].footPositions.flat().every(Number.isFinite), `${id} has finite actual feet`).toBe(true);
     expect(next[id].bodyJoints, `${id} exposes actual root, pelvis, torso and head rotations`).toHaveLength(16);
     expect(next[id].handPositions.flat().every(Number.isFinite), `${id} has finite actual hands`).toBe(true);
+    expect(next[id].visibleBody.boneCount, `${id} uses the imported skeleton`).toBe(65);
+    expect(next[id].visibleBody.meshCount).toBe(3);
+    expect(next[id].visibleBody.clipCount).toBe(4);
+    expect(next[id].visibleBody.handPositions).toHaveLength(2);
+    expect(next[id].visibleBody.footPositions).toHaveLength(2);
+    expect(next[id].visibleBody.endpointErrors).toHaveLength(4);
+    expect(next[id].visibleBody.bodyJoints).toHaveLength(16);
+    expect(next[id].visibleBody.limbJoints).toHaveLength(48);
+    expect(next[id].visibleBody.handPositions.flat().every(Number.isFinite)).toBe(true);
+    expect(next[id].visibleBody.footPositions.flat().every(Number.isFinite)).toBe(true);
   }
   await page.getByRole("combobox", { name: "Focus player", exact: true }).selectOption("qb");
   await expect(page.locator('[data-selected-player="qb"] [data-player-action]')).toHaveAttribute("data-player-action", "set");
@@ -606,7 +687,7 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
       if (displacement >= metric.maxFootYardsPer10ms) metric.footAt = `${id} foot ${foot} at ${at.toFixed(2)}s`;
       metric.maxFootYardsPer10ms = Math.max(metric.maxFootYardsPer10ms, displacement);
     }
-    const beforeJoints = [...before.joints, ...before.bodyJoints], afterJoints = [...after.joints, ...after.bodyJoints];
+    const beforeJoints = [...before.joints, ...before.bodyJoints, ...before.visibleBody.limbJoints, ...before.visibleBody.bodyJoints], afterJoints = [...after.joints, ...after.bodyJoints, ...after.visibleBody.limbJoints, ...after.visibleBody.bodyJoints];
     for (let joint = 0; joint < beforeJoints.length; joint += 4) {
       const a = beforeJoints.slice(joint, joint + 4), b = afterJoints.slice(joint, joint + 4);
       const cosine = Math.abs(a.reduce((sum, value, axis) => sum + value * b[axis], 0)) / (Math.hypot(...a) * Math.hypot(...b));
@@ -628,6 +709,8 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
     collectContinuity("qb", qbSamples[index - 1].qb, qbSamples[index].qb, (index + 80) / 100);
   }
   const plantedHeight = { samples: 0, maximum: -Infinity, minimum: Infinity, maximumAt: "", minimumAt: "" };
+  const visiblePlantedHeight = { samples: 0, maximum: -Infinity, minimum: Infinity, at: "" };
+  const visibleEndpoints = { samples: 0, maximum: 0, at: "" };
   const collectPlantedHeight = (id: string, motion: Motion, at: number) => {
     if (motion.dive > 0) return;
     motion.feet.forEach((planted, foot) => {
@@ -638,20 +721,46 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
       if (height <= plantedHeight.minimum) plantedHeight.minimumAt = `${id} foot ${foot} at ${at.toFixed(2)}s`;
       plantedHeight.maximum = Math.max(plantedHeight.maximum, height);
       plantedHeight.minimum = Math.min(plantedHeight.minimum, height);
+      const visibleHeight = motion.visibleBody.footPositions[foot][1];
+      visiblePlantedHeight.samples++;
+      if (visibleHeight >= visiblePlantedHeight.maximum) visiblePlantedHeight.at = `${id} visible foot ${foot} at ${at.toFixed(2)}s`;
+      visiblePlantedHeight.maximum = Math.max(visiblePlantedHeight.maximum, visibleHeight);
+      visiblePlantedHeight.minimum = Math.min(visiblePlantedHeight.minimum, visibleHeight);
     });
   };
   for (const [id, at] of [["d8", 1.9], ["d7", 1.65], ["d10", 2.35]] as const) {
-    const poses = await poseAt(at);
-    expect(poses[id].feet.some(Boolean), `${id} has a planted foot in the reported case`).toBe(true);
-    collectPlantedHeight(id, poses[id], at);
+    let probeAt = at;
+    let poses = await poseAt(at);
+    if (!poses[id].feet.some(Boolean)) {
+      // Speed-driven footfalls can put this old fixed-cadence timestamp in
+      // flight. Check its adjacent actual stance, preserving the ground limit.
+      const cycle = [...poses[id].footCycles].sort((a, b) => b.plantAt - a.plantAt)[0];
+      probeAt = Math.round((cycle.plantAt + cycle.liftOffAt) * 50) / 100;
+      expect(Math.abs(probeAt - at)).toBeLessThan(0.5);
+      poses = await poseAt(probeAt);
+    }
+    expect(poses[id].feet.some(Boolean), `${id} has a planted foot in the nearby stance`).toBe(true);
+    collectPlantedHeight(id, poses[id], probeAt);
   }
   const plantedSamples = await sampleBatch(Array.from({ length: REPLAY.duration * 20 + 1 }, (_, index) => index / 20));
   const bodyContinuity = { samples: 0, maxRadiansPer50ms: 0, at: "" };
+  const rootContinuity = { samples: 0, maxYardsPer50ms: 0, maxVerticalYardsPer50ms: 0, at: "" };
   for (let step = 0; step < plantedSamples.length; step++) {
     for (const { id } of REPLAY.actors) {
       collectPlantedHeight(id, plantedSamples[step][id], step / 20);
+      for (const [endpoint, error] of plantedSamples[step][id].visibleBody.endpointErrors.entries()) {
+        visibleEndpoints.samples++;
+        if (error >= visibleEndpoints.maximum) visibleEndpoints.at = `${id} visible endpoint ${endpoint} at ${(step / 20).toFixed(2)}s`;
+        visibleEndpoints.maximum = Math.max(visibleEndpoints.maximum, error);
+      }
       if (step === 0) continue;
-      const before = plantedSamples[step - 1][id].bodyJoints, after = plantedSamples[step][id].bodyJoints;
+      const previousRoot = plantedSamples[step - 1][id].position, currentRoot = plantedSamples[step][id].position;
+      const travel = Math.hypot(...currentRoot.map((value, axis) => value - previousRoot[axis]));
+      rootContinuity.samples++;
+      if (travel >= rootContinuity.maxYardsPer50ms) rootContinuity.at = `${id} root at ${(step / 20).toFixed(2)}s`;
+      rootContinuity.maxYardsPer50ms = Math.max(rootContinuity.maxYardsPer50ms, travel);
+      rootContinuity.maxVerticalYardsPer50ms = Math.max(rootContinuity.maxVerticalYardsPer50ms, Math.abs(currentRoot[1] - previousRoot[1]));
+      const before = [...plantedSamples[step - 1][id].bodyJoints, ...plantedSamples[step - 1][id].visibleBody.bodyJoints], after = [...plantedSamples[step][id].bodyJoints, ...plantedSamples[step][id].visibleBody.bodyJoints];
       for (let joint = 0; joint < before.length; joint += 4) {
         const a = before.slice(joint, joint + 4), b = after.slice(joint, joint + 4);
         const cosine = Math.abs(a.reduce((sum, value, axis) => sum + value * b[axis], 0)) / (Math.hypot(...a) * Math.hypot(...b));
@@ -662,6 +771,7 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
       }
     }
   }
+  await test.info().attach("actual-rig-continuity", { body: JSON.stringify({ continuityMetrics, plantedHeight, bodyContinuity, rootContinuity, visiblePlantedHeight, visibleEndpoints }, null, 2), contentType: "application/json" });
   for (const metric of Object.values(continuityMetrics)) {
     expect(metric.maxFootYardsPer10ms, metric.footAt).toBeLessThan(0.2);
     expect(metric.maxJointRadiansPer10ms, metric.jointAt).toBeLessThan(0.25);
@@ -670,7 +780,12 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
   expect(plantedHeight.minimum, plantedHeight.minimumAt).toBeGreaterThan(-0.02);
   expect(plantedHeight.samples).toBeGreaterThan(1_000);
   expect(bodyContinuity.maxRadiansPer50ms, bodyContinuity.at).toBeLessThan(0.45);
-  await test.info().attach("actual-rig-continuity", { body: JSON.stringify({ continuityMetrics, plantedHeight, bodyContinuity }, null, 2), contentType: "application/json" });
+  expect(rootContinuity.maxYardsPer50ms, rootContinuity.at).toBeLessThan(0.6);
+  expect(rootContinuity.maxVerticalYardsPer50ms, "support changes do not pop the body vertically").toBeLessThan(0.2);
+  expect(visiblePlantedHeight.samples).toBeGreaterThan(1_000);
+  expect(visiblePlantedHeight.maximum, visiblePlantedHeight.at).toBeLessThan(0.15);
+  expect(visiblePlantedHeight.minimum, "visible skinned feet do not penetrate the ground").toBeGreaterThan(-0.02);
+  expect(visibleEndpoints.maximum, visibleEndpoints.at).toBeLessThan(0.15);
 });
 
 test("the rendered ball meets a player's hands at release and catch", async ({ page }) => {
@@ -689,6 +804,8 @@ test("the rendered ball meets a player's hands at release and catch", async ({ p
     const error = Number(await canvas.getAttribute("data-ball-contact-error"));
     expect(Number.isFinite(error)).toBe(true);
     expect(error).toBeLessThan(0.15);
+    await expect(canvas).toHaveAttribute("data-visible-ball-contact-error", /^\d+(?:\.\d+)?$/);
+    expect(Number(await canvas.getAttribute("data-visible-ball-contact-error")), "the imported player's palm meets the actual ball").toBeLessThan(0.15);
   }
 });
 

@@ -187,13 +187,38 @@ function tangents(points, key) {
   return values;
 }
 
+// Quintic Hermite segments share both knot velocity and acceleration. Unlike
+// independent ease-in/out segments they preserve running speed through keys;
+// unlike the former cubic they do not switch force instantaneously at a key.
+function trajectoryChannel(points, key) {
+  const velocity = tangents(points, key);
+  const acceleration = points.map((point, index) => {
+    if (index === 0 || index === points.length - 1) return 0;
+    const previous = points[index - 1], next = points[index + 1];
+    const left = point.t - previous.t, right = next.t - point.t;
+    const before = (point[key] - previous[key]) / left, after = (next[key] - point[key]) / right;
+    if (before === 0 || after === 0) return 0;
+    const arriving = -6 * before / left + (2 * velocity[index - 1] + 4 * velocity[index]) / left;
+    const leaving = 6 * after / right - (4 * velocity[index] + 2 * velocity[index + 1]) / right;
+    return (arriving * left + leaving * right) / (left + right);
+  });
+  return points.slice(0, -1).map((start, index) => {
+    const end = points[index + 1], h = end.t - start.t;
+    const a = start[key], b = velocity[index] * h, c = acceleration[index] * h * h / 2;
+    const position = end[key] - a - b - c;
+    const speed = velocity[index + 1] * h - b - 2 * c;
+    const force = acceleration[index + 1] * h * h - 2 * c;
+    return [a, b, c, 10 * position - 4 * speed + force / 2, -15 * position + 7 * speed - force, 6 * position - 3 * speed + force / 2];
+  });
+}
+
 function sampleMotion(actor, time) {
   const points = actor.path;
   const t = clampReplayTime(time);
-  if (points.length === 1 || t >= points.at(-1).t) return { x: points.at(-1).x, z: points.at(-1).z, vx: 0, vz: 0 };
+  if (points.length === 1 || t >= points.at(-1).t) return { x: points.at(-1).x, z: points.at(-1).z, vx: 0, vz: 0, ax: 0, az: 0, jx: 0, jz: 0 };
   let prepared = Object.isFrozen(points) ? tangentCache.get(points) : undefined;
   if (!prepared) {
-    prepared = { x: tangents(points, "x"), z: tangents(points, "z") };
+    prepared = { x: trajectoryChannel(points, "x"), z: trajectoryChannel(points, "z") };
     if (Object.isFrozen(points)) tangentCache.set(points, prepared);
   }
   let index = points.findIndex((point, i) => i < points.length - 1 && t < points[i + 1].t);
@@ -202,23 +227,94 @@ function sampleMotion(actor, time) {
   const u = Math.min(1, Math.max(0, (t - start.t) / gap));
   const result = {};
   for (const key of ["x", "z"]) {
-    const a = start[key], b = end[key], ma = prepared[key][index], mb = prepared[key][index + 1];
-    result[key] = (2 * u ** 3 - 3 * u ** 2 + 1) * a + (u ** 3 - 2 * u ** 2 + u) * gap * ma + (-2 * u ** 3 + 3 * u ** 2) * b + (u ** 3 - u ** 2) * gap * mb;
-    result[`v${key}`] = ((6 * u ** 2 - 6 * u) * a + (3 * u ** 2 - 4 * u + 1) * gap * ma + (-6 * u ** 2 + 6 * u) * b + (3 * u ** 2 - 2 * u) * gap * mb) / gap;
+    const [a, b, c, d, e, f] = prepared[key][index];
+    result[key] = a + u * (b + u * (c + u * (d + u * (e + u * f))));
+    result[`v${key}`] = (b + u * (2 * c + u * (3 * d + u * (4 * e + u * 5 * f)))) / gap;
+    result[`a${key}`] = (2 * c + u * (6 * d + u * (12 * e + u * 20 * f))) / (gap * gap);
+    result[`j${key}`] = (6 * d + u * (24 * e + u * 60 * f)) / (gap * gap * gap);
   }
   return result;
 }
 
+const strideCache = new WeakMap();
+const STRIDE_STEP = 0.01;
+function prepareStride(actor) {
+  let prepared = Object.isFrozen(actor) ? strideCache.get(actor) : undefined;
+  if (prepared) return prepared;
+  const count = Math.round(DURATION / STRIDE_STEP), phase = new Float64Array(count + 1), rate = new Float64Array(count + 1);
+  phase[0] = actor.strideSeed ?? 0;
+  const frequency = (time) => {
+    const motion = sampleMotion(actor, time), speed = Math.hypot(motion.vx, motion.vz);
+    // One cycle is a left/right pair. Stride length grows with speed: short
+    // pass-set steps do not inherit the receiver's sprint frequency or reach.
+    return (actor.cadence ?? 2) * 1.45 * speed / (speed + 2.2);
+  };
+  rate[0] = frequency(0);
+  for (let index = 1; index <= count; index++) {
+    rate[index] = frequency(index * STRIDE_STEP);
+    phase[index] = phase[index - 1] + STRIDE_STEP / 6 * (rate[index - 1] + 4 * frequency((index - 0.5) * STRIDE_STEP) + rate[index]);
+  }
+  prepared = { phase, rate };
+  if (Object.isFrozen(actor)) strideCache.set(actor, prepared);
+  return prepared;
+}
+
+function strideInCell(prepared, index, u) {
+  const a = prepared.phase[index], b = prepared.phase[index + 1];
+  const ma = prepared.rate[index] * STRIDE_STEP, mb = prepared.rate[index + 1] * STRIDE_STEP;
+  return {
+    phase: (2 * u ** 3 - 3 * u ** 2 + 1) * a + (u ** 3 - 2 * u ** 2 + u) * ma + (-2 * u ** 3 + 3 * u ** 2) * b + (u ** 3 - u ** 2) * mb,
+    cadence: Math.max(0, ((6 * u ** 2 - 6 * u) * a + (3 * u ** 2 - 4 * u + 1) * ma + (-6 * u ** 2 + 6 * u) * b + (3 * u ** 2 - 2 * u) * mb) / STRIDE_STEP),
+  };
+}
+
+function sampleStride(actor, time) {
+  const prepared = prepareStride(actor), t = clampReplayTime(time);
+  const index = Math.min(prepared.phase.length - 2, Math.floor(t / STRIDE_STEP));
+  return strideInCell(prepared, index, (t - index * STRIDE_STEP) / STRIDE_STEP);
+}
+
+/** Invert the same absolute-time phase used by the pose. Holds resolve to their earliest time. */
+export function strideTime(actor, phase) {
+  const selected = resolveActor(actor), prepared = prepareStride(selected);
+  if (typeof phase !== "number" || !Number.isFinite(phase) || phase <= prepared.phase[0]) return 0;
+  if (phase >= prepared.phase.at(-1)) return DURATION;
+  let low = 0, high = prepared.phase.length - 1;
+  while (low < high) {
+    const middle = (low + high) >>> 1;
+    if (prepared.phase[middle] < phase) low = middle + 1;
+    else high = middle;
+  }
+  const index = Math.max(0, low - 1);
+  let a = 0, b = 1;
+  for (let iteration = 0; iteration < 24; iteration++) {
+    const middle = (a + b) / 2;
+    if (strideInCell(prepared, index, middle).phase < phase) a = middle;
+    else b = middle;
+  }
+  return (index + (a + b) / 2) * STRIDE_STEP;
+}
+
 function movementHeading(actor, t, motion) {
-  if (Math.hypot(motion.vx, motion.vz) > 0.05) return Math.atan2(motion.vx, motion.vz);
+  const speed = Math.hypot(motion.vx, motion.vz);
   const before = sampleMotion(actor, t - 0.12), after = sampleMotion(actor, t + 0.12);
   const dx = after.x - before.x, dz = after.z - before.z;
-  if (Math.hypot(dx, dz) > 1e-6) return Math.atan2(dx, dz);
-  for (let index = actor.path.length - 1; index > 0; index--) {
-    const last = actor.path[index], previous = actor.path[index - 1];
-    if (Math.hypot(last.x - previous.x, last.z - previous.z) > 1e-6) return Math.atan2(last.x - previous.x, last.z - previous.z);
+  let windowHeading;
+  if (Math.hypot(dx, dz) > 1e-6) windowHeading = Math.atan2(dx, dz);
+  else {
+    windowHeading = actor.team === "NYJ" ? Math.PI : 0;
+    for (let index = actor.path.length - 1; index > 0; index--) {
+      const last = actor.path[index], previous = actor.path[index - 1];
+      if (Math.hypot(last.x - previous.x, last.z - previous.z) > 1e-6) {
+        windowHeading = Math.atan2(last.x - previous.x, last.z - previous.z);
+        break;
+      }
+    }
   }
-  return actor.team === "NYJ" ? Math.PI : 0;
+  // An almost-stationary velocity has an unstable direction. Blend toward the
+  // centered travel window continuously instead of switching at a speed cutoff.
+  if (speed < 1e-10) return windowHeading;
+  return mixAngle(windowHeading, Math.atan2(motion.vx, motion.vz), smooth01(0.01, 0.08, speed));
 }
 
 function facingHeading(actor, t, motion) {
@@ -260,7 +356,7 @@ function facingHeading(actor, t, motion) {
   return heading;
 }
 
-/** Pure absolute-time sampling with continuous authored position/velocity. */
+/** Pure absolute-time C2 motion; yards, yards/second, yards/second² and yards/second³. */
 export function sampleActor(actor, time) {
   const selected = resolveActor(actor), t = clampReplayTime(time), motion = sampleMotion(selected, t);
   return { ...motion, yaw: facingHeading(selected, t, motion), speed: Math.hypot(motion.vx, motion.vz) };
@@ -298,8 +394,8 @@ const actionCopy = {
 
 /**
  * Pure authored body/action state. stridePhase is an unwrapped cycle count;
- * cadence is constant cycles/second per actor, so planted-foot anchors can be
- * reconstructed at any seek time. Weights are 0..1 except signed hipOpen.
+ * cadence is instantaneous cycles/second; strideTime inverts the integrated
+ * speed-coupled phase to reconstruct planted-foot anchors at any seek time. Weights are 0..1 except signed hipOpen.
  * facing/pelvis/torso yaw are absolute world radians; lean/roll are radians.
  * Directed pelvis/chest offsets exclude cyclic gait twist owned by the rig.
  */
@@ -342,10 +438,18 @@ export function samplePose(actor, time) {
   const catching = selected.id === "wilson" ? smooth01(CATCH - 0.3, CATCH, t) * (1 - smooth01(CATCH + 0.1, CATCH + 0.5, t)) : 0;
   const throwing = family === "quarterback" ? smooth01(RELEASE - 0.35, RELEASE, t) * (1 - smooth01(RELEASE, RELEASE + 0.45, t)) : 0;
   const diving = selected.id === "d6" ? smooth01(2.55, 2.95, t) * (1 - smooth01(4.2, 5.8, t)) : 0;
-  const activeBase = ["set", "engage", "brace", "read", "settle"].includes(action) ? 0.16 : 0;
-  const gait = Math.max(activeBase, Math.min(1, motion.speed / (family === "blocker" ? 2.5 : family === "rusher" ? 3.5 : 6.5)));
-  const lean = family === "blocker" ? 0.3 + 0.12 * engagement : family === "rusher" ? 0.23 + 0.17 * engagement : footMode === "backpedal" ? -0.08 : family === "quarterback" ? 0.035 : 0.08 + 0.09 * gait;
-  const cadence = selected.cadence ?? 2;
+  const reaction = reactionWindows[selected.id] ?? [1.65, 2.4];
+  const activeBase = family === "quarterback" ? 0.16 * smooth01(0.65, 0.9, t) * (1 - smooth01(RELEASE - 0.45, RELEASE - 0.15, t))
+    : family === "blocker" || family === "rusher" ? 0.16 * smooth01(contactStart - 0.15, contactFull, t) * (1 - smooth01(releaseStart - 0.15, releaseEnd + 0.1, t))
+      : selected.id === "y" ? 0.15 * smooth01(1.55, 1.95, t) * (1 - smooth01(2.85, 3.25, t))
+        : family === "coverage" ? 0.14 * (1 - smooth01(reaction[0] - 0.2, reaction[0] + 0.2, t)) : 0;
+  const speedWeight = Math.min(1, motion.speed / (family === "blocker" ? 2.5 : family === "rusher" ? 3.5 : 6.5));
+  const gait = activeBase + (1 - activeBase) * speedWeight;
+  const locomotion = smooth01(0, 1.25, motion.speed);
+  const heading = movementHeading(selected, t, motion);
+  const backwardWeight = 0.5 * (1 - Math.cos(angleDelta(motion.yaw, heading)));
+  const lean = family === "blocker" ? 0.3 + 0.12 * engagement : family === "rusher" ? 0.23 + 0.17 * engagement : family === "quarterback" ? 0.035 : 0.08 + 0.09 * gait - (family === "coverage" ? 0.16 * backwardWeight : 0);
+  const stride = sampleStride(selected, t), cadence = stride.cadence;
   // Symmetric velocity windows keep body weights continuous even across cubic
   // waypoint acceleration changes, and independent of playback/seek direction.
   const before = sampleMotion(selected, t - 0.12), after = sampleMotion(selected, t + 0.12);
@@ -353,7 +457,6 @@ export function samplePose(actor, time) {
   const acceleration = (afterSpeed - beforeSpeed) / 0.24;
   const drive = Math.min(1, Math.max(0, acceleration / 12));
   const braking = Math.min(1, Math.max(0, -acceleration / 9));
-  const heading = movementHeading(selected, t, motion);
   const beforeHeading = movementHeading(selected, clampReplayTime(t - 0.12), before), afterHeading = movementHeading(selected, clampReplayTime(t + 0.12), after);
   const signedTurn = Math.min(1, Math.max(-1, angleDelta(beforeHeading, afterHeading) / 0.65));
   const slantPlant = selected.id === "wilson" ? smooth01(0.82, 1.07, t) * (1 - smooth01(1.30, 1.68, t)) : 0;
@@ -368,7 +471,7 @@ export function samplePose(actor, time) {
   const hipOpen = family === "coverage" ? turnSide * Math.min(1, Math.abs(turnToRun) / 0.8) * hipWindow : signedTurn * cut;
   const counterCycle = Math.sin((t - contactStart) * 5.1 + (selected.strideSeed ?? 0) * Math.PI * 2);
   const handFight = engagement * (0.3 + 0.7 * (0.5 + 0.5 * counterCycle));
-  const contactPulse = engagement * (0.35 + 0.65 * Math.sin((t - contactStart) * cadence * Math.PI + (selected.strideSeed ?? 0)) ** 2);
+  const contactPulse = engagement * (0.35 + 0.65 * Math.sin((t - contactStart) * (selected.cadence ?? 2) * Math.PI + (selected.strideSeed ?? 0)) ** 2);
   const line = family === "blocker" || family === "rusher";
   const compression = Math.min(1, (line ? 0.12 + 0.4 * (1 - smooth01(releaseStart, releaseEnd + 0.3, t)) + engagement * 0.23 + contactPulse * 0.17 : family === "quarterback" ? 0.12 : 0.12 + brake * 0.43 + cut * 0.3 + drive * 0.1) * (1 - diving));
   const pelvisOffset = Math.min(0.32, Math.max(-0.32, family === "coverage" ? hipOpen * 0.3 : line ? counterCycle * engagement * 0.12 : signedTurn * cut * 0.18));
@@ -377,8 +480,8 @@ export function samplePose(actor, time) {
   const [actionLabel, actionDetail] = actionCopy[action];
   return {
     basis: "inferred", phase: t < 0.4 ? "snap" : t < RELEASE ? "develop" : t < CATCH ? "flight" : t < FINISH ? "finish" : t < 5.2 ? "pursuit" : "settle",
-    action, actionLabel, actionDetail, roleFamily: family, footMode, gait, cadence,
-    stridePhase: t * cadence + (selected.strideSeed ?? 0), lean, facingYaw: motion.yaw,
+    action, actionLabel, actionDetail, roleFamily: family, footMode, gait, locomotion, cadence,
+    stridePhase: stride.phase, lean, facingYaw: motion.yaw,
     pelvisYaw: motion.yaw + pelvisOffset, torsoYaw: motion.yaw + torsoOffset,
     bodyRoll, compression, drive, brake, cut, hipOpen, contactPulse, handFight,
     engagementTarget: engagement > 0 ? selected.engagementTarget : null, engagement,

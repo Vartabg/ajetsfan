@@ -14,7 +14,7 @@ if (url.protocol !== "http:" || !["127.0.0.1", "localhost"].includes(url.hostnam
 const buildId = (await readFile(new URL("../.next/BUILD_ID", import.meta.url), "utf8")).trim();
 
 function instrument() {
-  const marks = { rootAt: null, fieldVisibleAt: null, fieldPaintProxyAt: null, interactionAttemptAt: null, interactionClickedAt: null, interactionReadyAt: null, gateClickedAt: null, loadingAt: null, sceneReadyAt: null, first3DFrameAt: null, first3DPaintProxyAt: null, initialFieldTag: null };
+  const marks = { rootAt: null, fieldVisibleAt: null, fieldPaintProxyAt: null, interactionAttemptAt: null, interactionClickedAt: null, interactionReadyAt: null, gateClickedAt: null, loadingAt: null, sceneReadyAt: null, first3DFrameAt: null, firstSkinnedFrameAt: null, first3DPaintProxyAt: null, initialFieldTag: null };
   const longTasks = [];
   window.__wilsonStartup = { marks, longTasks };
   try { new PerformanceObserver((list) => { for (const entry of list.getEntries()) if (longTasks.length < 100) longTasks.push({ startTime: entry.startTime, duration: entry.duration }); }).observe({ type: "longtask", buffered: true }); } catch { /* Browser support is reported by an empty sample. */ }
@@ -44,8 +44,9 @@ function instrument() {
         marks.first3DFrameAt = now;
         requestAnimationFrame(() => requestAnimationFrame(() => { marks.first3DPaintProxyAt = performance.now(); }));
       }
+      if (canvas && Number(canvas.dataset.renderFrames) > 0 && canvas.dataset.playerBodiesReady === "true" && Number(canvas.dataset.skinnedPlayerCount) === 22 && marks.firstSkinnedFrameAt === null) marks.firstSkinnedFrameAt = now;
     }
-    if (now < 30_000 && (marks.first3DPaintProxyAt === null || marks.interactionReadyAt === null)) requestAnimationFrame(sample);
+    if (now < 30_000 && (marks.first3DPaintProxyAt === null || marks.firstSkinnedFrameAt === null || marks.interactionReadyAt === null)) requestAnimationFrame(sample);
   }
   requestAnimationFrame(sample);
 }
@@ -69,16 +70,19 @@ try {
       const manualGate = await gate.count() > 0;
       if (manualGate) await gate.click();
       await page.waitForFunction(() => window.__wilsonStartup.marks.first3DPaintProxyAt !== null, undefined, { timeout: 30_000 });
+      await page.waitForFunction(() => window.__wilsonStartup.marks.firstSkinnedFrameAt !== null, undefined, { timeout: 30_000 });
       const raw = await page.evaluate(() => {
         const nav = performance.getEntriesByType("navigation")[0];
         const paints = Object.fromEntries(performance.getEntriesByType("paint").map((entry) => [entry.name, entry.startTime]));
         const scripts = performance.getEntriesByType("resource").filter((entry) => new URL(entry.name).pathname.endsWith(".js")).map((entry) => ({ url: entry.name, startTime: entry.startTime, responseEnd: entry.responseEnd, duration: entry.duration, transferSize: entry.transferSize, encodedBodySize: entry.encodedBodySize, decodedBodySize: entry.decodedBodySize }));
+        const playerResources = performance.getEntriesByType("resource").filter((entry) => new URL(entry.name).pathname.endsWith(".glb")).map((entry) => ({ url: entry.name, startTime: entry.startTime, responseEnd: entry.responseEnd, duration: entry.duration, transferSize: entry.transferSize, encodedBodySize: entry.encodedBodySize, decodedBodySize: entry.decodedBodySize }));
         const gl = document.querySelector("[data-wilson-replay] canvas")?.getContext("webgl2");
         const ext = gl?.getExtension("WEBGL_debug_renderer_info");
         const appMarks = Object.fromEntries(performance.getEntriesByType("mark").filter((entry) => entry.name.startsWith("wilson:")).map((entry) => [entry.name, entry.startTime]));
         const canvas = document.querySelector("[data-wilson-replay] canvas");
         const initialization = canvas ? { buildMs: Number(canvas.dataset.initBuildMs), compileMs: Number(canvas.dataset.initCompileMs), firstFrameMs: Number(canvas.dataset.initFirstFrameMs), parallelShaderCompile: canvas.dataset.parallelShaderCompile ?? null } : null;
-        return { ...window.__wilsonStartup, navigation: nav.toJSON(), paints, scripts, appMarks, initialization, renderer: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null };
+        const players = canvas ? { asset: canvas.dataset.playerAsset, ready: canvas.dataset.playerBodiesReady, count: Number(canvas.dataset.skinnedPlayerCount), bytes: Number(canvas.dataset.playerAssetBytes) } : null;
+        return { ...window.__wilsonStartup, navigation: nav.toJSON(), paints, scripts, playerResources, players, appMarks, initialization, renderer: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null };
       });
       const start = raw.appMarks["wilson:3d-import-start"] ?? raw.marks.gateClickedAt ?? raw.marks.loadingAt ?? 0;
       const resourceBoundary = raw.appMarks["wilson:3d-module-ready"] ?? raw.marks.first3DPaintProxyAt;
@@ -102,6 +106,7 @@ try {
         gateClicked: raw.marks.gateClickedAt,
         sceneReady: raw.marks.sceneReadyAt,
         first3DFrame: raw.marks.first3DFrameAt,
+        firstSkinnedFrame: raw.marks.firstSkinnedFrameAt,
         first3DPaintProxy: raw.marks.first3DPaintProxyAt,
         triggerToFirstResource: difference(firstResource, start),
         deferredResourceSpan: difference(lastResource, firstResource),

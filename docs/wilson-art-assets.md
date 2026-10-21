@@ -1,8 +1,8 @@
 # Wilson Film Room art assets
 
-License and file verification: October 20, 2026. These are environmental art assets, not historical game evidence. They do not establish the appearance, weather or lighting of the actual Cleveland play.
+License and file verification: October 20, 2026. These are presentation assets, not historical game evidence. They do not establish the appearance, weather or lighting of the actual Cleveland play.
 
-Actually incorporated: the two Grass 005 WebP maps listed below. The player geometry, uniform/equipment artwork, crowd, stadium and generated daylight/reflection environment are original procedural work. No paid model, Quaternius body/animation pack or downloaded Poly Haven sky is incorporated in this revision.
+Actually incorporated: the two Grass 005 WebP maps and the selected free Quaternius body/four animation clips listed below. The football gear, uniforms, motion constraints, crowd, stadium and generated daylight/reflection environment are authored application work. No paid asset or downloaded Poly Haven sky is incorporated.
 
 ## Grass 005 — ambientCG
 
@@ -42,3 +42,55 @@ The asset page links the [official files manifest](https://api.polyhaven.com/fil
 - MD5: `c69498687e876bf68d2a8b8a62234eb9`, matching the official files manifest.
 
 This HDRI is **not bundled**. Recommendation: consider it as optional outdoor environment lighting after the first usable frame, with a local gradient retained during loading. Its extra 1.44 MB exceeds the grass-map budget and is unnecessary for initial delivery. If integrated later, document the added transfer and dispose converted environment resources with the scene. It is illustrative lighting, not a reconstruction of the game's sky.
+
+
+## Quaternius — selected runtime body and motion
+
+The runtime body and four motion clips are from the **free Standard editions** of [Universal Base Characters](https://quaternius.itch.io/universal-base-characters), also described on the [creator's asset page](https://quaternius.com/packs/universalbasecharacters.html), and [Universal Animation Library](https://quaternius.itch.io/universal-animation-library). Both downloaded Standard archives contain an explicit **CC0 1.0 Universal** license. The body archive's original license remains in the acquisition source outside Git (806 bytes, SHA-256 `0f4beaf0fe360a7732e58bbe3dbf60a2422367fbea60cb9ea4add968f383268e`). The shipped copy at `public/film-room/art/quaternius-cc0.txt` is 782 bytes, SHA-256 `c232257c8a2545520aa120cda96acb23d00a355d2e3339cba20b7ebf56f28a09`; only CRLF line endings and two trailing spaces were normalized for the repository whitespace gate, with license wording unchanged. The acquisition used anonymous free downloads; no purchase, account or paid edition was needed.
+
+Only the selected runtime derivatives are included in Git. Original archives remain outside the repository:
+
+| Free source archive | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `Universal Base Characters[Standard].zip` | 128,968,391 | `fdbf1804c90dfc1ea03e992bff7da2dfd1a79318e13270a660180f9308455f40` |
+| `Universal Animation Library[Standard].zip` | 15,904,933 | `cc73fc4e495b82958207316596317a3f40b9fa38065bde1027937452da537724` |
+
+### Runtime body
+
+Selected source: `Base Characters/Godot - UE/Superhero_Male_FullBody.gltf`, SHA-256 `e7fcea214ecf8855afbf910b50de6f9c7d1decfb71ca28bad8a4481452dafeb4`, with its 720,076-byte `.bin`, SHA-256 `459003f9745853ae562a85506a2b94dd56515c1f37728f9fa3d2ce1a3e4cd92f`. The runtime file is:
+
+- `/film-room/art/quaternius-football-body.glb`
+- **789,216 bytes**, SHA-256 `98d8716b1c03d6d54ac62b6bbeaf0930ae11bff1598c286660f3edac9c49f522`.
+- 69 nodes, 65 skin joints, three skinned primitives/materials, 8,483 vertices and 14,318 triangles. No animation clips are embedded in the body.
+
+The original geometry/skin binary is retained **byte-for-byte at offset zero**. Node transforms, skeleton hierarchy, inverse binds, vertex positions, normals, UVs, joint indices, weights and triangle topology are unchanged. Only the small eyebrow and eye albedos are embedded; no external resources or decoder extensions are required. Source hair/eye normal-image URI typos are immaterial because those normal maps are omitted. The main body base color, normal and roughness maps are also omitted: the integrated main body uses continuous bone-weight palette vertex colors and an authored shared material. Removing these unused images saves 425,640 bytes without changing the rendered body material or any geometry.
+
+| Original image | Original bytes | Original SHA-256 | Embedded derivative | Derivative bytes |
+| --- | ---: | --- | --- | ---: |
+| `T_Hair_1_BaseColor.png` | 1,570,376 | `bc7aa863bd22ab0a995cd838cceb4d3a5186ee54ee2fb0108fad85d20c057e6e` | 256×256 JPEG quality 88 | 14,625 |
+| `T_Eye_Brown.png` | 35,958 | `d08e3356a83211bc6ca21fe3a8e39f4b5c1a3b8f85457fc2c0fb57be09935025` | 256×256 PNG | 32,367 |
+
+JPEG derivatives use Pillow 12.1.1 Lanczos resizing, optimized JPEG with 4:4:4 color sampling; the eye image remains optimized PNG with alpha. No body mesh simplification, skin-weight quantization, normal recomputation or bind recalculation was performed. These are generic human bodies with original fitted football gear supplied by the application, not scanned likenesses or the actual players' measured bodies.
+
+Exact major bone chain names are `root → pelvis → spine_01 → spine_02 → spine_03 → neck_01 → Head`; arms are `clavicle_l/r → upperarm_l/r → lowerarm_l/r → hand_l/r`; legs are `thigh_l/r → calf_l/r → foot_l/r → ball_l/r → ball_leaf_l/r`. Imported rest rotations are nontrivial and are preserved; fitting and posing must respect the bind frame.
+
+### Four motion clips, without another mannequin
+
+Source `Unreal-Godot/UAL1_Standard.glb` is 7,618,436 bytes, SHA-256 `69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997`, and contains 43 clips. The selected runtime derivative is:
+
+- `/film-room/art/quaternius-football-motion.glb`
+- **289,512 bytes**, SHA-256 `ae30083012c9d27d0cb07559ba75de2db6ffe5755730f79642650dd7d7b79e36`.
+- `Idle_Loop` (2.5 s), `Jog_Fwd_Loop` (0.9333333373 s), `Push_Loop` (2.6666667461 s) and `Sprint_Loop` (0.6666666865 s).
+- 65 quaternion tracks per clip, 260 total. There are no meshes, materials, images or translation/scale animation tracks in this file.
+
+The body and animation library use matching bone names but different local rest transforms. Selected quaternion keys are converted as `Q_bodyRest × inverse(Q_UALRest) × Q_clipLocal`, normalized and kept sign-continuous. Original clip time samples and linear quaternion interpolation are retained. The motion GLB uses the body's exact node names and rest hierarchy. Runtime consumers must **not apply this rest correction a second time**. The application's authored root path and final hand/ankle constraints remain the motion owners; these clips provide secondary body detail rather than another root-motion clock.
+
+The free pack has no verified football-specific throw, catch, block, rush or backpedal clip. Using generic locomotion/push motion for football is an **authored adaptation**, not recovered game technique or motion capture of this play. Unused clips and the full mannequin/animation archive are not shipped.
+
+### Packaging verification and limits
+
+The installed Three.js 0.186.1 GLTFLoader parsed the body hierarchy/geometry/skin and all four motion clips in a CPU-only check. All motion track names resolve to the body bone names. SkeletonUtils clones were verified to have independent skeletons with shared geometry. Loaded weight sums differ from one by at most `4.85e-8`. The Node check used a temporary untextured material view because Node has no browser image decoder; every embedded image was decoded separately with Pillow. Structural checks compare original and runtime nodes/skins/meshes/accessors and the original binary prefix. This verifies packaging, not final rendering, garment fit or game authenticity.
+
+Body and selected motion total **1,078,728 bytes** (about 1.03 MiB), versus the unused source archives. Together with both grass maps, the runtime art payload is **1,507,982 bytes**, excluding the small license text. The optional 1.44 MB HDRI remains outside Git.
+
+Reproduction/audit files are outside Git under `/tmp/ajetsfan-quaternius-assets/`: `package-runtime.py`, `validate-runtime.mjs`, `runtime-packaging.json`, the acquisition `provenance.json`, `body-inspection.json` and the original Standard licenses. The packaging manifest records every selected source/derived image hash and the complete local-rest quaternion correction map.

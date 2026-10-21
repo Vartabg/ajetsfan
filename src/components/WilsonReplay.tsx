@@ -119,12 +119,15 @@ export default function WilsonReplay() {
     performance.mark("wilson:3d-import-start");
     let disposed = false;
     let owned: ReplayScene | null = null;
+    const controller = new AbortController();
     const element = host.current;
     void import("@/lib/wilson-replay-scene").then(({ createReplayScene }) => {
       if (disposed) return null;
       performance.mark("wilson:3d-module-ready");
       return createReplayScene(element, {
+        signal: controller.signal,
         initialState: { time: clock.current.time, ...settings.current },
+        getCurrentState: () => ({ time: clock.current.time, ...settings.current }),
         onSelect: id => { if (disposed) return; settings.current.selection = id; setSelection(id); if (settings.current.following) scene.current?.frameSelection(); },
         onFailure: () => { if (!disposed) { pause(); setSceneState("failed"); } },
       });
@@ -142,7 +145,7 @@ export default function WilsonReplay() {
       performance.mark("wilson:3d-ready");
       setSceneState("ready");
     }).catch(() => { if (!disposed) { pause(); setSceneState("failed"); } });
-    return () => { disposed = true; owned?.dispose(); if (scene.current === owned) scene.current = null; };
+    return () => { disposed = true; controller.abort(); owned?.dispose(); if (scene.current === owned) scene.current = null; };
   }, [attempt, pause]);
 
   useEffect(() => {

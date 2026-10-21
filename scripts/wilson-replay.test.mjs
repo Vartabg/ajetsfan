@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { REPLAY, clampReplayTime, eventAt, sampleActor, sampleBall, samplePose } from "../src/lib/wilson-replay.mjs";
+import { REPLAY, clampReplayTime, eventAt, sampleActor, sampleBall, samplePose, strideTime } from "../src/lib/wilson-replay.mjs";
 
 const distance = (a, b) => Math.hypot(a.x - b.x, (a.y ?? 0) - (b.y ?? 0), a.z - b.z);
 const releaseAt = REPLAY.events.find(({ id }) => id === "release").at;
@@ -251,9 +251,12 @@ test("all 22 continue through the snap with differentiated, deterministic action
       assert.ok(pose.actionLabel.length > 4 && pose.actionDetail.length > 15);
       assert.ok(["run", "shuffle", "backpedal", "plant", "dive"].includes(pose.footMode));
       for (const key of ["gait", "engagement", "reach", "dive", "catch", "throw", "carry"]) assert.ok(pose[key] >= 0 && pose[key] <= 1);
-      assert.equal(pose.cadence, actor.cadence);
+      assert.ok(Number.isFinite(pose.cadence) && pose.cadence >= 0, `${actor.id} has a finite movement-dependent cadence`);
       const next = samplePose(actor, t + 0.01);
-      if (t + 0.01 < REPLAY.duration) assert.ok(Math.abs(next.stridePhase - pose.stridePhase - pose.cadence * 0.01) < 1e-10);
+      if (t + 0.01 < REPLAY.duration) {
+        const expectedAdvance = (pose.cadence + next.cadence) * 0.005;
+        assert.ok(Math.abs(next.stridePhase - pose.stridePhase - expectedAdvance) < 0.0002, `${actor.id} integrates its changing cadence`);
+      }
       if (pose.engagementTarget) assert.ok(REPLAY.actors.some(({ id }) => id === pose.engagementTarget));
     }
     assert.ok(actions.size >= 3, `${actor.id} repeats one generic gait for the entire snap`);
@@ -269,13 +272,72 @@ test("all 22 continue through the snap with differentiated, deterministic action
   assert.equal(samplePose("qb", releaseAt).throw, 1);
 });
 
-test("cubic sampling preserves position and velocity through every authored waypoint", () => {
+test("trajectory sampling preserves position and velocity through every authored waypoint", () => {
   for (const actor of REPLAY.actors) {
     for (const point of actor.path.slice(1, -1)) {
       const exact = sampleActor(actor, point.t), before = sampleActor(actor, point.t - 1e-7), after = sampleActor(actor, point.t + 1e-7);
       assert.ok(distance(exact, point) < 1e-10);
       assert.ok(distance(before, after) < 0.00001);
       assert.ok(Math.hypot(after.vx - before.vx, after.vz - before.vz) < 0.00001);
+    }
+  }
+});
+
+test("acceleration and heading rate remain continuous through every authored waypoint", () => {
+  const h = 1e-5;
+  const delta = (a, b) => Math.atan2(Math.sin(b - a), Math.cos(b - a));
+  for (const actor of REPLAY.actors) {
+    for (const point of actor.path) {
+      const before = sampleActor(actor, point.t - h), exact = sampleActor(actor, point.t), after = sampleActor(actor, point.t + h);
+      const left = { x: (exact.vx - before.vx) / h, z: (exact.vz - before.vz) / h };
+      const right = { x: (after.vx - exact.vx) / h, z: (after.vz - exact.vz) / h };
+      assert.ok(Math.hypot(right.x - left.x, right.z - left.z) < 0.05, `${actor.id} has no acceleration impulse at ${point.t}s`);
+      if (point.t === 0 || point.t === REPLAY.duration) continue;
+      const headingRateBefore = delta(before.yaw, exact.yaw) / h;
+      const headingRateAfter = delta(exact.yaw, after.yaw) / h;
+      assert.ok(Math.abs(headingRateAfter - headingRateBefore) < 0.05, `${actor.id} turns without a heading-rate jump at ${point.t}s`);
+    }
+  }
+});
+
+test("the speed-driven stride clock reconstructs the same contact times after arbitrary seeks", () => {
+  for (const actor of REPLAY.actors) {
+    const times = [0, 0.037, 0.51, 0.845, 1.205, 1.675, releaseAt, catchAt, 3.65, 4.713, 5.99, 6];
+    const phases = new Map(times.map((time) => [time, samplePose(actor, time).stridePhase]));
+    for (const time of [...times].reverse()) {
+      const phase = samplePose(actor, time).stridePhase;
+      assert.equal(phase, phases.get(time));
+      const restoredTime = strideTime(actor, phase);
+      if (samplePose(actor, time).cadence > 1e-4) {
+        assert.ok(Math.abs(restoredTime - time) < 1e-5, `${actor.id} inverts its moving stride phase at ${time}s`);
+      } else {
+        // A planted hold maps several times to one phase. Its inverse is the
+        // earliest contact time, not an invented march through the hold.
+        assert.ok(restoredTime <= time + 1e-5);
+        assert.ok(Math.abs(samplePose(actor, restoredTime).stridePhase - phase) < 1e-9);
+      }
+    }
+    for (let time = 0.02; time < REPLAY.duration - 0.02; time += 0.04) {
+      const h = 1e-4;
+      const pose = samplePose(actor, time);
+      const measuredCadence = (samplePose(actor, time + h).stridePhase - samplePose(actor, time - h).stridePhase) / (2 * h);
+      assert.ok(Math.abs(measuredCadence - pose.cadence) < 0.005, `${actor.id} phase derivative matches cadence at ${time}s`);
+    }
+  }
+  assert.ok(samplePose("y", 0.9).cadence > samplePose("y", 2.4).cadence + 0.4, "the underneath stop slows its step clock rather than marching in place");
+});
+
+test("near-rest heading blends do not snap when crossing a velocity threshold", () => {
+  const step = 0.0005;
+  for (const id of ["wilson", "rb"]) {
+    for (const [start, end] of [[0, 0.1], [5.85, 6]]) {
+      let previous = sampleActor(id, start).yaw;
+      for (let time = start + step; time <= end; time += step) {
+        const yaw = sampleActor(id, time).yaw;
+        const angle = Math.atan2(Math.sin(yaw - previous), Math.cos(yaw - previous));
+        assert.ok(Math.abs(angle) < 0.005, `${id} has no low-speed heading snap at ${time}s`);
+        previous = yaw;
+      }
     }
   }
 });

@@ -99,7 +99,9 @@ export const REPLAY: {
   readonly actors: readonly ReplayActor[];
 };
 export function clampReplayTime(time: unknown): number;
-export function sampleActor(actor: ReplayActor | string, time: unknown): { x: number; z: number; vx: number; vz: number; yaw: number; speed: number };
+export function sampleActor(actor: ReplayActor | string, time: unknown): { x: number; z: number; vx: number; vz: number; ax: number; az: number; jx: number; jz: number; yaw: number; speed: number };
+/** Inverse of samplePose.stridePhase, in teaching seconds; outside phases clamp to the snap bounds. */
+export function strideTime(actor: ReplayActor | string, phase: unknown): number;
 export type ReplayPose = {
   readonly basis: "inferred";
   readonly phase: "snap" | "develop" | "flight" | "finish" | "pursuit" | "settle";
@@ -109,8 +111,11 @@ export type ReplayPose = {
   readonly roleFamily: ReplayRoleFamily;
   readonly footMode: "run" | "shuffle" | "backpedal" | "plant" | "dive";
   readonly gait: number;
+  /** Continuous movement-only weight, zero at rest even when the upper body stays active. */
+  readonly locomotion: number;
+  /** Instantaneous full left/right cycles per second; zero during a true hold. */
   readonly cadence: number;
-  /** Continuous unwrapped cycle count; use its fractional part for a step cycle. */
+  /** Integrated speed-coupled cycle count, including strideSeed; invert with strideTime. */
   readonly stridePhase: number;
   readonly lean: number;
   readonly facingYaw: number;
