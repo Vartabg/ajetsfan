@@ -15,7 +15,11 @@ const at = (minutes) => new Date(base + minutes * 60_000).toISOString();
 test('analysis seeds each Next Gen season from its newest verified data while preserving a later failed check', async () => {
   const compiled = structuredClone(nextgen);
   compiled.checkedAt = at(2); compiled.attemptedAt = at(2); compiled.status = 'ready';
-  compiled.seasons = compiled.seasons.map((season) => ({ ...season, checkedAt: at(2), attemptedAt: at(2), status: 'ready' }));
+  compiled.seasons = compiled.seasons.map((season) => {
+    const ready = { ...season, checkedAt: at(2), attemptedAt: at(2), status: 'ready' };
+    delete ready.retentionReason;
+    return ready;
+  });
   const fixed = compiled.seasons.find((season) => season.year === 2020);
   fixed.passing[0].metrics[0].value = 2.99;
   const runtime = structuredClone(compiled);
