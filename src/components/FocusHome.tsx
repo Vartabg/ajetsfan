@@ -124,11 +124,13 @@ function Today({ today }: { today: OnThisDay }) {
   </FocusMoment>;
 }
 
-export default function FocusHome({ data, today = null, className = "", liveMoment }: { data: FocusData; today?: OnThisDay | null; className?: string; liveMoment?: { content: ReactNode; title: string; answer: string } }) {
+type HomeMoment = { content: ReactNode; title: string; answer: string };
+export default function FocusHome({ data, today = null, className = "", liveMoment, peopleMoment }: { data: FocusData; today?: OnThisDay | null; className?: string; liveMoment?: HomeMoment; peopleMoment?: HomeMoment }) {
   const now = useMinuteClock();
   const verb = (outcome: "win" | "loss" | "tie") => outcome === "win" ? "Won" : outcome === "loss" ? "Lost" : "Tied";
   const entries = [
     data.last ? { id: "last", title: data.last.archive ? "From the archive" : "Last game", answer: `${verb(data.last.outcome)} ${data.last.us}–${data.last.them}` } : null,
+    peopleMoment ? { id: "people", title: peopleMoment.title, answer: peopleMoment.answer } : null,
     liveMoment ? { id: "next", title: liveMoment.title, answer: liveMoment.answer } : data.next ? { id: "next", title: "Next game", answer: `${data.next.place}, ${on(data.next.kickoff ?? `${data.next.date}T17:00:00Z`, { weekday: "short" })}` } : null,
     data.season ? { id: "season", title: `${data.season.year} season`, answer: record(data.season.wins, data.season.losses, data.season.ties) } : null,
     data.division ? { id: "division", title: data.division.name, answer: data.division.place === 1 ? "First" : `${ORDINAL[data.division.place - 1] ?? data.division.place}, ${halfGames(data.division.back)} back` } : null,
@@ -145,6 +147,7 @@ export default function FocusHome({ data, today = null, className = "", liveMome
 
   return <FocusShell page="home" entries={entries} checkedAt={data.checkedAt} className={className}>
     {data.last ? <LastGame last={data.last} first status={status} /> : status}
+    {peopleMoment?.content}
     {liveMoment?.content ?? (data.next ? <FocusNext next={data.next} wins={wins} losses={losses} ties={ties} first={!data.last} go={{ href: "/game-day", label: "Game Day" }} /> : null)}
     {data.season ? <Season season={data.season} /> : null}
     {data.division ? <Division division={data.division} /> : null}

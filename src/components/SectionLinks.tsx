@@ -7,6 +7,7 @@ import styles from "./Masthead.module.css";
 const SECTIONS = [
   { href: "/", label: "Home" },
   { href: "/team", label: "Team" },
+  { href: "/legends", label: "Legends" },
   { href: "/film-room", label: "Film Room" },
   { href: "/media", label: "Media" },
   { href: "/seasons", label: "Seasons" },
@@ -17,6 +18,7 @@ export default function SectionLinks() {
   const pathname = usePathname();
   const within = (route: string) => pathname === route || pathname.startsWith(`${route}/`);
   const currentSection = within("/team") || within("/players") ? "/team"
+    : within("/legends") ? "/legends"
     : ["/seasons", "/games", "/stories", "/history"].some(within) ? "/seasons"
     : within("/game-day") ? "/"
     : pathname;
