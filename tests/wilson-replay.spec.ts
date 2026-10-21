@@ -381,6 +381,9 @@ test("a controlled elapsed clock makes quarter speed slower and rewind run backw
 });
 
 test("camera presets and player focus remain keyboard accessible", async ({ page }) => {
+  // Retained CI traces put the final fullscreen exit at ~29s on SwiftShader.
+  // Keep each interaction assertion; budget the complete sequence separately.
+  if (process.env.CI) test.setTimeout(60_000);
   await openReplay(page);
   await expect(page.locator("[data-wilson-replay]")).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
   for (const name of ["Sideline", "End zone", "Overhead", "Behind Flacco"]) {
@@ -626,6 +629,15 @@ test("the loaded 3D scene renders, accepts camera drags and stops rendering at r
   await expect(canvas).toHaveAttribute("data-render-frames", idleFrames!);
   await page.getByRole("button", { name: "Forward 1 second", exact: true }).click();
   await expect.poll(async () => Number(await canvas.getAttribute("data-render-frames"))).toBeGreaterThan(Number(idleFrames));
+});
+
+test("real 3D playback advances submitted frames and Pause holds the rendered pose", async ({ page }) => {
+  test.setTimeout(60_000);
+  await openReplay(page);
+  const replay = page.locator("[data-wilson-replay]");
+  await expect(replay).toHaveAttribute("data-scene", "ready", { timeout: 20_000 });
+  const canvas = replay.locator("canvas");
+  await expect(canvas).toHaveAttribute("data-skinned-player-count", "22");
   // Keep a real, unmocked WebGL playback check: both the submitted frame and
   // the shared timeline must advance. Software renderers need more wall time.
   await page.getByRole("button", { name: "Return to snap", exact: true }).click();
@@ -651,7 +663,9 @@ test("all 22 rendered bodies move continuously and seeking restores their actual
   // The full grid reads actual final bones after synchronous UI seeks. The
   // representative poseAt samples and each batch's final pose also rasterize.
   // This avoids hundreds of redundant shadow passes on software-only CI GPUs.
-  test.setTimeout(60_000);
+  // Both retained CI attempts completed the full grid and unchanged physical
+  // assertions at ~62s, just after the old 60s deadline had already expired.
+  test.setTimeout(process.env.CI ? 120_000 : 60_000);
   await page.setViewportSize({ width: 1440, height: 1050 });
   await openReplay(page);
   const replay = page.locator("[data-wilson-replay]");
