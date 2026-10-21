@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-20T23:40:20.936Z",
+  "checkedAt": "2026-10-21T00:24:25.621Z",
   "curatedCheckedAt": "2026-10-08T02:01:00.000Z",
   "items": [
     {
@@ -963,6 +963,70 @@
       }
     },
     {
+      "id": "auto-new-york-post-4d73ead9b627d2b3403aaf99",
+      "title": "Nick Mangold’s impact at Delbarton School lingers a year after his untimely death",
+      "kind": "article",
+      "outletId": "new-york-post",
+      "author": "Steve Serby",
+      "publishedAt": "2026-10-21T00:23:08.000Z",
+      "url": "https://nypost.com/2026/10/20/sports/nick-mangolds-impact-at-delbarton-school-lingers-a-year-after-his-untimely-death/",
+      "image": {
+        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F10%2Fnewspress-collage-w1362tl2u-1792541960246.jpg?quality%3D90%26strip%3Dall%261792527666",
+        "width": 2000,
+        "height": 1333,
+        "fingerprint": "7a4e09504afdc10d"
+      },
+      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Beat reporting"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jets-central-d3740ab89f51e1b5e0910447",
+      "title": "Where Do The Jets Stand At 2-4? (FT. Let's Talk Jets)",
+      "kind": "video",
+      "outletId": "jets-central",
+      "author": "JetsCentral",
+      "publishedAt": "2026-10-21T00:01:00.000Z",
+      "url": "https://www.youtube.com/watch?v=EbOTl_SXWmg",
+      "youtubeId": "EbOTl_SXWmg",
+      "embedAllowed": true,
+      "summary": "Published by Jets Central.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/EbOTl_SXWmg/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "27183b0fb83e4afb"
+      }
+    },
+    {
+      "id": "auto-talkin-jets-c1bf16293fff9429283111a9",
+      "title": "Omar Cooper is a BEAST | Squish the Fish! - Talkin Jets",
+      "kind": "video",
+      "outletId": "talkin-jets",
+      "author": "Talkin Jets",
+      "publishedAt": "2026-10-20T23:46:06.000Z",
+      "url": "https://www.youtube.com/watch?v=bd78wAw_WQk",
+      "youtubeId": "bd78wAw_WQk",
+      "embedAllowed": true,
+      "summary": "Published by Talkin Jets.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/bd78wAw_WQk/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "8a9252b40e946642"
+      }
+    },
+    {
       "id": "auto-wfan-carton-bad6333e3b96d36d16b80d41",
       "title": "Hour 3: Lil D Performs 'Knicks Anthem' as the Defending Champs Prep for Opener",
       "kind": "audio",
@@ -981,28 +1045,6 @@
         "Radio analysis"
       ],
       "context": "current"
-    },
-    {
-      "id": "auto-jets-central-d3740ab89f51e1b5e0910447",
-      "title": "Where Do The Jets Stand At 2-4? (FT. Let's Talk Jets)",
-      "kind": "video",
-      "outletId": "jets-central",
-      "author": "JetsCentral",
-      "publishedAt": "2026-10-20T22:25:22.000Z",
-      "url": "https://www.youtube.com/watch?v=EbOTl_SXWmg",
-      "youtubeId": "EbOTl_SXWmg",
-      "embedAllowed": true,
-      "summary": "Published by Jets Central.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/EbOTl_SXWmg/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "27183b0fb83e4afb"
-      }
     },
     {
       "id": "auto-jake-asman-c8d5459a3651ef6c36521ced",
@@ -1636,26 +1678,6 @@
       "context": "current"
     },
     {
-      "id": "auto-new-york-post-b9aa236bf3071ab017c9f253",
-      "title": "Frank Reich needs to author another comeback to fix this Jets offensive mess",
-      "kind": "article",
-      "outletId": "new-york-post",
-      "author": "Brian Costello",
-      "publishedAt": "2026-10-20T01:06:42.000Z",
-      "url": "https://nypost.com/2026/10/19/sports/frank-reich-needs-to-author-another-comeback-to-fix-this-jets-offensive-mess/",
-      "image": {
-        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F10%2Fjets-offensive-coordinator-frank-reich-145166405.jpg?quality%3D90%26strip%3Dall",
-        "width": 3240,
-        "height": 2160,
-        "fingerprint": "16a112071cd1d55a"
-      },
-      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Beat reporting"
-      ],
-      "context": "current"
-    },
-    {
       "id": "auto-sny-videos-980b23f189aab7f45094d3d2",
       "title": "Jets lack details in Week 6 loss at Patriots | Jets Final Drive",
       "kind": "video",
@@ -2203,28 +2225,6 @@
         "height": 720,
         "fingerprint": "935e2bd8503e0e61"
       }
-    },
-    {
-      "id": "auto-talkin-jets-b3994bd2bb8fd1cf87185f58",
-      "title": "Jets' Offense & Cousins: Is Coaching the Missing Piece? #shorts",
-      "kind": "video",
-      "outletId": "talkin-jets",
-      "author": "Talkin Jets",
-      "publishedAt": "2026-10-08T12:02:44.000Z",
-      "url": "https://www.youtube.com/watch?v=alv8Gqxz_5A",
-      "youtubeId": "alv8Gqxz_5A",
-      "embedAllowed": true,
-      "summary": "Published by Talkin Jets.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/alv8Gqxz_5A/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "8ea48a57fa1601c3"
-      }
     }
   ],
   "outlets": [
@@ -2472,8 +2472,8 @@
       "name": "Jets X-Factor",
       "url": "https://jetsxfactor.com/feed/",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2481,8 +2481,8 @@
       "name": "New York Post Jets",
       "url": "https://nypost.com/tag/new-york-jets/feed/",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2490,8 +2490,8 @@
       "name": "The Jake Asman Show",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCt8ZeGlv3VM8jLYO_EoDMPw",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2499,8 +2499,8 @@
       "name": "BT Unleashed",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLJ2gpZBFl2ytuVlbNo9xAA",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2508,8 +2508,8 @@
       "name": "Jets Central",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCPrLo3MozRhkbV-XCPsQxDg",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 2
     },
     {
@@ -2517,8 +2517,8 @@
       "name": "Matt O’Leary",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLS0BYK5W7eT_SxW6pQA19w",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2526,8 +2526,8 @@
       "name": "GreenBean Jetsfan",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC3gaW1ds7Q0fy51vA0J5y2g",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 2
     },
     {
@@ -2535,8 +2535,8 @@
       "name": "Jets Media",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCNfqKk4bSwaBNPnPSo6eZ4w",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2544,8 +2544,8 @@
       "name": "Jets Talk 24/7",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCJ_CFZh_SqFLp6-71wdakVw",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 2
     },
     {
@@ -2553,8 +2553,8 @@
       "name": "Talkin Jets",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCT6QwygPvX84-Y_fQryCtvA",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 2
     },
     {
@@ -2562,8 +2562,8 @@
       "name": "ESPN New York videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCZDpKRXDSFSc6IXPMQ3GHpA",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2571,8 +2571,8 @@
       "name": "DiPietro & Rothenberg",
       "url": "https://itunes.apple.com/lookup?id=928624712&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 2
     },
     {
@@ -2580,8 +2580,8 @@
       "name": "Don, Hahn & Rosenberg",
       "url": "https://itunes.apple.com/lookup?id=1788585041&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 2
     },
     {
@@ -2589,8 +2589,8 @@
       "name": "SNY videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCL_OEjsHTwsHK6WKWs7s7Uw",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2598,8 +2598,8 @@
       "name": "WFAN videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCSZ8QL2xzTHzW4ucCy1cjog",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2607,8 +2607,8 @@
       "name": "Boomer & Gio",
       "url": "https://itunes.apple.com/lookup?id=386001601&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2616,8 +2616,8 @@
       "name": "Evan & Tiki",
       "url": "https://itunes.apple.com/lookup?id=386002649&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2625,8 +2625,8 @@
       "name": "The Carton Show with Craig Carton & Chris McMonigle",
       "url": "https://itunes.apple.com/lookup?id=942553546&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 3
     },
     {
@@ -2634,8 +2634,8 @@
       "name": "WFAN Daily",
       "url": "https://itunes.apple.com/lookup?id=386002669&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 2
     },
     {
@@ -2643,8 +2643,8 @@
       "name": "Mike Francesa Podcast videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCiL06Dv6Eygpj27Yx6MM8TA",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 2
     },
     {
@@ -2652,8 +2652,8 @@
       "name": "The Mike Francesa Podcast",
       "url": "https://itunes.apple.com/lookup?id=1615588712&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 4
     },
     {
@@ -2661,8 +2661,8 @@
       "name": "Oh the Pain Podcast",
       "url": "https://itunes.apple.com/lookup?id=1586455556&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 2
     },
     {
@@ -2670,8 +2670,8 @@
       "name": "Let’s Talk Jets Radio",
       "url": "https://itunes.apple.com/lookup?id=863176413&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 2
     },
     {
@@ -2679,8 +2679,8 @@
       "name": "Jets Collective",
       "url": "https://itunes.apple.com/lookup?id=1887763130&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-20T23:40:20.936Z",
-      "attemptedAt": "2026-10-20T23:40:20.936Z",
+      "checkedAt": "2026-10-21T00:24:25.621Z",
+      "attemptedAt": "2026-10-21T00:24:25.621Z",
       "itemCount": 2
     }
   ]
