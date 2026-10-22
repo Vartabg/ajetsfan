@@ -6,6 +6,6 @@
 a.summary::after { content: "↓"; font-size: 15px; }
 .calendar[open] .summary::after { content: "−"; }
 .options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.options a, .options button { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--faint); border-radius: 999px; background: none; color: var(--ink); font: 600 14px/1 var(--text); text-decoration: none; cursor: pointer; }
+.options a, .options button { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--faint); border-radius: var(--round, 999px); background: none; color: var(--ink); font: 600 14px/1 var(--text); text-decoration: none; cursor: pointer; }
 .options a:hover, .options button:hover { border-color: var(--ink); }
 .note { max-width: 36em; margin: 10px 0 0; font-size: 14px; line-height: 1.5; color: var(--quiet); }

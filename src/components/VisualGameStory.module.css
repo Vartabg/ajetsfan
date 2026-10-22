@@ -80,7 +80,7 @@
 .seek input { display: block; width: 100%; margin: .55rem 0; min-height: 28px; accent-color: var(--green); }
 .seek > p { color: var(--quiet); font: .62rem/1.7 var(--font-sans), sans-serif; }
 .transport { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; gap: .6rem; min-width: 0; }
-.transport button { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .4rem; min-height: 46px; padding: .65rem .5rem; border: 1px solid var(--story-rule); font: 700 .7rem/1.5 var(--font-sans), sans-serif; text-align: center; }
+.transport button { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .4rem; min-height: 46px; padding: .65rem .5rem; border: 1px solid var(--story-rule); border-radius: var(--round, 999px); font: 700 .7rem/1.5 var(--font-sans), sans-serif; text-align: center; }
 .transport button:hover:enabled { border-color: var(--green); color: var(--green); }
 .transport .playButton { background: var(--green); color: var(--bg); border-color: var(--green); }
 .transport .playButton:hover:enabled { background: var(--ink); border-color: var(--ink); color: var(--bg); }
@@ -98,7 +98,7 @@
 .share button { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 1rem; min-height: 48px; color: var(--green); font: 700 .72rem/1.6 var(--font-sans), sans-serif; }
 .share > p { color: var(--quiet); font: .65rem/1.7 var(--font-sans), sans-serif; }
 .copyFallback { display: block; margin-top: .5rem; color: var(--quiet); font: .65rem/1.7 var(--font-sans), sans-serif; text-align: left; }
-.copyFallback input { width: 100%; margin-top: .3rem; padding: .55rem; color: var(--ink); background: var(--bg); border: 1px solid var(--story-rule); font: .65rem/1.7 var(--font-mono), monospace; }
+.copyFallback input { width: 100%; margin-top: .3rem; padding: .55rem; color: var(--ink); background: var(--bg); border: 1px solid var(--story-rule); border-radius: var(--field-round, 12px); font: .65rem/1.7 var(--font-mono), monospace; }
 .source { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem 2rem; padding: .85rem 2rem; border-top: 1px solid var(--story-rule); }
 .source > p { color: var(--quiet); font: .61rem/1.7 var(--font-mono), monospace; }
 .source > div { display: flex; flex-wrap: wrap; gap: .3rem 1.5rem; }

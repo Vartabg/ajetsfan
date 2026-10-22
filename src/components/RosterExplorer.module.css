@@ -1,13 +1,13 @@
 .explorer { margin-top: 1.75rem; }
 .unitTabs { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1.25rem; }
-.unitTabs button { display: flex; align-items: center; gap: .65rem; min-height: 44px; padding: .6rem 1rem; border: 1px solid var(--rule-soft); border-radius: var(--radius, 2px); background: var(--paper); font: 700 .82rem/1.5 var(--font-sans), Arial, sans-serif; }
+.unitTabs button { display: flex; align-items: center; gap: .65rem; min-height: 44px; padding: .6rem 1rem; border: 1px solid var(--rule-soft); border-radius: var(--round, 999px); background: var(--paper); font: 700 .82rem/1.5 var(--font-sans), Arial, sans-serif; }
 .unitTabs button:hover { border-color: var(--spot); }
 .unitTabs button.unitOn { color: var(--paper); border-color: var(--forest); background: var(--forest); }
 .unitTabs span { font: 13px/1.5 var(--font-mono), monospace; opacity: .8; }
 .filters { display: grid; gap: .5rem; padding: 1.25rem 0 .5rem; margin-top: 1.25rem; border-block: 1px solid var(--rule-soft); }
 .filters > div { min-width: 0; }
 .filters label { display: block; margin-bottom: .5rem; font-weight: 700; font-size: 13px; color: var(--ink-2); }
-.filters input, .filters select { width: 100%; min-width: 0; min-height: 46px; padding: .65rem .75rem; background: var(--paper); color: var(--ink); border: 1px solid var(--rule-soft); border-radius: var(--radius, 2px); font: 1rem/1.4 var(--font-sans), Arial, sans-serif; }
+.filters input, .filters select { width: 100%; min-width: 0; min-height: 46px; padding: .65rem .75rem; background: var(--paper); color: var(--ink); border: 1px solid var(--rule-soft); border-radius: var(--field-round, 12px); font: 1rem/1.4 var(--font-sans), Arial, sans-serif; }
 /* Position and roster status, folded under the search */
 .moreFilters > summary { min-height: 44px; font-size: 14px; font-weight: 700; cursor: pointer; }
 .moreFilters > summary span { margin-inline-start: -.4rem; font-size: 13px; font-weight: 400; color: var(--ink-2); }
@@ -16,12 +16,12 @@
 .searchControl input { padding-inline: 2.4rem 3rem; }
 .searchControl input::-webkit-search-cancel-button { -webkit-appearance: none; }
 .searchIcon { position: absolute; inset-inline-start: .75rem; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); color: var(--ink-2); pointer-events: none; }
-.clearSearch { position: absolute; inset-inline-end: 0; top: 0; display: grid; place-items: center; width: 44px; height: 100%; min-height: 44px; border-radius: 0 var(--radius, 2px) var(--radius, 2px) 0; color: var(--spot); font-size: 1.6rem; }
+.clearSearch { position: absolute; inset-inline-end: 0; top: 0; display: grid; place-items: center; width: 44px; height: 100%; min-height: 44px; border-radius: 0 var(--field-round, 12px) var(--field-round, 12px) 0; color: var(--spot); font-size: 1.6rem; }
 .clearSearch:hover { background: var(--paper-2); }
 .results { display: flex; justify-content: space-between; align-items: center; gap: 1rem; min-height: 4.5rem; color: var(--ink-2); font-size: .82rem; }
 .results p { margin: 0; }
 .results strong { color: var(--ink); }
-.results button { min-height: 44px; padding: .5rem; font-weight: 700; color: var(--spot); text-decoration: underline; text-underline-offset: 3px; }
+.results button { min-height: 44px; padding: .5rem; border-radius: var(--round, 999px); font-weight: 700; color: var(--spot); text-decoration: underline; text-underline-offset: 3px; }
 /* As many columns as fit: one on phones, two beside the rail at 1024px, three at 1440px, four at 1920px. */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0 1.5rem; list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--rule-soft); }
 .grid > li { min-width: 0; border-bottom: 1px solid var(--rule-soft); }
@@ -42,7 +42,7 @@
 .profile { margin-bottom: 2rem; border: 1px solid var(--rule); border-radius: var(--radius, 2px); overflow: hidden; background: var(--paper); scroll-margin-top: 1.5rem; }
 .profileTop { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .7rem; padding: .65rem 1.5rem; background: var(--forest); color: #fff; }
 .profileTop p { margin: 0; font-size: .8rem; }
-.profileTop button { display: flex; align-items: center; gap: .6rem; min-height: 44px; padding: .45rem .7rem; border: 1px solid #ffffff40; border-radius: var(--radius, 2px); font-size: .75rem; font-weight: 700; }
+.profileTop button { display: flex; align-items: center; gap: .6rem; min-height: 44px; padding: .45rem .875rem; border: 1px solid #ffffff40; border-radius: var(--round, 999px); font-size: .75rem; font-weight: 700; }
 .profileTop button:hover { background: #ffffff12; }
 .profileTop kbd { font: .7rem/1 var(--font-mono), monospace; opacity: .8; }
 .profileTop button span { padding-left: .45rem; color: var(--accent); font-size: 1rem; }
@@ -66,7 +66,7 @@
 .statNote, .noStats { margin: .8rem 0 0; color: var(--ink-2); font-size: .75rem; line-height: 1.6; }
 .profileLinks { display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; align-items: center; padding: .8rem 1.75rem; border-top: 1px solid var(--rule-soft); color: var(--spot); font-size: .76rem; font-weight: 700; }
 .profileLinks a, .profileLinks button { display: inline-flex; align-items: center; gap: .3rem; min-height: 44px; padding: .45rem 0; text-underline-offset: 3px; }
-.profileLinks button { text-decoration: underline; }
+.profileLinks button { border-radius: var(--round, 999px); text-decoration: underline; }
 .profileLinks button.copied { color: var(--ink); text-decoration: none; }
 .backToRoster { margin-inline-start: auto; }
 .profileLinks span[role="status"] { flex-basis: 100%; color: var(--ink-2); font-weight: 400; }
@@ -77,8 +77,8 @@
 .empty { padding: 3rem 1.5rem; text-align: center; background: var(--paper-2); border-block: 1px solid var(--rule); }
 .empty h2 { font-size: 1.7rem; font-weight: 700; }
 .empty p { color: var(--ink-2); }
-.empty button { min-height: 44px; padding: .8rem 1rem; background: var(--spot); color: var(--paper); border-radius: var(--radius, 2px); font-size: .85rem; font-weight: 700; }
+.empty button { min-height: 44px; padding: .8rem 1rem; background: var(--spot); color: var(--paper); border-radius: var(--round, 999px); font-size: .85rem; font-weight: 700; }
 @media (max-width: 800px) { .profileGrid { grid-template-columns: 1fr; gap: 1.4rem; } .profileIdentity { display: flex; align-items: center; gap: 1.5rem; } .profileIdentity > .portrait { width: 160px; flex: none; margin-bottom: 0; } }
-@media (max-width: 640px) { .filters { padding: 1rem 0 .25rem; } .grid { grid-template-columns: 1fr; } .playerCard { grid-template-columns: 56px minmax(0, 1fr); padding: .75rem; } .cardText > strong { font-size: 18px; } .cardPhoto, .cardPhoto .portrait { width: 56px; } .cardPhoto .portrait { height: 56px; } .profileGrid { padding: 1.25rem; } .profileIdentity { display: block; } .profileIdentity > .portrait { width: 128px; height: 128px; margin-bottom: 1rem; } .profileTop { padding: .7rem 1rem; } .profileLinks { padding: .75rem 1.25rem; } .statLines > div { grid-template-columns: 1fr; gap: .2rem; } .unitTabs { gap: .45rem; } .unitTabs button { padding: .6rem .8rem; font-size: 13px; } }
+@media (max-width: 640px) { .filters { padding: 1rem 0 .25rem; } .grid { grid-template-columns: 1fr; } .playerCard { grid-template-columns: 56px minmax(0, 1fr); padding: .75rem; } .cardText > strong { font-size: 18px; } .cardPhoto, .cardPhoto .portrait { width: 56px; } .cardPhoto .portrait { height: 56px; } .profileGrid { padding: 1.25rem; } .profileIdentity { display: block; } .profileIdentity > .portrait { width: 128px; height: 128px; margin-bottom: 1rem; } .profileTop { padding: .7rem 1rem; } .profileLinks { padding: .75rem 1.25rem; } .statLines > div { grid-template-columns: 1fr; gap: .2rem; } .unitTabs { gap: .45rem; } .unitTabs button { padding: .6rem .875rem; font-size: 13px; } }
 @media (max-width: 360px) { .playerCard { grid-template-columns: 48px minmax(0, 1fr); gap: .8rem; } .cardPhoto, .cardPhoto .portrait { width: 48px; } .cardPhoto .portrait { height: 48px; } .extraFilters { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .playerCard { transition: none; } }

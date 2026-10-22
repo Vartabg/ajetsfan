@@ -5,7 +5,7 @@
 .breadcrumb a { display: inline-flex; align-items: center; min-height: 44px; text-underline-offset: 4px; }
 .breadcrumb [aria-current] { color: var(--ink); font-weight: 700; }
 .sectionNav { display: flex; flex-wrap: wrap; gap: .25rem; border-bottom: 1px solid var(--rule-soft); padding-bottom: .5rem; }
-.sectionNav a { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 44px; padding: .55rem 1.2rem; font-size: .83rem; font-weight: 750; text-decoration: none; border-radius: 3px; overflow-wrap: anywhere; }
+.sectionNav a { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 44px; padding: .55rem 1.2rem; font-size: .83rem; font-weight: 750; text-decoration: none; border-radius: var(--round, 999px); overflow-wrap: anywhere; }
 .sectionNav a:hover { background: var(--paper-2); }
 .sectionNav a[aria-current="page"] { color: var(--paper); background: var(--forest); }
 .sectionNav a:focus-visible { outline-color: var(--spot); }
@@ -29,5 +29,5 @@
 @media (max-width: 640px) {
   .navigation { margin-bottom: 1.3rem; }
   .sectionNav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .1rem; }
-  .sectionNav a { padding: .5rem .2rem; font-size: .75rem; text-align: center; }
+  .sectionNav a { padding: .5rem .875rem; font-size: .75rem; text-align: center; }
 }

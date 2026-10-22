@@ -6,6 +6,8 @@
   /* The site's older tokens, mapped onto this palette so shared components follow it. */
   --paper: var(--bg); --paper-2: var(--raise); --ink-2: var(--quiet); --ink-3: var(--quiet); --rule: var(--ink); --rule-soft: var(--faint);
   --spot: var(--green); --spot-bright: var(--green); --forest: var(--green); --accent: var(--tint); --stamp: var(--loss); --tape: var(--raise);
+  /* One shape per kind of control: every button, chip and tab is a pill; every text box and dropdown is a rounded box. */
+  --round: 999px; --field-round: 12px;
   background: var(--bg); color-scheme: light;
   /* Let every scroll stop where the reader leaves it. Proximity snapping pulled the page back
      to the previous moment, in iPhone Safari and with short mouse-wheel scrolls on desktop. */

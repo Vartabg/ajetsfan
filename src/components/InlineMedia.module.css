@@ -24,7 +24,7 @@
 .message p { margin: .2rem 0; }
 .actions { display: flex; align-items: start; flex-wrap: wrap; gap: .35rem .75rem; margin-top: .5rem; font-size: .74rem; }
 .actions button, .actions summary, .actions a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; padding: .35rem .5rem; box-sizing: border-box; color: inherit; }
-.actions button { justify-content: space-between; gap: .8rem; border: 1px solid var(--faint, var(--rule-soft)); border-radius: 6px; background: transparent; font: inherit; cursor: pointer; }
+.actions button { justify-content: space-between; gap: .8rem; padding-inline: .875rem; border: 1px solid var(--faint, var(--rule-soft)); border-radius: var(--round, 999px); background: transparent; font: inherit; cursor: pointer; }
 .actions details { flex: 1 1 130px; min-width: 0; }
 .actions details[open] { flex-basis: 100%; }
 .actions summary { font-weight: 600; cursor: pointer; }

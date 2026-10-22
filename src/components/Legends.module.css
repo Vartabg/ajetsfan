@@ -16,8 +16,8 @@
 .photoMissing p { margin: 0 0 8px; }
 .filters { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; max-width: 1120px; margin: 12px 0 0; }
 .filters label { display: grid; min-width: 0; gap: 6px; font-size: 14px; font-weight: 550; }
-.filters :is(input, select, button) { box-sizing: border-box; width: 100%; min-width: 0; min-height: 48px; padding: 10px 12px; border: 1px solid var(--quiet); border-radius: 8px; font: 400 16px/1.4 var(--text); background: var(--bg); color: var(--ink); }
-.filters button { cursor: pointer; background: var(--ink); color: var(--bg); font-weight: 600; align-self: end; }
+.filters :is(input, select, button) { box-sizing: border-box; width: 100%; min-width: 0; min-height: 48px; padding: 10px 12px; border: 1px solid var(--quiet); border-radius: var(--field-round, 12px); font: 400 16px/1.4 var(--text); background: var(--bg); color: var(--ink); }
+.filters button { padding-inline: 16px; border-radius: var(--round, 999px); cursor: pointer; background: var(--ink); color: var(--bg); font-weight: 600; align-self: end; }
 .filters :is(input, select, button):focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
 .resultsHead { display: flex; flex-wrap: wrap; gap: 4px 24px; align-items: center; max-width: 1120px; }
 .resultsHead p { margin: 0; font-size: 15px; }
@@ -50,7 +50,7 @@
 .related small { grid-column: 1; color: var(--quiet); font-size: 14px; }
 .related a > span:last-child { grid-row: 1 / span 2; grid-column: 2; align-self: center; }
 .sourceLinks { display: flex; flex-wrap: wrap; gap: 12px; max-width: 48em; margin: 12px 0; }
-.sourceLinks a { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; box-sizing: border-box; max-width: 100%; padding: 12px 16px; border: 1px solid var(--quiet); border-radius: 8px; font-size: 16px; line-height: 1.4; text-decoration: none; overflow-wrap: anywhere; }
+.sourceLinks a { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; box-sizing: border-box; max-width: 100%; padding: 12px 16px; border: 1px solid var(--quiet); border-radius: var(--round, 999px); font-size: 16px; line-height: 1.4; text-decoration: none; overflow-wrap: anywhere; }
 @media (min-width: 700px) {
   .feature { grid-template-columns: minmax(0, .95fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); }
   .people { grid-template-columns: repeat(auto-fill, minmax(max(260px, calc((100% - 48px) / 3)), 1fr)); }
