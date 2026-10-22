@@ -12,7 +12,7 @@
 .tape { min-width: 0; }
 .tape h3 { font: 800 .85rem/1.6 var(--font-sans-narrow), sans-serif; }
 .filters { display: flex; flex-wrap: wrap; gap: .4rem; margin: .8rem 0 1rem; }
-.filters button { min-height: 44px; padding: .5rem .7rem; border: 1px solid var(--rule-soft); font: 700 .65rem/1.6 var(--font-sans), sans-serif; }
+.filters button { min-height: 44px; padding: .5rem 14px; border: 1px solid var(--rule-soft); border-radius: var(--round, 999px); font: 700 .65rem/1.6 var(--font-sans), sans-serif; }
 .filters button[aria-pressed="true"] { color: var(--paper); background: var(--forest); border-color: var(--forest); }
 .tape ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
 .tape li { border-bottom: 1px solid var(--rule-soft); }
@@ -56,7 +56,7 @@
 .videoControls > div { flex: 1; min-width: 160px; }
 .videoLabel { display: block; margin-bottom: .2rem; color: var(--accent); font: 700 .8rem/1.7 var(--font-mono), monospace; }
 .videoControls p { color: #bdd0c3; font: .7rem/1.7 var(--font-sans), sans-serif; }
-.videoControls a.replayButton { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .7rem; min-height: 44px; padding: .65rem .85rem; color: var(--forest); background: var(--accent); font: 800 .68rem/1.6 var(--font-sans), sans-serif; text-decoration:none; }
+.videoControls a.replayButton { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .7rem; min-height: 44px; padding: .65rem 14px; border-radius: var(--round, 999px); color: var(--forest); background: var(--accent); font: 800 .68rem/1.6 var(--font-sans), sans-serif; text-decoration:none; }
 .videoControls a { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .45rem; min-height: 44px; color: var(--accent); font: 700 .65rem/1.7 var(--font-sans), sans-serif; text-underline-offset: .25em; }
 .videoNote { padding: 0 1.25rem 1rem; color: #bdd0c3; font: .62rem/1.7 var(--font-sans), sans-serif; }
 .recordedPlay { padding: 1.15rem 1.25rem 1.5rem; border-top: 1px solid #f8f5ed30; }
@@ -97,7 +97,7 @@
 .share button, .share > a { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .75rem; min-height: 44px; color: var(--spot); font: 800 .72rem/1.7 var(--font-sans), sans-serif; }
 .share > p { color: var(--ink-2); font: .7rem/1.7 var(--font-sans), sans-serif; }
 .share label { display: block; flex-basis: 100%; color: var(--ink-2); font: .7rem/1.7 var(--font-sans), sans-serif; }
-.share input { display: block; width: 100%; padding: .55rem .7rem; border: 1px solid var(--rule-soft); color: var(--ink); background: var(--paper); font: .7rem/1.7 var(--font-mono), monospace; }
+.share input { display: block; width: 100%; padding: .55rem .7rem; border: 1px solid var(--rule-soft); border-radius: var(--field-round, 12px); color: var(--ink); background: var(--paper); font: .7rem/1.7 var(--font-mono), monospace; }
 .selected :is(button, a):focus-visible { outline-color: var(--accent); }
 .empty { padding: 2rem 0; border-top: 2px solid var(--forest); }
 .empty h2 { font: 400 3rem/1.1 var(--font-hed), Impact, sans-serif; }

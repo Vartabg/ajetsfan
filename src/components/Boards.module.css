@@ -16,12 +16,12 @@
 .explainer { margin: .9rem 0 1.35rem; color: var(--ink-2); font-size: .75rem; line-height: 1.65; }
 .explainer a { color: var(--spot); text-underline-offset: 4px; margin-left: .35rem; white-space: nowrap; }
 .archiveNav { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem 1rem; margin: -.4rem 0 1.2rem; }
-.archiveNav button { display: inline-flex; gap: 1.5rem; align-items: center; min-height: 44px; padding: .65rem 1rem; border: 1px solid var(--spot); border-radius: var(--radius); color: var(--spot); font-size: .8rem; font-weight: 800; }
+.archiveNav button { display: inline-flex; gap: 1.5rem; align-items: center; min-height: 44px; padding: .65rem 1rem; border: 1px solid var(--spot); border-radius: var(--round, 999px); color: var(--spot); font-size: .8rem; font-weight: 800; }
 .archiveNav button:hover { background: var(--paper-2); }
 .archiveNav > span { color: var(--ink-2); font-size: .75rem; }
 .detail { min-width: 0; }
 .share { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; padding: .7rem 0 1rem; color: var(--spot); font-size: .75rem; font-weight: 700; }
-.share a, .share button { display: inline-flex; align-items: center; gap: .65rem; min-height: 44px; padding: .65rem .75rem; border-radius: var(--radius); text-decoration: underline; text-underline-offset: 4px; }
+.share a, .share button { display: inline-flex; align-items: center; gap: .65rem; min-height: 44px; padding: .65rem 14px; border-radius: var(--round, 999px); text-decoration: underline; text-underline-offset: 4px; }
 .share a:hover, .share button:hover { background: var(--paper-2); }
 .share button.copied { background: var(--spot); color: var(--paper); text-decoration: none; }
 .share button.copied:focus-visible { outline-color: var(--spot); }
@@ -38,13 +38,13 @@
 .searchControl { position: relative; }
 .filters .searchControl input { padding-right: 3rem; }
 .searchControl input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
-.searchControl button { position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 44px; min-height: 44px; border-radius: 0 var(--radius) var(--radius) 0; color: var(--spot); font-size: 1.5rem; font-weight: 700; }
-.filters input, .filters select { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--rule-soft); border-radius: var(--radius); padding: .65rem .75rem; background: var(--paper); color: var(--ink); font: .9rem/1.4 var(--font-sans), Arial, sans-serif; }
+.searchControl button { position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 44px; min-height: 44px; border-radius: 0 var(--field-round, 12px) var(--field-round, 12px) 0; color: var(--spot); font-size: 1.5rem; font-weight: 700; }
+.filters input, .filters select { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--rule-soft); border-radius: var(--field-round, 12px); padding: .65rem .75rem; background: var(--paper); color: var(--ink); font: .9rem/1.4 var(--font-sans), Arial, sans-serif; }
 .filters input:hover, .filters select:hover { border-color: var(--spot); }
 .resultsBar { display: flex; align-items: center; justify-content: space-between; min-height: 3.5rem; gap: 1rem; color: var(--ink-2); font-size: .77rem; }
 .resultsBar p { margin: 0; }
 .resultsBar strong { color: var(--ink); }
-.reset { min-height: 44px; border-radius: var(--radius); color: var(--spot); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; padding: .65rem; }
+.reset { min-height: 44px; border-radius: var(--round, 999px); color: var(--spot); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; padding: .65rem; }
 .selectionNote { margin: 0 0 1rem; padding: .75rem 1rem; border-left: 3px solid var(--spot); background: var(--paper-2); color: var(--ink-2); font-size: .8rem; }
 .gameList { min-width: 0; }
 .list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2rem; border-top: 1px solid var(--rule); }
@@ -63,12 +63,12 @@
 .numbers > small { color: var(--ink-2); font-size: .7rem; line-height: 1.45; }
 .openGame { display: flex; align-items: center; justify-content: flex-end; gap: .2rem; white-space: nowrap; margin-top: .45rem; color: var(--spot); font-size: .7rem; font-weight: 700; }
 .rowOn .openGame { color: var(--forest); font-weight: 800; }
-.more { width: 100%; min-height: 44px; margin-top: 1.25rem; padding: .9rem; border: 1px solid var(--spot); border-radius: var(--radius); color: var(--spot); font-size: .8rem; font-weight: 700; }
+.more { width: 100%; min-height: 44px; margin-top: 1.25rem; padding: .9rem; border: 1px solid var(--spot); border-radius: var(--round, 999px); color: var(--spot); font-size: .8rem; font-weight: 700; }
 .more:hover { background: var(--paper-2); }
 .empty { padding: 3rem 1.5rem; text-align: center; border: 1px solid var(--rule-soft); background: var(--paper-2); }
 .empty h2 { font: 700 2rem/1.2 var(--font-sans-narrow), Arial, sans-serif; }
 .empty p { color: var(--ink-2); }
-.empty button { min-height: 44px; padding: .75rem 1.1rem; border-radius: var(--radius); color: var(--paper); background: var(--spot); font-weight: 700; }
+.empty button { min-height: 44px; padding: .75rem 1.1rem; border-radius: var(--round, 999px); color: var(--paper); background: var(--spot); font-weight: 700; }
 @media (max-width: 900px) { .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .list { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .toggle { gap: 1rem; } .tab { padding: 1rem 1.4rem 1rem .1rem; } .chapterTitle { font-size: 1.65rem; } .chapterIndex { right: .1rem; top: 1rem; font-size: 1.2rem; } .chapterLine { font-size: .9rem; min-height: 2.6rem; } .chapterCount { margin-top: .8rem; } .archiveHead { margin-top: 1.5rem; } .filters { gap: .85rem; } .search { grid-column: 1 / -1; grid-row: 2; } .filters > label:last-child { grid-column: 1 / -1; } .share .backToResults { margin-left: 0; } .row { gap: .6rem; padding: 1.05rem .6rem; grid-template-columns: minmax(1.2rem, max-content) minmax(0, 1fr) 6.1rem; } .numbers { padding-left: .6rem; } .matchup { font-size: 1.15rem; } .date, .score { font-size: .7rem; } .explainer { font-size: .73rem; } }
 @media (max-width: 360px) { .chapterTitle { font-size: 1.45rem; } .chapterLine { font-size: .85rem; } .row { grid-template-columns: minmax(1rem, max-content) minmax(0, 1fr) 5.4rem; gap: .4rem; padding-inline: .5rem; } }

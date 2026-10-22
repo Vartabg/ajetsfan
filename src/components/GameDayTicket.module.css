@@ -24,15 +24,15 @@
 .scores { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; max-width: 25rem; }
 .scores legend { margin-bottom: .65rem; }
 .scores label { display: block; font-size: .8rem; margin-bottom: .3rem; }
-.scores input { min-height: 48px; width: 100%; max-width: 10rem; padding: .4rem .6rem; border: 1px solid var(--rule); border-radius: 0; color: var(--ink); background: var(--paper); font: 700 1.5rem/1.3 var(--font-sans-narrow), sans-serif; }
+.scores input { min-height: 48px; width: 100%; max-width: 10rem; padding: .4rem .6rem; border: 1px solid var(--rule); border-radius: var(--field-round, 12px); color: var(--ink); background: var(--paper); font: 700 1.5rem/1.3 var(--font-sans-narrow), sans-serif; }
 .conviction legend { margin-bottom: .4rem; }
 .conviction label { display: inline-flex; align-items: center; gap: .55rem; min-height: 44px; max-width: calc(100% - .65rem); padding: .3rem .8rem .3rem 0; margin-right: .65rem; font-size: .85rem; cursor: pointer; }
 .conviction label > span { min-width: 0; overflow-wrap: anywhere; }
 .conviction input { width: 20px; height: 20px; flex-shrink: 0; margin: 0; accent-color: var(--spot); }
 .ritual > label { display: block; margin-bottom: .5rem; }
-.ritual select { max-width: 100%; width: 25rem; min-height: 44px; padding: .5rem; border: 1px solid var(--rule); border-radius: 0; color: var(--ink); background: var(--paper); font: inherit; font-size: .83rem; }
+.ritual select { max-width: 100%; width: 25rem; min-height: 44px; padding: .5rem; border: 1px solid var(--rule); border-radius: var(--field-round, 12px); color: var(--ink); background: var(--paper); font: inherit; font-size: .83rem; }
 .formNote { max-width: 65ch; margin: 1rem 0 .7rem; font-size: .74rem; color: var(--ink-2); }
-.save, .actions button, .edit { display: inline-flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 44px; padding: .65rem .8rem; border: 1px solid var(--rule); font: 700 .85rem/1.4 var(--font-sans-narrow), sans-serif; }
+.save, .actions button, .edit { display: inline-flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 44px; padding: .65rem .875rem; border: 1px solid var(--rule); border-radius: var(--round, 999px); font: 700 .85rem/1.4 var(--font-sans-narrow), sans-serif; }
 .save { color: var(--paper); background: var(--spot); border-color: var(--spot); }
 .edit { margin: .3rem 0 1rem; border: 0; padding-left: 0; text-decoration: underline; text-underline-offset: 4px; }
 .actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
@@ -50,7 +50,7 @@
 .privacy { max-width: 105ch; margin: .9rem 0 0; color: var(--ink-2); font-size: .68rem; line-height: 1.7; }
 .copyFallback { margin-top: 1rem; }
 .copyFallback label { display: block; font-size: .8rem; font-weight: 700; margin-bottom: .4rem; }
-.copyFallback textarea { display: block; width: 100%; min-height: 160px; padding: .6rem; border: 1px solid var(--rule); border-radius: 0; color: var(--ink); background: var(--paper); font: .8rem/1.6 var(--font-mono), monospace; resize: vertical; }
+.copyFallback textarea { display: block; width: 100%; min-height: 160px; padding: .6rem; border: 1px solid var(--rule); border-radius: var(--field-round, 12px); color: var(--ink); background: var(--paper); font: .8rem/1.6 var(--font-mono), monospace; resize: vertical; }
 .copyFallback textarea:focus-visible { outline: 3px solid var(--spot); outline-offset: 4px; }
 @media (max-width: 640px) {
   .ticket { padding: 1.15rem 1rem; }

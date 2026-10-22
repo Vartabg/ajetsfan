@@ -17,8 +17,8 @@
 .colours i:nth-child(2) { background: var(--rival-2); }
 .form { display: grid; gap: .9rem; align-content: start; padding: 1.2rem; background: var(--paper-2); border: 1px solid var(--rule-soft); border-radius: 12px; }
 .form label { display: grid; min-width: 0; gap: .35rem; font: 800 .8rem/1.5 var(--font-sans), sans-serif; color: var(--ink-2); }
-.form select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; padding: .5rem .6rem; font: 500 1rem/1.4 var(--font-sans), sans-serif; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); }
-.form button { min-height: 48px; padding: .6rem 1rem; background: var(--forest); color: var(--paper); border: 0; border-radius: 999px; font: 650 .9rem/1.4 var(--font-sans), sans-serif; cursor: pointer; }
+.form select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; padding: .5rem .6rem; font: 500 1rem/1.4 var(--font-sans), sans-serif; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: var(--field-round, 12px); }
+.form button { min-height: 48px; padding: .6rem 1rem; background: var(--forest); color: var(--paper); border: 0; border-radius: var(--round, 999px); font: 650 .9rem/1.4 var(--font-sans), sans-serif; cursor: pointer; }
 .form button:disabled { opacity: .5; cursor: default; }
 .form button:focus-visible { outline: 3px solid var(--spot); outline-offset: 2px; }
 .error { margin: 0; color: var(--stamp); font-size: .85rem; }
