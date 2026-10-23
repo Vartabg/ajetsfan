@@ -4,7 +4,7 @@ import { phaseResults, seasonNumbers } from "@/lib/season-archive";
 import { ShareImage } from "@/lib/share-image";
 
 export const dynamic = "force-dynamic";
-export const alt = "A Jets football season from The Back Page archive";
+export const alt = "A Jets football season from the ajetsfan archive";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

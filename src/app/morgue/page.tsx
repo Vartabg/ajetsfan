@@ -19,7 +19,7 @@ import styles from "./page.module.css";
 
 export const metadata: Metadata = pageMetadata({
   path: "/morgue",
-  title: "The Morgue — a Jets fan",
+  title: "The Morgue — ajetsfan",
   description:
     "The Jets game archive. Explore confirmed scores, second-half model win probabilities, and recorded play-by-play.",
 });

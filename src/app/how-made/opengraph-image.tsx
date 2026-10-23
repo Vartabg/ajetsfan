@@ -1,6 +1,6 @@
 import { ShareImage } from "@/lib/share-image";
 
-export const alt = "How The Back Page is made: sources, calculations and checks";
+export const alt = "How ajetsfan is made: sources, calculations and checks";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

@@ -3,7 +3,7 @@ import { loadSeasonArchive } from "@/lib/load-season-archive";
 import { ShareImage } from "@/lib/share-image";
 
 export const dynamic = "force-dynamic";
-export const alt = "Sources and definitions for a Jets season, from The Back Page";
+export const alt = "Sources and definitions for a Jets season, from ajetsfan";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

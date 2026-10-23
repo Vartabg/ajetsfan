@@ -12,7 +12,7 @@ import { pageMetadata } from "@/lib/site";
 import { focusFonts } from "../../focus-fonts";
 import styles from "../focus.module.css";
 
-export const metadata = pageMetadata({ path: "/team/roster", title: "Jets Roster — The Back Page", description: "Search Jets player profiles by name, number, position and unit. Explore recorded player production and roster details." });
+export const metadata = pageMetadata({ path: "/team/roster", title: "Jets Roster — ajetsfan", description: "Search Jets player profiles by name, number, position and unit. Explore recorded player production and roster details." });
 
 export default async function TeamRosterPage() {
   const [coverage, current] = await Promise.all([loadCoverage(), loadCurrent()]);

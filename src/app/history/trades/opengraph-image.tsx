@@ -1,7 +1,7 @@
 import { loadTradeLedger } from "@/lib/load-trades";
 import { ShareImage } from "@/lib/share-image";
 
-export const alt = "The Jets trade ledger from The Back Page: every pick, followed";
+export const alt = "The Jets trade ledger from ajetsfan: every pick, followed";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

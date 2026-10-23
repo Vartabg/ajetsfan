@@ -10,14 +10,13 @@ function loadFonts() {
   ]);
 }
 
-/** An original newspaper cover; no network font or stock-photo dependency. */
+/** An original share card with the site name, ajetsfan; no network font or stock-photo dependency. */
 export async function ShareImage({ eyebrow, title, detail, score }: { eyebrow: string; title: string; detail: string; score?: string }) {
   const [anton, geist] = await loadFonts();
   return new ImageResponse(
     <div style={{ width: "100%", height: "100%", background: "#eee8d9", color: "#15231d", display: "flex", flexDirection: "column", padding: "38px 54px", fontFamily: "Geist" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "3px solid #15231d", paddingBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}><span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 64, height: 48, borderRadius: "50%", background: "#15231d", color: "#eee8d9", fontFamily: "Anton", fontSize: 28 }}>AF</span><span style={{ fontSize: 35, fontFamily: "Anton" }}>THE BACK PAGE</span></div>
-        <span style={{ fontSize: 18, letterSpacing: 3 }}>AN INDEPENDENT JETS FAN PUBLICATION</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}><span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 64, height: 48, borderRadius: "50%", background: "#15231d", color: "#eee8d9", fontFamily: "Anton", fontSize: 28 }}>AF</span><span style={{ fontSize: 40, letterSpacing: -1 }}>ajetsfan</span></div>
       </div>
       <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "center", paddingTop: 20, paddingBottom: 20 }}>
         <span style={{ fontSize: 21, letterSpacing: 4, color: "#006b48", textTransform: "uppercase", marginBottom: 18 }}>{eyebrow}</span>
