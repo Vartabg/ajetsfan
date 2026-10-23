@@ -1,7 +1,7 @@
 import { jetsPlays } from "@/lib/jets-playbook";
 import { ShareImage } from "@/lib/share-image";
 
-export const alt = "The Film Room from The Back Page: Jets plays on an editable chalkboard";
+export const alt = "The Film Room from ajetsfan: Jets plays on an editable chalkboard";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

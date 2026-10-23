@@ -2,7 +2,7 @@ import { loadCoverage } from "@/lib/load-coverage";
 import { formatDate } from "@/lib/current";
 import { ShareImage } from "@/lib/share-image";
 
-export const alt = "Official Jets headlines, dated and linked, from The Back Page";
+export const alt = "Official Jets headlines, dated and linked, from ajetsfan";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

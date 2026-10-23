@@ -12,7 +12,7 @@ import { pageMetadata } from "@/lib/site";
 import { focusFonts } from "../../focus-fonts";
 import styles from "../focus.module.css";
 
-export const metadata = pageMetadata({ path: "/team/stats", title: "Jets Player Stats — The Back Page", description: "Jets passing, rushing and receiving leaders from confirmed regular-season games." });
+export const metadata = pageMetadata({ path: "/team/stats", title: "Jets Player Stats — ajetsfan", description: "Jets passing, rushing and receiving leaders from confirmed regular-season games." });
 export const dynamic = "force-dynamic";
 
 export default async function TeamStatsPage() {

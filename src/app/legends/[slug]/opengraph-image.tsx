@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { legendBySlug } from "@/lib/legends";
 import { ShareImage } from "@/lib/share-image";
 
-export const alt = "A Jets legend’s story from The Back Page";
+export const alt = "A Jets legend’s story from ajetsfan";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

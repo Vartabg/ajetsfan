@@ -3,7 +3,7 @@ import { archiveCoverage } from "@/lib/current";
 import { rank } from "@/lib/games";
 import { ShareImage } from "@/lib/share-image";
 
-export const alt = "The Morgue from The Back Page: Jets finishes ranked by second-half model probability";
+export const alt = "The Jets game archive from ajetsfan: finishes ranked by second-half model probability";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

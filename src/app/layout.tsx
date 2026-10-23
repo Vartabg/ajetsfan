@@ -14,12 +14,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: siteOrigin(),
-  applicationName: "The Back Page",
-  title: "The Back Page — Jets football, on the record",
+  applicationName: "ajetsfan",
+  title: "ajetsfan · the Jets, one thing at a time",
   description:
     "Checked Jets results, sourced team news, player statistics, and game-by-game win-probability charts. Independent coverage with visible dates, samples, and methods.",
   robots: { index: indexableSite(), follow: indexableSite() },
-  openGraph: { siteName: "The Back Page", locale: "en_US", type: "website" },
+  openGraph: { siteName: "ajetsfan", locale: "en_US", type: "website" },
   twitter: { card: "summary_large_image" },
 };
 

@@ -9,7 +9,7 @@ import Link from "@/components/IntentLink";
 import shared from "@/components/Focus.module.css";
 import { focusFonts } from "../focus-fonts";
 
-export const metadata = pageMetadata({ path: "/stories", title: "Jets Visual Game Stories — The Back Page", description: "Replay recorded Jets games, moment by moment, through scores, source play descriptions and model win probability." });
+export const metadata = pageMetadata({ path: "/stories", title: "Jets Visual Game Stories — ajetsfan", description: "Replay recorded Jets games, moment by moment, through scores, source play descriptions and model win probability." });
 export default async function StoriesPage() {
   const [games, snapshot] = await Promise.all([loadGames(), loadCurrent()]);
   const available = publishedGames(games, snapshot);

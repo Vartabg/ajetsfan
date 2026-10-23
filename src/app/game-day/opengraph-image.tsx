@@ -3,7 +3,7 @@ import { currentSeasonSummary, formatDate, nextScheduledGame, recordLabel } from
 import { teamIdentity } from "@/lib/teams";
 import { ShareImage } from "@/lib/share-image";
 
-export const alt = "Jets game day: the next matchup and the season so far, from The Back Page";
+export const alt = "Jets game day: the next matchup and the season so far, from ajetsfan";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

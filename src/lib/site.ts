@@ -25,7 +25,7 @@ export function pageMetadata({ title, description, path }: { title: string; desc
   return {
     title, description,
     alternates: url ? { canonical: url } : undefined,
-    openGraph: { title, description, url, siteName: "The Back Page", locale: "en_US", type: "website" },
+    openGraph: { title, description, url, siteName: "ajetsfan", locale: "en_US", type: "website" },
     twitter: { card: "summary_large_image", title, description },
   };
 }

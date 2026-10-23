@@ -9,7 +9,7 @@ import { pageMetadata } from "@/lib/site";
 import { focusFonts } from "../../focus-fonts";
 import styles from "../focus.module.css";
 
-export const metadata = pageMetadata({ path: "/team/news", title: "Jets Team News — The Back Page", description: "Dated official Jets headlines, with direct links to the original reporting." });
+export const metadata = pageMetadata({ path: "/team/news", title: "Jets Team News — ajetsfan", description: "Dated official Jets headlines, with direct links to the original reporting." });
 
 export default async function TeamNewsPage() {
   const coverage = await loadCoverage();

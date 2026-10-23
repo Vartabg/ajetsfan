@@ -2,7 +2,7 @@ import { loadCoverage } from "@/lib/load-coverage";
 import { loadCurrent } from "@/lib/load-games";
 import { ShareImage } from "@/lib/share-image";
 
-export const alt = "Jets player stats from The Back Page";
+export const alt = "Jets player stats from ajetsfan";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

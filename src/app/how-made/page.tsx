@@ -13,8 +13,8 @@ import styles from "./page.module.css";
 
 export const metadata: Metadata = pageMetadata({
   path: "/how-made",
-  title: "How the paper is made — a Jets fan",
-  description: "How The Back Page turns Jets play-by-play into a newspaper: data-driven art direction, honest probability rankings, and visible exclusions.",
+  title: "How the paper is made — ajetsfan",
+  description: "How ajetsfan turns Jets play-by-play into pages to explore: the sources, honest probability rankings, and what is left out.",
 });
 
 export default async function HowMade() {
@@ -152,7 +152,7 @@ export default async function HowMade() {
           <li><a href="https://github.com/Vartabg/ajetsfan/blob/master/src/lib/paper.ts">Editorial and paper rules</a></li>
           <li><a href="https://github.com/Vartabg/ajetsfan">Source and local setup</a></li>
         </ul>
-        <p><Link href="/">Return to The Back Page →</Link></p>
+        <p><Link href="/">Return to ajetsfan →</Link></p>
       </section>
     </FocusMoment>
   </FocusShell>;

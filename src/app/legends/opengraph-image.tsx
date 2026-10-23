@@ -1,6 +1,6 @@
 import { ShareImage } from "@/lib/share-image";
 
-export const alt = "Meet the Jets legends — The Back Page";
+export const alt = "Meet the Jets legends — ajetsfan";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

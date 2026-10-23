@@ -186,7 +186,6 @@ function StoryExperience({ stories }: { stories: VisualStory[] }) {
   const maximum = Math.max(...story.points.map((point) => point.wp));
 
   return <section ref={section} id="visual-story" className={`${styles.story} ${interacted ? styles.interacted : ""}`} aria-labelledby="visual-story-heading" data-story={story.id} data-moment={index + 1} data-selected-index={index}>
-    <div className={styles.filing}><span><i aria-hidden="true" />The Back Page / Visual stories</span><span>Recorded plays. An explorable story.</span></div>
     <header className={styles.header}>
       <div><p className={styles.eyebrow}>New York {story.game.atHome ? "vs" : "at"} {story.game.opponentDisplay} <span>·</span> <time dateTime={story.game.date}>{formatDate(story.game.date)}</time></p><h2 id="visual-story-heading">{story.title}</h2><p className={styles.dek}>{story.dek}</p></div>
       <div className={styles.final} aria-label={`Confirmed final: Jets ${story.game.jetsScore}, ${story.game.opponentDisplay} ${story.game.oppScore}`}><span>Confirmed final{story.game.wentToOt ? " / OT" : ""}</span><div><p><b>NYJ</b><strong>{story.game.jetsScore}</strong></p><span aria-hidden="true">—</span><p><b>{story.game.opponentDisplay}</b><strong>{story.game.oppScore}</strong></p></div></div>
