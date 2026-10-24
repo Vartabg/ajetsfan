@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-23T13:37:56.175Z",
+  "checkedAt": "2026-10-24T12:48:09.181Z",
   "curatedCheckedAt": "2026-10-08T02:01:00.000Z",
   "items": [
     {
@@ -963,6 +963,930 @@
       }
     },
     {
+      "id": "auto-wfan-boomer-gio-e5c134455141635c62caf8e2",
+      "title": "Best of Boomer & Gio on WFAN: Could Giants REALLY trade for Saquon Barkley?",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-10-24T08:58:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/best-of-boomer-gio-on-wfan-could-giants-really-trade/id386001601?i=1000797901324",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "80d36d9a85538607"
+      },
+      "summary": "Published by Boomer & Gio.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jets-media-1ad48bf331d2478a1b85722f",
+      "title": "Jets News: New York Jets vs Miami Dolphins MAJOR Updates ... BREECE BACK ?!",
+      "kind": "video",
+      "outletId": "jets-media",
+      "author": "Jets Media",
+      "publishedAt": "2026-10-24T05:22:02.000Z",
+      "url": "https://www.youtube.com/watch?v=eyW8mh6f1L4",
+      "youtubeId": "eyW8mh6f1L4",
+      "embedAllowed": true,
+      "summary": "Published by Jets Media.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/eyW8mh6f1L4/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "e566c947f5d6f134"
+      }
+    },
+    {
+      "id": "auto-wfan-videos-54e9033c9ee15eb82decb5d5",
+      "title": "WFAN LIVE: GIANTS, JETS WEEK 7 PREVIEW & YANKEES DRAMA!",
+      "kind": "video",
+      "outletId": "wfan",
+      "author": "WFAN",
+      "publishedAt": "2026-10-24T03:50:44.000Z",
+      "url": "https://www.youtube.com/watch?v=S4g-L_wFehc",
+      "youtubeId": "S4g-L_wFehc",
+      "embedAllowed": true,
+      "summary": "Published by WFAN videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/S4g-L_wFehc/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "993464ef747ffb4c"
+      }
+    },
+    {
+      "id": "auto-new-york-post-772687260c3b2dc2abc5508f",
+      "title": "Adonai Mitchell’s long-awaited Jets return from mystery finger injury gives offense the boost it needs",
+      "kind": "article",
+      "outletId": "new-york-post",
+      "author": "Zach Braziller",
+      "publishedAt": "2026-10-24T01:24:08.000Z",
+      "url": "https://nypost.com/2026/10/23/sports/jets-adonai-mitchell-has-no-memory-how-he-got-finger-injury/",
+      "image": {
+        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F10%2Fjets-wide-receiver-adonai-mitchell-146219841.jpg?w%3D1024",
+        "width": 3240,
+        "height": 2160,
+        "fingerprint": "8e0eede15ae0e3c5"
+      },
+      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Beat reporting"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-new-york-post-b49f83044db3b09f2b93c630",
+      "title": "Aaron Glenn faces $250K fine for conduct toward NFL officials",
+      "kind": "article",
+      "outletId": "new-york-post",
+      "author": "Zach Braziller",
+      "publishedAt": "2026-10-24T00:15:45.000Z",
+      "url": "https://nypost.com/2026/10/23/sports/aaron-glenn-faces-250k-fine-for-conduct-toward-nfl-officials/",
+      "image": {
+        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F10%2Fjets-head-coach-aaron-glenn-146217945.jpg?w%3D1024",
+        "width": 3294,
+        "height": 2196,
+        "fingerprint": "db14a725efc64940"
+      },
+      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Beat reporting"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-sny-videos-2c2a95851ffb9ff2579accdd",
+      "title": "AD Mitchell talks return to Jets lineup, Harrison Phillips sizes up the Dolphins ground game",
+      "kind": "video",
+      "outletId": "sny",
+      "author": "SNY",
+      "publishedAt": "2026-10-23T23:39:13.000Z",
+      "url": "https://www.youtube.com/watch?v=25UQb_0vEC8",
+      "youtubeId": "25UQb_0vEC8",
+      "embedAllowed": true,
+      "summary": "Published by SNY videos.",
+      "topics": [
+        "TV analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/25UQb_0vEC8/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "d08f65d2074cf208"
+      }
+    },
+    {
+      "id": "auto-jets-media-6a861e2dcf740cbce008ccb7",
+      "title": "This Jets vs Dolphins game is a MUST WIN for the Jets … #nyjets",
+      "kind": "video",
+      "outletId": "jets-media",
+      "author": "Jets Media",
+      "publishedAt": "2026-10-23T23:36:34.000Z",
+      "url": "https://www.youtube.com/watch?v=_4ZjIvibz_o",
+      "youtubeId": "_4ZjIvibz_o",
+      "embedAllowed": true,
+      "summary": "Published by Jets Media.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/_4ZjIvibz_o/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "9a23111374a5414d"
+      }
+    },
+    {
+      "id": "auto-wfan-carton-79e608a9a3a67ce7030bc6cb",
+      "title": "Craig and Big Mac: Jets' Must-Win and Giants' McCarthy Era",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-10-23T22:53:19.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/craig-and-big-mac-jets-must-win-and-giants-mccarthy-era/id942553546?i=1000797860218",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "e9fa9a498c60fa56"
+      },
+      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-espn-new-york-videos-4e8ba05ee15383b74f6e33ed",
+      "title": "Giants & Jets Preview l BIG Devils Trade | Don, Hahn, & Rosenberg - 10/23/26",
+      "kind": "video",
+      "outletId": "espn-new-york",
+      "author": "ESPN New York",
+      "publishedAt": "2026-10-23T22:50:23.000Z",
+      "url": "https://www.youtube.com/watch?v=eIXZMDQgvnc",
+      "youtubeId": "eIXZMDQgvnc",
+      "embedAllowed": true,
+      "summary": "Published by ESPN New York videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/eIXZMDQgvnc/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "3014dea23dac67eb"
+      }
+    },
+    {
+      "id": "auto-wfan-carton-5f8662febf75b0564358ab7a",
+      "title": "Aaron Glenn's Coaching Career Is on the Line Against the Dolphins",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-10-23T22:49:35.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/aaron-glenns-coaching-career-is-on-the-line-against/id942553546?i=1000797858654",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "e9fa9a498c60fa56"
+      },
+      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-carton-ef6d5f124f59b50ad064a41e",
+      "title": "J.J. McCarthy Controversy & Jalen Hurts Fact-Check",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-10-23T22:47:35.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/j-j-mccarthy-controversy-jalen-hurts-fact-check/id942553546?i=1000797858689",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "e9fa9a498c60fa56"
+      },
+      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-videos-578070d4841c33ec2350d1e2",
+      "title": "FOOTBALL FRIDAY! JETS & GIANTS MUST RESPOND! Week 7 PREVIEW | WFAN Live",
+      "kind": "video",
+      "outletId": "wfan",
+      "author": "WFAN",
+      "publishedAt": "2026-10-23T22:18:06.000Z",
+      "url": "https://www.youtube.com/watch?v=cBDeFKB2S5Y",
+      "youtubeId": "cBDeFKB2S5Y",
+      "embedAllowed": true,
+      "summary": "Published by WFAN videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/cBDeFKB2S5Y/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "6f63b188d570f960"
+      }
+    },
+    {
+      "id": "auto-sny-videos-d70aabd0f2e2bf6d49af9161",
+      "title": "Aaron Glenn on more touches for Garrett Wilson, AD Mitchell return, defending Miami's Ollie Gordon",
+      "kind": "video",
+      "outletId": "sny",
+      "author": "SNY",
+      "publishedAt": "2026-10-23T22:12:49.000Z",
+      "url": "https://www.youtube.com/watch?v=9xKExtgtj6o",
+      "youtubeId": "9xKExtgtj6o",
+      "embedAllowed": true,
+      "summary": "Published by SNY videos.",
+      "topics": [
+        "TV analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/9xKExtgtj6o/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "86d2a7c210d35dc4"
+      }
+    },
+    {
+      "id": "auto-espn-don-hahn-rosenberg-7f60bb016e0587e6b622aeef",
+      "title": "Hour 3: NFL Week 7",
+      "kind": "audio",
+      "outletId": "espn-new-york",
+      "author": "ESPN New York, Alan Hahn, Peter Rosenberg",
+      "publishedAt": "2026-10-23T22:11:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-3-nfl-week-7/id1788585041?i=1000797852231",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/40/7b/d3/407bd344-c456-ffc6-abc6-3a0d80a6b758/mza_7662506757077368151.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "b64153dd7db5bd9b"
+      },
+      "summary": "Published by Don, Hahn & Rosenberg.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-videos-e52eff127600c87c547c8e78",
+      "title": "Boomer & Valenti Sound the Alarm on the Giants!",
+      "kind": "video",
+      "outletId": "wfan",
+      "author": "WFAN",
+      "publishedAt": "2026-10-23T22:00:05.000Z",
+      "url": "https://www.youtube.com/watch?v=ir5PdRmuczc",
+      "youtubeId": "ir5PdRmuczc",
+      "embedAllowed": true,
+      "summary": "Published by WFAN videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/ir5PdRmuczc/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "38b3a80fac8b296a"
+      }
+    },
+    {
+      "id": "auto-jake-asman-a854be057655e532e908aebf",
+      "title": "NO EXCUSES: The Jets MUST Beat the Dolphins",
+      "kind": "video",
+      "outletId": "jake-asman-show",
+      "author": "Jake Asman",
+      "publishedAt": "2026-10-23T21:18:45.000Z",
+      "url": "https://www.youtube.com/watch?v=_mLOpp4mJbs",
+      "youtubeId": "_mLOpp4mJbs",
+      "embedAllowed": true,
+      "summary": "Published by The Jake Asman Show.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/_mLOpp4mJbs/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "a22c1bfd03d0e196"
+      }
+    },
+    {
+      "id": "auto-jets-x-factor-c90afcd5c4b039c8731f1d62",
+      "title": "Is this NY Jets breakout player coming back down to earth?",
+      "kind": "article",
+      "outletId": "jets-x-factor",
+      "author": "Connor Long",
+      "publishedAt": "2026-10-23T21:05:49.000Z",
+      "url": "https://jetsxfactor.com/2026/10/23/is-this-ny-jets-breakout-player-coming-back-down-to-earth/",
+      "image": {
+        "url": "https://jetsxfactor.com/wp-content/uploads/2026/10/New-York-Jets-Aaron-Glenn-4-1200x675.jpg",
+        "width": 1200,
+        "height": 675,
+        "fingerprint": "27845c27cf5d9bac"
+      },
+      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-francesa-videos-0f3d470d62d52575b9b11c74",
+      "title": "Francesa Five for NFL Week 7 - Betting Props & Predictions",
+      "kind": "video",
+      "outletId": "mike-francesa-podcast",
+      "author": "Mike Francesa Podcast",
+      "publishedAt": "2026-10-23T21:00:06.000Z",
+      "url": "https://www.youtube.com/watch?v=pZrfeD4Lp5s",
+      "youtubeId": "pZrfeD4Lp5s",
+      "embedAllowed": true,
+      "summary": "Published by Mike Francesa Podcast videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/pZrfeD4Lp5s/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "bb9195992dad5833"
+      }
+    },
+    {
+      "id": "auto-francesa-9372512f0953709b64c810e3",
+      "title": "Francesa Five for NFL Week 7 - Betting Props & Predictions",
+      "kind": "audio",
+      "outletId": "mike-francesa-podcast",
+      "author": "BetRivers Network",
+      "publishedAt": "2026-10-23T21:00:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/francesa-five-for-nfl-week-7-betting-props-predictions/id1615588712?i=1000797842979",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/fe/fe/91/fefe9198-eef9-c635-f0ec-f53bb49e88c9/mza_475508703759044749.jpeg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "aaa44f567024830e"
+      },
+      "summary": "Published by The Mike Francesa Podcast.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jake-asman-4ceaa30eab779fce54cfcc12",
+      "title": "Will Parkinson Reveals Why The Jets Have NO EXCUSES vs. Dolphins!",
+      "kind": "video",
+      "outletId": "jake-asman-show",
+      "author": "Jake Asman",
+      "publishedAt": "2026-10-23T20:30:09.000Z",
+      "url": "https://www.youtube.com/watch?v=fQAi5bjmZJE",
+      "youtubeId": "fQAi5bjmZJE",
+      "embedAllowed": true,
+      "summary": "Published by The Jake Asman Show.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/fQAi5bjmZJE/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "fa6cdbb662a6e373"
+      }
+    },
+    {
+      "id": "auto-jets-media-02db3c22697717c992a67fea",
+      "title": "🚨 MAJOR Garrett Wilson Report Just Changed the Conversation...",
+      "kind": "video",
+      "outletId": "jets-media",
+      "author": "Jets Media",
+      "publishedAt": "2026-10-23T20:26:10.000Z",
+      "url": "https://www.youtube.com/watch?v=8mfCxUY3BsY",
+      "youtubeId": "8mfCxUY3BsY",
+      "embedAllowed": true,
+      "summary": "Published by Jets Media.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/8mfCxUY3BsY/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "8233b1734f2475bc"
+      }
+    },
+    {
+      "id": "auto-jets-x-factor-2172fb9dfdaf8017ec656d9c",
+      "title": "One NY Jets position group has no excuses this Sunday",
+      "kind": "article",
+      "outletId": "jets-x-factor",
+      "author": "Stefan Stelling",
+      "publishedAt": "2026-10-23T20:07:40.000Z",
+      "url": "https://jetsxfactor.com/2026/10/23/one-ny-jets-position-group-has-no-excuses-this-sunday/",
+      "image": {
+        "url": "https://jetsxfactor.com/wp-content/uploads/2026/09/New-York-Jets-Aaron-Glenn-3-1200x675.jpg",
+        "width": 1200,
+        "height": 675,
+        "fingerprint": "96563884feb4781c"
+      },
+      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-espn-don-hahn-rosenberg-dfa501347367ede246b94fcd",
+      "title": "Hour 1: Big Game for the Jets",
+      "kind": "audio",
+      "outletId": "espn-new-york",
+      "author": "ESPN New York, Alan Hahn, Peter Rosenberg",
+      "publishedAt": "2026-10-23T20:07:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-1-big-game-for-the-jets/id1788585041?i=1000797837605",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/40/7b/d3/407bd344-c456-ffc6-abc6-3a0d80a6b758/mza_7662506757077368151.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "b64153dd7db5bd9b"
+      },
+      "summary": "Published by Don, Hahn & Rosenberg.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jets-collective-b84f94091c091fb9d49fe556",
+      "title": "New York Jets Face MUST-WIN vs. Dolphins! Aaron Glenn Under Pressure & Garrett Wilson Frustrated",
+      "kind": "audio",
+      "outletId": "jets-collective",
+      "author": "Creator Collective, HMA",
+      "publishedAt": "2026-10-23T19:50:57.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/new-york-jets-face-must-win-vs-dolphins-aaron-glenn/id1887763130?i=1000797835891",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ef/0a/04/ef0a0436-2a6a-8b70-4a69-2b8048393053/mza_1909685854625774537.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "10354edbb5360919"
+      },
+      "summary": "Published by Jets Collective.",
+      "topics": [
+        "Roundtable"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-espn-new-york-videos-3e090aeb361b3db944bd7436",
+      "title": "Aaron Glenn on the HOT SEAT? Yankees Fans RIP Cashman & Boone | The Michael Kay Show - 10/23/26",
+      "kind": "video",
+      "outletId": "espn-new-york",
+      "author": "ESPN New York",
+      "publishedAt": "2026-10-23T19:12:40.000Z",
+      "url": "https://www.youtube.com/watch?v=cGWxuvFdkcM",
+      "youtubeId": "cGWxuvFdkcM",
+      "embedAllowed": true,
+      "summary": "Published by ESPN New York videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/cGWxuvFdkcM/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "d7b6a0a896c8a03a"
+      }
+    },
+    {
+      "id": "auto-matt-oleary-203c2e012e01bf9ed1917993",
+      "title": "AD Mitchell Back This Week! Will McDonald Listed on Trade Deadline Board | New York Jets News",
+      "kind": "video",
+      "outletId": "matt-oleary",
+      "author": "Matt O'Leary",
+      "publishedAt": "2026-10-23T19:00:37.000Z",
+      "url": "https://www.youtube.com/watch?v=70B7of-ci2Q",
+      "youtubeId": "70B7of-ci2Q",
+      "embedAllowed": true,
+      "summary": "Published by Matt O’Leary.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/70B7of-ci2Q/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "f60ae1734dce7090"
+      }
+    },
+    {
+      "id": "auto-jake-asman-bf7c3f6e2188d7dc4dc90ca7",
+      "title": "Jets Analysts Reveal Latest News & BIGGEST Keys To SAVING Season vs. Dolphins!",
+      "kind": "video",
+      "outletId": "jake-asman-show",
+      "author": "Jake Asman",
+      "publishedAt": "2026-10-23T19:00:06.000Z",
+      "url": "https://www.youtube.com/watch?v=6DfMGoWlB0U",
+      "youtubeId": "6DfMGoWlB0U",
+      "embedAllowed": true,
+      "summary": "Published by The Jake Asman Show.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/6DfMGoWlB0U/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "9e5b55509236c4c0"
+      }
+    },
+    {
+      "id": "auto-wfan-evan-tiki-aecb11ff46d5b32b80248afc",
+      "title": "Hour 1: Evan Is Terrified the Jets Will Blow Their Season",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-10-23T18:55:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-1-evan-is-terrified-the-jets-will-blow-their-season/id386002649?i=1000797830257",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "80c6bc3b2e8174b2"
+      },
+      "summary": "Published by Evan & Tiki.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-evan-tiki-0df898a44045b1d377986bad",
+      "title": "Hour 2: Knicks' Fake Championship Ring Email Crosses the Line",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-10-23T18:50:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-2-knicks-fake-championship-ring-email-crosses-the-line/id386002649?i=1000797830185",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "80c6bc3b2e8174b2"
+      },
+      "summary": "Published by Evan & Tiki.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-bt-unleashed-8c896a3501d08e4d8bb4712b",
+      "title": "This is A Game The Jets ARE SUPPOSED TO WIN!!! #nyjets #nfl #dolphins #jets",
+      "kind": "video",
+      "outletId": "bt-unleashed",
+      "author": "Brandon Tierney",
+      "publishedAt": "2026-10-23T18:46:28.000Z",
+      "url": "https://www.youtube.com/watch?v=XSMF1Vl6WGI",
+      "youtubeId": "XSMF1Vl6WGI",
+      "embedAllowed": true,
+      "summary": "Published by BT Unleashed.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/XSMF1Vl6WGI/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "9cae2cf4cc9543fb"
+      }
+    },
+    {
+      "id": "auto-wfan-evan-tiki-71fd407a29b4941c26469df1",
+      "title": "Friday Full Show: Giants and Jets Get Ready for Week 7",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-10-23T18:31:45.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/friday-full-show-giants-and-jets-get-ready-for-week-7/id386002649?i=1000797830070",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "80c6bc3b2e8174b2"
+      },
+      "summary": "Published by Evan & Tiki.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-daily-15ebbe8692235a9cbfbd4b14",
+      "title": "Jets Must Beat Dolphins to Save Aaron Glenn’s Job | The Carton Show with Chris McMonigle",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-10-23T18:00:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/jets-must-beat-dolphins-to-save-aaron-glenns-job-the/id386002669?i=1000797832298",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/36/4e/5f/364e5f7b-284f-da1f-6556-a04fafa377d9/mza_2084945017036074099.jpeg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "4b1a61753a530bf8"
+      },
+      "summary": "Published by WFAN Daily.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-espn-new-york-videos-d24fb5829f0140e58196e7c5",
+      "title": "JJ McCarthy Starting for Giants | Must-Win for Aaron Glenn? | Knicks at Celtics | Carlin | 10/23/26",
+      "kind": "video",
+      "outletId": "espn-new-york",
+      "author": "ESPN New York",
+      "publishedAt": "2026-10-23T17:50:36.000Z",
+      "url": "https://www.youtube.com/watch?v=dhE9nPKxXC8",
+      "youtubeId": "dhE9nPKxXC8",
+      "embedAllowed": true,
+      "summary": "Published by ESPN New York videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/dhE9nPKxXC8/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "3b0677de425057bb"
+      }
+    },
+    {
+      "id": "auto-bt-unleashed-242fbd799d5961d9b4596f0e",
+      "title": "IF AARON GLENN LOSES THIS GAME, IT'S OVER!!!",
+      "kind": "video",
+      "outletId": "bt-unleashed",
+      "author": "Brandon Tierney",
+      "publishedAt": "2026-10-23T17:27:38.000Z",
+      "url": "https://www.youtube.com/watch?v=b-cc9AFblqA",
+      "youtubeId": "b-cc9AFblqA",
+      "embedAllowed": true,
+      "summary": "Published by BT Unleashed.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/b-cc9AFblqA/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "b346383c482d9942"
+      }
+    },
+    {
+      "id": "auto-bt-unleashed-583b02160aa7480591819dec",
+      "title": "The Jets MUST BEAT THE DOLPHINS HANDILY!!!",
+      "kind": "video",
+      "outletId": "bt-unleashed",
+      "author": "Brandon Tierney",
+      "publishedAt": "2026-10-23T16:46:02.000Z",
+      "url": "https://www.youtube.com/watch?v=6NuDxuGurYE",
+      "youtubeId": "6NuDxuGurYE",
+      "embedAllowed": true,
+      "summary": "Published by BT Unleashed.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/6NuDxuGurYE/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "8207e196a0b53a05"
+      }
+    },
+    {
+      "id": "auto-new-york-post-267856268192c0ac244586f9",
+      "title": "How ‘Peanut Punch madness’ has running backs spooked, coaches flummoxed and fumbles flooding the NFL",
+      "kind": "article",
+      "outletId": "new-york-post",
+      "author": "Ryan Dunleavy",
+      "publishedAt": "2026-10-23T16:00:00.000Z",
+      "url": "https://nypost.com/2026/10/23/sports/how-peanut-punch-madness-hasfumbles-flooding-the-nfl/",
+      "image": {
+        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F10%2FGettyImages-2299906672.jpg?quality%3D90%26strip%3Dall",
+        "width": 3000,
+        "height": 2066,
+        "fingerprint": "1f696ac34ac9ae84"
+      },
+      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Beat reporting"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-francesa-289e86ff7c234e1948dea3e7",
+      "title": "Francesa Football Friday for Week 7 with Sal, JJ, and Shaun King",
+      "kind": "audio",
+      "outletId": "mike-francesa-podcast",
+      "author": "BetRivers Network",
+      "publishedAt": "2026-10-23T15:34:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/francesa-football-friday-for-week-7-with-sal-jj-and/id1615588712?i=1000797803122",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/fe/fe/91/fefe9198-eef9-c635-f0ec-f53bb49e88c9/mza_475508703759044749.jpeg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "aaa44f567024830e"
+      },
+      "summary": "Published by The Mike Francesa Podcast.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-francesa-videos-713ac71cc5b26eb378d31e05",
+      "title": "Francesa Football Friday for Week 7 with Sal, JJ, and Shaun King",
+      "kind": "video",
+      "outletId": "mike-francesa-podcast",
+      "author": "Mike Francesa Podcast",
+      "publishedAt": "2026-10-23T15:33:45.000Z",
+      "url": "https://www.youtube.com/watch?v=xknue8hCY4w",
+      "youtubeId": "xknue8hCY4w",
+      "embedAllowed": true,
+      "summary": "Published by Mike Francesa Podcast videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/xknue8hCY4w/sddefault.jpg",
+        "width": 640,
+        "height": 480,
+        "fingerprint": "235db35377f475f7"
+      }
+    },
+    {
+      "id": "auto-jets-central-c116329815e734c7bf962701",
+      "title": "REPORT: Widespread Belief The Colts Will Be Major Sellers | Could The New York Jets Make A Trade?",
+      "kind": "video",
+      "outletId": "jets-central",
+      "author": "JetsCentral",
+      "publishedAt": "2026-10-23T14:44:33.000Z",
+      "url": "https://www.youtube.com/watch?v=6Rs8f9mwbB0",
+      "youtubeId": "6Rs8f9mwbB0",
+      "embedAllowed": true,
+      "summary": "Published by Jets Central.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/6Rs8f9mwbB0/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "a8616cef2b01bee4"
+      }
+    },
+    {
+      "id": "auto-wfan-boomer-gio-0d58bc897a79f2ecd0c498e3",
+      "title": "Full show - Bears beat Pats, Saquon trade talk, Falcons evil logo & our NFL Picks",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-10-23T14:20:57.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/full-show-bears-beat-pats-saquon-trade-talk-falcons/id386001601?i=1000797792433",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "80d36d9a85538607"
+      },
+      "summary": "Published by Boomer & Gio.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-boomer-gio-c3158b9c581eb27956ee079f",
+      "title": "Hour 1 - Bear beat Dolphins, plus, some Giants & Jets preview",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-10-23T14:18:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-1-bear-beat-dolphins-plus-some-giants-jets-preview/id386001601?i=1000797790992",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "80d36d9a85538607"
+      },
+      "summary": "Published by Boomer & Gio.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-daily-91e07a499211de6909603d0c",
+      "title": "Evan Fears the Jets Are Walking Into Disaster | Evan & Tiki",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-10-23T14:00:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/evan-fears-the-jets-are-walking-into-disaster-evan-tiki/id386002669?i=1000797831726",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/36/4e/5f/364e5f7b-284f-da1f-6556-a04fafa377d9/mza_2084945017036074099.jpeg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "4b1a61753a530bf8"
+      },
+      "summary": "Published by WFAN Daily.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-matt-oleary-a5f7b8749af65b370b6cecae",
+      "title": "The decision that matters most for Darren Mougey #Jets #shorts",
+      "kind": "video",
+      "outletId": "matt-oleary",
+      "author": "Matt O'Leary",
+      "publishedAt": "2026-10-23T13:50:49.000Z",
+      "url": "https://www.youtube.com/watch?v=KZutecP-Qfc",
+      "youtubeId": "KZutecP-Qfc",
+      "embedAllowed": true,
+      "summary": "Published by Matt O’Leary.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/KZutecP-Qfc/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "3411a532af3b783a"
+      }
+    },
+    {
+      "id": "auto-jets-x-factor-b21fddce796acc8755e67bcc",
+      "title": "NY Jets OC Frank Reich addresses Garrett Wilson concerns",
+      "kind": "article",
+      "outletId": "jets-x-factor",
+      "author": "Connor Long",
+      "publishedAt": "2026-10-23T13:40:00.000Z",
+      "url": "https://jetsxfactor.com/2026/10/23/ny-jets-oc-frank-reich-addresses-garrett-wilson-concerns/",
+      "image": {
+        "url": "https://jetsxfactor.com/wp-content/uploads/2026/09/new-york-jets-garrett-wilson-1200x675.jpg",
+        "width": 1200,
+        "height": 675,
+        "fingerprint": "b7093f4a70d0382d"
+      },
+      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Analysis"
+      ],
+      "context": "current"
+    },
+    {
       "id": "auto-matt-oleary-d9449b760d2c03b62bccb696",
       "title": "Jets Insider Reveals Darren Mougey’s Job Security For Next Year",
       "kind": "video",
@@ -985,558 +1909,64 @@
       }
     },
     {
-      "id": "auto-wfan-videos-5a080690a39929ed8f044384",
-      "title": "Giants Coach Calls His Own Players TRAITORS!",
-      "kind": "video",
-      "outletId": "wfan",
-      "author": "WFAN",
-      "publishedAt": "2026-10-23T13:00:37.000Z",
-      "url": "https://www.youtube.com/watch?v=rLn4j1Y5WnM",
-      "youtubeId": "rLn4j1Y5WnM",
-      "embedAllowed": true,
-      "summary": "Published by WFAN videos.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/rLn4j1Y5WnM/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "7ac573bd6e1d83a0"
-      }
-    },
-    {
-      "id": "auto-jake-asman-c63b3e32b2846552db094a2b",
-      "title": "Woody Johnson Remains SILENT After Jets Rough Start!",
-      "kind": "video",
-      "outletId": "jake-asman-show",
-      "author": "Jake Asman",
-      "publishedAt": "2026-10-23T12:00:04.000Z",
-      "url": "https://www.youtube.com/watch?v=r-QUWz1UvIo",
-      "youtubeId": "r-QUWz1UvIo",
-      "embedAllowed": true,
-      "summary": "Published by The Jake Asman Show.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/r-QUWz1UvIo/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "5db486bc69673ed9"
-      }
-    },
-    {
-      "id": "auto-jets-x-factor-744f25e23d2f7a2f8c6a31e0",
-      "title": "Geno Smith’s strange trend could decide Jets-Dolphins",
-      "kind": "article",
-      "outletId": "jets-x-factor",
-      "author": "Connor Long",
-      "publishedAt": "2026-10-23T12:00:00.000Z",
-      "url": "https://jetsxfactor.com/2026/10/23/geno-smiths-strange-trend-could-decide-jets-dolphins/",
-      "image": {
-        "url": "https://jetsxfactor.com/wp-content/uploads/2026/10/New-York-Jets-Geno-Smith-7-1200x675.jpg",
-        "width": 1200,
-        "height": 675,
-        "fingerprint": "67d1f74e94c14f6d"
-      },
-      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jets-x-factor-0a50a8fce208de7e35eda35f",
-      "title": "Are NY Jets fans expecting too much from this rookie?",
-      "kind": "article",
-      "outletId": "jets-x-factor",
-      "author": "Connor Long",
-      "publishedAt": "2026-10-23T11:15:00.000Z",
-      "url": "https://jetsxfactor.com/2026/10/23/are-ny-jets-fans-expecting-too-much-from-this-rookie/",
-      "image": {
-        "url": "https://jetsxfactor.com/wp-content/uploads/2026/09/New-York-Jets-Aaron-Glenn-6-1200x675.jpg",
-        "width": 1200,
-        "height": 675,
-        "fingerprint": "d9b4cdce2abbf641"
-      },
-      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jake-asman-be2714c44cb38753e17d53e3",
-      "title": "Frank Reich’s Jets Offense Is BARELY Better Than Last Year",
-      "kind": "video",
-      "outletId": "jake-asman-show",
-      "author": "Jake Asman",
-      "publishedAt": "2026-10-23T10:57:23.000Z",
-      "url": "https://www.youtube.com/watch?v=9Lcn1HuCbaI",
-      "youtubeId": "9Lcn1HuCbaI",
-      "embedAllowed": true,
-      "summary": "Published by The Jake Asman Show.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/9Lcn1HuCbaI/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "fd9cedd2bd500b52"
-      }
-    },
-    {
-      "id": "auto-new-york-post-8d3cee70ff05bfb8b3092de3",
-      "title": "Frank Reich knows he has to get ball to Garrett Wilson ‘more’ as Jets fight offensive woes",
-      "kind": "article",
-      "outletId": "new-york-post",
-      "author": "Howie Kussoy",
-      "publishedAt": "2026-10-23T03:15:17.000Z",
-      "url": "https://nypost.com/2026/10/22/sports/jets-frank-reich-knows-he-has-to-get-ball-to-garrett-wilson-more/",
-      "image": {
-        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F10%2F5-new-york-jets-brakes-144670771_6e4485.jpg?w%3D1024",
-        "width": 4000,
-        "height": 2668,
-        "fingerprint": "9f5613738c478013"
-      },
-      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Beat reporting"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jets-media-e55f9924fba78885a5d2ddd9",
-      "title": "Jets NEWS: Latest Reports Heading Into Dolphins Week You MUST Know ...",
-      "kind": "video",
-      "outletId": "jets-media",
-      "author": "Jets Media",
-      "publishedAt": "2026-10-23T00:52:36.000Z",
-      "url": "https://www.youtube.com/watch?v=gWnGhFlaIt8",
-      "youtubeId": "gWnGhFlaIt8",
-      "embedAllowed": true,
-      "summary": "Published by Jets Media.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/gWnGhFlaIt8/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "c88cc116e1ee5d3f"
-      }
-    },
-    {
-      "id": "auto-jets-media-aa8d4441e57b1ea49fd8e87a",
-      "title": "🚨 Jets Fans Aren't Going to Like What I'm About to Say About Aaron Glenn...",
-      "kind": "video",
-      "outletId": "jets-media",
-      "author": "Jets Media",
-      "publishedAt": "2026-10-22T23:30:56.000Z",
-      "url": "https://www.youtube.com/watch?v=l97wrztCn9s",
-      "youtubeId": "l97wrztCn9s",
-      "embedAllowed": true,
-      "summary": "Published by Jets Media.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/l97wrztCn9s/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "7bbaee8b98112e39"
-      }
-    },
-    {
-      "id": "auto-new-york-post-63cd8ff9ed632d572bd5e3a4",
-      "title": "Jets defense is winning turnover battle despite lack of interceptions",
-      "kind": "article",
-      "outletId": "new-york-post",
-      "author": "Howie Kussoy",
-      "publishedAt": "2026-10-22T23:18:40.000Z",
-      "url": "https://nypost.com/2026/10/22/sports/jets-defense-is-winning-turnover-battle-despite-lack-of-interceptions/",
-      "image": {
-        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F10%2Fnew-england-patriots-wide-receiver-145623055.jpg?w%3D1024",
-        "width": 2733,
-        "height": 1822,
-        "fingerprint": "0d2db5111f059f11"
-      },
-      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Beat reporting"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jake-asman-0c04e53ab1891afcf61a64e6",
-      "title": "Dolphins Insider Reveals What Jets Fans NEED To Know Before Sunday's Showdown!",
-      "kind": "video",
-      "outletId": "jake-asman-show",
-      "author": "Jake Asman",
-      "publishedAt": "2026-10-22T23:14:47.000Z",
-      "url": "https://www.youtube.com/watch?v=fRMD2TAKD0k",
-      "youtubeId": "fRMD2TAKD0k",
-      "embedAllowed": true,
-      "summary": "Published by The Jake Asman Show.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/fRMD2TAKD0k/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "fe23245e68334f35"
-      }
-    },
-    {
-      "id": "auto-new-york-post-4193f4f940e7655bd68e807d",
-      "title": "Ex-Jets offensive lineman Alijah Vera-Tucker lands on IR again in latest Patriots crusher",
-      "kind": "article",
-      "outletId": "new-york-post",
-      "author": "Dylan Svoboda",
-      "publishedAt": "2026-10-22T22:53:09.000Z",
-      "url": "https://nypost.com/2026/10/22/sports/alijah-vera-tucker-lands-on-ir-again-in-latest-patriots-crusher/",
-      "image": {
-        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F10%2Fjets-guard-alijah-vera-tucker-109214692.jpg?w%3D1024",
-        "width": 3240,
-        "height": 2160,
-        "fingerprint": "e795f9662773f0c6"
-      },
-      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Beat reporting"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jets-x-factor-ffc4a92fa043010d978cc038",
-      "title": "The New York Jets are continually haunted by one troubling issue",
-      "kind": "article",
-      "outletId": "jets-x-factor",
-      "author": "Connor Long",
-      "publishedAt": "2026-10-22T22:22:19.000Z",
-      "url": "https://jetsxfactor.com/2026/10/22/new-york-jets-haunted-troubling-issue/",
-      "image": {
-        "url": "https://jetsxfactor.com/wp-content/uploads/2026/09/A-G-1200x675.jpg",
-        "width": 1200,
-        "height": 675,
-        "fingerprint": "002df8749d1b0f87"
-      },
-      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-carton-7e1834bdc6e1f79f9fd9264f",
-      "title": "Hour 2: Debating J.J. McCarthy's Impact and the Steve Tisch Controversy",
+      "id": "auto-espn-dipietro-rothenberg-1667f21a186fa5d93dece422",
+      "title": "Best-Of: 10/23/26",
       "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-10-22T22:03:40.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-2-debating-j-j-mccarthys-impact-and-the-steve/id942553546?i=1000797686514",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "8219b8ca2da52a35"
-      },
-      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-sny-videos-e7ede5db692227a97d1d3a95",
-      "title": "Breece Hall back at Jets practice ahead of Dolphins Week 7 matchup",
-      "kind": "video",
-      "outletId": "sny",
-      "author": "SNY",
-      "publishedAt": "2026-10-22T21:22:10.000Z",
-      "url": "https://www.youtube.com/watch?v=mh3Qfyqc2gk",
-      "youtubeId": "mh3Qfyqc2gk",
-      "embedAllowed": true,
-      "summary": "Published by SNY videos.",
-      "topics": [
-        "TV analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/mh3Qfyqc2gk/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "18950523e671cfb8"
-      }
-    },
-    {
-      "id": "auto-matt-oleary-a68775ebf163afac1002ae11",
-      "title": "Frank Reich Makes Embarrassing Garrett Wilson Admission + Breece Hall Returns to Practice",
-      "kind": "video",
-      "outletId": "matt-oleary",
-      "author": "Matt O'Leary",
-      "publishedAt": "2026-10-22T21:04:50.000Z",
-      "url": "https://www.youtube.com/watch?v=vrWOOSPYGbA",
-      "youtubeId": "vrWOOSPYGbA",
-      "embedAllowed": true,
-      "summary": "Published by Matt O’Leary.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/vrWOOSPYGbA/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "55f72a379406de8b"
-      }
-    },
-    {
-      "id": "auto-wfan-videos-bfd01034aa5db11d3b02a920",
-      "title": "Evan & Tiki LIVE: IT'S J.J. McCARTHY TIME! | Cashman STAYS, Hal Blames Players",
-      "kind": "video",
-      "outletId": "wfan",
-      "author": "WFAN",
-      "publishedAt": "2026-10-22T20:33:21.000Z",
-      "url": "https://www.youtube.com/watch?v=5RP6MsANGqg",
-      "youtubeId": "5RP6MsANGqg",
-      "embedAllowed": true,
-      "summary": "Published by WFAN videos.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/5RP6MsANGqg/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "c2294c3ee57542e7"
-      }
-    },
-    {
-      "id": "auto-bt-unleashed-6fc9389ff2423b77e900aa2a",
-      "title": "BT Previews JETS VS DOLPHINS!!!",
-      "kind": "video",
-      "outletId": "bt-unleashed",
-      "author": "Brandon Tierney",
-      "publishedAt": "2026-10-22T20:32:39.000Z",
-      "url": "https://www.youtube.com/watch?v=Qq-i_UFxWqw",
-      "youtubeId": "Qq-i_UFxWqw",
-      "embedAllowed": true,
-      "summary": "Published by BT Unleashed.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/Qq-i_UFxWqw/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "b1bd6be30d86aabd"
-      }
-    },
-    {
-      "id": "auto-espn-new-york-videos-43f88c0bc72e92a3f0141141",
-      "title": "Yankees Press Conference BACKLASH, Future of Front Office, JJ McCarthy to Start | Carlin - 10/22/26",
-      "kind": "video",
       "outletId": "espn-new-york",
-      "author": "ESPN New York",
-      "publishedAt": "2026-10-22T20:25:19.000Z",
-      "url": "https://www.youtube.com/watch?v=NMQkpFRzJ7Y",
-      "youtubeId": "NMQkpFRzJ7Y",
-      "embedAllowed": true,
-      "summary": "Published by ESPN New York videos.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current",
+      "author": "ESPN New York, Rick DiPietro, Dave Rothenberg",
+      "publishedAt": "2026-10-23T09:36:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/best-of-10-23-26/id928624712?i=1000797791365",
       "image": {
-        "url": "https://i.ytimg.com/vi/NMQkpFRzJ7Y/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "82d1cd41135edfc5"
-      }
-    },
-    {
-      "id": "auto-wfan-carton-923b5376b86e582effc6c6fc",
-      "title": "Craig's Jets Overhaul Plan and Why Ray Rice Once Babysat His Kids",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-10-22T20:22:59.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/craigs-jets-overhaul-plan-and-why-ray-rice-once/id942553546?i=1000797675216",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ab/df/04/abdf04a6-1164-4e05-ed27-d1990c1aaef8/mza_15206530149840678676.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "8219b8ca2da52a35"
+        "fingerprint": "2bcc836267c58e0d"
       },
-      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
+      "summary": "Published by DiPietro & Rothenberg.",
       "topics": [
         "Radio analysis"
       ],
       "context": "current"
     },
     {
-      "id": "auto-wfan-videos-b1a78c4daf823b668eb0036c",
-      "title": "JETS & GIANTS MUST RESPOND! Week 7 PREVIEW & BIG NFL QUESTIONS | The Carton Show",
-      "kind": "video",
-      "outletId": "wfan",
-      "author": "WFAN",
-      "publishedAt": "2026-10-22T20:15:01.000Z",
-      "url": "https://www.youtube.com/watch?v=03xb3SKSGU4",
-      "youtubeId": "03xb3SKSGU4",
-      "embedAllowed": true,
-      "summary": "Published by WFAN videos.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/03xb3SKSGU4/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "6f63b188d570f960"
-      }
-    },
-    {
-      "id": "auto-jets-media-2fbccf374de79115a8250ca5",
-      "title": "🚨 MAJOR UPDATE on Darren Mougey's Future With the Jets...",
-      "kind": "video",
-      "outletId": "jets-media",
-      "author": "Jets Media",
-      "publishedAt": "2026-10-22T20:02:23.000Z",
-      "url": "https://www.youtube.com/watch?v=el3kbRPuSc4",
-      "youtubeId": "el3kbRPuSc4",
-      "embedAllowed": true,
-      "summary": "Published by Jets Media.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/el3kbRPuSc4/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "862194a15f08f14d"
-      }
-    },
-    {
-      "id": "auto-wfan-carton-a916ac001b59e9e7c5bd8b87",
-      "title": "Craig and Big Mac Forecast a Giants Blowout Loss to the Texans",
+      "id": "auto-espn-dipietro-rothenberg-dfaeee4c1c244c308bc3f330",
+      "title": "Hour 2: Giants, Jets previews",
       "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-10-22T19:19:21.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/craig-and-big-mac-forecast-a-giants-blowout-loss/id942553546?i=1000797666599",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "8219b8ca2da52a35"
-      },
-      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-sny-videos-5d7f05efc0105fd719195968",
-      "title": "Demario Davis, Minkah Fitzpatrick talk Jets' defensive plan for Dolphins in Week 7",
-      "kind": "video",
-      "outletId": "sny",
-      "author": "SNY",
-      "publishedAt": "2026-10-22T19:16:45.000Z",
-      "url": "https://www.youtube.com/watch?v=GtbY-SGJDHM",
-      "youtubeId": "GtbY-SGJDHM",
-      "embedAllowed": true,
-      "summary": "Published by SNY videos.",
-      "topics": [
-        "TV analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/GtbY-SGJDHM/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "0462cc27a63322ed"
-      }
-    },
-    {
-      "id": "auto-matt-oleary-0ce4c3502394d553368878ed",
-      "title": "It's time to win a division game #Jets #Shorts",
-      "kind": "video",
-      "outletId": "matt-oleary",
-      "author": "Matt O'Leary",
-      "publishedAt": "2026-10-22T18:52:55.000Z",
-      "url": "https://www.youtube.com/watch?v=3n-ahF3-BGw",
-      "youtubeId": "3n-ahF3-BGw",
-      "embedAllowed": true,
-      "summary": "Published by Matt O’Leary.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/3n-ahF3-BGw/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "1a258efcb619c173"
-      }
-    },
-    {
-      "id": "auto-sny-videos-f24a27ff86a41a432bebd3a5",
-      "title": "Frank Reich addresses Garrett Wilson's inconsistent involvement in offense",
-      "kind": "video",
-      "outletId": "sny",
-      "author": "SNY",
-      "publishedAt": "2026-10-22T16:51:04.000Z",
-      "url": "https://www.youtube.com/watch?v=QuhuvJ5wz0Q",
-      "youtubeId": "QuhuvJ5wz0Q",
-      "embedAllowed": true,
-      "summary": "Published by SNY videos.",
-      "topics": [
-        "TV analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/QuhuvJ5wz0Q/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "064b1c4c7726f95c"
-      }
-    },
-    {
-      "id": "auto-espn-new-york-videos-bed6c1eca2d060a218773360",
-      "title": "A FULL Week 7 preview for the Giants, Jets + rest of the NFL | DiPietro & Rothenberg | 10/23/26",
-      "kind": "video",
       "outletId": "espn-new-york",
-      "author": "ESPN New York",
-      "publishedAt": "2026-10-22T15:18:10.000Z",
-      "url": "https://www.youtube.com/watch?v=Xu9Cky9lr5o",
-      "youtubeId": "Xu9Cky9lr5o",
-      "embedAllowed": true,
-      "summary": "Published by ESPN New York videos.",
+      "author": "ESPN New York, Rick DiPietro, Dave Rothenberg",
+      "publishedAt": "2026-10-23T08:14:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-2-giants-jets-previews/id928624712?i=1000797781967",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ab/df/04/abdf04a6-1164-4e05-ed27-d1990c1aaef8/mza_15206530149840678676.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "2bcc836267c58e0d"
+      },
+      "summary": "Published by DiPietro & Rothenberg.",
       "topics": [
         "Radio analysis"
       ],
-      "context": "current",
+      "context": "current"
+    },
+    {
+      "id": "auto-espn-dipietro-rothenberg-05b9fd380e78518e0ccd26b2",
+      "title": "Best-Of: 10/22/26",
+      "kind": "audio",
+      "outletId": "espn-new-york",
+      "author": "ESPN New York, Rick DiPietro, Dave Rothenberg",
+      "publishedAt": "2026-10-23T06:44:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/best-of-10-22-26/id928624712?i=1000797631291",
       "image": {
-        "url": "https://i.ytimg.com/vi/Xu9Cky9lr5o/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "887fd7cb813ca990"
-      }
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ab/df/04/abdf04a6-1164-4e05-ed27-d1990c1aaef8/mza_15206530149840678676.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "2bcc836267c58e0d"
+      },
+      "summary": "Published by DiPietro & Rothenberg.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
     },
     {
       "id": "auto-jets-central-95abe224bddce6f0e0cf4485",
@@ -1561,26 +1991,6 @@
       }
     },
     {
-      "id": "auto-espn-dipietro-rothenberg-6156c3056bf1984e70b75375",
-      "title": "Hour 3: Are Jets fans rooting against Aaron Glenn?",
-      "kind": "audio",
-      "outletId": "espn-new-york",
-      "author": "ESPN New York, Rick DiPietro, Dave Rothenberg",
-      "publishedAt": "2026-10-22T13:42:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-3-are-jets-fans-rooting-against-aaron-glenn/id928624712?i=1000797622853",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ab/df/04/abdf04a6-1164-4e05-ed27-d1990c1aaef8/mza_15206530149840678676.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "b2fa0c15fd57d470"
-      },
-      "summary": "Published by DiPietro & Rothenberg.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
       "id": "auto-jets-talk-247-bfcd3ccf26c696cebb4a8fc6",
       "title": "Dolphins vs Jets Preview - Week 7",
       "kind": "video",
@@ -1601,48 +2011,6 @@
         "height": 720,
         "fingerprint": "d3a833da7e00578b"
       }
-    },
-    {
-      "id": "auto-espn-new-york-videos-50c6944dc6af4a8d9135fcbb",
-      "title": "Knicks Game Recap | Jets & Giants Outlook | Don, Hahn, & Rosenberg - 10/21/26",
-      "kind": "video",
-      "outletId": "espn-new-york",
-      "author": "ESPN New York",
-      "publishedAt": "2026-10-21T23:42:25.000Z",
-      "url": "https://www.youtube.com/watch?v=Y3-Q_n3LAeA",
-      "youtubeId": "Y3-Q_n3LAeA",
-      "embedAllowed": true,
-      "summary": "Published by ESPN New York videos.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/Y3-Q_n3LAeA/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "1cb23e41512d1924"
-      }
-    },
-    {
-      "id": "auto-wfan-evan-tiki-f79e62b1b0c9756e06e5f720",
-      "title": "Hour 1: Knicks' Emotional Ring Ceremony Sparks a Painful Jets Realization",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-10-21T18:55:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-1-knicks-emotional-ring-ceremony-sparks-a/id386002649?i=1000797489461",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "b6fe11b31d9ad7e0"
-      },
-      "summary": "Published by Evan & Tiki.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
     },
     {
       "id": "auto-greenbean-jetsfan-dba6b3a410d05af8cff39be7",
@@ -1667,48 +2035,6 @@
       }
     },
     {
-      "id": "auto-jets-central-47c5ecd2a9672110452aad74",
-      "title": "LATEST Injury Updates! | New York Jets vs Miami Dolphins Week 7",
-      "kind": "video",
-      "outletId": "jets-central",
-      "author": "JetsCentral",
-      "publishedAt": "2026-10-21T17:13:30.000Z",
-      "url": "https://www.youtube.com/watch?v=6lI857pfo4A",
-      "youtubeId": "6lI857pfo4A",
-      "embedAllowed": true,
-      "summary": "Published by Jets Central.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/6lI857pfo4A/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "edd068bc66ef626c"
-      }
-    },
-    {
-      "id": "auto-wfan-evan-tiki-199b67ab540b5758dcf8187a",
-      "title": "Knicks Fans Face a New Reality After Winning It All",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-10-21T15:54:21.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/knicks-fans-face-a-new-reality-after-winning-it-all/id386002649?i=1000797466386",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "b6fe11b31d9ad7e0"
-      },
-      "summary": "Published by Evan & Tiki.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
       "id": "auto-lets-talk-jets-c343ae30bc4af554a8086918",
       "title": "Episode #144: Where Do The Jets Stand At 2-4? with JetsCentral",
       "kind": "audio",
@@ -1720,111 +2046,11 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/77/4c/39/774c392e-5cbc-1265-69ba-c1ac3caea58b/mza_7323735301574650351.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "fb17540ced3f0665"
+        "fingerprint": "274dbcf90c4a8ac9"
       },
       "summary": "Published by Let’s Talk Jets Radio.",
       "topics": [
         "Fan analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-boomer-gio-434ec444ee812245c5579189",
-      "title": "Full Show - Knicks raise banner but lose & lots of football talk with Phil Simms",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-10-21T14:20:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/full-show-knicks-raise-banner-but-lose-lots-of/id386001601?i=1000797451138",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "630aa139f9616e33"
-      },
-      "summary": "Published by Boomer & Gio.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-boomer-gio-b45daa1b9017a1b65edc3705",
-      "title": "Hour 3 - Real Hunger Games? Plus, Podcast guy issues and even some sports",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-10-21T14:16:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-3-real-hunger-games-plus-podcast-guy-issues-and/id386001601?i=1000797449691",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "630aa139f9616e33"
-      },
-      "summary": "Published by Boomer & Gio.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-boomer-gio-03650f19aa67417f52ebcf2e",
-      "title": "Hour 4 - Phil Simms on Giants QB choice and we preview Yanks press conference",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-10-21T14:15:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-4-phil-simms-on-giants-qb-choice-and-we-preview/id386001601?i=1000797449469",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "630aa139f9616e33"
-      },
-      "summary": "Published by Boomer & Gio.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-daily-4f82b64b6b436ead5473d173",
-      "title": "Knicks Fans Face a New Reality After Winning It All | Evan & Tiki",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-10-21T14:00:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/knicks-fans-face-a-new-reality-after-winning-it-all-evan-tiki/id386002669?i=1000797508798",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/36/4e/5f/364e5f7b-284f-da1f-6556-a04fafa377d9/mza_2084945017036074099.jpeg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "de552d25e6fdd24c"
-      },
-      "summary": "Published by WFAN Daily.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-daily-2010e1f7fdb9b0e87eb2a8c5",
-      "title": "Phil Simms on Giants starting QB | Boomer & Gio",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-10-21T12:00:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/phil-simms-on-giants-starting-qb-boomer-gio/id386002669?i=1000797506401",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/36/4e/5f/364e5f7b-284f-da1f-6556-a04fafa377d9/mza_2084945017036074099.jpeg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "de552d25e6fdd24c"
-      },
-      "summary": "Published by WFAN Daily.",
-      "topics": [
-        "Radio analysis"
       ],
       "context": "current"
     },
@@ -1862,53 +2088,11 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/77/4c/39/774c392e-5cbc-1265-69ba-c1ac3caea58b/mza_7323735301574650351.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "fb17540ced3f0665"
+        "fingerprint": "274dbcf90c4a8ac9"
       },
       "summary": "Published by Let’s Talk Jets Radio.",
       "topics": [
         "Fan analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jets-central-d3740ab89f51e1b5e0910447",
-      "title": "Where Do The Jets Stand At 2-4? (FT. Let's Talk Jets)",
-      "kind": "video",
-      "outletId": "jets-central",
-      "author": "JetsCentral",
-      "publishedAt": "2026-10-21T00:01:00.000Z",
-      "url": "https://www.youtube.com/watch?v=EbOTl_SXWmg",
-      "youtubeId": "EbOTl_SXWmg",
-      "embedAllowed": true,
-      "summary": "Published by Jets Central.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/EbOTl_SXWmg/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "27183b0fb83e4afb"
-      }
-    },
-    {
-      "id": "auto-wfan-evan-tiki-6d18ddaedfa20b12e0bcbb17",
-      "title": "Hour 2: Yankees Bring Back Aaron Boone Despite Years of Failure",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-10-20T18:50:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-2-yankees-bring-back-aaron-boone-despite-years/id386002649?i=1000797307700",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "b6fe11b31d9ad7e0"
-      },
-      "summary": "Published by Evan & Tiki.",
-      "topics": [
-        "Radio analysis"
       ],
       "context": "current"
     },
@@ -1924,115 +2108,11 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ef/0a/04/ef0a0436-2a6a-8b70-4a69-2b8048393053/mza_1909685854625774537.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "b3e4b90c18cf1107"
+        "fingerprint": "10354edbb5360919"
       },
       "summary": "Published by Jets Collective.",
       "topics": [
         "Roundtable"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-francesa-1be91e3b7251ac297816b328",
-      "title": "Francesa: Giants QB Situation + Does Glenn Need to Win Next 2 Games",
-      "kind": "audio",
-      "outletId": "mike-francesa-podcast",
-      "author": "BetRivers Network",
-      "publishedAt": "2026-10-20T01:17:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/francesa-giants-qb-situation-does-glenn-need-to-win/id1615588712?i=1000797180036",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/fe/fe/91/fefe9198-eef9-c635-f0ec-f53bb49e88c9/mza_475508703759044749.jpeg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "24468bdb445d119d"
-      },
-      "summary": "Published by The Mike Francesa Podcast.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-bt-unleashed-64eced0b4197bf0e893ff176",
-      "title": "Glenn’s Record SPEAKS FOR ITSELF!!! #nyjets #nfl #jets #nflfootball",
-      "kind": "video",
-      "outletId": "bt-unleashed",
-      "author": "Brandon Tierney",
-      "publishedAt": "2026-10-19T22:10:53.000Z",
-      "url": "https://www.youtube.com/watch?v=rvAWnCErjSE",
-      "youtubeId": "rvAWnCErjSE",
-      "embedAllowed": true,
-      "summary": "Published by BT Unleashed.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/rvAWnCErjSE/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "4a88ce5347b0ed18"
-      }
-    },
-    {
-      "id": "auto-espn-don-hahn-rosenberg-6b5c708752fe26cc512e8159",
-      "title": "Hour 2: Jets & NFL Binge",
-      "kind": "audio",
-      "outletId": "espn-new-york",
-      "author": "ESPN New York, Alan Hahn, Peter Rosenberg",
-      "publishedAt": "2026-10-19T21:18:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-2-jets-nfl-binge/id1788585041?i=1000797153066",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/40/7b/d3/407bd344-c456-ffc6-abc6-3a0d80a6b758/mza_7662506757077368151.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "e1a9df70d13d2d78"
-      },
-      "summary": "Published by Don, Hahn & Rosenberg.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-francesa-videos-a929764e4a5ee37f8f5d20e1",
-      "title": "Francesa: Giants QB Situation, Cam Skattebo Fiasco + Does Glenn Need to Win Next 2 Games",
-      "kind": "video",
-      "outletId": "mike-francesa-podcast",
-      "author": "Mike Francesa Podcast",
-      "publishedAt": "2026-10-19T21:02:28.000Z",
-      "url": "https://www.youtube.com/watch?v=kKu8m3O0eeA",
-      "youtubeId": "kKu8m3O0eeA",
-      "embedAllowed": true,
-      "summary": "Published by Mike Francesa Podcast videos.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/kKu8m3O0eeA/sddefault.jpg",
-        "width": 640,
-        "height": 480,
-        "fingerprint": "3aa52c8f28bc8b42"
-      }
-    },
-    {
-      "id": "auto-espn-dipietro-rothenberg-494bb926d3236764693ff948",
-      "title": "Best-Of: 10/19/26",
-      "kind": "audio",
-      "outletId": "espn-new-york",
-      "author": "ESPN New York, Rick DiPietro, Dave Rothenberg",
-      "publishedAt": "2026-10-19T16:07:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/best-of-10-19-26/id928624712?i=1000797095692",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ab/df/04/abdf04a6-1164-4e05-ed27-d1990c1aaef8/mza_15206530149840678676.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "b2fa0c15fd57d470"
-      },
-      "summary": "Published by DiPietro & Rothenberg.",
-      "topics": [
-        "Radio analysis"
       ],
       "context": "current"
     },
@@ -2048,7 +2128,7 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/8f/d6/b9/8fd6b9f9-bbb0-099c-abbf-ecdbd33e9184/mza_4397428695347381128.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "ccf3989bbe7528e7"
+        "fingerprint": "179633614007aa35"
       },
       "summary": "Published by Oh the Pain Podcast.",
       "topics": [
@@ -2079,48 +2159,6 @@
       }
     },
     {
-      "id": "auto-francesa-0a24321251985cccf5a394bb",
-      "title": "Mike Francesa Reacts: Giants and Jets Both Lose, Week 6",
-      "kind": "audio",
-      "outletId": "mike-francesa-podcast",
-      "author": "BetRivers Network",
-      "publishedAt": "2026-10-18T23:07:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/mike-francesa-reacts-giants-and-jets-both-lose-week-6/id1615588712?i=1000796982979",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/fe/fe/91/fefe9198-eef9-c635-f0ec-f53bb49e88c9/mza_475508703759044749.jpeg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "24468bdb445d119d"
-      },
-      "summary": "Published by The Mike Francesa Podcast.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-francesa-videos-6c6da94536f12bd415034173",
-      "title": "Mike Francesa Reacts: Giants and Jets Both Lose, Week 6",
-      "kind": "video",
-      "outletId": "mike-francesa-podcast",
-      "author": "Mike Francesa Podcast",
-      "publishedAt": "2026-10-18T21:48:52.000Z",
-      "url": "https://www.youtube.com/watch?v=OxpvjElOG1w",
-      "youtubeId": "OxpvjElOG1w",
-      "embedAllowed": true,
-      "summary": "Published by Mike Francesa Podcast videos.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/OxpvjElOG1w/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "0f0866568486ea5c"
-      }
-    },
-    {
       "id": "auto-greenbean-jetsfan-e24732ff413a8fa23b3289bf",
       "title": "‼️ NY JETS vs New England Patriots LIVE REACTION & Watch Party/ New York Jets News",
       "kind": "video",
@@ -2143,46 +2181,6 @@
       }
     },
     {
-      "id": "auto-espn-don-hahn-rosenberg-a801b1c351908ca3b775e35b",
-      "title": "Hour 2: Mike Reiss & Fraud Alert Friday",
-      "kind": "audio",
-      "outletId": "espn-new-york",
-      "author": "ESPN New York, Alan Hahn, Peter Rosenberg",
-      "publishedAt": "2026-10-16T21:11:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-2-mike-reiss-fraud-alert-friday/id1788585041?i=1000796728063",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/40/7b/d3/407bd344-c456-ffc6-abc6-3a0d80a6b758/mza_7662506757077368151.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "e1a9df70d13d2d78"
-      },
-      "summary": "Published by Don, Hahn & Rosenberg.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jets-collective-314dda1b616d48385ef0da62",
-      "title": "Jets vs. Patriots Preview: A HUGE Game for Aaron Glenn! Can David Bailey DOMINATE Again?",
-      "kind": "audio",
-      "outletId": "jets-collective",
-      "author": "Creator Collective, HMA",
-      "publishedAt": "2026-10-16T19:50:23.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/jets-vs-patriots-preview-a-huge-game-for-aaron/id1887763130?i=1000796720495",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ef/0a/04/ef0a0436-2a6a-8b70-4a69-2b8048393053/mza_1909685854625774537.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "b3e4b90c18cf1107"
-      },
-      "summary": "Published by Jets Collective.",
-      "topics": [
-        "Roundtable"
-      ],
-      "context": "current"
-    },
-    {
       "id": "auto-benigno-4b1394d41dec7f5fa74a13ca",
       "title": "NO THREE-PEAT FOR THE DODGERS!",
       "kind": "audio",
@@ -2194,7 +2192,7 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/cf/a3/22/cfa32241-5eeb-f970-1dc7-e6055e1b3d84/mza_11490685405829912680.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "00882c441878a8f9"
+        "fingerprint": "73b192242f0a9d4a"
       },
       "summary": "Published by Oh the Pain Podcast.",
       "topics": [
@@ -2470,8 +2468,8 @@
       "name": "Jets X-Factor",
       "url": "https://jetsxfactor.com/feed/",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 3
     },
     {
@@ -2479,8 +2477,8 @@
       "name": "New York Post Jets",
       "url": "https://nypost.com/tag/new-york-jets/feed/",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 3
     },
     {
@@ -2488,8 +2486,8 @@
       "name": "The Jake Asman Show",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCt8ZeGlv3VM8jLYO_EoDMPw",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 3
     },
     {
@@ -2497,26 +2495,26 @@
       "name": "BT Unleashed",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLJ2gpZBFl2ytuVlbNo9xAA",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
-      "itemCount": 2
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
+      "itemCount": 3
     },
     {
       "id": "jets-central",
       "name": "Jets Central",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCPrLo3MozRhkbV-XCPsQxDg",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
-      "itemCount": 3
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
+      "itemCount": 2
     },
     {
       "id": "matt-oleary",
       "name": "Matt O’Leary",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLS0BYK5W7eT_SxW6pQA19w",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 3
     },
     {
@@ -2524,8 +2522,8 @@
       "name": "GreenBean Jetsfan",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC3gaW1ds7Q0fy51vA0J5y2g",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 2
     },
     {
@@ -2533,8 +2531,8 @@
       "name": "Jets Media",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCNfqKk4bSwaBNPnPSo6eZ4w",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 3
     },
     {
@@ -2542,8 +2540,8 @@
       "name": "Jets Talk 24/7",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCJ_CFZh_SqFLp6-71wdakVw",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 2
     },
     {
@@ -2551,8 +2549,8 @@
       "name": "Talkin Jets",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCT6QwygPvX84-Y_fQryCtvA",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 2
     },
     {
@@ -2560,8 +2558,8 @@
       "name": "ESPN New York videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCZDpKRXDSFSc6IXPMQ3GHpA",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 3
     },
     {
@@ -2569,17 +2567,17 @@
       "name": "DiPietro & Rothenberg",
       "url": "https://itunes.apple.com/lookup?id=928624712&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
-      "itemCount": 2
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
+      "itemCount": 3
     },
     {
       "id": "espn-don-hahn-rosenberg",
       "name": "Don, Hahn & Rosenberg",
       "url": "https://itunes.apple.com/lookup?id=1788585041&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 2
     },
     {
@@ -2587,17 +2585,17 @@
       "name": "SNY videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCL_OEjsHTwsHK6WKWs7s7Uw",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
-      "itemCount": 3
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
+      "itemCount": 2
     },
     {
       "id": "wfan-videos",
       "name": "WFAN videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCSZ8QL2xzTHzW4ucCy1cjog",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 3
     },
     {
@@ -2605,8 +2603,8 @@
       "name": "Boomer & Gio",
       "url": "https://itunes.apple.com/lookup?id=386001601&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 3
     },
     {
@@ -2614,8 +2612,8 @@
       "name": "Evan & Tiki",
       "url": "https://itunes.apple.com/lookup?id=386002649&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 3
     },
     {
@@ -2623,8 +2621,8 @@
       "name": "The Carton Show with Craig Carton & Chris McMonigle",
       "url": "https://itunes.apple.com/lookup?id=942553546&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 3
     },
     {
@@ -2632,8 +2630,8 @@
       "name": "WFAN Daily",
       "url": "https://itunes.apple.com/lookup?id=386002669&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 2
     },
     {
@@ -2641,8 +2639,8 @@
       "name": "Mike Francesa Podcast videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCiL06Dv6Eygpj27Yx6MM8TA",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 2
     },
     {
@@ -2650,8 +2648,8 @@
       "name": "The Mike Francesa Podcast",
       "url": "https://itunes.apple.com/lookup?id=1615588712&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 4
     },
     {
@@ -2659,8 +2657,8 @@
       "name": "Oh the Pain Podcast",
       "url": "https://itunes.apple.com/lookup?id=1586455556&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 2
     },
     {
@@ -2668,8 +2666,8 @@
       "name": "Let’s Talk Jets Radio",
       "url": "https://itunes.apple.com/lookup?id=863176413&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 2
     },
     {
@@ -2677,8 +2675,8 @@
       "name": "Jets Collective",
       "url": "https://itunes.apple.com/lookup?id=1887763130&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-10-23T13:37:56.175Z",
-      "attemptedAt": "2026-10-23T13:37:56.175Z",
+      "checkedAt": "2026-10-24T12:48:09.181Z",
+      "attemptedAt": "2026-10-24T12:48:09.181Z",
       "itemCount": 2
     }
   ]
