@@ -30,7 +30,8 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
-    "three": "0.186.1"
+    "three": "0.186.1",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
@@ -42,5 +43,10 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@vercel/cli-config": {
+      "zod": "4.6.7"
+    }
   }
 }
