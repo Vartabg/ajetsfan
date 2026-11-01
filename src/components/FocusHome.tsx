@@ -7,6 +7,7 @@ import FocusNext from "./FocusNext";
 import InlineMedia from "./InlineMedia";
 import FocusPlay from "./FocusPlay";
 import FocusShell from "./FocusShell";
+import JourneyHome from "./JourneyHome";
 import WinLine from "./WinLine";
 import type { FocusData } from "@/lib/focus";
 import type { OnThisDay } from "@/lib/on-this-day";
@@ -129,6 +130,7 @@ export default function FocusHome({ data, today = null, className = "", liveMome
   const now = useMinuteClock();
   const verb = (outcome: "win" | "loss" | "tie") => outcome === "win" ? "Won" : outcome === "loss" ? "Lost" : "Tied";
   const entries = [
+    { id: "miracle", title: "Monday Night Miracle", answer: "Follow the comeback" },
     data.last ? { id: "last", title: data.last.archive ? "From the archive" : "Last game", answer: `${verb(data.last.outcome)} ${data.last.us}–${data.last.them}` } : null,
     peopleMoment ? { id: "people", title: peopleMoment.title, answer: peopleMoment.answer } : null,
     liveMoment ? { id: "next", title: liveMoment.title, answer: liveMoment.answer } : data.next ? { id: "next", title: "Next game", answer: `${data.next.place}, ${on(data.next.kickoff ?? `${data.next.date}T17:00:00Z`, { weekday: "short" })}` } : null,
@@ -146,9 +148,10 @@ export default function FocusHome({ data, today = null, className = "", liveMome
   const wins = data.season?.wins ?? 0, losses = data.season?.losses ?? 0, ties = data.season?.ties ?? 0;
 
   return <FocusShell page="home" entries={entries} checkedAt={data.checkedAt} className={className}>
-    {data.last ? <LastGame last={data.last} first status={status} /> : status}
+    <JourneyHome />
+    {data.last ? <LastGame last={data.last} first={false} status={status} /> : status}
     {peopleMoment?.content}
-    {liveMoment?.content ?? (data.next ? <FocusNext next={data.next} wins={wins} losses={losses} ties={ties} first={!data.last} go={{ href: "/game-day", label: "Game Day" }} /> : null)}
+    {liveMoment?.content ?? (data.next ? <FocusNext next={data.next} wins={wins} losses={losses} ties={ties} first={false} go={{ href: "/game-day", label: "Game Day" }} /> : null)}
     {data.season ? <Season season={data.season} /> : null}
     {data.division ? <Division division={data.division} /> : null}
     {today ? <Today today={today} /> : null}

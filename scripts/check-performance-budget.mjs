@@ -22,6 +22,8 @@ export const performanceBudgets = [
   { route: "/legends/curtis-martin", file: "legends/curtis-martin", html: 14, js: 200 },
   { route: "/game-day", file: "game-day", html: 28, js: 200 },
   { route: "/stories", file: "stories", html: 18, js: 200 },
+  // Three-step journey measured 11.1 KiB HTML / 191.1 KiB initial JS; the other stages are smaller.
+  { route: "/stories/monday-night-miracle", file: "stories/monday-night-miracle", html: 15, js: 205 },
   // Deep cuts carries two recorded paths; their charts also print in the static fallback.
   { route: "/discover", file: "discover", html: 24, js: 200 },
   { route: "/history", file: "history", html: 14, js: 195 },

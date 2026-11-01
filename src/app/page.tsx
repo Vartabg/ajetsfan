@@ -36,7 +36,7 @@ export default async function Home() {
   const liveMoment = game && live ? {
     title: game.state === "live" && live.status === "ready" ? "Live game" : "Game update",
     answer: game.jetsScore !== null && game.oppScore !== null ? `Jets ${game.jetsScore}–${game.oppScore}` : game.detail,
-    content: <FocusMoment id="next" first={!data.last} label={`${live.status === "retained" ? "Last verified game update" : game.state === "live" ? "Live game" : "Latest game update"} · ${game.seasonType === "POST" ? "Playoffs" : `Week ${game.week}`}`}
+    content: <FocusMoment id="next" label={`${live.status === "retained" ? "Last verified game update" : game.state === "live" ? "Live game" : "Latest game update"} · ${game.seasonType === "POST" ? "Playoffs" : `Week ${game.week}`}`}
       heading={<>Jets {game.atHome ? "vs" : "at"} {footballOpponent(game)}.</>}
       actions={<Link href="/game-day" className={shared.go}>Game Day <span aria-hidden="true">→</span></Link>}>
       <figure className={shared.shape}>{game.state === "live" ? <LivePlays event={game.eventId} nickname={footballOpponent(game)} us={game.jetsScore} them={game.oppScore} clock={editionClock(game)} />
