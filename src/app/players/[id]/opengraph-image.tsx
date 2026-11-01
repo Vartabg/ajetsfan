@@ -11,7 +11,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   if (!profile) notFound();
   const { player, season } = profile;
   return ShareImage({
-    eyebrow: `${season} edition · The player programme`, title: player.name,
+    eyebrow: `${season} season · Player profile`, title: player.name,
     detail: `${player.position}${player.jersey !== null ? ` · No. ${player.jersey}` : ""} · New York Jets`,
   });
 }
