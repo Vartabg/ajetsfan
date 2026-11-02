@@ -1,0 +1,92 @@
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 20px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font: 600 15px/1.2 var(--font-sans), system-ui, sans-serif;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.button[aria-pressed="true"] {
+  background: var(--spot);
+  border-color: var(--spot);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.actions :is(a, button, input):focus-visible {
+  outline: 3px solid var(--spot);
+  outline-offset: 3px;
+}
+
+.note { flex: 1 1 100%; margin: 0; font-size: 13px; color: var(--quiet); }
+
+.status {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.fallback {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 100%;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fallback input {
+  min-height: 44px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 14px/1.4 var(--font-sans), system-ui, sans-serif;
+}
+
+.resume {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 0;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-wrap: anywhere;
+}
+
+.resumeLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.resumeStep {
+  font-size: 14px;
+}

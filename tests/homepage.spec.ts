@@ -37,11 +37,16 @@ test.beforeEach(async ({ page }) => {
   await page.route((url) => url.pathname === "/_next/image", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>' }));
 });
 
-test("the home page leads with the latest final, then the next game, the season and the division", async ({ page }) => {
+test("the home page invites a comeback journey and retains current coverage", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#top")).toHaveCount(0);
+  await expect(page.locator("[data-focus-moment]").first()).toHaveAttribute("id", "miracle");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("The Monday Night Miracle.");
+  await expect(page.locator("#miracle").getByRole("link", { name: /Follow the comeback/ })).toHaveAttribute("href", "/stories/monday-night-miracle");
+  await expect(page.locator("#miracle").getByRole("link", { name: /Play today’s puzzle/ })).toHaveAttribute("href", "/puzzle");
   if (focus.last) {
     const verb = focus.last.outcome === "win" ? "Won" : focus.last.outcome === "loss" ? "Lost" : "Tied";
+    await expect(page.locator("#last h2")).toHaveAttribute("id", "last-heading");
     await expect(page.locator("#last-heading")).toHaveText(`${verb} ${focus.last.us}–${focus.last.them} ${focus.last.home ? "vs" : "at"} ${focus.last.place}.`);
     await expect(page.locator("#last")).toContainText(focus.last.archive ? "From the archive" : `Last game · ${focus.last.postseason ? "Playoffs" : `Week ${focus.last.week}`}`);
     await expect(page.locator("#last a").filter({ hasText: focus.last.hrefLabel })).toHaveAttribute("href", focus.last.href);

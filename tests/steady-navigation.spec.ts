@@ -23,6 +23,7 @@ for (const [route, section] of [
   ["/history", "/history"],
   ["/history/trades", "/history/trades"],
   ["/stories", "/stories"],
+  ["/stories/monday-night-miracle", "/stories"],
 ]) {
   test(`${route} keeps its parent section highlighted`, async ({ page }) => {
     await page.goto(route);

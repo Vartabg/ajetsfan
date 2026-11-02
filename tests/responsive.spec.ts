@@ -16,7 +16,7 @@ const current = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/cu
 const profile = publishedPlayers(coverage, current.season)[0];
 // Every section destination plus one representative of each nested-page layout.
 const routes = ["/", ...SECTIONS.map((section) => section.href), "/team/roster", "/team/stats", "/team/news",
-  "/seasons/2010", "/seasons/2010/guide", "/games/2022_02_NYJ_CLE", ...(profile ? [`/players/${profile.id}`] : [])];
+  "/stories/monday-night-miracle", "/seasons/2010", "/seasons/2010/guide", "/games/2022_02_NYJ_CLE", ...(profile ? [`/players/${profile.id}`] : [])];
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });

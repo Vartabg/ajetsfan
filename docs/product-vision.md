@@ -14,7 +14,7 @@ Advanced models help us research, connect and explain the record. The product ea
 - Connect the fact to the game, play, player, season and source it describes. A selection should update related views coherently and support a shareable link.
 - Keep confirmed results, recorded events, calculated statistics, model estimates, editorial connections and user predictions distinguishable.
 - Use direct reporting. Do not imitate personalities or invent fan/player feelings, reactions or dialogue. Attribute historical statements.
-- Keep the newspaper and case-file identity, authentic attributed photography and original art direction. Choose each chart, field diagram, animation or graph for the football question it explains.
+- Follow the accepted focus-page identity in `docs/design-direction.md`, with authentic attributed photography and original art direction. That direction supersedes the earlier newspaper and case-file concept. Choose each chart, field diagram, animation or graph for the football question it explains.
 - Give every rate its denominator, every ranking its scope and every historical record its cutoff. Missing information stays missing.
 - Make essential content work as HTML, with keyboard access and usable phone layouts. Motion and heavier experiences respect reduced-motion preferences and have a useful alternative.
 - Give fans a reason to return through checked current coverage, curated discoveries and football puzzles derived from real records.
@@ -46,6 +46,8 @@ Important distinctions from the inspection:
 - A source identity or content hash establishes provenance/integrity, not the truth of a claim. Editorial checks and correct calculations still matter.
 
 ## Delivery sequence
+
+November 1, 2026: the user accepted a first connected fan journey through the Monday Night Miracle, Elliott's illustrated play and a Cleveland comparison, with a prominent homepage entrance and browser-only save/share controls. This is an extension of the publication direction. Broader accounts, fan submissions, community features and site-wide collections remain undecided. The implementation plan and review live in `docs/plans/2026-11-01-miracle-journey*.md`; engagement improvements have not been measured with fans.
 
 ### 1. Comeback explorer and discovery paths
 
