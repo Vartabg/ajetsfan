@@ -238,3 +238,66 @@ test('unknown playoff rounds and ambiguous or mismatched game identities are rej
   const fabricated = { ...previous, games: previous.games.map((game) => game.seasonType === 'POST' ? { ...game, source: footballScheduleSource(2010) } : game), featured: null };
   assert.throws(() => validateLiveFootball(fabricated), /Invalid live football/);
 });
+
+// While a game is in progress ESPN lists adjQBR among the passing keys but
+// leaves its value out of each row (eight keys, seven labels, seven values).
+function inProgress(status = liveStatus) {
+  const input = fixtures();
+  input.body.events[0].competitions[0].status = structuredClone(status);
+  input.summary.header.competitions[0].status = structuredClone(status);
+  const passing = input.summary.boxscore.players[0].statistics[0];
+  passing.labels = ['C/ATT', 'YDS', 'AVG', 'TD', 'INT', 'SACKS', 'RTG'];
+  passing.athletes[0].stats = ['9/12', '57', '4.8', '2', '0', '1-7', '124.0'];
+  return input;
+}
+
+test('an in-progress passing row without its adjQBR value still publishes the live score and passing line', async () => {
+  const { feed } = await refresh(inProgress());
+  assert.equal(feed.status, 'ready'); assert.equal(feed.featured.state, 'live'); assert.equal(feed.featured.provisional, true);
+  assert.equal(feed.featured.jetsScore, 17); assert.equal(feed.featured.oppScore, 12);
+  assert.deepEqual(feed.featured.players[0].passing, { completions: 9, attempts: 12, yards: 57, touchdowns: 2, interceptions: 0 });
+});
+
+test('the break between quarters is still a live game', async () => {
+  const endPeriod = { period: 1, displayClock: '0:00', type: { name: 'STATUS_END_PERIOD', state: 'in', completed: false, detail: 'End of 1st Quarter' } };
+  const { feed } = await refresh(inProgress(endPeriod));
+  assert.equal(feed.status, 'ready'); assert.equal(feed.featured.state, 'live'); assert.equal(feed.featured.provisional, true);
+  const notLive = inProgress({ ...endPeriod, type: { ...endPeriod.type, state: 'post' } });
+  assert.equal((await refresh(notLive)).feed.status, 'unavailable');
+});
+
+test('only the known adjQBR gap is accepted; every other row length mismatch is still rejected', async () => {
+  const changes = [
+    (passing) => { passing.athletes[0].stats.pop(); },
+    (passing) => { passing.athletes[0].stats.push('1', '2'); },
+    (passing) => { passing.keys[passing.keys.indexOf('adjQBR')] = 'otherRating'; },
+    (passing) => { passing.name = 'rushing'; passing.keys = ['rushingAttempts', 'rushingYards', 'yardsPerRushAttempt', 'rushingTouchdowns', 'longRushing', 'adjQBR']; passing.athletes[0].stats = ['4', '12', '3.0', '0', '7']; },
+  ];
+  for (const change of changes) {
+    const input = inProgress(); change(input.summary.boxscore.players[0].statistics[0]);
+    const details = [];
+    const { feed } = await refresh(input, { onError: (_message, detail) => details.push(detail) });
+    assert.equal(feed.status, 'unavailable');
+    assert.deepEqual(details, [{ source: 'live_summary', reason: 'stat_row' }]);
+  }
+});
+
+test('a failed refresh names its step and cause with fixed codes and no provider text', async () => {
+  const cases = [
+    [{ change: (x) => { x.summary.boxscore.players[0].statistics[0].keys[1] = 'fakeYards'; } }, { source: 'live_summary', reason: 'stat_keys' }],
+    [{ change: (x) => { x.summary.header.id = '401873001'; } }, { source: 'live_summary', reason: 'summary_identity' }],
+    [{ change: (x) => { x.body.events[0].competitions[0].status.type.name = 'FAKE_FINAL'; } }, { source: 'live_schedule', reason: 'game_status' }],
+    [{ fetcher: async () => { throw new Error('private-provider-request-detail'); } }, { source: 'live_schedule', reason: 'source_unreachable' }],
+    [{ fetcher: async () => { throw new DOMException('private-provider-timeout-detail', 'TimeoutError'); } }, { source: 'live_schedule', reason: 'source_timeout' }],
+    [{ fetcher: async () => new Response('private-provider-body', { status: 503 }) }, { source: 'live_schedule', reason: 'source_http_503' }],
+    [{ fetcher: async () => new Response('private-provider-body') }, { source: 'live_schedule', reason: 'source_json' }],
+  ];
+  for (const [{ change, fetcher }, expected] of cases) {
+    const input = fixtures(); change?.(input);
+    const calls = [];
+    const { feed } = await refresh(input, { ...(fetcher ? { fetcher } : {}), onError: (...args) => calls.push(args) });
+    assert.equal(feed.status, 'unavailable');
+    assert.deepEqual(calls.map(([, detail]) => detail), [expected]);
+    assert.ok(!JSON.stringify(calls).includes('private-provider'));
+  }
+});

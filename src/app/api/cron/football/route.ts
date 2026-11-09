@@ -1,4 +1,5 @@
 import { cronAuthorized } from "@/lib/cron-authorized.mjs";
+import { cronFailure, cronOutcome } from "@/lib/cron-diagnostics.mjs";
 import { refreshHostedFootball } from "@/lib/hosted-football-refresh";
 import { clearFootballReadCache } from "@/lib/load-football";
 
@@ -11,10 +12,12 @@ export async function GET(request: Request) {
   try {
     const result = await refreshHostedFootball();
     clearFootballReadCache();
-    console.info(JSON.stringify({ event: "hosted-football-refresh", ...result }));
+    const outcome = cronOutcome("hosted-football-refresh", result);
+    console[outcome.level](outcome.line);
     return Response.json(result, { status: result.status === "degraded" ? 503 : 200, headers });
-  } catch {
-    console.error("Hosted football refresh failed; see football freshness health.");
+  } catch (error) {
+    // Only our own fixed code is logged. The error text may quote a provider.
+    console.error(cronFailure("hosted-football-refresh", error));
     return Response.json({ status: "unavailable" }, { status: 503, headers });
   }
 }

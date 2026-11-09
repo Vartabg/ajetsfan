@@ -171,3 +171,19 @@ test('invalid editions fail before any publication and malformed provider payloa
   assert.throws(() => validateFootballEdition(futureRoster), /Invalid coverage freshness metadata/);
   await assert.rejects(refresh(edition(), { refreshLive: async () => ({ ...live(now.toISOString()), checkedAt: 'invalid' }) }), /Invalid live football/);
 });
+
+test('each failed football source names itself and its cause with fixed codes, and skipped sources stay silent', async () => {
+  const previous = edition('2026-10-18T16:50:00.000Z'), details = [];
+  await refresh(previous, { onError: (_message, detail) => details.push(detail),
+    fetcher: async (url) => {
+      if (url === SCHEDULE_SOURCE) return new Response('private-provider', { status: 503 });
+      if (url === NEWS_SOURCE) throw Object.assign(new Error('private-provider'), { name: 'TimeoutError' });
+      return new Response('private-provider', { status: 404 });
+    } });
+  assert.deepEqual(details.sort((left, right) => left.source.localeCompare(right.source)), [
+    { source: 'news', reason: 'timeout' }, { source: 'schedule', reason: 'http_503' }, { source: 'stats', reason: 'http_404' },
+  ]);
+  const quiet = [];
+  await refresh(edition(), { onError: (_message, detail) => quiet.push(detail) });
+  assert.deepEqual(quiet, []);
+});

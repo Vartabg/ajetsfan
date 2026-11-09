@@ -1,6 +1,7 @@
 import { SCHEDULE_SOURCE, pbpSource, parseLeagueSchedule, jetsSchedule, inferSeason, currentManifest } from './data-refresh.mjs';
 import { NEWS_SOURCE, rosterSource, playerStatsSource, refreshCoverage, validateCoverage } from './coverage.mjs';
 import { refreshLiveFootball, validateLiveFootball } from './football-live.mjs';
+import { failureReason } from '../src/lib/cron-diagnostics.mjs';
 
 export const FOOTBALL_COVERAGE_INTERVALS = { news: 300_000, roster: 900_000, stats: 300_000 };
 const skippedSource = 'football-source-not-due';
@@ -80,7 +81,7 @@ async function coverageAt({ season, schedule, previous, now, fetcher, onError })
     fetcher: (url, options) => {
       if (skipped.has(url)) throw new Error(skippedSource);
       return fetcher(url, options);
-    }, onError: (message) => { if (!message.includes(skippedSource)) onError(message); },
+    }, onError: (message, detail) => { if (!message.includes(skippedSource)) onError(message, detail); },
   });
   for (const [name, url] of Object.entries(definitions)) if (skipped.has(url)) {
     coverage[name] = previous[name];
@@ -105,7 +106,7 @@ export function mergeConfirmedFootballSchedule(schedule, previous, live, schedul
 }
 
 /** Fast provider updates never claim that delayed PBP, EPA or archive extraction ran. */
-/** @param {{previous?: any, now?: Date, fetcher?: typeof fetch, onError?: (message: string) => void, games?: any[], refreshLive?: typeof refreshLiveFootball}} [options] */
+/** @param {{previous?: any, now?: Date, fetcher?: typeof fetch, onError?: (message: string, detail?: {source: string, reason: string}) => void, games?: any[], refreshLive?: typeof refreshLiveFootball}} [options] */
 export async function refreshFootball({ previous = null, now = new Date(), fetcher = fetch, onError = () => {}, games = [], refreshLive = refreshLiveFootball } = {}) {
   if (!Number.isFinite(now.getTime()) || typeof refreshLive !== 'function') throw new Error('Invalid football refresh configuration');
   if (previous) validateFootballEdition(previous);
@@ -114,18 +115,18 @@ export async function refreshFootball({ previous = null, now = new Date(), fetch
     schedule = previous.current.schedule; season = previous.current.season; scheduleCheck = previous.scheduleCheck;
   } else try {
     const response = await fetcher(SCHEDULE_SOURCE, { signal: AbortSignal.timeout(20_000) });
-    if (!response.ok) throw new Error('Schedule provider unavailable');
+    if (!response.ok) throw new Error(`Schedule HTTP ${response.status}`);
     league = parseLeagueSchedule(await response.text());
     schedule = jetsSchedule(league); season = inferSeason(schedule, now);
     if (previous && season < previous.current.season) throw new Error('Schedule season regressed');
     if (previous?.current.season === season && previous.current.schedule.some((old) => old.status === 'final'
       && !schedule.some((game) => sameGame(game, old)))) throw new Error('Schedule lost a verified game');
     scheduleCheck = { source: SCHEDULE_SOURCE, status: 'ready', checkedAt: now.toISOString(), attemptedAt: now.toISOString() };
-  } catch {
+  } catch (error) {
     if (!previous) throw new Error('No verified football schedule available');
     schedule = previous.current.schedule; season = previous.current.season;
     scheduleCheck = { ...previous.scheduleCheck, status: previous.scheduleCheck.checkedAt ? 'retained' : 'unavailable', attemptedAt: now.toISOString() };
-    onError('Football schedule unavailable; retaining verified results.');
+    onError('Football schedule unavailable; retaining verified results.', { source: 'schedule', reason: failureReason(error) });
   }
   const ownSchedule = schedule.filter((game) => game.season === season);
   const active = footballActiveWindow(ownSchedule, now, previous?.live);

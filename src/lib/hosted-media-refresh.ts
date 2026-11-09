@@ -6,6 +6,7 @@ import { coordinateMediaRefresh, MEDIA_COLLECTION_PATH, MIN_MEDIA_REFRESH_INTERV
 import { liveMediaEnvelope, MEDIA_POLICY_REVISION, mediaPolicyFingerprint, validateLiveMediaEnvelope } from "./media-live-envelope.mjs";
 import { isMediaBlobConflict, readMediaBlob, writeMediaBlob } from "./media-blob-store";
 import type { MediaCollection } from "./media";
+import { reasonCollector } from "./cron-diagnostics.mjs";
 
 export const MEDIA_POLICY_FINGERPRINT = mediaPolicyFingerprint(curated, MEDIA_SOURCES);
 export const MEDIA_LIVE_COLLECTION_PATH = `media/editions/${MEDIA_POLICY_FINGERPRINT}.json`;
@@ -18,7 +19,8 @@ export async function refreshHostedMedia() {
   const startedAt = new Date();
   const deadline = AbortSignal.timeout(140_000);
   let previousEnvelope: ReturnType<typeof validateLiveMediaEnvelope> | null = null;
-  return coordinateMediaRefresh({ curated, baked, apiKey: process.env.YOUTUBE_API_KEY,
+  const failures = reasonCollector();
+  return failures.report(() => coordinateMediaRefresh({ curated, baked, apiKey: process.env.YOUTUBE_API_KEY,
     read: async (pathname: string) => {
       const record = await readMediaBlob(pathname === MEDIA_COLLECTION_PATH ? MEDIA_LIVE_COLLECTION_PATH : pathname);
       if (!record || pathname !== MEDIA_COLLECTION_PATH) return record;
@@ -33,10 +35,10 @@ export async function refreshHostedMedia() {
       return writeMediaBlob(pathname === MEDIA_COLLECTION_PATH ? MEDIA_LIVE_COLLECTION_PATH : pathname, content, options);
     },
     isConflict: isMediaBlobConflict,
-    refresh: (options: { curated: MediaCollection; previous: MediaCollection; youtubeApiKey: string; now: Date; onError: (message: string) => void }) => refreshMedia({ ...options,
+    refresh: failures.guard(async (options: { curated: MediaCollection; previous: MediaCollection; youtubeApiKey: string; now: Date; onError: (message: string) => void }) => refreshMedia({ ...options, onError: failures.onError,
       readySourceIntervalMs: previousEnvelope ? MIN_MEDIA_REFRESH_INTERVAL_MS : 0,
       fetcher: (input: string | URL | Request, init?: RequestInit) => fetch(input, { ...init, cache: "no-store",
         signal: init?.signal ? AbortSignal.any([deadline, init.signal]) : deadline }),
-    }),
-  });
+    })),
+  }));
 }

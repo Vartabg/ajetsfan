@@ -16,14 +16,16 @@ import type { CurrentSnapshot } from "./current";
 import type { DrivesFile } from "./drives";
 import type { LeagueHistory } from "./league-history";
 import { makeBakedDrivesEvidence, validateRuntimeHistory } from "./postgame-evidence.mjs";
+import { reasonCollector } from "./cron-diagnostics.mjs";
 
 /** Native extraction is isolated to this timer; pages only read published JSON. */
 export async function refreshHostedAnalysis() {
   if (!process.env.BLOB_STORE_ID || process.env.VERCEL_ENV !== "production") throw new Error("Hosted analysis refresh is not configured");
   const deadline = AbortSignal.timeout(500_000);
-  return coordinateAnalysisRefresh({ collectionPath: ANALYSIS_EDITION_PATH,
+  const failures = reasonCollector();
+  return failures.report(() => coordinateAnalysisRefresh({ collectionPath: ANALYSIS_EDITION_PATH,
     read: readMediaBlob, write: writeMediaBlob, isConflict: isMediaBlobConflict,
-    refresh: async (options: { previous: AnalysisEdition | null; now: Date }) => {
+    refresh: failures.guard(async (options: { previous: AnalysisEdition | null; now: Date }) => {
       const [football, games, analytics, rankingsCollection, nextgen] = await Promise.all([
         loadFootballState(), footballSnapshot<Game[]>("games.json"), footballSnapshot<SeasonAnalytics>("analytics.json"),
         footballSnapshot<RankingsCollection>("season-rankings.json"), footballSnapshot<NextGenCollection>("nextgen-stats.json"),
@@ -39,7 +41,7 @@ export async function refreshHostedAnalysis() {
         baked: { current: football.edition.current, coverage: football.edition.coverage, games, analytics, rankingsCollection, nextgen, history, drives },
         fetcher: (input: string | URL | Request, init?: RequestInit) => fetch(input, { ...init, cache: "no-store",
           signal: init?.signal ? AbortSignal.any([deadline, init.signal]) : deadline }),
-        onError: () => console.error("Analysis provider unavailable; retaining checked evidence."),
+        onError: failures.onError,
         readCurve: async (gameId: string, pathname?: string) => {
           if (!/^\d{4}_\d{2}_[A-Z]{2,3}_[A-Z]{2,3}$/.test(gameId)) throw new Error("Invalid curve identity");
           if (pathname) {
@@ -61,6 +63,6 @@ export async function refreshHostedAnalysis() {
           }
         },
       });
-    },
-  });
+    }),
+  }));
 }

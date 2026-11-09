@@ -10,6 +10,7 @@ import { publisherPlayback } from './media-playback.mjs';
 import { discoverYouTubeChannel, jetsRelevant } from './youtube-channel.mjs';
 import { isJetsRant } from '../src/lib/media-topics.mjs';
 import { discoverYouTubeApi } from './youtube-api.mjs';
+import { failureReason } from '../src/lib/cron-diagnostics.mjs';
 
 const appleSource = (id) => `https://itunes.apple.com/lookup?id=${id}&entity=podcastEpisode&limit=100`;
 const youtubeSource = (id) => `https://www.youtube.com/feeds/videos.xml?channel_id=${id}`;
@@ -303,7 +304,7 @@ export function selectAutomaticMedia(groups, curated, limit) {
 /**
  * Sources fail independently. A failed check never re-dates its previously verified items.
  * @param {{ curated: import('../src/lib/media.ts').MediaCollection, previous?: import('../src/lib/media.ts').MediaCollection | null,
- * sources?: typeof MEDIA_SOURCES, now?: Date, fetcher?: typeof fetch, onError?: (message: string) => void,
+ * sources?: typeof MEDIA_SOURCES, now?: Date, fetcher?: typeof fetch, onError?: (message: string, detail?: {source: string, reason: string}) => void,
  * perSource?: number, maxItems?: number, youtubeApiKey?: string | null, readySourceIntervalMs?: number }} options
  */
 export async function refreshMedia({ curated, previous = null, sources = MEDIA_SOURCES, now = new Date(), fetcher = fetch, onError = console.warn, perSource = 6, maxItems = curated.items.length + 60, youtubeApiKey = null, readySourceIntervalMs = 0 }) {
@@ -349,7 +350,7 @@ export async function refreshMedia({ curated, previous = null, sources = MEDIA_S
       const items = [...merged.values()].sort(newest).slice(0, perSource);
       return { source, items, state: { id: source.id, name: source.name, url: source.url, status: 'ready', checkedAt: attemptedAt, attemptedAt, itemCount: 0 } };
     } catch (error) {
-      onError(`${source.name}: ${error.message}; ${old?.checkedAt ? 'retaining last verified media' : 'media unavailable'}.`);
+      onError(`${source.name}: ${error.message}; ${old?.checkedAt ? 'retaining last verified media' : 'media unavailable'}.`, { source: source.id, reason: failureReason(error) });
       const retained = oldItems.sort(newest).slice(0, perSource);
       const items = source.type === 'youtube' ? await Promise.all(retained.map((item) => enrichPicture(item, source,
         ['maxresdefault', 'sddefault', 'hqdefault'].map((quality) => `https://i.ytimg.com/vi/${item.youtubeId}/${quality}.jpg`), item, fetcher, request, pictureCache))) : retained;
