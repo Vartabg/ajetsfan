@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { epaLabel } from "@/lib/analytics";
+import { ordinal } from "@/lib/focus-format";
+import shared from "./Focus.module.css";
 import styles from "./LeagueContext.module.css";
 
 export type LeagueEntry = { team: string; value: number; plays: number; rank: number; completedGames: number };
@@ -50,7 +52,7 @@ export default function LeagueField({ offense, defense, opponent }: { offense: L
           </> : <p className={styles.pending}>No validated {side} EPA sample is available.</p>}
           <dl className={styles.comparison}>
             {[{ team: "NYJ", entry: jets }, ...(comparisonTeam ? [{ team: comparisonTeam, entry: comparison }] : [])].map(({ team, entry }) => <div key={team} className={team === "NYJ" ? styles.jetsReadout : undefined}>
-              <dt>{team}</dt><dd><strong>{epaLabel(entry?.value, 3)}</strong>{entry ? <><span>#{entry.rank} of {measure.teams}</span><small>{entry.plays.toLocaleString("en-US")} plays · {entry.completedGames} analyzed {entry.completedGames === 1 ? "game" : "games"}</small></> : <small>No validated {side} sample</small>}</dd>
+              <dt>{team}</dt><dd><strong>{epaLabel(entry?.value, 3)}</strong>{entry ? <><span>{ordinal(entry.rank)} of {measure.teams}</span><small>{entry.plays.toLocaleString("en-US")} plays · {entry.completedGames} analyzed {entry.completedGames === 1 ? "game" : "games"}</small></> : <small>No validated {side} sample</small>}</dd>
             </div>)}
             <div><dt>League average</dt><dd><strong>{epaLabel(measure.mean, 3)}</strong><span>Weighted by plays</span><small>{measure.plays.toLocaleString("en-US")} plays · {measure.teams} teams</small></dd></div>
           </dl>
@@ -58,7 +60,7 @@ export default function LeagueField({ offense, defense, opponent }: { offense: L
       })}
     </div>
     <p className={styles.plotNote}>Both plots use the same EPA scale. The numbers below each plot give the values, ranks and included-play counts.</p>
-    <details className={styles.leagueTables}><summary className="disclosure"><span><span className="when-closed">Read the full league tables</span><span className="when-open">Close the full league tables</span></span></summary><div className={styles.tables}>
+    <details className={shared.unfold}><summary className="disclosure"><span><span className="when-closed">Read the full league tables</span><span className="when-open">Close the full league tables</span></span></summary><div className={styles.tables}>
       {units.map(({ side, title, direction, measure }) => <div key={side} className={styles.tableScroller} role="region" aria-label={`${title} full league table; scroll if needed`} tabIndex={0}>
         <table><caption>{title}<small>{direction} · ordered by unrounded values</small></caption><thead><tr><th scope="col">Rank</th><th scope="col">Team</th><th scope="col">EPA / play</th><th scope="col">Included sample</th></tr></thead><tbody>{measure.entries.map((entry) => <tr key={entry.team} className={entry.team === "NYJ" ? styles.jetsRow : entry.team === comparisonTeam ? styles.opponentRow : undefined}><td>{entry.rank}</td><th scope="row">{entry.team}</th><td>{epaLabel(entry.value, 3)}</td><td>{entry.plays.toLocaleString("en-US")} plays<small>{entry.completedGames} analyzed {entry.completedGames === 1 ? "game" : "games"}</small></td></tr>)}</tbody></table>
       </div>)}

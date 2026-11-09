@@ -5,19 +5,14 @@ import { leagueMetric, type LeagueMeasure } from "@/lib/analytics-context";
 import type { CurrentSnapshot, ScheduledGame } from "@/lib/current";
 import { currentSeasonSummary, formatDate } from "@/lib/current";
 import { placeName } from "@/lib/focus";
-import { record } from "@/lib/focus-format";
+import { ordinal, record } from "@/lib/focus-format";
 import { previewQuestions, type PreviewQuestion } from "@/lib/football-preview";
 import { selectMatchdayReport } from "@/lib/matchday-report";
 import MatchdayDesk from "./MatchdayDesk";
 import shared from "./Focus.module.css";
 import styles from "./SundayBriefing.module.css";
 
-/** 1 → "1st", 22 → "22nd": a rank a stranger reads at a glance. */
-export function ordinal(rank: number): string {
-  const tens = rank % 100;
-  const suffix = tens >= 11 && tens <= 13 ? "th" : ["th", "st", "nd", "rd"][rank % 10] ?? "th";
-  return `${rank}${suffix}`;
-}
+export { ordinal };
 
 const capital = (words: string) => words.charAt(0).toUpperCase() + words.slice(1);
 const plural = (name: string) => name.startsWith("the ");

@@ -8,3 +8,9 @@ export const dayOf = (iso: string) => on(iso.length === 10 ? `${iso}T16:00:00Z` 
 export const record = (wins: number, losses: number, ties = 0) => `${wins}–${losses}${ties ? `–${ties}` : ""}`;
 export const halfGames = (games: number) => `${Math.floor(games) || (games % 1 ? "" : "0")}${games % 1 ? "½" : ""} game${games > 1 ? "s" : ""}`;
 export const ORDINAL = ["First", "Second", "Third", "Fourth"];
+/** 1 → "1st", 22 → "22nd": a rank a stranger reads at a glance. */
+export function ordinal(rank: number): string {
+  const tens = rank % 100;
+  const suffix = tens >= 11 && tens <= 13 ? "th" : ["th", "st", "nd", "rd"][rank % 10] ?? "th";
+  return `${rank}${suffix}`;
+}
