@@ -1,22 +1,17 @@
-.desk { min-width: 0; padding: 1.3rem 1.5rem; border: 1px solid var(--rule-soft); border-top: 3px solid var(--stamp); background: var(--paper-2); align-self: start; }
-.kicker { margin: 0 0 .5rem; color: var(--stamp); font-size: .8rem; font-weight: 800; }
-.desk h3 { max-width: 15ch; font: 700 1.9rem/1.1 var(--font-sans-narrow), sans-serif; }
-.watch { margin: 1.1rem 0 0; }
-.watch > div { padding: .65rem 0; border-top: 1px solid var(--rule-soft); }
-.watch dt { color: var(--ink-2); font-size: .8rem; font-weight: 700; }
-.watch dd { margin: .2rem 0 0; font-size: .95rem; font-weight: 700; }
-.watch small { display: block; margin-top: .2rem; color: var(--ink-2); font-size: .7rem; font-weight: 400; }
-.source { display: inline-flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 44px; color: var(--spot); font-size: .75rem; font-weight: 700; text-underline-offset: 4px; }
-.availability { margin-top: .8rem; border-block: 1px solid var(--rule-soft); }
-.availability summary { padding: .75rem 0; font-size: .78rem; font-weight: 800; cursor: pointer; }
-.availability summary small { display: block; margin-top: .3rem; color: var(--ink-2); font-size: .68rem; font-weight: 400; line-height: 1.5; }
-.reportNote { padding: 1rem 0; border-top: 1px solid var(--rule-soft); }
-.reportLabel { margin: 0 0 .4rem; color: var(--stamp); font-size: .65rem; }
-.availability h4 { font: 700 1.25rem/1.2 var(--font-sans-narrow), sans-serif; }
-.reportNote > p:not(.reportLabel) { font-size: .78rem; line-height: 1.6; margin: .5rem 0; }
-.checked, .notice { color: var(--ink-2); font-size: .67rem; line-height: 1.6; }
-.notice { padding: .6rem .75rem; border-left: 3px solid var(--stamp); }
-.links { margin-top: .75rem; border-top: 1px solid var(--rule-soft); }
-.links a { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 44px; padding: .45rem 0; font-size: .74rem; font-weight: 700; text-underline-offset: 4px; }
-.empty { font-size: .82rem; line-height: 1.6; }
-@media (max-width: 640px) { .desk { padding: 1.2rem; } }
+/* Where to watch: a quiet block under the matchup, divided by a hairline, in the focus palette. */
+.desk { display: grid; gap: 10px; max-width: 720px; margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--faint); }
+.desk h3 { margin: 0; font: 600 18px/1.3 var(--display); letter-spacing: -.01em; }
+.desk h4 { margin: 0; font: 600 16px/1.3 var(--display); }
+.watch { display: grid; gap: 8px; margin: 0; }
+.watch > div { display: grid; grid-template-columns: 7em minmax(0, 1fr); gap: 2px 12px; font: 400 15px/1.5 var(--text); }
+.watch dt { color: var(--quiet); }
+.watch dd { margin: 0; font-weight: 500; }
+.watch small { display: block; font-size: 13px; font-weight: 400; color: var(--quiet); }
+.availability { border-top: 1px solid var(--faint); }
+.availability summary { display: grid; gap: 2px; min-height: 44px; padding: 10px 0; font: 500 15px/1.4 var(--text); cursor: pointer; }
+.availability summary small { font-size: 13px; font-weight: 400; color: var(--quiet); }
+.reportNote { display: grid; gap: 6px; padding: 12px 0; border-top: 1px solid var(--faint); }
+.reportNote p { margin: 0; font-size: 15px; line-height: 1.55; }
+.reportLabel { font-size: 13px; color: var(--quiet); }
+.links { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+@media (max-width: 440px) { .watch > div { grid-template-columns: minmax(0, 1fr); } }

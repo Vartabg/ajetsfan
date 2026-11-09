@@ -7,7 +7,7 @@ their filters and place intact.
 | Destination | Main job |
 | --- | --- |
 | `/` | One thing at a time: a connected comeback journey, latest result, next game, season, division, a big play, an archive discovery, the newest coverage, then every section |
-| `/game-day` | Focus view: the next game, the matchup in numbers (every unit number in place), your score call, AFC East standings, the season in margins with the full schedule, league context |
+| `/game-day` | Focus view: the next game, the matchup as one plain sentence and each unit pairing as league-ranked bars, with every unit number opening in place, your score call, AFC East standings, the season in margins with the full schedule, league context |
 | `/team` | Focus view: who leads the passing, rushing and receiving yards, the roster by position (each position opens the roster filtered to it), the newest official headlines |
 | `/team/roster` | Find a player and inspect the roster |
 | `/team/stats` | Recorded player production |
