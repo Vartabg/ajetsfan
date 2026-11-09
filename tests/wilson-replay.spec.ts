@@ -19,7 +19,9 @@ async function openPositionBrowser(page: Page) {
 }
 
 async function expectTime(page: Page, expected: number) {
-  await expect.poll(async () => Number(await page.getByLabel("Replay time", { exact: true }).inputValue())).toBeCloseTo(expected, 2);
+  // Software WebGL startup can hold the main thread past the default five
+  // seconds on the shared runner, so one read of the control may not return.
+  await expect.poll(async () => Number(await page.getByLabel("Replay time", { exact: true }).inputValue()), { timeout: 20_000 }).toBeCloseTo(expected, 2);
 }
 
 async function seekTo(page: Page, time: number) {

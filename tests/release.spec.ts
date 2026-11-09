@@ -72,12 +72,21 @@ test("health detects stopped refreshes, unavailable sources and wrong-season ros
 
 test("fresh scores cannot hide stale media, league comparisons, tracking or trades", () => {
   const old = new Date(now - 24 * 60 * 60_000).toISOString();
-  for (const name of ["rankings", "nextgen", "trades"] as const) {
+  for (const name of ["rankings", "nextgen"] as const) {
     const health = editionHealth(freshCurrent, freshCoverage, null, now, { ...freshAutomation, [name]: { checkedAt: old, status: "retained" } });
     expect(health.status).toBe("degraded");
     expect(health.feeds[name].status).toBe("overdue");
     expect(health.feeds.results.status).toBe("ready");
   }
+  // Trades come from one daily job whose start drifts by hours, so a late
+  // start is still healthy and only a missed day reads as overdue.
+  const lateStart = editionHealth(freshCurrent, freshCoverage, null, now, { ...freshAutomation, trades: { checkedAt: new Date(now - 30 * 60 * 60_000).toISOString(), status: "ready" } });
+  expect(lateStart.feeds.trades.status).toBe("ready");
+  expect(lateStart.status).toBe("healthy");
+  const missedDay = editionHealth(freshCurrent, freshCoverage, null, now, { ...freshAutomation, trades: { checkedAt: new Date(now - 36 * 60 * 60_000).toISOString(), status: "ready" } });
+  expect(missedDay.feeds.trades.status).toBe("overdue");
+  expect(missedDay.status).toBe("degraded");
+  expect(missedDay.feeds.results.status).toBe("ready");
   const media = editionHealth(freshCurrent, freshCoverage, null, now, { ...freshAutomation, media: [
     ...freshAutomation.media, { id: "old-publisher", status: "retained", checkedAt: old },
   ] });

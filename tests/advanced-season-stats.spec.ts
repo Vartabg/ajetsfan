@@ -22,7 +22,9 @@ async function comparePlayer(page: Page, player: NextGenPlayer) {
     const item = card.locator(`[data-nextgen-metric="${metric.id}"]`);
     await expect(item.locator("dt")).toHaveText(metric.label);
     const displayed = (await item.locator("dd > span").textContent())!;
-    expect(numeric(displayed), `${player.name}: ${metric.id}`).toBeCloseTo(metric.value, 2);
+    // The page shows two decimals, so a value such as 34.375 sits exactly half
+    // a hundredth from its label. That gap is correct rounding, not drift.
+    expect(Math.abs(numeric(displayed) - metric.value), `${player.name}: ${metric.id}`).toBeLessThanOrEqual(0.005 + 1e-9);
     const suffix = metric.id === "completion_percentage_above_expectation" ? / pp$/
       : metric.unit === "seconds" ? / sec$/ : metric.unit === "yards" ? / yd$/
         : metric.unit === "percent" ? /%$/ : metric.unit === "ratio" ? /×$/ : /[\d]$/;

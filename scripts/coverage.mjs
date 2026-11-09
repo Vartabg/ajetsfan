@@ -1,5 +1,6 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 import { parseCsv } from './data-refresh.mjs';
+import { failureReason } from '../src/lib/cron-diagnostics.mjs';
 
 export const NEWS_SOURCE = 'https://www.newyorkjets.com/rss/news';
 export const rosterSource = (season) => `https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_${season}.csv`;
@@ -293,7 +294,7 @@ export async function refreshCoverage({ season, schedule, now = new Date(), prev
       }
       return [name, { ...payload, checkedAt: attemptedAt, attemptedAt, status: 'ready', source, sourceUpdatedAt: response.sourceUpdatedAt }];
     } catch (error) {
-      onError(`${name} coverage retained/unavailable: ${error.message}`);
+      onError(`${name} coverage retained/unavailable: ${error.message}`, { source: name, reason: failureReason(error) });
       const old = previous?.[name];
       const pending = name === 'stats' && old?.season === season
         ? { pendingGameIds: schedule.filter((game) => game.season === season && game.seasonType === 'REG' && game.status === 'final' && !old.analyzedGameIds.includes(game.id)).map((game) => game.id) }

@@ -1,4 +1,5 @@
 import { cronAuthorized } from "@/lib/cron-authorized.mjs";
+import { cronFailure, cronOutcome } from "@/lib/cron-diagnostics.mjs";
 import { refreshHostedAnalysis } from "@/lib/hosted-analysis-refresh";
 import { clearAnalysisReadCache } from "@/lib/load-analysis";
 
@@ -11,10 +12,12 @@ export async function GET(request: Request) {
   try {
     const result = await refreshHostedAnalysis();
     clearAnalysisReadCache();
-    console.info(JSON.stringify({ event: "hosted-analysis-refresh", ...result }));
+    const outcome = cronOutcome("hosted-analysis-refresh", result);
+    console[outcome.level](outcome.line);
     return Response.json(result, { status: result.status === "degraded" ? 503 : 200, headers });
-  } catch {
-    console.error("Hosted analysis refresh failed; see analysis freshness health.");
+  } catch (error) {
+    // Only our own fixed code is logged. The error text may quote a provider.
+    console.error(cronFailure("hosted-analysis-refresh", error));
     return Response.json({ status: "unavailable" }, { status: 503, headers });
   }
 }

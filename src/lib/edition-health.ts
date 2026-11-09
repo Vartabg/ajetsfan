@@ -11,6 +11,10 @@ export type AutomationHealthSources = {
   history?: SourceCheck; drives?: SourceCheck;
 };
 const DAY = 24 * 60 * 60_000;
+// Trades refresh once a day in a GitHub schedule that starts hours late and at
+// a different hour each day. Half a day of slack keeps a late start from
+// reading as a stopped feed, while a missed day still shows.
+const DAILY_JOB = 36 * 60 * 60_000;
 
 function sourceHealth(feed: Pick<FeedState, "status" | "checkedAt"> | undefined, now: number, overdueAfter = DAY): HealthFeed {
   if (!feed) return { status: "unavailable", checkedAt: null, ageMinutes: null };
@@ -41,7 +45,7 @@ export function editionHealth(current: CurrentSnapshot | null, coverage: Coverag
     media,
     rankings: sourceHealth(automation.rankings, now),
     nextgen: sourceHealth(automation.nextgen, now),
-    trades: sourceHealth(automation.trades, now),
+    trades: sourceHealth(automation.trades, now, DAILY_JOB),
     ...(Object.hasOwn(automation, "history") || Object.hasOwn(automation, "drives") ? {
       history: sourceHealth(automation.history, now, football ? 30 * 60_000 : DAY),
       drives: sourceHealth(automation.drives, now, football ? 30 * 60_000 : DAY),

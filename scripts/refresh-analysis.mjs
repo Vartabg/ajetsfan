@@ -10,6 +10,7 @@ import { extractVerifiedDrives, RESULTS } from './drives.mjs';
 import { buildHistory } from './league-history.mjs';
 import { analysisEnvelope, validateAnalysisEnvelope, validateAnalysisCurve } from '../src/lib/analysis-envelope.mjs';
 import { validateRuntimeDrives, validateRuntimeHistory } from '../src/lib/postgame-evidence.mjs';
+import { failureReason } from '../src/lib/cron-diagnostics.mjs';
 import { mergeNextGenCollections } from '../src/lib/nextgen-stats.ts';
 
 const checkedSource = (value, attemptedAt, retained = false) => ({ checkedAt: value?.checkedAt ?? null, attemptedAt,
@@ -84,7 +85,7 @@ const sameAsset = (old, current) => !!old && !!current && old.url === current.ur
   && (old.etag && old.etag === current.etag || !old.etag && !current.etag && old.lastModified && old.lastModified === current.lastModified);
 
 /** Independent source refresh; fast scores/coverage are never written by this worker. */
-/** @param {{baked:any,previous?:any,football:any,now?:Date,fetcher?:typeof fetch,onError?:(message:string)=>void,readCurve:(gameId:string,pathname?:string)=>Promise<any>,writeCurve:(pathname:string,points:any)=>Promise<any>,extract?:((season:number)=>Promise<any>)|null}} options */
+/** @param {{baked:any,previous?:any,football:any,now?:Date,fetcher?:typeof fetch,onError?:(message:string,detail?:{source:string,reason:string})=>void,readCurve:(gameId:string,pathname?:string)=>Promise<any>,writeCurve:(pathname:string,points:any)=>Promise<any>,extract?:((season:number)=>Promise<any>)|null}} options */
 export async function refreshAnalysis({ baked, previous = null, football, now = new Date(), fetcher = fetch, onError = () => {}, readCurve, writeCurve, extract = null }) {
   if (!baked?.current || !Array.isArray(baked.games) || !football?.current || football.current.season !== baked.current.season
     || !Array.isArray(football.current.schedule) || !Number.isFinite(now.getTime()) || typeof readCurve !== 'function' || typeof writeCurve !== 'function') throw new Error('Invalid advanced analysis configuration');
@@ -108,7 +109,7 @@ export async function refreshAnalysis({ baked, previous = null, football, now = 
     if (url !== SCHEDULE_SOURCE) return fetcher(url, init);
     leaguePromise ??= (async () => {
       const response = await fetcher(url, init);
-      if (!response.ok) throw new Error('League schedule unavailable');
+      if (!response.ok) throw new Error(`League schedule HTTP ${response.status}`);
       return await response.text();
     })();
     return new Response(await leaguePromise);
@@ -201,7 +202,8 @@ export async function refreshAnalysis({ baked, previous = null, football, now = 
     };
     const results = await Promise.allSettled([pbp(), refreshSeasonRankings({ outDir: ranks, now, fetcher: request, onError: () => {} }),
       refreshNextGen({ outDir: tracking, now, fetcher: request, onError: () => {} }), historyRefresh(), driveRefresh()]);
-    for (const [index, result] of results.entries()) if (result.status === 'rejected') onError(`${['Analysis', 'Rankings', 'Next Gen', 'History', 'Drives'][index]} refresh failed; preserving verified source history.`);
+    for (const [index, result] of results.entries()) if (result.status === 'rejected') onError(`${['Analysis', 'Rankings', 'Next Gen', 'History', 'Drives'][index]} refresh failed; preserving verified source history.`,
+      { source: ['pbp', 'rankings', 'nextgen', 'history', 'drives'][index], reason: result.reason instanceof PbpAvailabilityError ? 'not_published' : failureReason(result.reason) });
     const analysisResult = results[0].status === 'fulfilled' ? results[0].value : null;
     const games = (analysisResult?.games ?? baselineGames).filter((game) => matching(game, football.current));
     let analytics = analysisResult?.analytics ?? baselineAnalytics;

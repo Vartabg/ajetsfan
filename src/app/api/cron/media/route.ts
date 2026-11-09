@@ -1,4 +1,5 @@
 import { cronAuthorized } from "@/lib/cron-authorized.mjs";
+import { cronFailure, cronOutcome } from "@/lib/cron-diagnostics.mjs";
 import { refreshHostedMedia } from "@/lib/hosted-media-refresh";
 import { clearMediaReadCache } from "@/lib/load-media";
 
@@ -14,10 +15,12 @@ export async function GET(request: Request) {
   try {
     const result = await refreshHostedMedia();
     clearMediaReadCache();
-    console.info(JSON.stringify({ event: "hosted-media-refresh", ...result }));
+    const outcome = cronOutcome("hosted-media-refresh", result);
+    console[outcome.level](outcome.line);
     return Response.json(result, { status: result.status === "degraded" ? 503 : 200, headers });
-  } catch {
-    console.error("Hosted media refresh failed; see media freshness health.");
+  } catch (error) {
+    // Only our own fixed code is logged. The error text may quote a provider.
+    console.error(cronFailure("hosted-media-refresh", error));
     return Response.json({ status: "unavailable" }, { status: 503, headers });
   }
 }
