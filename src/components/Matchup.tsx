@@ -73,17 +73,14 @@ export default function Matchup({ game, overdue, analytics }: { game: ScheduledG
   return (
     <section className={styles.matchup} aria-labelledby="matchup-heading">
       <div className={styles.intro}>
-        <p className={styles.kicker}>{overdue ? "Awaiting final" : "Up next"} · Week {game.week}</p>
-        <h2 id="matchup-heading" className="hed">Know the <br /><span>matchup.</span></h2>
-        <p>Jets {game.atHome ? "vs" : "at"} {game.opponentDisplay}<br /><time dateTime={game.date}>{formatDate(game.date)}</time></p>
-        <p className={styles.kickoff}>{game.kickoff ? formatCheckedAt(game.kickoff) : "Kickoff time to be confirmed"}</p>
-        {overdue ? <p className={styles.kickoff}>Kickoff has passed as of the results check. A final has not been confirmed.</p> : null}
+        <h2 id="matchup-heading">Know the matchup.</h2>
+        <p>Jets {game.atHome ? "vs" : "at"} {game.opponentDisplay} · <time dateTime={game.kickoff ?? game.date}>{game.kickoff ? formatCheckedAt(game.kickoff) : `${formatDate(game.date)}, kickoff time to be confirmed`}</time>{overdue ? ". Kickoff has passed as of the results check; a final has not been confirmed." : ""}</p>
         {interpretation ? <p className={styles.interpretation}>{interpretation}</p> : null}
         <Link href="/how-made#efficiency">What the numbers mean <span aria-hidden="true">↗</span></Link>
       </div>
       <div className={styles.comparison}>
         {hasComparison ? <>
-          <p className={styles.guide}>Two sides of Sunday. Higher offensive rates are better; lower defensive rates allowed are better. These describe recorded performance, not the next result.</p>
+          <p className={styles.guide}>Higher offensive rates are better; lower defensive rates allowed are better. These describe recorded performance, not the next result.</p>
           <UnitMatchup offense={jets} defense={opponent} offenseName="Jets" defenseName={game.opponentDisplay} analytics={analytics} open />
           <UnitMatchup offense={opponent} defense={jets} offenseName={game.opponentDisplay} defenseName="Jets" analytics={analytics} />
           <p className={styles.definitions}>Success is a play with EPA above zero. Dropbacks include sacks and quarterback scrambles. Non-dropback rush plays exclude scrambles, kneels and spikes; source-classified aborted runs can remain.</p>
