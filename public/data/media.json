@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-11-10T16:30:10.599Z",
+  "checkedAt": "2026-11-11T16:23:18.849Z",
   "curatedCheckedAt": "2026-10-08T02:01:00.000Z",
   "items": [
     {
@@ -963,14 +963,14 @@
       }
     },
     {
-      "id": "auto-wfan-videos-0c23e2294758adba1ce83543",
-      "title": "Jets About to Make a SHOCKING Geno Smith Trade?!",
+      "id": "auto-wfan-videos-6b5df3ba160b8be0afd1a9a2",
+      "title": "Giants Trade Deadline DISASTER!",
       "kind": "video",
       "outletId": "wfan",
       "author": "WFAN",
-      "publishedAt": "2026-11-10T16:15:23.000Z",
-      "url": "https://www.youtube.com/watch?v=RNypaZnboy0",
-      "youtubeId": "RNypaZnboy0",
+      "publishedAt": "2026-11-11T16:15:16.000Z",
+      "url": "https://www.youtube.com/watch?v=hew-AO91CBw",
+      "youtubeId": "hew-AO91CBw",
       "embedAllowed": true,
       "summary": "Published by WFAN videos.",
       "topics": [
@@ -978,63 +978,61 @@
       ],
       "context": "current",
       "image": {
-        "url": "https://i.ytimg.com/vi/RNypaZnboy0/maxresdefault.jpg",
+        "url": "https://i.ytimg.com/vi/hew-AO91CBw/maxresdefault.jpg",
         "width": 1280,
         "height": 720,
-        "fingerprint": "40fe013cd99d3f71"
+        "fingerprint": "af9356cc89e70264"
       }
     },
     {
-      "id": "auto-new-york-post-d5fa952dc194c9cde06be8c4",
-      "title": "NFL Power Rankings for Week 10: Where have all the upsets gone?",
-      "kind": "article",
-      "outletId": "new-york-post",
-      "author": "Ryan Dunleavy",
-      "publishedAt": "2026-11-10T15:31:42.000Z",
-      "url": "https://nypost.com/2026/11/10/sports/nfl-power-rankings-for-week-10-where-have-all-the-upsets-gone/",
+      "id": "auto-espn-dipietro-rothenberg-324a09c2f2aa4a6a0b6aaae4",
+      "title": "Best-Of: 11/11/26",
+      "kind": "audio",
+      "outletId": "espn-new-york",
+      "author": "ESPN New York, Rick DiPietro, Dave Rothenberg",
+      "publishedAt": "2026-11-11T15:57:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/best-of-11-11-26/id928624712?i=1000801247121",
       "image": {
-        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F11%2Fbuffalo-bills-running-back-james-148174566.jpg?w%3D1024",
-        "width": 3863,
-        "height": 2575,
-        "fingerprint": "84c7ace7167609a9"
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ab/df/04/abdf04a6-1164-4e05-ed27-d1990c1aaef8/mza_15206530149840678676.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "b3619fd60b7ec74d"
       },
-      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
+      "summary": "Published by DiPietro & Rothenberg.",
       "topics": [
-        "Beat reporting"
+        "Radio analysis"
       ],
       "context": "current"
     },
     {
-      "id": "auto-espn-new-york-videos-6017282d76667f3840b777f0",
-      "title": "NFL trade deadline preview for Giants + Jets | DiPietro & Rothenberg | 11/10/26",
-      "kind": "video",
+      "id": "auto-espn-dipietro-rothenberg-a999dc893ddb6e1ae08547f0",
+      "title": "Hour 4: The Mets and Tarik Skubal",
+      "kind": "audio",
       "outletId": "espn-new-york",
-      "author": "ESPN New York",
-      "publishedAt": "2026-11-10T15:04:55.000Z",
-      "url": "https://www.youtube.com/watch?v=WZ-ersXy4cY",
-      "youtubeId": "WZ-ersXy4cY",
-      "embedAllowed": true,
-      "summary": "Published by ESPN New York videos.",
+      "author": "ESPN New York, Rick DiPietro, Dave Rothenberg",
+      "publishedAt": "2026-11-11T15:55:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-4-the-mets-and-tarik-skubal/id928624712?i=1000801247198",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ab/df/04/abdf04a6-1164-4e05-ed27-d1990c1aaef8/mza_15206530149840678676.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "b3619fd60b7ec74d"
+      },
+      "summary": "Published by DiPietro & Rothenberg.",
       "topics": [
         "Radio analysis"
       ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/WZ-ersXy4cY/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "34d73f1d56f46b09"
-      }
+      "context": "current"
     },
     {
-      "id": "auto-jets-media-33d5030411179a5070b52db6",
-      "title": "🚨 Jets MAJOR News Ahead of NFL's Trade Deadline ...",
+      "id": "auto-jets-media-583f4a4c2bda4025fdd84af6",
+      "title": "🚨 Jets UPDATES After NFL Trade Deadline ... This Will SHOCK You",
       "kind": "video",
       "outletId": "jets-media",
       "author": "Jets Media",
-      "publishedAt": "2026-11-10T15:02:50.000Z",
-      "url": "https://www.youtube.com/watch?v=11g7EwwaxKY",
-      "youtubeId": "11g7EwwaxKY",
+      "publishedAt": "2026-11-11T15:51:18.000Z",
+      "url": "https://www.youtube.com/watch?v=xykCYDnDV0c",
+      "youtubeId": "xykCYDnDV0c",
       "embedAllowed": true,
       "summary": "Published by Jets Media.",
       "topics": [
@@ -1042,25 +1040,25 @@
       ],
       "context": "current",
       "image": {
-        "url": "https://i.ytimg.com/vi/11g7EwwaxKY/maxresdefault.jpg",
+        "url": "https://i.ytimg.com/vi/xykCYDnDV0c/maxresdefault.jpg",
         "width": 1280,
         "height": 720,
-        "fingerprint": "cfe08ff209dac7b1"
+        "fingerprint": "ad20a9cba88c09af"
       }
     },
     {
-      "id": "auto-jets-x-factor-29ecea43158be10cbbaade65",
-      "title": "How the New York Jets should attack trade deadline day",
+      "id": "auto-jets-x-factor-8f899a348927e4f4d1417a4f",
+      "title": "Did the NY Jets just commit organizational malpractice?",
       "kind": "article",
       "outletId": "jets-x-factor",
       "author": "Connor Long",
-      "publishedAt": "2026-11-10T15:00:14.000Z",
-      "url": "https://jetsxfactor.com/2026/11/10/how-the-new-york-jets-should-attack-trade-deadline-day/",
+      "publishedAt": "2026-11-11T15:45:00.000Z",
+      "url": "https://jetsxfactor.com/2026/11/11/ny-jets-commit-organizational-malpractice/",
       "image": {
-        "url": "https://jetsxfactor.com/wp-content/uploads/2026/03/Darren-Mougey-New-York-Jets-1200x675.jpg",
+        "url": "https://jetsxfactor.com/wp-content/uploads/2026/10/New-York-Jets-Woody-Johnson-Aaron-Glenn-1200x675.jpg",
         "width": 1200,
         "height": 675,
-        "fingerprint": "b469e31d91060a26"
+        "fingerprint": "be8a697f13c28730"
       },
       "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
       "topics": [
@@ -1069,98 +1067,14 @@
       "context": "current"
     },
     {
-      "id": "auto-jets-x-factor-8a27d23ab90e24d97205a28f",
-      "title": "Is it time for the New York Jets to turn to Cade Klubnik at QB?",
-      "kind": "article",
-      "outletId": "jets-x-factor",
-      "author": "Connor Long",
-      "publishedAt": "2026-11-10T14:29:54.000Z",
-      "url": "https://jetsxfactor.com/2026/11/10/new-york-jets-time-turn-cade-klubnik-qb/",
-      "image": {
-        "url": "https://jetsxfactor.com/wp-content/uploads/2026/11/New-York-Jets-Cade-Klubnik-1200x675.jpg",
-        "width": 1200,
-        "height": 675,
-        "fingerprint": "817d21106ef6060e"
-      },
-      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-videos-50c22bb01b822d927b1e8340",
-      "title": "Evan & Tiki LIVE: TRADE DEADLINE DAY! GIANTS GOING ALL IN? | Jets FIRE SALE?",
-      "kind": "video",
-      "outletId": "wfan",
-      "author": "WFAN",
-      "publishedAt": "2026-11-10T14:29:31.000Z",
-      "url": "https://www.youtube.com/watch?v=qyK830Njz7M",
-      "youtubeId": "qyK830Njz7M",
-      "embedAllowed": true,
-      "summary": "Published by WFAN videos.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/qyK830Njz7M/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "2def9bd417977add"
-      }
-    },
-    {
-      "id": "auto-wfan-videos-4a46165c89143ec8172930bb",
-      "title": "Tommy says the Jets should trade Geno Smith to the Vikings, then sign him again in the offseason:",
-      "kind": "video",
-      "outletId": "wfan",
-      "author": "WFAN",
-      "publishedAt": "2026-11-10T14:01:32.000Z",
-      "url": "https://www.youtube.com/watch?v=YNjZlx7tWoY",
-      "youtubeId": "YNjZlx7tWoY",
-      "embedAllowed": true,
-      "summary": "Published by WFAN videos.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/YNjZlx7tWoY/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "e040758fcbe206d3"
-      }
-    },
-    {
-      "id": "auto-jets-x-factor-0ed01ee83ff8b9e1497c4c10",
-      "title": "Should the New York Jets entertain a Geno Smith trade?",
-      "kind": "article",
-      "outletId": "jets-x-factor",
-      "author": "Michael Nania",
-      "publishedAt": "2026-11-10T13:12:57.000Z",
-      "url": "https://jetsxfactor.com/2026/11/10/new-york-jets-entertain-geno-smith-trade/",
-      "image": {
-        "url": "https://jetsxfactor.com/wp-content/uploads/2026/11/new-york-jets-geno-smith-carson-wentz-trade-1200x675.jpg",
-        "width": 1200,
-        "height": 675,
-        "fingerprint": "cba1728123359447"
-      },
-      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
-      "topics": [
-        "Analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jake-asman-45f137d4930d51a05af8683d",
-      "title": "Jets Trade Rumors: Is Will McDonald On His Way OUT?!",
+      "id": "auto-jake-asman-e88f9539e1f2facef4e7747f",
+      "title": "The Raiders Gave the Jets the PERFECT QB Blueprint",
       "kind": "video",
       "outletId": "jake-asman-show",
       "author": "Jake Asman",
-      "publishedAt": "2026-11-10T12:41:36.000Z",
-      "url": "https://www.youtube.com/watch?v=_JDsk2rNTUY",
-      "youtubeId": "_JDsk2rNTUY",
+      "publishedAt": "2026-11-11T15:32:13.000Z",
+      "url": "https://www.youtube.com/watch?v=Dh8dLjENeH8",
+      "youtubeId": "Dh8dLjENeH8",
       "embedAllowed": true,
       "summary": "Published by The Jake Asman Show.",
       "topics": [
@@ -1168,41 +1082,103 @@
       ],
       "context": "current",
       "image": {
-        "url": "https://i.ytimg.com/vi/_JDsk2rNTUY/maxresdefault.jpg",
+        "url": "https://i.ytimg.com/vi/Dh8dLjENeH8/maxresdefault.jpg",
         "width": 1280,
         "height": 720,
-        "fingerprint": "6e1f67e260d67560"
+        "fingerprint": "c4956b5698b8711d"
       }
     },
     {
-      "id": "auto-new-york-post-8dad90af094a998963031040",
-      "title": "What the NFL trade deadline will reveal about the Giants and Jets",
-      "kind": "article",
-      "outletId": "new-york-post",
-      "author": "Madeline Kenney",
-      "publishedAt": "2026-11-10T12:41:11.000Z",
-      "url": "https://nypost.com/2026/11/10/sports/nfl-trade-deadline-2026-giants-buyers-jets-sellers/",
-      "image": {
-        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F11%2Flinebacker-arvell-reese-52-new-148048946_4820b6-e1794263099767.jpg?quality%3D90%26strip%3Dall",
-        "width": 3600,
-        "height": 2400,
-        "fingerprint": "89c9e657ffc2dd7e"
-      },
-      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
+      "id": "auto-wfan-videos-11fba00a5a975bb9247618a5",
+      "title": "Will McDonald not being traded is the one decision Gio could not believe:",
+      "kind": "video",
+      "outletId": "wfan",
+      "author": "WFAN",
+      "publishedAt": "2026-11-11T15:30:01.000Z",
+      "url": "https://www.youtube.com/watch?v=RYa9F5e6UGI",
+      "youtubeId": "RYa9F5e6UGI",
+      "embedAllowed": true,
+      "summary": "Published by WFAN videos.",
       "topics": [
-        "Beat reporting"
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/RYa9F5e6UGI/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "0a8d5cafc8f81871"
+      }
+    },
+    {
+      "id": "auto-wfan-boomer-gio-79b076aa6236e5bf0908bfc7",
+      "title": "Full Show - Cousins trade to Vikings, Giants & Jets talk with Phil, plus Stearns on Mets dealings",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-11-11T15:20:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/full-show-cousins-trade-to-vikings-giants-jets-talk/id386001601?i=1000801243437",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "e42696f3290a0c00"
+      },
+      "summary": "Published by Boomer & Gio.",
+      "topics": [
+        "Radio analysis"
       ],
       "context": "current"
     },
     {
-      "id": "auto-espn-new-york-videos-d3d2e8e66760bdcea85af8ea",
-      "title": "Week 9 Recap for Jets & Giants | Dan Graca - 11/9/26",
+      "id": "auto-wfan-boomer-gio-29284767a9009b9be36d849d",
+      "title": "Hour 1 - Giants/Jets stand pat at trade deadline, Mets' interest in Skubal",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-11-11T15:18:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-1-giants-jets-stand-pat-at-trade-deadline-mets/id386001601?i=1000801242663",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "e42696f3290a0c00"
+      },
+      "summary": "Published by Boomer & Gio.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-boomer-gio-941208ec7cc3b966dbbc261f",
+      "title": "Hour 2 - Boomer's top 5 Super Bowl picks, JJ on injuries, Knicks win one",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-11-11T15:17:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-2-boomers-top-5-super-bowl-picks-jj-on-injuries/id386001601?i=1000801242646",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "e42696f3290a0c00"
+      },
+      "summary": "Published by Boomer & Gio.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-espn-new-york-videos-143f8c818c596812c7c57179",
+      "title": "NFL deadline reaction, Knicks win + Mets will meet with Skubal | DiPietro & Rothenberg | 11/11/26",
       "kind": "video",
       "outletId": "espn-new-york",
       "author": "ESPN New York",
-      "publishedAt": "2026-11-10T12:38:23.000Z",
-      "url": "https://www.youtube.com/watch?v=ZxMpfNkh3W4",
-      "youtubeId": "ZxMpfNkh3W4",
+      "publishedAt": "2026-11-11T15:12:07.000Z",
+      "url": "https://www.youtube.com/watch?v=S8SKJ2a1lHU",
+      "youtubeId": "S8SKJ2a1lHU",
       "embedAllowed": true,
       "summary": "Published by ESPN New York videos.",
       "topics": [
@@ -1210,25 +1186,195 @@
       ],
       "context": "current",
       "image": {
-        "url": "https://i.ytimg.com/vi/ZxMpfNkh3W4/maxresdefault.jpg",
+        "url": "https://i.ytimg.com/vi/S8SKJ2a1lHU/maxresdefault.jpg",
         "width": 1280,
         "height": 720,
-        "fingerprint": "1cd2d74dc518cf50"
+        "fingerprint": "2be85b0e188d67ed"
       }
     },
     {
-      "id": "auto-new-york-post-0f27f366720a64c17bb2e442",
-      "title": "Aaron Glenn isn’t ruling out giving up play calling with Jets defense struggling",
+      "id": "auto-wfan-videos-1c50206a565b437b53920c15",
+      "title": "Evan & Tiki LIVE: GIANTS DEADLINE FLOP! | Cashman & Stearns Face Media",
+      "kind": "video",
+      "outletId": "wfan",
+      "author": "WFAN",
+      "publishedAt": "2026-11-11T14:47:20.000Z",
+      "url": "https://www.youtube.com/watch?v=3nw8Bk-NW-Y",
+      "youtubeId": "3nw8Bk-NW-Y",
+      "embedAllowed": true,
+      "summary": "Published by WFAN videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/3nw8Bk-NW-Y/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "c2294c3ee57542e7"
+      }
+    },
+    {
+      "id": "auto-espn-dipietro-rothenberg-3245e46413008946d820419a",
+      "title": "Hour 3: Stump Rothenberg, Tim Hasselbeck",
+      "kind": "audio",
+      "outletId": "espn-new-york",
+      "author": "ESPN New York, Rick DiPietro, Dave Rothenberg",
+      "publishedAt": "2026-11-11T14:17:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-3-stump-rothenberg-tim-hasselbeck/id928624712?i=1000801223420",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ab/df/04/abdf04a6-1164-4e05-ed27-d1990c1aaef8/mza_15206530149840678676.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "b3619fd60b7ec74d"
+      },
+      "summary": "Published by DiPietro & Rothenberg.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jets-x-factor-56b0b4649917fd734211d2f0",
+      "title": "The NY Jets players most affected by the trade deadline",
+      "kind": "article",
+      "outletId": "jets-x-factor",
+      "author": "Michael Nania",
+      "publishedAt": "2026-11-11T14:06:33.000Z",
+      "url": "https://jetsxfactor.com/2026/11/11/ny-jets-players-most-affected-trade-deadline/",
+      "image": {
+        "url": "https://jetsxfactor.com/wp-content/uploads/2026/11/new-york-jets-will-mcdonald-1200x675.jpg",
+        "width": 1200,
+        "height": 675,
+        "fingerprint": "2ea8ea7e21620cfb"
+      },
+      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-matt-oleary-5566d6ed3849c0bcfe48f54b",
+      "title": "The Jets Plan Makes No Sense | Just Jets Ep 350",
+      "kind": "video",
+      "outletId": "matt-oleary",
+      "author": "Matt O'Leary",
+      "publishedAt": "2026-11-11T14:00:03.000Z",
+      "url": "https://www.youtube.com/watch?v=pzc3XAYx1GM",
+      "youtubeId": "pzc3XAYx1GM",
+      "embedAllowed": true,
+      "summary": "Published by Matt O’Leary.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/pzc3XAYx1GM/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "31790f79acb37e36"
+      }
+    },
+    {
+      "id": "auto-greenbean-jetsfan-13390766c4e60ca054965d95",
+      "title": "‼️ NFL Trade Deadline Headlines & Reaction for NY JETS / New York Jets News",
+      "kind": "video",
+      "outletId": "greenbean-jetsfan",
+      "author": "GREENBEAN JETSFAN",
+      "publishedAt": "2026-11-11T13:11:42.000Z",
+      "url": "https://www.youtube.com/watch?v=6tuCqHtWVWA",
+      "youtubeId": "6tuCqHtWVWA",
+      "embedAllowed": true,
+      "summary": "Published by GreenBean Jetsfan.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/6tuCqHtWVWA/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "ec651ce7b57de4bb"
+      }
+    },
+    {
+      "id": "auto-espn-new-york-videos-f1ad158a93b833e0d169b235",
+      "title": "Did Giants and Jets FAIL trade deadline?",
+      "kind": "video",
+      "outletId": "espn-new-york",
+      "author": "ESPN New York",
+      "publishedAt": "2026-11-11T13:05:07.000Z",
+      "url": "https://www.youtube.com/watch?v=SX4rsB3dmhQ",
+      "youtubeId": "SX4rsB3dmhQ",
+      "embedAllowed": true,
+      "summary": "Published by ESPN New York videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/SX4rsB3dmhQ/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "029145a8a5dc8f27"
+      }
+    },
+    {
+      "id": "auto-jake-asman-c0c72beb4ccd7d641004f344",
+      "title": "Aaron Glenn Has NO Answers After Chiefs Cooked The Jets!",
+      "kind": "video",
+      "outletId": "jake-asman-show",
+      "author": "Jake Asman",
+      "publishedAt": "2026-11-11T13:00:37.000Z",
+      "url": "https://www.youtube.com/watch?v=N9pHrAmJPao",
+      "youtubeId": "N9pHrAmJPao",
+      "embedAllowed": true,
+      "summary": "Published by The Jake Asman Show.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/N9pHrAmJPao/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "776bcccd19da563e"
+      }
+    },
+    {
+      "id": "auto-jets-x-factor-5f911405a1ca3600ef91d876",
+      "title": "Dolphins’ QB news could throw a wrench into NY Jets’ future",
+      "kind": "article",
+      "outletId": "jets-x-factor",
+      "author": "Michael Nania",
+      "publishedAt": "2026-11-11T12:54:06.000Z",
+      "url": "https://jetsxfactor.com/2026/11/11/ny-jets-dolphins-qb-news-throw-wrench-into/",
+      "image": {
+        "url": "https://jetsxfactor.com/wp-content/uploads/2026/11/new-york-jets-malik-willis-miami-dolphins-1200x675.jpg",
+        "width": 1200,
+        "height": 675,
+        "fingerprint": "f3116c6660dce47f"
+      },
+      "summary": "Published by Jets X-Factor. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-new-york-post-27a8bad925a4a08d3dd27572",
+      "title": "The Giants didn’t buy. The Jets didn’t sell. What now after a trade deadline dud?",
       "kind": "article",
       "outletId": "new-york-post",
-      "author": "Mark W. Sanchez",
-      "publishedAt": "2026-11-10T06:17:49.000Z",
-      "url": "https://nypost.com/2026/11/10/sports/aaron-glenn-isnt-ruling-out-giving-up-play-calling-with-jets-defense-struggling/",
+      "author": "Jared Schwartz",
+      "publishedAt": "2026-11-11T12:40:00.000Z",
+      "url": "https://nypost.com/2026/11/11/sports/giants-didnt-buy-jets-didnt-sell-what-now-after-trade-deadline-dud/",
       "image": {
-        "url": "https://nypost.com/wp-content/uploads/sites/2/2026/11/crop-41764218.jpg?quality=75&strip=all&w=1200",
-        "width": 1200,
-        "height": 799,
-        "fingerprint": "d72617013832a6e9"
+        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F11%2Fnewspress-collage-okeiqtmla-1794397805358.jpg?quality%3D90%26strip%3Dall%261794379879",
+        "width": 2000,
+        "height": 1333,
+        "fingerprint": "1edfa7fa59ed4095"
       },
       "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
       "topics": [
@@ -1237,14 +1383,118 @@
       "context": "current"
     },
     {
-      "id": "auto-jets-media-2009af2d802a3aa76474306b",
-      "title": "Jets BIG News Ahead of Trade Deadline + Reaction to LOSS vs Chiefs + More ...",
+      "id": "auto-new-york-post-e224928cf156138244f2c593",
+      "title": "Why the Jets owe it to a promising offense to fix the defense",
+      "kind": "article",
+      "outletId": "new-york-post",
+      "author": "Brian Costello",
+      "publishedAt": "2026-11-11T11:40:00.000Z",
+      "url": "https://nypost.com/2026/11/11/sports/jets-owe-it-to-promising-young-offense-to-fix-the-defense/",
+      "image": {
+        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F11%2Fnew-york-jets-linebacker-jamien-148042792.jpg?w%3D1024",
+        "width": 2827,
+        "height": 1884,
+        "fingerprint": "18e0fce0138ea047"
+      },
+      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Beat reporting"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-new-york-post-ad6f242db2eb90f33145c2bf",
+      "title": "Jets’ quiet trade deadline brings about big defensive questions",
+      "kind": "article",
+      "outletId": "new-york-post",
+      "author": "Mark Cannizzaro",
+      "publishedAt": "2026-11-11T03:36:10.000Z",
+      "url": "https://nypost.com/2026/11/10/sports/jets-quiet-trade-deadline-brings-big-defensive-questions/",
+      "image": {
+        "url": "https://nypost.com/wp-content%2Fuploads%2Fsites%2F2%2F2026%2F11%2Fcrop-41783039.jpg?quality%3D90%26strip%3Dall",
+        "width": 3595,
+        "height": 2396,
+        "fingerprint": "62afab87c73a99dd"
+      },
+      "summary": "Published by New York Post Jets. Open the original for the publisher’s full coverage.",
+      "topics": [
+        "Beat reporting"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-talkin-jets-eb2104d065d96d6c6e259abc",
+      "title": "Trade Deadline Reactions! - Talkin Jets",
+      "kind": "video",
+      "outletId": "talkin-jets",
+      "author": "Talkin Jets",
+      "publishedAt": "2026-11-11T03:08:43.000Z",
+      "url": "https://www.youtube.com/watch?v=v8p3zru8qQU",
+      "youtubeId": "v8p3zru8qQU",
+      "embedAllowed": true,
+      "summary": "Published by Talkin Jets.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/v8p3zru8qQU/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "6f60a712101923cf"
+      }
+    },
+    {
+      "id": "auto-lets-talk-jets-1814937331b44af7edc87f3a",
+      "title": "Episode #146: Glenn getting chance to save job? with JetsCentral",
+      "kind": "audio",
+      "outletId": "lets-talk-jets",
+      "author": "Lets Talk Jets Radio",
+      "publishedAt": "2026-11-11T01:39:14.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/episode-146-glenn-getting-chance-to-save-job-with/id863176413?i=1000801123788",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/77/4c/39/774c392e-5cbc-1265-69ba-c1ac3caea58b/mza_7323735301574650351.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "f287401fdb24fa4e"
+      },
+      "summary": "Published by Let’s Talk Jets Radio.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jake-asman-2dc514b05fbe5118bcdcafc2",
+      "title": "Jets Analysts REACT To The Jets Making NO Moves At The Trade Deadline!",
+      "kind": "video",
+      "outletId": "jake-asman-show",
+      "author": "Jake Asman",
+      "publishedAt": "2026-11-11T00:49:12.000Z",
+      "url": "https://www.youtube.com/watch?v=bvUHeE3TQfs",
+      "youtubeId": "bvUHeE3TQfs",
+      "embedAllowed": true,
+      "summary": "Published by The Jake Asman Show.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/bvUHeE3TQfs/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "d249d1181a21dbaf"
+      }
+    },
+    {
+      "id": "auto-jets-media-1edc11e9a638a8141a63f384",
+      "title": "David Bailey Is a PROBLEM… Even Mahomes Knew It 😳",
       "kind": "video",
       "outletId": "jets-media",
       "author": "Jets Media",
-      "publishedAt": "2026-11-10T04:37:36.000Z",
-      "url": "https://www.youtube.com/watch?v=lR2VbFTuOA8",
-      "youtubeId": "lR2VbFTuOA8",
+      "publishedAt": "2026-11-11T00:36:06.000Z",
+      "url": "https://www.youtube.com/watch?v=ncHb_PIP_eQ",
+      "youtubeId": "ncHb_PIP_eQ",
       "embedAllowed": true,
       "summary": "Published by Jets Media.",
       "topics": [
@@ -1252,11 +1502,390 @@
       ],
       "context": "current",
       "image": {
-        "url": "https://i.ytimg.com/vi/lR2VbFTuOA8/maxresdefault.jpg",
+        "url": "https://i.ytimg.com/vi/ncHb_PIP_eQ/maxresdefault.jpg",
         "width": 1280,
         "height": 720,
-        "fingerprint": "997651b45b4de8d6"
+        "fingerprint": "5892d0068a10a766"
       }
+    },
+    {
+      "id": "auto-wfan-carton-d80bef127968cde6a0b0532c",
+      "title": "Full Show: Craig and Big Mac React to Quiet Trade Deadline & Schultz Interview",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-11-10T23:46:09.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/full-show-craig-and-big-mac-react-to-quiet-trade/id942553546?i=1000801106127",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "63879332cc5c0e9c"
+      },
+      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-carton-660007b0d54592e6322deae4",
+      "title": "Hour 1: Big Mac & Carton Debate Giants Buyers vs Jets Sellers at Deadline",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-11-10T23:42:55.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-1-big-mac-carton-debate-giants-buyers-vs-jets/id942553546?i=1000801103524",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "63879332cc5c0e9c"
+      },
+      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-carton-a931e72a02a364c9e4d6c179",
+      "title": "Hour 2: Jets Reject Vikings' Trade Interest in Geno Smith",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-11-10T23:42:22.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-2-jets-reject-vikings-trade-interest-in-geno-smith/id942553546?i=1000801102694",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "63879332cc5c0e9c"
+      },
+      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-francesa-8d7b51520b999ca3bfd9a63b",
+      "title": "Francesa Reacts to NFL Trade Deadline and a Look Ahead",
+      "kind": "audio",
+      "outletId": "mike-francesa-podcast",
+      "author": "BetRivers Network",
+      "publishedAt": "2026-11-10T23:05:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/francesa-reacts-to-nfl-trade-deadline-and-a-look-ahead/id1615588712?i=1000801085386",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/fe/fe/91/fefe9198-eef9-c635-f0ec-f53bb49e88c9/mza_475508703759044749.jpeg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "1419fd0befebc053"
+      },
+      "summary": "Published by The Mike Francesa Podcast.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jets-media-469e57b644cdbc5a758629e0",
+      "title": "🚨 Bill Simmons Just DESTROYED Aaron Glenn..",
+      "kind": "video",
+      "outletId": "jets-media",
+      "author": "Jets Media",
+      "publishedAt": "2026-11-10T22:37:48.000Z",
+      "url": "https://www.youtube.com/watch?v=MOx0v_nwsP0",
+      "youtubeId": "MOx0v_nwsP0",
+      "embedAllowed": true,
+      "summary": "Published by Jets Media.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/MOx0v_nwsP0/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "4933816b984af730"
+      }
+    },
+    {
+      "id": "auto-francesa-videos-38824478620bcf5caefe0056",
+      "title": "Francesa Reacts to NFL Trade Deadline and a Look Ahead",
+      "kind": "video",
+      "outletId": "mike-francesa-podcast",
+      "author": "Mike Francesa Podcast",
+      "publishedAt": "2026-11-10T22:31:27.000Z",
+      "url": "https://www.youtube.com/watch?v=US-jEXwgwWc",
+      "youtubeId": "US-jEXwgwWc",
+      "embedAllowed": true,
+      "summary": "Published by Mike Francesa Podcast videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/US-jEXwgwWc/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "1745257e02f61b2a"
+      }
+    },
+    {
+      "id": "auto-jets-central-f36827bc5b6304d5b75fe4a8",
+      "title": "New York Jets Do Nothing At The NFL Trade Deadline",
+      "kind": "video",
+      "outletId": "jets-central",
+      "author": "JetsCentral",
+      "publishedAt": "2026-11-10T21:57:34.000Z",
+      "url": "https://www.youtube.com/watch?v=0Zt2wF0oQMs",
+      "youtubeId": "0Zt2wF0oQMs",
+      "embedAllowed": true,
+      "summary": "Published by Jets Central.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/0Zt2wF0oQMs/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "743a8f696b5cc854"
+      }
+    },
+    {
+      "id": "auto-matt-oleary-ceb10b67579336d963602457",
+      "title": "New York Jets Trade Deadline Live! NFL Trade Deadline Reaction",
+      "kind": "video",
+      "outletId": "matt-oleary",
+      "author": "Matt O'Leary",
+      "publishedAt": "2026-11-10T21:08:58.000Z",
+      "url": "https://www.youtube.com/watch?v=1qCsFczuW78",
+      "youtubeId": "1qCsFczuW78",
+      "embedAllowed": true,
+      "summary": "Published by Matt O’Leary.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/1qCsFczuW78/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "108c10073843f5d2"
+      }
+    },
+    {
+      "id": "auto-bt-unleashed-a71eda1db36d41c95e9b6de4",
+      "title": "The Jets’ Defense Deserves MORE CONVERSATION!!! #nyjets #jets #nfl #nflfootball #garyvee",
+      "kind": "video",
+      "outletId": "bt-unleashed",
+      "author": "Brandon Tierney",
+      "publishedAt": "2026-11-10T20:31:32.000Z",
+      "url": "https://www.youtube.com/watch?v=ZWlq7rIagX8",
+      "youtubeId": "ZWlq7rIagX8",
+      "embedAllowed": true,
+      "summary": "Published by BT Unleashed.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/ZWlq7rIagX8/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "d785d3f187eb453e"
+      }
+    },
+    {
+      "id": "auto-espn-new-york-videos-31593632b5668db0440ec86c",
+      "title": "NFL Week 9 Analysis | The Michael Kay Show - 11/10/26",
+      "kind": "video",
+      "outletId": "espn-new-york",
+      "author": "ESPN New York",
+      "publishedAt": "2026-11-10T20:02:13.000Z",
+      "url": "https://www.youtube.com/watch?v=8PLJ76Maj9g",
+      "youtubeId": "8PLJ76Maj9g",
+      "embedAllowed": true,
+      "summary": "Published by ESPN New York videos.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/8PLJ76Maj9g/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "f4d00bcfd8d6a23d"
+      }
+    },
+    {
+      "id": "auto-wfan-evan-tiki-0e1dbc34bb5c532b60514ee9",
+      "title": "Hour 1: Geno Smith Trade Fight Gets Heated as Jets Spiral",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-11-10T19:55:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-1-geno-smith-trade-fight-gets-heated-as-jets-spiral/id386002649?i=1000801062196",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "fa724ae4eb7ce7db"
+      },
+      "summary": "Published by Evan & Tiki.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-evan-tiki-0f9f5ff203ccb1d377809d2e",
+      "title": "Hour 2: Giants' Jonathan Taylor Trade Talks Reach a Breaking Point",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-11-10T19:50:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-2-giants-jonathan-taylor-trade-talks-reach-a/id386002649?i=1000801061673",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "fa724ae4eb7ce7db"
+      },
+      "summary": "Published by Evan & Tiki.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-wfan-evan-tiki-ef0faef4827abe54b5baf05e",
+      "title": "Hour 3: Giants Must Win NFC East, No More Excuses",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-11-10T19:45:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/hour-3-giants-must-win-nfc-east-no-more-excuses/id386002649?i=1000801060832",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "fa724ae4eb7ce7db"
+      },
+      "summary": "Published by Evan & Tiki.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-bt-unleashed-9f1729b2da4ec8afecb8e092",
+      "title": "BT & Gary Vee Debate Aaron Glenn, Jets’ Defense and “Great” Coaches",
+      "kind": "video",
+      "outletId": "bt-unleashed",
+      "author": "Brandon Tierney",
+      "publishedAt": "2026-11-10T19:40:24.000Z",
+      "url": "https://www.youtube.com/watch?v=qFgHkOE3SNM",
+      "youtubeId": "qFgHkOE3SNM",
+      "embedAllowed": true,
+      "summary": "Published by BT Unleashed.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/qFgHkOE3SNM/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "2ad772a370606c21"
+      }
+    },
+    {
+      "id": "auto-bt-unleashed-b6f38847550cab7abbe51eaf",
+      "title": "Gary Vee GOES OFF On The Importance OF COACHING!!! #garyvee #aaronglenn #jets #billbelichick",
+      "kind": "video",
+      "outletId": "bt-unleashed",
+      "author": "Brandon Tierney",
+      "publishedAt": "2026-11-10T19:07:24.000Z",
+      "url": "https://www.youtube.com/watch?v=2YiodtQtbvU",
+      "youtubeId": "2YiodtQtbvU",
+      "embedAllowed": true,
+      "summary": "Published by BT Unleashed.",
+      "topics": [
+        "Fan analysis",
+        "Rants"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/2YiodtQtbvU/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "9407e4139a3fd300"
+      }
+    },
+    {
+      "id": "auto-wfan-daily-6ebc847c4beeeacaa30de1cc",
+      "title": "Vikings Called Jets for \"Untouchable\" Geno Smith | The Carton Show with Chris McMonigle",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-11-10T19:00:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/vikings-called-jets-for-untouchable-geno-smith-the/id386002669?i=1000801072044",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/36/4e/5f/364e5f7b-284f-da1f-6556-a04fafa377d9/mza_2084945017036074099.jpeg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "301a361e8434b0c6"
+      },
+      "summary": "Published by WFAN Daily.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
+    },
+    {
+      "id": "auto-jets-central-758dc23e94c954d9aaed67d1",
+      "title": "REPORT: Jaguars Made A \"SIGNIFICANT OFFER\" For Will McDonald | New York Jets Trade Deadline",
+      "kind": "video",
+      "outletId": "jets-central",
+      "author": "JetsCentral",
+      "publishedAt": "2026-11-10T16:40:23.000Z",
+      "url": "https://www.youtube.com/watch?v=ixOskrD7-f4",
+      "youtubeId": "ixOskrD7-f4",
+      "embedAllowed": true,
+      "summary": "Published by Jets Central.",
+      "topics": [
+        "Fan analysis"
+      ],
+      "context": "current",
+      "image": {
+        "url": "https://i.ytimg.com/vi/ixOskrD7-f4/maxresdefault.jpg",
+        "width": 1280,
+        "height": 720,
+        "fingerprint": "15d631797e7db148"
+      }
+    },
+    {
+      "id": "auto-wfan-daily-c51672bccb4dd6fff9b7cade",
+      "title": "Evan and Tiki Clash Over Geno Smith's Trade Value | Evan & Tiki",
+      "kind": "audio",
+      "outletId": "wfan",
+      "author": "Audacy",
+      "publishedAt": "2026-11-10T15:00:00.000Z",
+      "url": "https://podcasts.apple.com/us/podcast/evan-and-tiki-clash-over-geno-smiths-trade-value-evan-tiki/id386002669?i=1000801066124",
+      "image": {
+        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/36/4e/5f/364e5f7b-284f-da1f-6556-a04fafa377d9/mza_2084945017036074099.jpeg/600x600bb.jpg",
+        "width": 600,
+        "height": 600,
+        "fingerprint": "301a361e8434b0c6"
+      },
+      "summary": "Published by WFAN Daily.",
+      "topics": [
+        "Radio analysis"
+      ],
+      "context": "current"
     },
     {
       "id": "auto-lets-talk-jets-23d2ed6bc5dd3eb9f0371976",
@@ -1270,75 +1899,11 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/77/4c/39/774c392e-5cbc-1265-69ba-c1ac3caea58b/mza_7323735301574650351.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "274dbcf90c4a8ac9"
+        "fingerprint": "f287401fdb24fa4e"
       },
       "summary": "Published by Let’s Talk Jets Radio.",
       "topics": [
         "Fan analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-jake-asman-a617b6c4e6a843108ce5242d",
-      "title": "The Jets Bring a Plastic Knife to a Machine Gun Fight",
-      "kind": "video",
-      "outletId": "jake-asman-show",
-      "author": "Jake Asman",
-      "publishedAt": "2026-11-10T03:03:40.000Z",
-      "url": "https://www.youtube.com/watch?v=E_LQboVhqYU",
-      "youtubeId": "E_LQboVhqYU",
-      "embedAllowed": true,
-      "summary": "Published by The Jake Asman Show.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/E_LQboVhqYU/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "7d30128c99cde9c8"
-      }
-    },
-    {
-      "id": "auto-bt-unleashed-34a96a61d337d368e849d79a",
-      "title": "Hall Over Allen Is A COACHING BLUNDER!!! #nfl #nyjets #jets #aaronglenn",
-      "kind": "video",
-      "outletId": "bt-unleashed",
-      "author": "Brandon Tierney",
-      "publishedAt": "2026-11-10T02:46:29.000Z",
-      "url": "https://www.youtube.com/watch?v=UDcupcyr5Ew",
-      "youtubeId": "UDcupcyr5Ew",
-      "embedAllowed": true,
-      "summary": "Published by BT Unleashed.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/UDcupcyr5Ew/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "54367323a6c5a184"
-      }
-    },
-    {
-      "id": "auto-wfan-boomer-gio-3a594ae001d08c903e90f6a0",
-      "title": "Best Of Jets on WFAN: Did They Quit Against the Chiefs?",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-11-10T02:00:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/best-of-jets-on-wfan-did-they-quit-against-the-chiefs/id386001601?i=1000800912921",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "80d36d9a85538607"
-      },
-      "summary": "Published by Boomer & Gio.",
-      "topics": [
-        "Radio analysis"
       ],
       "context": "current"
     },
@@ -1365,28 +1930,6 @@
       }
     },
     {
-      "id": "auto-jake-asman-55dad1ba9cf6818514eca57e",
-      "title": "Latest Jets Trade Deadline Reports Reveal BIG Decisions Ahead!",
-      "kind": "video",
-      "outletId": "jake-asman-show",
-      "author": "Jake Asman",
-      "publishedAt": "2026-11-10T00:51:36.000Z",
-      "url": "https://www.youtube.com/watch?v=q6mD2s2Qj38",
-      "youtubeId": "q6mD2s2Qj38",
-      "embedAllowed": true,
-      "summary": "Published by The Jake Asman Show.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/q6mD2s2Qj38/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "35c5b76d9c3bda58"
-      }
-    },
-    {
       "id": "auto-jets-collective-26a564a38042e51ae96c77f2",
       "title": "Jets COLLAPSE Against Chiefs! Is Aaron Glenn's Time Running Out?",
       "kind": "audio",
@@ -1398,95 +1941,13 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ef/0a/04/ef0a0436-2a6a-8b70-4a69-2b8048393053/mza_1909685854625774537.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "10354edbb5360919"
+        "fingerprint": "28325e0f14434e6f"
       },
       "summary": "Published by Jets Collective.",
       "topics": [
         "Roundtable"
       ],
       "context": "current"
-    },
-    {
-      "id": "auto-wfan-carton-e486392489abf00c797f6ae1",
-      "title": "Full Show: Giants Beat Eagles: Is The NFC East Already Clinched?",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-11-10T00:19:11.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/full-show-giants-beat-eagles-is-the-nfc-east-already/id942553546?i=1000800896283",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "e9fa9a498c60fa56"
-      },
-      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-carton-816ff856e72c94f703a8fad8",
-      "title": "Hour 2: Will Nick Sirianni Be Fired After Flipping Off Fans?",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-11-10T00:15:48.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-2-will-nick-sirianni-be-fired-after-flipping-off-fans/id942553546?i=1000800893978",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "e9fa9a498c60fa56"
-      },
-      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-carton-57ad5a0a87d5a205127d7d01",
-      "title": "Hour 3: Carton and Big Mac Roast the Giants’ Sarcastic NFC East Title",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-11-10T00:14:45.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-3-carton-and-big-mac-roast-the-giants-sarcastic/id942553546?i=1000800893949",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/88/2c/5d/882c5d34-84f9-3f90-c33e-f846847547eb/mza_17743110882224255799.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "e9fa9a498c60fa56"
-      },
-      "summary": "Published by The Carton Show with Craig Carton & Chris McMonigle.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-espn-new-york-videos-a656d8cc953774dbfeb4fe71",
-      "title": "NFL Week 9 Recap | Don, Hahn, & Rosenberg - 11/9/26",
-      "kind": "video",
-      "outletId": "espn-new-york",
-      "author": "ESPN New York",
-      "publishedAt": "2026-11-10T00:06:54.000Z",
-      "url": "https://www.youtube.com/watch?v=CizzEiYu1is",
-      "youtubeId": "CizzEiYu1is",
-      "embedAllowed": true,
-      "summary": "Published by ESPN New York videos.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/CizzEiYu1is/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "cbd2b18d1796d837"
-      }
     },
     {
       "id": "auto-sny-videos-7ad77f39d821a0b663273c79",
@@ -1508,28 +1969,6 @@
         "width": 1280,
         "height": 720,
         "fingerprint": "1dfcdf7373ed5598"
-      }
-    },
-    {
-      "id": "auto-jets-media-ecec5cc419ec63cc3de76fed",
-      "title": "🚨 Patrick Mahomes Just Said WHAT About Jets Rookie David Bailey?!",
-      "kind": "video",
-      "outletId": "jets-media",
-      "author": "Jets Media",
-      "publishedAt": "2026-11-09T23:15:34.000Z",
-      "url": "https://www.youtube.com/watch?v=5upNOJH7KVY",
-      "youtubeId": "5upNOJH7KVY",
-      "embedAllowed": true,
-      "summary": "Published by Jets Media.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/5upNOJH7KVY/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "7a34e6158833f49b"
       }
     },
     {
@@ -1555,176 +1994,6 @@
       }
     },
     {
-      "id": "auto-bt-unleashed-2a69064916022bcfc87e8ab8",
-      "title": "Gary Vee JOINS LIVE ON UNLEASHED AT 11AM!!! + NFL Trade Deadline Talk",
-      "kind": "video",
-      "outletId": "bt-unleashed",
-      "author": "Brandon Tierney",
-      "publishedAt": "2026-11-09T21:02:50.000Z",
-      "url": "https://www.youtube.com/watch?v=8nfFzwt5iwk",
-      "youtubeId": "8nfFzwt5iwk",
-      "embedAllowed": true,
-      "summary": "Published by BT Unleashed.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/8nfFzwt5iwk/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "6f75ad633068119f"
-      }
-    },
-    {
-      "id": "auto-bt-unleashed-4299dbf41cd8b00ff3b6f201",
-      "title": "Jets vs Chiefs WAS A COMPLETE DISASTER!!!",
-      "kind": "video",
-      "outletId": "bt-unleashed",
-      "author": "Brandon Tierney",
-      "publishedAt": "2026-11-09T20:28:26.000Z",
-      "url": "https://www.youtube.com/watch?v=1G7ZfPrcWF4",
-      "youtubeId": "1G7ZfPrcWF4",
-      "embedAllowed": true,
-      "summary": "Published by BT Unleashed.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/1G7ZfPrcWF4/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "7986034ef6170b22"
-      }
-    },
-    {
-      "id": "auto-wfan-evan-tiki-b6ece0caafa9919b8fb51bf2",
-      "title": "Monday Full Show: The Giants end the Philadelphia Losing Streak, the Jets May Have Quit in Kansas City",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-11-09T20:00:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/monday-full-show-the-giants-end-the-philadelphia/id386002649?i=1000800840093",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "80c6bc3b2e8174b2"
-      },
-      "summary": "Published by Evan & Tiki.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-evan-tiki-c50b6121c82b1dc55668b611",
-      "title": "Hour 1: Giants' Ugly Philly Win Has Division Title Within Reach",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-11-09T19:55:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-1-giants-ugly-philly-win-has-division-title-within/id386002649?i=1000800839671",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "80c6bc3b2e8174b2"
-      },
-      "summary": "Published by Evan & Tiki.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-evan-tiki-e037e765d76cd6f2d661dc91",
-      "title": "Hour 2: FOX's Malik Nabers Hit Job Sparks Outrage",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-11-09T19:50:35.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-2-foxs-malik-nabers-hit-job-sparks-outrage/id386002649?i=1000800813777",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/81/26/4a/81264a79-8fca-69e2-7cc3-d8c0dec0d26f/mza_9526240367289418970.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "80c6bc3b2e8174b2"
-      },
-      "summary": "Published by Evan & Tiki.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-matt-oleary-2252b6e3ebf69d3d984921b8",
-      "title": "The first of a few trades? The Jets send Andre Cisco to Detroit #Jets #Shorts",
-      "kind": "video",
-      "outletId": "matt-oleary",
-      "author": "Matt O'Leary",
-      "publishedAt": "2026-11-09T19:47:28.000Z",
-      "url": "https://www.youtube.com/watch?v=-8Peyj0zucc",
-      "youtubeId": "-8Peyj0zucc",
-      "embedAllowed": true,
-      "summary": "Published by Matt O’Leary.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/-8Peyj0zucc/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "3e748487f1280572"
-      }
-    },
-    {
-      "id": "auto-matt-oleary-f30178cae5096539f5ff9a60",
-      "title": "Jets Make Their First Trade of the Trade Deadline! Andre Cisco Traded to Detroit Lions",
-      "kind": "video",
-      "outletId": "matt-oleary",
-      "author": "Matt O'Leary",
-      "publishedAt": "2026-11-09T19:29:09.000Z",
-      "url": "https://www.youtube.com/watch?v=J0RK7vF8qqM",
-      "youtubeId": "J0RK7vF8qqM",
-      "embedAllowed": true,
-      "summary": "Published by Matt O’Leary.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/J0RK7vF8qqM/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "6a93bcff91ab33d2"
-      }
-    },
-    {
-      "id": "auto-jets-central-13813e15543b6c258fba34da",
-      "title": "BREAKING: New York Jets TRADE Andre Cisco To The Detroit Lions | 2028 6th Round Pick In Return",
-      "kind": "video",
-      "outletId": "jets-central",
-      "author": "JetsCentral",
-      "publishedAt": "2026-11-09T19:08:53.000Z",
-      "url": "https://www.youtube.com/watch?v=fIA39txo4oo",
-      "youtubeId": "fIA39txo4oo",
-      "embedAllowed": true,
-      "summary": "Published by Jets Central.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/fIA39txo4oo/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "cf740cf69ed1d189"
-      }
-    },
-    {
       "id": "auto-benigno-2bb2c16e6a10a5e65e63a068",
       "title": "THE PAIN GOES ON!",
       "kind": "audio",
@@ -1736,7 +2005,7 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/1a/97/13/1a971300-2c59-d4de-beb8-39cf1331242a/mza_18419805508648655450.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "14640c11464d1478"
+        "fingerprint": "a4e17d6d175beddf"
       },
       "summary": "Published by Oh the Pain Podcast.",
       "topics": [
@@ -1767,110 +2036,6 @@
       }
     },
     {
-      "id": "auto-espn-dipietro-rothenberg-896296fd9f1d9fd3a7584534",
-      "title": "Best-Of: 11/9/26",
-      "kind": "audio",
-      "outletId": "espn-new-york",
-      "author": "ESPN New York, Rick DiPietro, Dave Rothenberg",
-      "publishedAt": "2026-11-09T15:21:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/best-of-11-9-26/id928624712?i=1000800791184",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ab/df/04/abdf04a6-1164-4e05-ed27-d1990c1aaef8/mza_15206530149840678676.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "2bcc836267c58e0d"
-      },
-      "summary": "Published by DiPietro & Rothenberg.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-boomer-gio-1911df1ff05d58139f2d4fd2",
-      "title": "Full Show - Giants in 1st place, Jets' struggle continues, trade deadline talk",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-11-09T15:20:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/full-show-giants-in-1st-place-jets-struggle-continues/id386001601?i=1000800790677",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "80d36d9a85538607"
-      },
-      "summary": "Published by Boomer & Gio.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-boomer-gio-cff71abae340378c11cbfc32",
-      "title": "Hour 1 - Giants in 1st place, Jets still struggling",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-11-09T15:18:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-1-giants-in-1st-place-jets-still-struggling/id386001601?i=1000800790623",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/3a/5c/ba3a5c10-dde8-984c-0b6a-8cd306322f07/mza_6096581381002976507.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "80d36d9a85538607"
-      },
-      "summary": "Published by Boomer & Gio.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-matt-oleary-27cca91175c95f46d274b59f",
-      "title": "Will McDonald wants out, but the #Jets have no interest in trading him #shorts",
-      "kind": "video",
-      "outletId": "matt-oleary",
-      "author": "Matt O'Leary",
-      "publishedAt": "2026-11-09T14:03:05.000Z",
-      "url": "https://www.youtube.com/watch?v=FxEiMsHEHo4",
-      "youtubeId": "FxEiMsHEHo4",
-      "embedAllowed": true,
-      "summary": "Published by Matt O’Leary.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/FxEiMsHEHo4/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "d21e13c01af4e798"
-      }
-    },
-    {
-      "id": "auto-jets-central-a1f80505e90f8adb7cad1ffd",
-      "title": "BREAKING: Will McDonald REQUESTS A Trade From New York Jets",
-      "kind": "video",
-      "outletId": "jets-central",
-      "author": "JetsCentral",
-      "publishedAt": "2026-11-09T13:48:48.000Z",
-      "url": "https://www.youtube.com/watch?v=zBVOOrPj6p8",
-      "youtubeId": "zBVOOrPj6p8",
-      "embedAllowed": true,
-      "summary": "Published by Jets Central.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/zBVOOrPj6p8/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "4c42b8e4ad552ed8"
-      }
-    },
-    {
       "id": "auto-jets-talk-247-a6809f3ce6f29a02a5e94d3c",
       "title": "TRADE REQUEST - Will McDonald asks for TRADE from NY Jets",
       "kind": "video",
@@ -1893,48 +2058,6 @@
       }
     },
     {
-      "id": "auto-espn-dipietro-rothenberg-6daa42dd337361a3fa4a8cef",
-      "title": "Hour 2: Aaron Glenn's Jets are fading fast",
-      "kind": "audio",
-      "outletId": "espn-new-york",
-      "author": "ESPN New York, Rick DiPietro, Dave Rothenberg",
-      "publishedAt": "2026-11-09T13:13:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/hour-2-aaron-glenns-jets-are-fading-fast/id928624712?i=1000800769080",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ab/df/04/abdf04a6-1164-4e05-ed27-d1990c1aaef8/mza_15206530149840678676.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "2bcc836267c58e0d"
-      },
-      "summary": "Published by DiPietro & Rothenberg.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-greenbean-jetsfan-14e961e6988490fd3edede11",
-      "title": "David Bailey Was the ONLY Bright Spot for the NY Jets! 🔥",
-      "kind": "video",
-      "outletId": "greenbean-jetsfan",
-      "author": "GREENBEAN JETSFAN",
-      "publishedAt": "2026-11-09T12:54:29.000Z",
-      "url": "https://www.youtube.com/watch?v=uELrwkDim70",
-      "youtubeId": "uELrwkDim70",
-      "embedAllowed": true,
-      "summary": "Published by GreenBean Jetsfan.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/uELrwkDim70/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "21de8bb19fb5901a"
-      }
-    },
-    {
       "id": "auto-francesa-8ed7122c538541cc9471cc65",
       "title": "Giants Snap Philly Losing Streak | Jets Lose to Chiefs",
       "kind": "audio",
@@ -1946,7 +2069,7 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/fe/fe/91/fefe9198-eef9-c635-f0ec-f53bb49e88c9/mza_475508703759044749.jpeg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "7eb567c70db7a7ae"
+        "fingerprint": "1419fd0befebc053"
       },
       "summary": "Published by The Mike Francesa Podcast.",
       "topics": [
@@ -2010,7 +2133,7 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/40/7b/d3/407bd344-c456-ffc6-abc6-3a0d80a6b758/mza_7662506757077368151.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "a5f1ede7e7296220"
+        "fingerprint": "93295ffd1456dedc"
       },
       "summary": "Published by Don, Hahn & Rosenberg.",
       "topics": [
@@ -2030,49 +2153,9 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/40/7b/d3/407bd344-c456-ffc6-abc6-3a0d80a6b758/mza_7662506757077368151.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "a5f1ede7e7296220"
+        "fingerprint": "93295ffd1456dedc"
       },
       "summary": "Published by Don, Hahn & Rosenberg.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-daily-a27675d17a5565a163faf2b3",
-      "title": "The New York Jets Are the Penicillin to Gonorrhea",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-11-06T19:00:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/the-new-york-jets-are-the-penicillin-to-gonorrhea/id386002669?i=1000800332363",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/36/4e/5f/364e5f7b-284f-da1f-6556-a04fafa377d9/mza_2084945017036074099.jpeg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "4b1a61753a530bf8"
-      },
-      "summary": "Published by WFAN Daily.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-wfan-daily-94258042a5dec7f5138fe2a7",
-      "title": "John Harbaugh’s Giants Are Going All In | Boomer & Gio",
-      "kind": "audio",
-      "outletId": "wfan",
-      "author": "Audacy",
-      "publishedAt": "2026-11-06T09:00:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/john-harbaughs-giants-are-going-all-in-boomer-gio/id386002669?i=1000800331628",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/36/4e/5f/364e5f7b-284f-da1f-6556-a04fafa377d9/mza_2084945017036074099.jpeg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "4b1a61753a530bf8"
-      },
-      "summary": "Published by WFAN Daily.",
       "topics": [
         "Radio analysis"
       ],
@@ -2090,7 +2173,7 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ef/0a/04/ef0a0436-2a6a-8b70-4a69-2b8048393053/mza_1909685854625774537.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "10354edbb5360919"
+        "fingerprint": "28325e0f14434e6f"
       },
       "summary": "Published by Jets Collective.",
       "topics": [
@@ -2121,26 +2204,6 @@
       }
     },
     {
-      "id": "auto-lets-talk-jets-950b674f5b3087c2773914c7",
-      "title": "Breaking down the state of the Jets with Bubbs",
-      "kind": "audio",
-      "outletId": "lets-talk-jets",
-      "author": "Lets Talk Jets Radio",
-      "publishedAt": "2026-11-04T02:13:50.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/breaking-down-the-state-of-the-jets-with-bubbs/id863176413?i=1000799731758",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/77/4c/39/774c392e-5cbc-1265-69ba-c1ac3caea58b/mza_7323735301574650351.jpg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "274dbcf90c4a8ac9"
-      },
-      "summary": "Published by Let’s Talk Jets Radio.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current"
-    },
-    {
       "id": "auto-benigno-6ad51a27ba49eb5dbb1a8bff",
       "title": "THE PAIN ROLLS ON!",
       "kind": "audio",
@@ -2152,77 +2215,13 @@
         "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/e6/b3/19/e6b319cb-3b37-602e-fbcb-74ba210b3b62/mza_17302940159277572555.jpg/600x600bb.jpg",
         "width": 600,
         "height": 600,
-        "fingerprint": "83f36b3246d45374"
+        "fingerprint": "ab780e8d05b011d1"
       },
       "summary": "Published by Oh the Pain Podcast.",
       "topics": [
         "Radio analysis"
       ],
       "context": "current"
-    },
-    {
-      "id": "auto-francesa-videos-fd87957193673fc62ca447c8",
-      "title": "Mike Tears Into Aaron Glenn’s Comments After Raiders Loss",
-      "kind": "video",
-      "outletId": "mike-francesa-podcast",
-      "author": "Mike Francesa Podcast",
-      "publishedAt": "2026-11-02T01:50:21.000Z",
-      "url": "https://www.youtube.com/watch?v=Hc7OOTT46T4",
-      "youtubeId": "Hc7OOTT46T4",
-      "embedAllowed": true,
-      "summary": "Published by Mike Francesa Podcast videos.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/Hc7OOTT46T4/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "6969216cb69e9ca1"
-      }
-    },
-    {
-      "id": "auto-francesa-f4a8a061bd7e39a8d071005c",
-      "title": "Mike Francesa Reacts: Jets Lose to Raiders | Who Will Be Traded?",
-      "kind": "audio",
-      "outletId": "mike-francesa-podcast",
-      "author": "BetRivers Network",
-      "publishedAt": "2026-11-01T22:55:00.000Z",
-      "url": "https://podcasts.apple.com/us/podcast/mike-francesa-reacts-jets-lose-to-raiders-who-will-be-traded/id1615588712?i=1000799287549",
-      "image": {
-        "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/fe/fe/91/fefe9198-eef9-c635-f0ec-f53bb49e88c9/mza_475508703759044749.jpeg/600x600bb.jpg",
-        "width": 600,
-        "height": 600,
-        "fingerprint": "7eb567c70db7a7ae"
-      },
-      "summary": "Published by The Mike Francesa Podcast.",
-      "topics": [
-        "Radio analysis"
-      ],
-      "context": "current"
-    },
-    {
-      "id": "auto-talkin-jets-c1bf16293fff9429283111a9",
-      "title": "Omar Cooper is a BEAST | Squish the Fish! - Talkin Jets",
-      "kind": "video",
-      "outletId": "talkin-jets",
-      "author": "Talkin Jets",
-      "publishedAt": "2026-10-21T03:15:25.000Z",
-      "url": "https://www.youtube.com/watch?v=bd78wAw_WQk",
-      "youtubeId": "bd78wAw_WQk",
-      "embedAllowed": true,
-      "summary": "Published by Talkin Jets.",
-      "topics": [
-        "Fan analysis"
-      ],
-      "context": "current",
-      "image": {
-        "url": "https://i.ytimg.com/vi/bd78wAw_WQk/maxresdefault.jpg",
-        "width": 1280,
-        "height": 720,
-        "fingerprint": "8a9252b40e946642"
-      }
     }
   ],
   "outlets": [
@@ -2470,8 +2469,8 @@
       "name": "Jets X-Factor",
       "url": "https://jetsxfactor.com/feed/",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 3
     },
     {
@@ -2479,8 +2478,8 @@
       "name": "New York Post Jets",
       "url": "https://nypost.com/tag/new-york-jets/feed/",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 3
     },
     {
@@ -2488,8 +2487,8 @@
       "name": "The Jake Asman Show",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCt8ZeGlv3VM8jLYO_EoDMPw",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 3
     },
     {
@@ -2497,8 +2496,8 @@
       "name": "BT Unleashed",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLJ2gpZBFl2ytuVlbNo9xAA",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 3
     },
     {
@@ -2506,8 +2505,8 @@
       "name": "Jets Central",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCPrLo3MozRhkbV-XCPsQxDg",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 2
     },
     {
@@ -2515,17 +2514,17 @@
       "name": "Matt O’Leary",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLS0BYK5W7eT_SxW6pQA19w",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
-      "itemCount": 3
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
+      "itemCount": 2
     },
     {
       "id": "greenbean-jetsfan",
       "name": "GreenBean Jetsfan",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC3gaW1ds7Q0fy51vA0J5y2g",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 2
     },
     {
@@ -2533,8 +2532,8 @@
       "name": "Jets Media",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCNfqKk4bSwaBNPnPSo6eZ4w",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 3
     },
     {
@@ -2542,8 +2541,8 @@
       "name": "Jets Talk 24/7",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCJ_CFZh_SqFLp6-71wdakVw",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 2
     },
     {
@@ -2551,8 +2550,8 @@
       "name": "Talkin Jets",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCT6QwygPvX84-Y_fQryCtvA",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 2
     },
     {
@@ -2560,8 +2559,8 @@
       "name": "ESPN New York videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCZDpKRXDSFSc6IXPMQ3GHpA",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 3
     },
     {
@@ -2569,17 +2568,17 @@
       "name": "DiPietro & Rothenberg",
       "url": "https://itunes.apple.com/lookup?id=928624712&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
-      "itemCount": 2
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
+      "itemCount": 3
     },
     {
       "id": "espn-don-hahn-rosenberg",
       "name": "Don, Hahn & Rosenberg",
       "url": "https://itunes.apple.com/lookup?id=1788585041&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 2
     },
     {
@@ -2587,8 +2586,8 @@
       "name": "SNY videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCL_OEjsHTwsHK6WKWs7s7Uw",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 3
     },
     {
@@ -2596,8 +2595,8 @@
       "name": "WFAN videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCSZ8QL2xzTHzW4ucCy1cjog",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 3
     },
     {
@@ -2605,8 +2604,8 @@
       "name": "Boomer & Gio",
       "url": "https://itunes.apple.com/lookup?id=386001601&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 3
     },
     {
@@ -2614,8 +2613,8 @@
       "name": "Evan & Tiki",
       "url": "https://itunes.apple.com/lookup?id=386002649&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 3
     },
     {
@@ -2623,8 +2622,8 @@
       "name": "The Carton Show with Craig Carton & Chris McMonigle",
       "url": "https://itunes.apple.com/lookup?id=942553546&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 3
     },
     {
@@ -2632,8 +2631,8 @@
       "name": "WFAN Daily",
       "url": "https://itunes.apple.com/lookup?id=386002669&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 2
     },
     {
@@ -2641,8 +2640,8 @@
       "name": "Mike Francesa Podcast videos",
       "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCiL06Dv6Eygpj27Yx6MM8TA",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 2
     },
     {
@@ -2650,8 +2649,8 @@
       "name": "The Mike Francesa Podcast",
       "url": "https://itunes.apple.com/lookup?id=1615588712&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 4
     },
     {
@@ -2659,8 +2658,8 @@
       "name": "Oh the Pain Podcast",
       "url": "https://itunes.apple.com/lookup?id=1586455556&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 2
     },
     {
@@ -2668,8 +2667,8 @@
       "name": "Let’s Talk Jets Radio",
       "url": "https://itunes.apple.com/lookup?id=863176413&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 2
     },
     {
@@ -2677,8 +2676,8 @@
       "name": "Jets Collective",
       "url": "https://itunes.apple.com/lookup?id=1887763130&entity=podcastEpisode&limit=100",
       "status": "ready",
-      "checkedAt": "2026-11-10T16:30:10.599Z",
-      "attemptedAt": "2026-11-10T16:30:10.599Z",
+      "checkedAt": "2026-11-11T16:23:18.849Z",
+      "attemptedAt": "2026-11-11T16:23:18.849Z",
       "itemCount": 2
     }
   ]
