@@ -1,0 +1,96 @@
+{
+  "fetchedAt": "2026-10-20T17:28:36.940258+00:00",
+  "repository": "https://github.com/nfl-football-ops/Big-Data-Bowl",
+  "headCommit": "9ad0b4b2ea36697e29e44e2399512cc1ce70358c",
+  "githubLicense": null,
+  "licenseRuleTermFiles": [],
+  "trackingFiles": [
+    {
+      "path": "Data/tracking_gameId_2017090700.csv",
+      "size": 31659157,
+      "sha": "2394ce60e8947eb7e73d36515c021a0699768ca1"
+    }
+  ],
+  "documents": [
+    {
+      "path": "README.md",
+      "bytes": 6225
+    },
+    {
+      "path": "schema.md",
+      "bytes": 5816
+    },
+    {
+      "path": "faqs.md",
+      "bytes": 1666
+    },
+    {
+      "path": "README.Rmd",
+      "bytes": 6344
+    },
+    {
+      "path": "schema.Rmd",
+      "bytes": 5717
+    },
+    {
+      "path": "faqs.Rmd",
+      "bytes": 1816
+    },
+    {
+      "path": "Data/games.csv",
+      "bytes": 15825
+    }
+  ],
+  "gameRows": 91,
+  "sampleGames": [
+    {
+      "season": "2017",
+      "week": "1",
+      "gameDate": "09/07/2017",
+      "gameId": "2017090700",
+      "gameTimeEastern": "20:30:00",
+      "HomeScore": "27",
+      "VisitorScore": "42",
+      "homeTeamAbbr": "NE",
+      "visitorTeamAbbr": "KC",
+      "homeDisplayName": "New England Patriots",
+      "visitorDisplayName": "Kansas City Chiefs",
+      "Stadium": "Gillette Stadium",
+      "Location": "Foxborough, MA",
+      "StadiumType": "Outdoor",
+      "Turf": "Field Turf",
+      "GameLength": "03:37:00",
+      "GameWeather": "Clear and warm",
+      "Temperature": "63",
+      "Humidity": "77",
+      "WindSpeed": "8",
+      "WindDirection": "SW"
+    }
+  ],
+  "trackingDownloaded": false,
+  "trackingRowCount": null,
+  "canonicalGameId": "2017_01_KC_NE",
+  "joinKeys": {
+    "tracking.gameId": "pbp.old_game_id",
+    "tracking.playId": "pbp.play_id",
+    "tracking.nflId": "requires player crosswalk; not gsis_id"
+  },
+  "termsReview": {
+    "status": "unresolved_for_persisted_corpus_and_redistribution",
+    "localTutorial": "Current publisher README explicitly invites trying sample locally and supplies download+animation code.",
+    "publicRedistribution": "No explicit redistribution or durable archival license found; repository license null and no license/terms file.",
+    "historicalRestrictionsRemovedIn": "74cdd80f314f78de260238fdf49bd58b944a84a3",
+    "oldTermsCurrentStatus": "Historical contest-only/no-archiving/no-redistribution language was removed when one public sample remained; do not present old language as current binding sample terms."
+  },
+  "documentSHA256": {
+    "faqs.Rmd": "0e94669f2e1db54ccd319904368ae5fa1de960523f493e88f2a11d5e4174c24b",
+    "faqs.md": "ca39441b67ac06f49e92d0dd4ebc3a8a877a1e0124e810d7e32de0a069014a20",
+    "schema.md": "b65a93f6daf67c879d73f8563dc5a32878bb7aee91a606883160dc9f7c274394",
+    "README.md": "c8fa7443aa7cdbc4a17482c19b3df7fee91db7b6483428b061491e171c528690",
+    "commit-cf3944a.json": "842ac250fe4fd6741aa927190e07b91dd5aea89004b9b9fc44d9ac19d4e41979",
+    "schema.Rmd": "1906dc75ffae3de5218a0e2ece3480a56bb7218db394b393fcad1b3226f1d450",
+    "README.Rmd": "a34956ba93d409db08d4273e9e1d8f67192becaff9953052f889322cf98444d5",
+    "commit-74cdd80.json": "80f4b097fe64ef411b13603e1d157d28715cb79cea2b7397e3ade610b8d1878b",
+    "Data/games.csv": "f5bbd13d9c711c07e3d4a5b674eb25c1f5f9ced099729337bfd366b5229199ed"
+  }
+}

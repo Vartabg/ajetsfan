@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-20T17:51:00.063Z",
+  "corpusEdition": "3487ecae1418953352a56fb6c08db56bb1f44a3de171897c60132eae2eb4f8fc",
+  "checks": [
+    {
+      "id": "ngs-passing-2020-absence-cross-format",
+      "status": "confirmed-source-gap",
+      "conclusion": "The selected combined passing Parquet and the current combined passing CSV both contain 5,581 rows and no 2020 rows. This is a source coverage gap in this edition, not a dropped ingestion partition.",
+      "parquet": {
+        "sourceUrl": "https://github.com/nflverse/nflverse-data/releases/download/nextgen_stats/ngs_passing.parquet",
+        "rows": 5581,
+        "object": {
+          "path": "objects/bfcf95f1f892946a2107253f62670404bb2f732d722b2280589508d443e6aa5c.parquet",
+          "sha256": "bfcf95f1f892946a2107253f62670404bb2f732d722b2280589508d443e6aa5c",
+          "bytes": 683292
+        }
+      },
+      "csv": {
+        "sourceUrl": "https://github.com/nflverse/nflverse-data/releases/download/nextgen_stats/ngs_passing.csv.gz",
+        "fetchedAt": "2026-10-20T17:48:39.635Z",
+        "object": {
+          "path": "checks/0cefc64f16c65e2bebd0b04700aee59c6ab217062f6f368484d863970b31e161.csv.gz",
+          "sha256": "0cefc64f16c65e2bebd0b04700aee59c6ab217062f6f368484d863970b31e161",
+          "bytes": 547629,
+          "format": "gzip-csv"
+        },
+        "rows": 5581,
+        "rowsBySeason": {
+          "2016": 573,
+          "2017": 575,
+          "2018": 578,
+          "2019": 576,
+          "2021": 608,
+          "2022": 603,
+          "2023": 620,
+          "2024": 614,
+          "2025": 605,
+          "2026": 229
+        }
+      },
+      "publicDelivery": false,
+      "licenseUrl": "https://github.com/nflverse/nflverse-data/blob/main/LICENSE.md",
+      "attribution": "nflverse; original providers as documented by each dataset"
+    }
+  ]
+}
