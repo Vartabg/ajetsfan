@@ -37,6 +37,9 @@ const nextConfig: NextConfig = {
     ],
     maximumRedirects: 0,
   },
+  experimental: {
+    agentUpgrade: "security",
+  },
 };
 
 export default nextConfig;
