@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { CurrentSnapshot } from "../src/lib/current";
 import { divisionPicture, nextScheduledGame } from "../src/lib/current";
-import { placeName } from "../src/lib/focus";
+import { leadPlace, placeName } from "../src/lib/focus";
 
 const snapshot = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/current.json"), "utf8")) as CurrentSnapshot;
 const next = nextScheduledGame(snapshot);
@@ -24,7 +24,7 @@ test("Game Day is a focus page: the next game first, then the matchup, your call
   const toPlay = regular.some((game) => game.season === snapshot.season && game.status !== "final");
   expect(ids).toEqual(["kickoff", ...(next ? ["briefing"] : []), "ticket", "standings", "season", ...(toPlay ? ["play-out"] : []), ...(await page.locator("#league").count() ? ["league"] : []), "more"]);
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-  if (next) await expect(page.getByRole("heading", { level: 1 })).toContainText(next.game.atHome ? placeName(next.game.opponentDisplay) : `At ${placeName(next.game.opponentDisplay)}`);
+  if (next) await expect(page.getByRole("heading", { level: 1 })).toContainText(next.game.atHome ? leadPlace(placeName(next.game.opponentDisplay)) : `At ${placeName(next.game.opponentDisplay)}`);
   const index = page.getByRole("navigation", { name: "On this page" });
   await expect(index.getByRole("link")).toHaveCount(ids.length);
   await expect(page.getByRole("navigation", { name: "Site sections" }).locator('[aria-current="page"]')).toHaveAttribute("href", "/game-day");

@@ -13,12 +13,17 @@ export default function LegacyNavigation({ latestReport }: { latestReport: strin
       const home: Record<string, string> = {
         "#postgame": `${latestReport}#${latestReport.startsWith("/games/") ? "game-report-heading" : "season-results-heading"}`,
         "#game-evidence": `${latestReport}#${latestReport.startsWith("/games/") ? "game-evidence" : "season-results-heading"}`,
-        "#season": "/game-day#season", "#season-trend": "/game-day#season-trend",
+        "#season-trend": "/game-day#season-trend",
         "#sunday-briefing": "/game-day#sunday-briefing", "#game-day-ticket": "/game-day#game-day-ticket",
         "#visual-story": "/stories#visual-story", "#fan-stand": "/history#fan-stand",
         "#fan-memories": "/history#remembered-cases", "#remembered-cases": "/history#remembered-cases",
         "#rivalries": "/history#rivalry-desk", "#rivalry-desk": "/history#rivalry-desk",
         "#archive-stories": "/morgue", "#around-jets": "/team/news",
+        "#miracle": "/stories/monday-night-miracle#journey",
+        "#people": "/history#people",
+        "#today": "/history#today",
+        "#film": "/film-room#play-wilson-cleveland",
+        "#discovery": "/discover#same-score",
       };
       const team: Record<string, string> = { "#roster": "/team/roster#roster", "#news": "/team/news#news-desk-heading", "#season-leaders": "/team/stats#leaders-heading" };
       const target = url.pathname === "/" ? home[url.hash] ?? (url.searchParams.has("story") ? "/stories#visual-story" : null)

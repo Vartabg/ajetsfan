@@ -60,12 +60,11 @@ test("the comparison keeps both selected play descriptions and shareable progres
   await expect(page.locator("#same-score")).toBeInViewport();
 });
 
-test("the home page leads into the discovery without loading the comparison", async ({ page }) => {
+test("the home page omits the archive discovery and redirects legacy #discovery links", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("#discovery")).toBeVisible();
-  await expect(page.locator("#discovery input, #discovery svg")).toHaveCount(0);
-  await page.locator("#discovery a").click();
-  await expect(page).toHaveURL(/\/discover$/);
+  await expect(page.locator("#discovery")).toHaveCount(0);
+  await page.goto("/#discovery");
+  await expect(page).toHaveURL(/\/discover#same-score$/);
   await expect(page.locator("#same-score-heading")).toBeInViewport();
 });
 

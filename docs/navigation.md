@@ -6,7 +6,7 @@ their filters and place intact.
 
 | Destination | Main job |
 | --- | --- |
-| `/` | One thing at a time: a connected comeback journey, latest result, next game, season, division, a big play, an archive discovery, the newest coverage, then every section |
+| `/` | One thing at a time for this week and this season: live or latest result, next game, season, division, stat leaders, official team news, current media coverage, then every section |
 | `/game-day` | Focus view: the next game, the matchup as one plain sentence and each unit pairing as league-ranked bars, with every unit number opening in place, your score call, AFC East standings, the season in margins with the full schedule, league context |
 | `/team` | Focus view: who leads the passing, rushing and receiving yards, the roster by position (each position opens the roster filtered to it), the newest official headlines |
 | `/team/roster` | Find a player and inspect the roster |
@@ -15,10 +15,10 @@ their filters and place intact.
 | `/media` | Focus view: the newest video, article, show and post, one moment each, then the searchable collection |
 | `/seasons` | Focus view: every season as its record and one square per game, the 2010 playoff run, the best and worst seasons |
 | `/seasons/[year]` | One selected view: games, rankings, tracking, moments or coverage |
-| `/stories` | Recorded games as interactive visual timelines |
+| `/stories` | Monday Night Miracle three-part journey invitation (with browser-only save/resume) and interactive visual game timelines |
 | `/stories/monday-night-miracle` | Three connected steps: the Miami comeback, Elliott’s illustrated catch, and comparison with Cleveland; explicit browser-only save and share controls |
 | `/discover` | Same-score games with different paths, improbable finishes and recorded play changes; scoped findings with linked evidence |
-| `/history` | Classic moments and rivalry records |
+| `/history` | Classic moments, rivalry records, Jets games on today’s date, and Jets legends |
 | `/history/trades` | Every recorded Jets trade, each pick followed to what it became |
 | `/games/[id]` | One published game report, probability curve and available efficiency |
 | `/film-room` | Focus view: the six recorded plays, one moment each, then the chalkboard and the sourced game record |

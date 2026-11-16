@@ -10,6 +10,7 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 - **One control shape** (PR #60): every button, chip and tab is a pill; every text box and dropdown is a 12px rounded box.
 - **The name is ajetsfan** (PR #61), written as "ajets" plus a green "fan" where the type allows it.
 - **Colors**: the focus palette in `src/components/Focus.module.css` (`--bg`, `--ink`, `--quiet`, `--green`, `--faint`), with era greens from `src/lib/jets-eras.ts` used sparingly.
+- **Current week and season on Home** (2026-11-16): the front page shows only this week and this season — scores, schedule, standings, player stats, team news and current coverage. Archive games, legends, drawn plays, puzzles and history stay in their own sections when fans go looking for them.
 
 ## Rejected
 

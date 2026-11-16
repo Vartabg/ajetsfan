@@ -19,8 +19,10 @@ test.beforeEach(async ({ page }) => {
   await page.route((url) => url.pathname === "/_next/image", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>' }));
 });
 
-test("the homepage invitation joins the Miami story, Elliott illustration and Cleveland comparison", async ({ page }) => {
+test("the story invitation joins the Miami story, Elliott illustration and Cleveland comparison", async ({ page }) => {
   await page.goto("/");
+  await expect(page.locator("#miracle")).toHaveCount(0);
+  await page.goto("/stories");
   await page.locator("#miracle").getByRole("link", { name: /Follow the comeback/ }).click();
   const story = page.locator("#visual-story");
   await expect(story).toHaveAttribute("data-story", miami);
@@ -99,7 +101,7 @@ test("an explicitly saved place follows later selections and resumes from home",
   await slider.focus();
   await slider.press("ArrowRight");
   await expect.poll(() => saved(page)).toEqual({ version: 1, step: "story", moment: 3, progress: 0 });
-  await page.goto("/");
+  await page.goto("/stories");
   await resume(page).click();
   await expect(page.locator("#visual-story")).toHaveAttribute("data-selected-index", "2");
   await page.reload();
@@ -109,17 +111,17 @@ test("an explicitly saved place follows later selections and resumes from home",
   await comparison.focus();
   await comparison.press("End");
   await expect.poll(() => saved(page)).toEqual({ version: 1, step: "compare", moment: 1, progress: 100 });
-  await page.goto("/");
+  await page.goto("/stories");
   await resume(page).click();
   await expect(comparison).toHaveValue("100");
   await remove(page).click();
   await expect.poll(() => saved(page)).toBeNull();
-  await page.goto("/");
+  await page.goto("/stories");
   await expect(resume(page)).toHaveCount(0);
 });
 
 test("invalid bookmarks stay hidden and valid changes synchronize between open tabs", async ({ page, context }) => {
-  await page.goto("/");
+  await page.goto("/stories");
   const editor = await context.newPage();
   await editor.goto(`${journey}?step=compare&progress=42`);
   await page.evaluate(() => {
@@ -162,7 +164,7 @@ test("denied storage access leaves the journey readable and navigable", async ({
   await expect(actions(page).getByRole("status").filter({ hasText: /couldn|could not|unavailable|unable|failed/i })).toBeVisible();
   await steps(page).getByRole("link", { name: /Compare with Cleveland/ }).click();
   await expect(page.getByRole("slider", { name: "Comeback sequence progress" })).toBeVisible();
-  await page.goto("/");
+  await page.goto("/stories");
   await expect(resume(page)).toHaveCount(0);
   await expect(page.locator("#miracle")).toBeVisible();
   expect(errors).toEqual([]);
@@ -238,7 +240,7 @@ test("sharing uses only the selected journey state and provides a selectable fal
 test("the introduction, step links, source accounts and onward paths work without JavaScript", async ({ browser, baseURL }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
   const page = await context.newPage();
-  await page.goto("/");
+  await page.goto("/stories");
   await page.locator("#miracle").getByRole("link", { name: /Follow the comeback/ }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("The Monday Night Miracle.");
   await expect(page.locator("#visual-story")).toContainText("A 23-point comeback.");
@@ -254,11 +256,11 @@ test("the introduction, step links, source accounts and onward paths work withou
   await context.close();
 });
 
-test("the saved home invitation stays usable at 320px with enlarged text", async ({ page }) => {
+test("the saved stories invitation stays usable at 320px with enlarged text", async ({ page }) => {
   await page.addInitScript(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), { key: storageKey, value: { version: 1, step: "compare", moment: 1, progress: 52 } });
   await page.setViewportSize({ width: 320, height: 900 });
   await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "dark" });
-  await page.goto("/");
+  await page.goto("/stories");
   await page.addStyleTag({ content: "html { font-size: 200% !important; } body { font-size: 32px !important; }" });
   await expect(resume(page)).toHaveAttribute("href", /step=compare&progress=52/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
