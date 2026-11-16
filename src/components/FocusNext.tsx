@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "./IntentLink";
 import FocusMoment from "./FocusMoment";
+import { leadPlace } from "@/lib/focus";
 import { etDay, noon, on, record } from "@/lib/focus-format";
 import { useMinuteClock } from "@/lib/use-minute-clock";
 import styles from "./Focus.module.css";
 
-export type FocusNextGame = { week: number; postseason: boolean; place: string; home: boolean; date: string; kickoff: string | null; overdue: boolean };
+export type FocusNextGame = { id?: string; week: number; postseason: boolean; place: string; home: boolean; date: string; kickoff: string | null; overdue: boolean };
 
 /** The next game as the week it falls in: today is marked once the browser knows the date. */
 export default function FocusNext({ id = "next", first = false, next, wins, losses, ties, stakes = true, go }: {
@@ -27,7 +28,7 @@ export default function FocusNext({ id = "next", first = false, next, wins, loss
   });
   return <FocusMoment id={id} first={first}
     label={`Next game · ${next.postseason ? "Playoffs" : `Week ${next.week}`}`}
-    heading={<>{next.home ? next.place : `At ${next.place}`}, {on(kickoff, { weekday: "long" })} <em>{next.kickoff ? `${on(kickoff, { hour: "numeric", minute: "2-digit" })} ET` : on(kickoff, { month: "short", day: "numeric" })}</em></>}
+    heading={<>{next.home ? leadPlace(next.place) : `At ${next.place}`}, {on(kickoff, { weekday: "long" })} <em>{next.kickoff ? `${on(kickoff, { hour: "numeric", minute: "2-digit" })} ET` : on(kickoff, { month: "short", day: "numeric" })}</em></>}
     actions={<>{stakes ? <button type="button" className={styles.button} aria-pressed={meaning} onClick={() => setMeaning(!meaning)}>{meaning ? "Hide" : "What each result means"}</button> : null}<Link href={go.href} className={styles.go}>{go.label} <span aria-hidden="true">→</span></Link></>}>
     <figure className={styles.shape}>
       <div className={styles.week} role="img" aria-label={`The week before the game. Game day is ${on(kickoff, { weekday: "long", month: "long", day: "numeric" })}.`}>

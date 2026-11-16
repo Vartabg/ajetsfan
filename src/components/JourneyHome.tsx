@@ -5,9 +5,9 @@ import { JOURNEY_PATH } from "@/lib/miracle-journey";
 import shared from "./Focus.module.css";
 import styles from "./MiracleJourney.module.css";
 
-export default function JourneyHome() {
-  return <FocusMoment id="miracle" first label="October 23, 2000 · A Jets story in three parts"
-    heading={<>The Monday <em>Night Miracle.</em></>}
+export default function JourneyHome({ first = true }: { first?: boolean }) {
+  return <FocusMoment id="miracle" first={first} label="October 23, 2000 · A Jets story in three parts"
+    heading="The Monday Night Miracle."
     actions={<><Link href={JOURNEY_PATH} className={`${shared.button} ${styles.entry}`} pendingHint>Follow the comeback <span aria-hidden="true">→</span></Link><Link href="/puzzle" className={shared.go}>Play today’s puzzle</Link></>}>
     <p className={styles.intro}>Follow the rally from 30–7 down, through Jumbo Elliott’s catch, to John Hall’s winning kick. Then explore how Cleveland became another unlikely Jets win.</p>
     <figure className={styles.scoreboard} aria-label="Miami led 30 to 7 after three quarters. The Jets won 40 to 37 in overtime.">

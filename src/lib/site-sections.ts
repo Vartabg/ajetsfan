@@ -7,10 +7,10 @@ export const isFocusRoute = (pathname: string) => FOCUS_ROUTES.includes(pathname
 export const SECTIONS = [
   { href: "/game-day", label: "Game Day", note: "Schedule, standings and the matchup" },
   { href: "/team", label: "Team", note: "Roster, player stats and news" },
-  { href: "/legends", label: "Legends", note: "Ring of Honor, Hall of Famers and their stories" },
-  { href: "/film-room", label: "Film Room", note: "Big plays, drawn out" },
   { href: "/media", label: "Media", note: "Video, posts, articles and audio" },
   { href: "/seasons", label: "Seasons", note: "Every season’s results" },
+  { href: "/legends", label: "Legends", note: "Ring of Honor, Hall of Famers and their stories" },
+  { href: "/film-room", label: "Film Room", note: "Big plays, drawn out" },
   { href: "/morgue", label: "Game archive", note: "Every analyzed game, ranked" },
   { href: "/discover", label: "Deep cuts", note: "Same scores, different stories and improbable finishes" },
   { href: "/puzzle", label: "Daily puzzle", note: "Which Jets game is it?" },

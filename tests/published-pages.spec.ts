@@ -20,7 +20,7 @@ const playerPath = `/players/${player.id}`;
 
 test("the front-page game story opens its published case before the optional interactive tape", async ({ page }) => {
   const lead = selectLead(games, current);
-  const game = lead.analysisStatus === "ready" ? publishedGames(games, current).find((entry) => entry.id === lead.analysis?.id) : undefined;
+  const game = lead.kind === "current" && lead.analysisStatus === "ready" ? publishedGames(games, current).find((entry) => entry.id === lead.analysis?.id) : undefined;
   test.skip(!game, "This edition's lead is awaiting an eligible analysis.");
   if (!game) return;
   await page.goto("/");

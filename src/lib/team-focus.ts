@@ -85,7 +85,8 @@ export function buildTeamFocus(coverage: CoverageSnapshot | null, season: number
     return { group, label, count: own.reduce((sum, row) => sum + row.count, 0), rows: own };
   }).filter((unit) => unit.rows.length);
 
-  const items = coverage.news.items.toSorted((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || a.id.localeCompare(b.id));
+  const newsReady = coverage.news.status !== "unavailable" && (season === null || coverage.season === season);
+  const items = newsReady ? coverage.news.items.toSorted((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || a.id.localeCompare(b.id)) : [];
   return {
     season,
     stats: {
@@ -93,6 +94,10 @@ export function buildTeamFocus(coverage: CoverageSnapshot | null, season: number
       throughWeek: statsReady ? coverage.stats.throughWeek : null, leaders: top, say, names: players.map(called).join(", "),
     },
     roster: units.length ? { week: coverage.roster.week, retained: coverage.roster.status === "retained", count: coverage.roster.players.length, units, lists: rosterLists(coverage.roster.players) } : null,
-    news: { retained: coverage.news.status === "retained", unavailable: coverage.news.status === "unavailable", lead: items[0] ?? null, more: items.slice(1, 4) },
+    news: {
+      retained: newsReady && coverage.news.status === "retained",
+      unavailable: coverage.news.status === "unavailable" || (season !== null && coverage.season !== season),
+      lead: items[0] ?? null, more: items.slice(1, 4),
+    },
   };
 }

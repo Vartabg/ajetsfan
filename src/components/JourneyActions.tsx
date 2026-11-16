@@ -26,7 +26,7 @@ function stepShort(step: string): string {
   return JOURNEY_STEPS.find((entry) => entry.id === step)?.short ?? step;
 }
 
-/** Homepage resume control. Renders null on the server and whenever no valid record exists. */
+/** Story index resume control. Renders null on the server and whenever no valid record exists. */
 export function JourneyResume() {
   const raw = useSyncExternalStore(subscribeBookmark, getBookmarkSnapshot, getBookmarkServerSnapshot);
   const record = useMemo(() => parseBookmark(raw), [raw]);
@@ -148,7 +148,7 @@ export default function JourneyActions({ maxMoment }: { maxMoment: number }) {
         </p>
       ) : null}
       {savedElsewhere ? <p className={styles.status}>Your saved place is still at {stepShort(record.step)}. This selection has not been saved on this device.</p> : null}
-      <p className={styles.note}>Saved only in this browser. You can return from the homepage.</p>
+      <p className={styles.note}>Saved only in this browser. You can return from <IntentLink href="/stories">Game stories</IntentLink>.</p>
       {shareStatus ? (
         <p role="status" aria-label="Share status" className={styles.status}>
           {shareStatus}

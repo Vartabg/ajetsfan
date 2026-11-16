@@ -25,9 +25,11 @@ test("an offseason date has no moment, and January dates start with the 2000 cal
   expect(onThisDay(history.games, `2027-${january.date.slice(5)}`, new Set())?.from).toBe(2000);
 });
 
-test("the home page shows today's date in Jets history when there is one", async ({ page }) => {
+test("the history page shows today's date in Jets history when there is one", async ({ page }) => {
   const expected = onThisDay(history.games, etDay(Date.now()), new Set());
   await page.goto("/");
+  await expect(page.locator("#today")).toHaveCount(0);
+  await page.goto("/history");
   const moment = page.locator("#today");
   if (!expected) return expect(moment).toHaveCount(0);
   await expect(moment).toContainText(`On this day · ${expected.day}`);

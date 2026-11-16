@@ -37,7 +37,7 @@ export default async function MiracleJourney({ searchParams }: { searchParams: P
 
   return <FocusShell page="miracle-journey" section="/stories" name="Monday Night Miracle" className={focusFonts} checkedAt={null}
     entries={[{ id: "journey", title: "Monday Night Miracle", answer: "A 23-point comeback" }, { id: "journey-stage", title: `Part ${JOURNEY_STEPS.indexOf(selectedStep) + 1} of 3`, answer: selectedStep.short }, { id: "journey-next", title: "Keep exploring", answer: "Save, share, or go further" }]}>
-    <FocusMoment id="journey" first label="October 23, 2000 · Miami at New York" heading={<>The Monday <em>Night Miracle.</em></>}>
+    <FocusMoment id="journey" first label="October 23, 2000 · Miami at New York" heading="The Monday Night Miracle.">
       <p className={styles.intro}>Down 30–7 after three quarters. Winners, 40–37, in overtime. Follow the rally, explore the eligible tackle’s catch, then put this night beside another Jets comeback.</p>
       <nav className={styles.steps} aria-label="Comeback journey steps"><ol>{JOURNEY_STEPS.map((item, index) => <li key={item.id}>
         <Link href={`${JOURNEY_PATH}?step=${item.id}#journey-stage`} aria-current={step === item.id ? "step" : undefined}><span>Part {index + 1}</span><b>{item.title}</b></Link>

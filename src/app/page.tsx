@@ -3,17 +3,17 @@ import FocusMoment from "@/components/FocusMoment";
 import FootballLiveCard, { footballOpponent, showFootballMoment } from "@/components/football-live-card";
 import Link from "@/components/IntentLink";
 import LivePlays from "@/components/LivePlays";
-import LegendHomeFeature from "@/components/LegendHomeFeature";
+import { TeamLeadersMoment, TeamNewsMoment } from "@/components/TeamMoments";
 import { selectLead } from "@/lib/current";
 import { buildFocus } from "@/lib/focus";
+import { dayOf } from "@/lib/focus-format";
+import { loadCoverage } from "@/lib/load-coverage";
 import { loadCurrent, loadCurve, loadGames } from "@/lib/load-games";
-import { loadLeagueHistory } from "@/lib/load-league-history";
 import { loadMediaCollection, scheduleStaleMediaRecovery } from "@/lib/load-media";
 import { loadFootballLive } from "@/lib/load-football";
 import { editionClock } from "@/lib/live-plays";
-import { newYorkToday, onThisDay } from "@/lib/on-this-day";
-import { publishedGames } from "@/lib/published-pages";
 import { pageMetadata } from "@/lib/site";
+import { buildTeamFocus } from "@/lib/team-focus";
 import { focusFonts } from "./focus-fonts";
 import shared from "@/components/Focus.module.css";
 
@@ -21,28 +21,65 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 180;
 export const metadata = pageMetadata({
   path: "/", title: "ajetsfan · the Jets, one thing at a time",
-  description: "Jets legends and their stories, the latest result, the next game, the season, a big play and surprising archive discoveries, one at a time.",
+  description: "This week and this season for the Jets: live and latest scores, the next game, standings, player leaders, team news and coverage, one at a time.",
 });
 
 export default async function Home() {
-  const [games, snapshot, mediaCollection, live, history] = await Promise.all([loadGames(), loadCurrent(), loadMediaCollection(), loadFootballLive(), loadLeagueHistory()]);
+  const [games, snapshot, mediaCollection, live, coverage] = await Promise.all([
+    loadGames(), loadCurrent(), loadMediaCollection(), loadFootballLive(), loadCoverage(),
+  ]);
   await scheduleStaleMediaRecovery();
   const lead = selectLead(games, snapshot);
-  const curve = lead.analysisStatus === "ready" && lead.analysis ? await loadCurve(lead.analysis.id) : [];
+  const curve = lead.kind === "current" && lead.analysisStatus === "ready" && lead.analysis ? await loadCurve(lead.analysis.id) : [];
   const data = buildFocus({ games, snapshot, curve, media: mediaCollection });
-  // The page renders per request, so "today" is the reader's New York date.
-  const today = history ? onThisDay(history.games, newYorkToday(), new Set(publishedGames(games, snapshot).map((game) => game.id))) : null;
-  const game = live && showFootballMoment(live, lead.result?.id) ? live.featured : null;
-  const liveMoment = game && live ? {
-    title: game.state === "live" && live.status === "ready" ? "Live game" : "Game update",
-    answer: game.jetsScore !== null && game.oppScore !== null ? `Jets ${game.jetsScore}–${game.oppScore}` : game.detail,
-    content: <FocusMoment id="next" label={`${live.status === "retained" ? "Last verified game update" : game.state === "live" ? "Live game" : "Latest game update"} · ${game.seasonType === "POST" ? "Playoffs" : `Week ${game.week}`}`}
-      heading={<>Jets {game.atHome ? "vs" : "at"} {footballOpponent(game)}.</>}
+  const team = buildTeamFocus(coverage, snapshot?.season ?? null);
+
+  const candidate = live && showFootballMoment(live, data.last?.id) && (!snapshot || live.featured?.season === snapshot.season) ? live.featured : null;
+  const progress = (postseason: boolean, week: number) => (postseason ? 100 : 0) + week;
+  const livePlacement: "lead" | "postgame" | null = !candidate ? null
+    : candidate.state !== "final" ? "lead"
+    : candidate.gameId === data.last?.id ? "postgame"
+    : !data.last || progress(candidate.seasonType === "POST", candidate.week) > progress(data.last.postseason, data.last.week) ? "lead"
+    : null;
+  const showNext = Boolean(data.next && !(livePlacement && candidate?.gameId === data.next.id));
+
+  const activeIds = [
+    livePlacement === "lead" ? "live" : null,
+    data.last ? "last" : null,
+    livePlacement === "postgame" ? "live" : null,
+    showNext ? "next" : null,
+    data.season ? "season" : null,
+    data.division ? "division" : null,
+    team.stats.leaders.length ? "leaders" : null,
+    team.news.lead ? "headlines" : null,
+    data.media ? "media" : null,
+  ].filter((id): id is string => id !== null);
+  const firstId = activeIds[0] ?? null;
+
+  const liveMoment = livePlacement && candidate && live ? {
+    title: candidate.state === "live" && live.status === "ready" ? "Live game" : "Game update",
+    answer: candidate.jetsScore !== null && candidate.oppScore !== null ? `Jets ${candidate.jetsScore}–${candidate.oppScore}` : candidate.detail,
+    content: <FocusMoment id="live" first={firstId === "live"}
+      label={`${live.status === "retained" ? "Last verified game update" : candidate.state === "live" ? "Live game" : "Latest game update"} · ${candidate.seasonType === "POST" ? "Playoffs" : `Week ${candidate.week}`}`}
+      heading={<>Jets {candidate.atHome ? "vs" : "at"} {footballOpponent(candidate)}.</>}
       actions={<Link href="/game-day" className={shared.go}>Game Day <span aria-hidden="true">→</span></Link>}>
-      <figure className={shared.shape}>{game.state === "live" ? <LivePlays event={game.eventId} nickname={footballOpponent(game)} us={game.jetsScore} them={game.oppScore} clock={editionClock(game)} />
+      <figure className={shared.shape}>{candidate.state === "live" ? <LivePlays event={candidate.eventId} nickname={footballOpponent(candidate)} us={candidate.jetsScore} them={candidate.oppScore} clock={editionClock(candidate)} />
         : <FootballLiveCard feed={live} id="home-football-score" />}</figure>
     </FocusMoment>,
   } : undefined;
-  return <FocusHome data={data} today={today} className={focusFonts} liveMoment={liveMoment}
-    peopleMoment={{ title: "Jets legends", answer: "Meet Curtis Martin", content: <LegendHomeFeature /> }} />;
+
+  const leadersMoment = team.stats.leaders.length ? {
+    title: "Leaders",
+    answer: team.stats.names,
+    content: <TeamLeadersMoment season={team.season} stats={team.stats} first={firstId === "leaders"} rosterLink />,
+  } : undefined;
+
+  const newsMoment = team.news.lead ? {
+    title: "Team news",
+    answer: dayOf(team.news.lead.publishedAt),
+    content: <TeamNewsMoment news={team.news} first={firstId === "headlines"} />,
+  } : undefined;
+
+  return <FocusHome data={data} firstId={firstId} showNext={showNext} livePlacement={livePlacement}
+    liveMoment={liveMoment} leadersMoment={leadersMoment} newsMoment={newsMoment} className={focusFonts} />;
 }

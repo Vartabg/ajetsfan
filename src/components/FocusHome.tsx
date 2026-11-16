@@ -5,12 +5,9 @@ import Link from "./IntentLink";
 import FocusMoment from "./FocusMoment";
 import FocusNext from "./FocusNext";
 import InlineMedia from "./InlineMedia";
-import FocusPlay from "./FocusPlay";
 import FocusShell from "./FocusShell";
-import JourneyHome from "./JourneyHome";
 import WinLine from "./WinLine";
 import type { FocusData } from "@/lib/focus";
-import type { OnThisDay } from "@/lib/on-this-day";
 import { dayOf, halfGames, on, ORDINAL, record } from "@/lib/focus-format";
 import { formatMediaDate } from "@/lib/media";
 import { useMinuteClock } from "@/lib/use-minute-clock";
@@ -29,13 +26,13 @@ function Go({ href, children }: { href: string; children: ReactNode }) {
   return <Link href={href} className={shared.go}>{children} <span aria-hidden="true">→</span></Link>;
 }
 
-function LastGame({ last, first, status }: { last: NonNullable<FocusData["last"]>; first: boolean; status: ReactNode }) {
+function LastGame({ last, first }: { last: NonNullable<FocusData["last"]>; first: boolean }) {
   const [keys, setKeys] = useState(false);
   const verb = last.outcome === "win" ? "Won" : last.outcome === "loss" ? "Lost" : "Tied";
   const line = last.line.length >= 2 ? last.line : null;
   const best = line ? line.reduce((top, point) => point[0] > top[0] ? point : top) : null;
-  return <FocusMoment id="last" first={first} status={status}
-    label={`${last.archive ? "From the archive" : "Last game"} · ${last.postseason ? "Playoffs" : `Week ${last.week}`} · ${dayOf(last.date)}`}
+  return <FocusMoment id="last" first={first}
+    label={`Last game · ${last.postseason ? "Playoffs" : `Week ${last.week}`} · ${dayOf(last.date)}`}
     heading={<>{verb} {last.us}–{last.them} <em>{last.home ? "vs" : "at"} {last.place}.</em></>}
     actions={<>{line ? <Toggle pressed={keys} onChange={setKeys} show="Show the key moments" hide="Hide the key moments" /> : null}<Go href={last.href}>{last.hrefLabel}</Go></>}>
     <figure className={shared.shape}>
@@ -46,11 +43,11 @@ function LastGame({ last, first, status }: { last: NonNullable<FocusData["last"]
   </FocusMoment>;
 }
 
-function Season({ season }: { season: NonNullable<FocusData["season"]> }) {
+function Season({ season, first }: { season: NonNullable<FocusData["season"]>; first: boolean }) {
   const [scores, setScores] = useState(false);
   const played = season.wins + season.losses + season.ties;
   const left = season.weeks.filter((week) => week.state === "next" || week.state === "upcoming").length;
-  return <FocusMoment id="season" label={`${season.year} season`}
+  return <FocusMoment id="season" first={first} label={`${season.year} season`}
     heading={<>{record(season.wins, season.losses, season.ties)} <em>{played ? `after ${played} game${played === 1 ? "" : "s"}.` : "before the opener."}</em></>}
     actions={<><Toggle pressed={scores} onChange={setScores} show="Show each score" hide="Hide scores" /><Go href={`/seasons/${season.year}`}>Season page</Go></>}>
     <figure className={shared.shape}>
@@ -62,13 +59,13 @@ function Season({ season }: { season: NonNullable<FocusData["season"]> }) {
   </FocusMoment>;
 }
 
-function Division({ division }: { division: NonNullable<FocusData["division"]> }) {
+function Division({ division, first }: { division: NonNullable<FocusData["division"]>; first: boolean }) {
   const [points, setPoints] = useState(false);
   const most = Math.max(1, ...division.teams.map((team) => team.games));
   const heading = division.place === 1
     ? <>{division.tiedAtTop > 1 ? "Tied for first" : "First"} <em>in the {division.name}.</em></>
     : <>{ORDINAL[division.place - 1] ?? `No. ${division.place}`} <em>in the {division.name}, {halfGames(division.back)} behind {division.leader}.</em></>;
-  return <FocusMoment id="division" label={division.name} heading={heading}
+  return <FocusMoment id="division" first={first} label={division.name} heading={heading}
     actions={<><Toggle pressed={points} onChange={setPoints} show="Show points" hide="Hide points" /><Go href="/game-day#standings">Standings</Go></>}>
     <figure className={shared.shape}>
       <div className={styles.rows} role="img" aria-label={division.teams.map((team) => `${team.place} ${record(team.wins, team.losses, team.ties)}`).join(", ")}>
@@ -82,8 +79,8 @@ function Division({ division }: { division: NonNullable<FocusData["division"]> }
   </FocusMoment>;
 }
 
-function Media({ media }: { media: NonNullable<FocusData["media"]> }) {
-  return <FocusMoment id="media" label={`Watch & read · ${media.outlet}`} heading={<>{media.title}</>}
+function Media({ media, first }: { media: NonNullable<FocusData["media"]>; first: boolean }) {
+  return <FocusMoment id="media" first={first} label={`Watch & read · ${media.outlet}`} heading={<>{media.title}</>}
     actions={<Go href="/media">Browse the Media Room</Go>}>
     <figure className={shared.shape}>
       <InlineMedia item={media.item} outletName={media.outlet} feature sizes="(max-width: 959px) calc(100vw - 32px), 760px" />
@@ -92,53 +89,37 @@ function Media({ media }: { media: NonNullable<FocusData["media"]> }) {
   </FocusMoment>;
 }
 
-function Discovery({ discovery }: { discovery: NonNullable<FocusData["discovery"]> }) {
-  return <FocusMoment id="discovery" label="Deep cuts · Beyond the box score" heading={<>Two {discovery.score} wins. <em>Two different stories.</em></>}
-    actions={<Go href="/discover">See what the score hides</Go>}>
-    <figure className={shared.shape}>
-      <div className={styles.discovery}>{[discovery.low, discovery.high].map((game) => <div key={game.label}>
-        <span>{game.label}</span><strong>{(game.chance * 100).toFixed(1)}%</strong>
-        <i aria-hidden="true"><i style={{ width: `${game.chance * 100}%` }} /></i>
-      </div>)}</div>
-      <figcaption>Their lowest second-half Jets win chances, estimated by the model. The largest gap between two same-score games in {discovery.wins} eligible wins, from {discovery.firstSeason} through {dayOf(discovery.lastDate)} {discovery.lastDate.slice(0, 4)}. Open the paths, improbable finishes and play evidence.</figcaption>
-    </figure>
-  </FocusMoment>;
-}
-
-function Today({ today }: { today: OnThisDay }) {
-  const span = Math.max(1, today.to - today.from);
-  const only = today.games.length === 1 ? today.games[0] : null;
-  const verb = (game: OnThisDay["games"][number]) => game.outcome === "win" ? "Beat" : game.outcome === "loss" ? "Lost to" : "Tied";
-  const score = (game: OnThisDay["games"][number]) => game.outcome === "loss" ? `${game.them}–${game.us}` : `${game.us}–${game.them}`;
-  return <FocusMoment id="today" label={`On this day · ${today.day}`}
-    heading={only ? <>{today.day}, {only.year}: <em>{verb(only).toLowerCase()} {only.opponent} {score(only)}.</em></> : <>{record(today.wins, today.losses, today.ties)} on {today.day} <em>since {today.from}.</em></>}>
-    <figure className={shared.shape}>
-      <div className={styles.years} role="img" aria-label={`${today.games.length} Jets ${today.games.length === 1 ? "game" : "games"} on ${today.day} between ${today.from} and ${today.to}.`}>
-        {today.games.map((game) => <i key={game.id} className={styles[game.outcome]} style={{ left: `${(game.year - today.from) / span * 100}%` }} />)}
-        <span>{today.from}</span><span>{today.to}</span>
-      </div>
-      <ul className={styles.dated}>{today.games.map((game) => <li key={game.id}>
-        <Link href={game.href}><b>{game.year}</b> <span>{verb(game)} {game.opponent} {score(game)}</span> <small>{game.home ? "Home" : "Away"}</small><span aria-hidden="true">→</span></Link>
-      </li>)}</ul>
-      <figcaption>Every Jets game played on {today.day} since the {today.from} season, from the NFL schedule record. Each dot is a year; filled dots are wins.</figcaption>
-    </figure>
-  </FocusMoment>;
-}
-
 type HomeMoment = { content: ReactNode; title: string; answer: string };
-export default function FocusHome({ data, today = null, className = "", liveMoment, peopleMoment }: { data: FocusData; today?: OnThisDay | null; className?: string; liveMoment?: HomeMoment; peopleMoment?: HomeMoment }) {
+export default function FocusHome({
+  data,
+  firstId = null,
+  showNext = Boolean(data.next),
+  livePlacement = null,
+  liveMoment,
+  leadersMoment,
+  newsMoment,
+  className = "",
+}: {
+  data: FocusData;
+  firstId?: string | null;
+  showNext?: boolean;
+  livePlacement?: "lead" | "postgame" | null;
+  liveMoment?: HomeMoment;
+  leadersMoment?: HomeMoment;
+  newsMoment?: HomeMoment;
+  className?: string;
+}) {
   const now = useMinuteClock();
   const verb = (outcome: "win" | "loss" | "tie") => outcome === "win" ? "Won" : outcome === "loss" ? "Lost" : "Tied";
   const entries = [
-    { id: "miracle", title: "Monday Night Miracle", answer: "Follow the comeback" },
-    data.last ? { id: "last", title: data.last.archive ? "From the archive" : "Last game", answer: `${verb(data.last.outcome)} ${data.last.us}–${data.last.them}` } : null,
-    peopleMoment ? { id: "people", title: peopleMoment.title, answer: peopleMoment.answer } : null,
-    liveMoment ? { id: "next", title: liveMoment.title, answer: liveMoment.answer } : data.next ? { id: "next", title: "Next game", answer: `${data.next.place}, ${on(data.next.kickoff ?? `${data.next.date}T17:00:00Z`, { weekday: "short" })}` } : null,
+    livePlacement === "lead" && liveMoment ? { id: "live", title: liveMoment.title, answer: liveMoment.answer } : null,
+    data.last ? { id: "last", title: "Last game", answer: `${verb(data.last.outcome)} ${data.last.us}–${data.last.them}` } : null,
+    livePlacement === "postgame" && liveMoment ? { id: "live", title: liveMoment.title, answer: liveMoment.answer } : null,
+    showNext && data.next ? { id: "next", title: "Next game", answer: `${data.next.home ? "Vs" : "At"} ${data.next.place}, ${on(data.next.kickoff ?? `${data.next.date}T17:00:00Z`, { weekday: "short" })}` } : null,
     data.season ? { id: "season", title: `${data.season.year} season`, answer: record(data.season.wins, data.season.losses, data.season.ties) } : null,
     data.division ? { id: "division", title: data.division.name, answer: data.division.place === 1 ? "First" : `${ORDINAL[data.division.place - 1] ?? data.division.place}, ${halfGames(data.division.back)} back` } : null,
-    today ? { id: "today", title: `On this day · ${today.day}`, answer: today.games.length === 1 ? `${today.games[0].outcome === "win" ? "A win" : today.games[0].outcome === "loss" ? "A loss" : "A tie"}, ${today.games[0].year}` : `${record(today.wins, today.losses, today.ties)} since ${today.from}` } : null,
-    data.film ? { id: "film", title: "Film Room", answer: data.film.title.split(":")[0] } : null,
-    data.discovery ? { id: "discovery", title: "Deep cuts", answer: `Two ${data.discovery.score} wins` } : null,
+    leadersMoment ? { id: "leaders", title: leadersMoment.title, answer: leadersMoment.answer } : null,
+    newsMoment ? { id: "headlines", title: newsMoment.title, answer: newsMoment.answer } : null,
     data.media ? { id: "media", title: "Watch & read", answer: data.media.outlet } : null,
   ].filter((entry): entry is { id: string; title: string; answer: string } => entry !== null);
 
@@ -148,15 +129,15 @@ export default function FocusHome({ data, today = null, className = "", liveMome
   const wins = data.season?.wins ?? 0, losses = data.season?.losses ?? 0, ties = data.season?.ties ?? 0;
 
   return <FocusShell page="home" entries={entries} checkedAt={data.checkedAt} className={className}>
-    <JourneyHome />
-    {data.last ? <LastGame last={data.last} first={false} status={status} /> : status}
-    {peopleMoment?.content}
-    {liveMoment?.content ?? (data.next ? <FocusNext next={data.next} wins={wins} losses={losses} ties={ties} first={false} go={{ href: "/game-day", label: "Game Day" }} /> : null)}
-    {data.season ? <Season season={data.season} /> : null}
-    {data.division ? <Division division={data.division} /> : null}
-    {today ? <Today today={today} /> : null}
-    {data.film ? <FocusPlay id="film" label={`Film Room · ${on(`${data.film.date}T16:00:00Z`, { month: "short", day: "numeric", year: "numeric" })}`} play={data.film} more={<Go href="/film-room">Open the Film Room</Go>} /> : null}
-    {data.discovery ? <Discovery discovery={data.discovery} /> : null}
-    {data.media ? <Media media={data.media} /> : null}
+    {status ? <div className={shared.staleWrap}>{status}</div> : null}
+    {livePlacement === "lead" ? liveMoment?.content : null}
+    {data.last ? <LastGame last={data.last} first={firstId === "last"} /> : null}
+    {livePlacement === "postgame" ? liveMoment?.content : null}
+    {showNext && data.next ? <FocusNext next={data.next} wins={wins} losses={losses} ties={ties} first={firstId === "next"} go={{ href: "/game-day", label: "Game Day" }} /> : null}
+    {data.season ? <Season season={data.season} first={firstId === "season"} /> : null}
+    {data.division ? <Division division={data.division} first={firstId === "division"} /> : null}
+    {leadersMoment?.content}
+    {newsMoment?.content}
+    {data.media ? <Media media={data.media} first={firstId === "media"} /> : null}
   </FocusShell>;
 }

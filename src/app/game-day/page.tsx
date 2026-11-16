@@ -56,7 +56,7 @@ export default async function GameDayPage() {
 
   const entries = [
     liveGame ? { id: "kickoff", title: liveGame.state === "live" && live?.status === "ready" ? "Live game" : "Game update", answer: liveGame.jetsScore !== null && liveGame.oppScore !== null ? `Jets ${liveGame.jetsScore}–${liveGame.oppScore}` : liveGame.detail }
-      : nextGame ? { id: "kickoff", title: "Next game", answer: `${nextGame.place}, ${on(nextGame.kickoff ?? `${nextGame.date}T17:00:00Z`, { weekday: "short" })}` } : { id: "kickoff", title: "Next game", answer: "None scheduled" },
+      : nextGame ? { id: "kickoff", title: "Next game", answer: `${nextGame.home ? "Vs" : "At"} ${nextGame.place}, ${on(nextGame.kickoff ?? `${nextGame.date}T17:00:00Z`, { weekday: "short" })}` } : { id: "kickoff", title: "Next game", answer: "None scheduled" },
     next && snapshot ? { id: "briefing", title: "The matchup", answer: "Unit by unit" } : null,
     snapshot ? { id: "ticket", title: "Your call", answer: "Call the score" } : null,
     snapshot ? { id: "standings", title: standings?.division ?? "Standings", answer: picture ? (place === 1 ? (picture.atTop > 1 ? "Tied for first" : "First") : `${ORDINAL[place - 1] ?? place}, ${halfGames(picture.back)} back`) : "Pending" } : null,

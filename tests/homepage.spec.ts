@@ -1,26 +1,30 @@
 import { test, expect, type Page } from "@playwright/test";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
+import type { CoverageSnapshot } from "../src/lib/coverage";
 import type { CurrentSnapshot } from "../src/lib/current";
 import { selectLead } from "../src/lib/current";
 import type { Game } from "../src/lib/games";
 import type { CurvePoint } from "../src/lib/load-games";
-import { buildFocus } from "../src/lib/focus";
+import { buildFocus, leadPlace } from "../src/lib/focus";
 import { mediaCollection } from "../src/lib/media-catalog";
 import { SECTIONS } from "../src/lib/site-sections";
+import { buildTeamFocus } from "../src/lib/team-focus";
 
 const read = <T,>(file: string) => JSON.parse(readFileSync(path.join(process.cwd(), "public/data", file), "utf8")) as T;
 const snapshot = read<CurrentSnapshot>("current.json");
+const coverage = read<CoverageSnapshot>("coverage.json");
 const games = read<Game[]>("games.json");
 const lead = selectLead(games, snapshot);
-const curveFile = lead.analysis ? `curves/${lead.analysis.id}.json` : null;
-const curve = lead.analysisStatus === "ready" && curveFile && existsSync(path.join(process.cwd(), "public/data", curveFile)) ? read<CurvePoint[]>(curveFile).filter((point) => typeof point.wp === "number") : [];
+const curveFile = lead.kind === "current" && lead.analysis ? `curves/${lead.analysis.id}.json` : null;
+const curve = lead.kind === "current" && lead.analysisStatus === "ready" && curveFile && existsSync(path.join(process.cwd(), "public/data", curveFile)) ? read<CurvePoint[]>(curveFile).filter((point) => typeof point.wp === "number") : [];
 const focus = buildFocus({ games, snapshot, curve, media: mediaCollection });
+const team = buildTeamFocus(coverage, snapshot.season);
 const record = (w: number, l: number, t: number) => `${w}–${l}${t ? `–${t}` : ""}`;
 
 test("new playable coverage remains eligible for the landing page when publisher art needs a title card", () => {
   const video = mediaCollection.items.find((item) => item.youtubeId && item.embedAllowed !== false)!;
-  const result = buildFocus({ games, snapshot, curve, media: { ...mediaCollection, items: [{ ...video, image: null }] } });
+  const result = buildFocus({ games, snapshot, curve, media: { ...mediaCollection, items: [{ ...video, image: null, context: "current" as const, seasons: [snapshot.season] }] } });
   expect(result.media?.id).toBe(video.id);
   expect(result.media?.item.image).toBeNull();
 });
@@ -37,27 +41,33 @@ test.beforeEach(async ({ page }) => {
   await page.route((url) => url.pathname === "/_next/image", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#064c32"/></svg>' }));
 });
 
-test("the home page invites a comeback journey and retains current coverage", async ({ page }) => {
+test("the home page shows only this week and this season", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#top")).toHaveCount(0);
-  await expect(page.locator("[data-focus-moment]").first()).toHaveAttribute("id", "miracle");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("The Monday Night Miracle.");
-  await expect(page.locator("#miracle").getByRole("link", { name: /Follow the comeback/ })).toHaveAttribute("href", "/stories/monday-night-miracle");
-  await expect(page.locator("#miracle").getByRole("link", { name: /Play today’s puzzle/ })).toHaveAttribute("href", "/puzzle");
+  await expect(page.locator("#miracle, #people, #today, #film, #discovery")).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   if (focus.last) {
     const verb = focus.last.outcome === "win" ? "Won" : focus.last.outcome === "loss" ? "Lost" : "Tied";
-    await expect(page.locator("#last h2")).toHaveAttribute("id", "last-heading");
     await expect(page.locator("#last-heading")).toHaveText(`${verb} ${focus.last.us}–${focus.last.them} ${focus.last.home ? "vs" : "at"} ${focus.last.place}.`);
-    await expect(page.locator("#last")).toContainText(focus.last.archive ? "From the archive" : `Last game · ${focus.last.postseason ? "Playoffs" : `Week ${focus.last.week}`}`);
+    await expect(page.locator("#last")).toContainText(`Last game · ${focus.last.postseason ? "Playoffs" : `Week ${focus.last.week}`}`);
     await expect(page.locator("#last a").filter({ hasText: focus.last.hrefLabel })).toHaveAttribute("href", focus.last.href);
   }
-  if (focus.next) await expect(page.locator("#next-heading")).toContainText(focus.next.home ? focus.next.place : `At ${focus.next.place}`);
+  if (focus.next) await expect(page.locator("#next-heading")).toContainText(focus.next.home ? leadPlace(focus.next.place) : `At ${focus.next.place}`);
   if (focus.season) {
     await expect(page.locator("#season-heading")).toContainText(record(focus.season.wins, focus.season.losses, focus.season.ties));
     await expect(page.locator("[data-week-state]")).toHaveCount(focus.season.weeks.length);
     for (const state of ["win", "loss", "tie", "next", "bye"] as const) await expect(page.locator(`[data-week-state="${state}"]`)).toHaveCount(focus.season.weeks.filter((week) => week.state === state).length);
   }
   if (focus.division) await expect(page.locator("#division-heading")).toContainText(focus.division.place === 1 ? "in the" : focus.division.leader);
+  if (team.stats.leaders.length) {
+    await expect(page.locator("#leaders")).toBeVisible();
+    await expect(page.locator("#leaders").getByRole("link", { name: /^Every player’s numbers/ })).toHaveAttribute("href", "/team/stats");
+    await expect(page.locator("#leaders").getByRole("link", { name: /^Find a player/ })).toHaveAttribute("href", "/team/roster");
+  }
+  if (team.news.lead) {
+    await expect(page.locator("#headlines")).toBeVisible();
+    await expect(page.locator("#headlines").getByRole("link", { name: /^All team news/ })).toHaveAttribute("href", "/team/news");
+  }
   await expect(page.locator("#more").getByText(/Results checked/)).toBeVisible();
 });
 
@@ -124,11 +134,10 @@ test("each moment shows one thing and opens its detail in place", async ({ page 
     await page.getByRole("button", { name: "What each result means" }).click();
     await expect(page.locator("#next [data-focus-reveal]")).toContainText(`A win makes them ${record((focus.season?.wins ?? 0) + 1, focus.season?.losses ?? 0, focus.season?.ties ?? 0)}`);
   }
-  if (focus.film) {
-    const field = page.locator("[data-focus-field]");
-    await expect(field).toHaveAttribute("data-time", "0.0");
-    await page.locator("[data-focus-play]").click();
-    await expect(field).toHaveAttribute("data-time", "6.0");
+  if (team.news.lead) {
+    const leadNews = page.locator(`#headlines [data-inline-news="${team.news.lead.id}"]`);
+    await leadNews.locator(":scope > summary").click();
+    await expect(leadNews.locator("[data-news-details]")).toBeVisible();
   }
   if (focus.media) {
     await expect(page.locator(`#media [data-inline-media="${focus.media.id}"]`)).toBeVisible();
@@ -171,6 +180,10 @@ test("old section bookmarks open the new destination and preserve unrelated URL 
     ["fan-stand", "/history", "#fan-stand"],
     ["remembered-cases", "/history", "#remembered-cases"],
     ["rivalry-desk", "/history", "#rivalry-desk"],
+    ["miracle", "/stories/monday-night-miracle", "#journey"],
+    ["people", "/history", "#people"],
+    ["film", "/film-room", "#play-wilson-cleveland"],
+    ["discovery", "/discover", "#same-score"],
   ]) {
     await page.goto(`/?keep=orientation#${hash}`);
     await expect.poll(() => new URL(page.url()).pathname).toContain(target);
@@ -178,6 +191,10 @@ test("old section bookmarks open the new destination and preserve unrelated URL 
     expect(new URL(page.url()).searchParams.get("keep")).toBe("orientation");
     expect(new URL(page.url()).hash).toBe(anchor);
   }
+  await page.goto("/?keep=orientation#season");
+  await expect(page.locator("#season")).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe("/");
+  expect(new URL(page.url()).hash).toBe("#season");
 });
 
 test("the home page reflows at 320px with 200% text and keeps usable targets", async ({ page }) => {

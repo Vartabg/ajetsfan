@@ -1,10 +1,10 @@
 import { test, expect } from "@playwright/test";
 import { siteOrigin } from "../src/lib/site";
 
-test("home, Team and History lead readers to real people and back", async ({ page }) => {
+test("History and Team lead readers to real people and back, while Home stays current", async ({ page }) => {
   await page.goto("/");
-  const ids = await page.locator("[data-focus-moment]").evaluateAll((moments) => moments.map((moment) => moment.id));
-  expect(ids.indexOf("people")).toBe(ids.indexOf("last") + 1);
+  await expect(page.locator("#people")).toHaveCount(0);
+  await page.goto("/history");
   await expect(page.locator("#people h2")).toHaveText("Curtis Martin");
   await page.locator("#people").getByRole("link", { name: /^Meet Curtis/ }).click();
   await expect(page.locator("h1")).toHaveText("Curtis Martin");

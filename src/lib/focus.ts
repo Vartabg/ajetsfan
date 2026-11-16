@@ -1,15 +1,11 @@
 import { completedGames, divisionPicture, gamesBehind, nextScheduledGame, selectLead, type CurrentSnapshot } from "./current";
 import type { Game } from "./games";
 import type { CurvePoint } from "./load-games";
-import { jetsPlays } from "./jets-playbook";
-import { getJetsStudy } from "./jets-snap-study";
 import { type MediaCollection, type MediaItem } from "./media";
 import { selectHomeMedia } from "./home-media";
 import { compactMediaItem } from "./media-asset-paths.mjs";
-import type { PlayDesign } from "./playbook";
 import { publishedGames } from "./published-pages";
 import { teamIdentity } from "./teams";
-import { buildDiscoveries } from "./discoveries";
 
 /** One play of a game's line: the Jets' pre-play win chance and the quarter (5+ is overtime). */
 export type FocusPoint = [wp: number, quarter: number];
@@ -18,16 +14,14 @@ export type WeekState = "win" | "loss" | "tie" | "next" | "upcoming" | "bye";
 export type FocusData = {
   checkedAt: string | null;
   last: {
-    id: string; week: number; postseason: boolean; date: string; archive: boolean;
+    id: string; week: number; postseason: boolean; date: string;
     outcome: "win" | "loss" | "tie"; us: number; them: number; opponent: string; place: string; home: boolean;
     href: string; hrefLabel: string; line: FocusPoint[];
   } | null;
-  next: { week: number; postseason: boolean; opponent: string; place: string; home: boolean; date: string; kickoff: string | null; overdue: boolean } | null;
+  next: { id: string; week: number; postseason: boolean; opponent: string; place: string; home: boolean; date: string; kickoff: string | null; overdue: boolean } | null;
   season: { year: number; wins: number; losses: number; ties: number; weeks: { week: number; opponent: string | null; home: boolean | null; state: WeekState; score: string | null }[] } | null;
   division: { name: string; place: number; back: number; leader: string; tiedAtTop: number; teams: { team: string; place: string; wins: number; losses: number; ties: number; games: number; pointsFor: number; pointsAgainst: number; us: boolean }[] } | null;
-  film: { title: string; date: string; situation: string; result: string; summary: string; star: string; design: PlayDesign } | null;
   media: { id: string; title: string; outlet: string; publishedAt: string | null; item: MediaItem } | null;
-  discovery: { score: string; wins: number; firstSeason: number; lastDate: string; low: { label: string; chance: number }; high: { label: string; chance: number } } | null;
 };
 
 // Two teams share Los Angeles and two share New York; they go by nickname in a sentence.
@@ -38,6 +32,9 @@ export function placeName(code: string): string {
   if (!team) return code;
   return team.nickname && SHARED_CITIES.has(team.city) ? `the ${team.nickname}` : team.city;
 }
+
+/** Capitalize a place name when it begins a heading ("the Chargers" -> "The Chargers"). */
+export const leadPlace = (place: string): string => place ? place.charAt(0).toUpperCase() + place.slice(1) : place;
 
 export type SeasonWeeks = NonNullable<FocusData["season"]>;
 
@@ -60,17 +57,15 @@ export function seasonWeeks(snapshot: CurrentSnapshot | null): SeasonWeeks | nul
   return { year: snapshot.season, wins: results.filter((game) => game.outcome === "win").length, losses: results.filter((game) => game.outcome === "loss").length, ties: results.filter((game) => game.outcome === "tie").length, weeks };
 }
 
-const FEATURED_PLAY = "wilson-cleveland";
-
 export function buildFocus({ games, snapshot, curve, media }: { games: Game[]; snapshot: CurrentSnapshot | null; curve: CurvePoint[]; media: MediaCollection }): FocusData {
   const lead = selectLead(games, snapshot);
-  const result = lead.result;
+  const result = lead.kind === "current" ? lead.result : null;
   const published = new Set(publishedGames(games, snapshot).map((game) => game.id));
-  const line: FocusPoint[] = lead.analysisStatus === "ready"
+  const line: FocusPoint[] = lead.kind === "current" && lead.analysisStatus === "ready"
     ? curve.filter((point) => Number.isFinite(point.wp) && point.wp >= 0 && point.wp <= 1).map((point) => [Math.round(point.wp * 1000) / 1000, point.q])
     : [];
   const last = result ? {
-    id: result.id, week: result.week, postseason: result.seasonType === "POST", date: result.date, archive: lead.kind === "archive",
+    id: result.id, week: result.week, postseason: result.seasonType === "POST", date: result.date,
     outcome: result.outcome, us: result.jetsScore, them: result.oppScore, opponent: result.opponentDisplay, place: placeName(result.opponentDisplay), home: result.atHome,
     href: published.has(result.id) ? `/games/${encodeURIComponent(result.id)}` : `/seasons/${result.season}`,
     hrefLabel: published.has(result.id) ? "Full game report" : "Season results", line,
@@ -78,6 +73,7 @@ export function buildFocus({ games, snapshot, curve, media }: { games: Game[]; s
 
   const upcoming = nextScheduledGame(snapshot);
   const next = upcoming ? {
+    id: upcoming.game.id,
     week: upcoming.game.week, postseason: upcoming.game.seasonType === "POST", opponent: upcoming.game.opponentDisplay, place: placeName(upcoming.game.opponentDisplay),
     home: upcoming.game.atHome, date: upcoming.game.date, kickoff: upcoming.game.kickoff, overdue: upcoming.overdue,
   } : null;
@@ -92,22 +88,10 @@ export function buildFocus({ games, snapshot, curve, media }: { games: Game[]; s
   // Keep the helper honest: a tied leader shows zero games back.
   if (division && picture && gamesBehind(picture.leader, picture.self) !== division.back) throw new Error("Division standing out of step");
 
-  const play = jetsPlays.find((entry) => entry.id === FEATURED_PLAY);
-  const study = play ? getJetsStudy(play.id) : null;
-  const film = play && study ? { title: play.title, date: play.date, situation: play.situation, result: play.result, summary: play.summary, star: play.focusPlayerIds[0], design: study.design } : null;
-
   // Missing publisher art uses the same factual title-card fallback as the room.
   const outletName = new Map(media.outlets.map((outlet) => [outlet.id, outlet.name]));
-  const featured = selectHomeMedia(media.items);
+  const featured = selectHomeMedia(media.items, snapshot?.season);
   const mediaMoment = featured ? { id: featured.id, title: featured.title, outlet: outletName.get(featured.outletId) ?? featured.author, publishedAt: featured.publishedAt, item: compactMediaItem(featured) } : null;
 
-  const discoveries = buildDiscoveries(games.filter((game) => published.has(game.id)));
-  const pair = discoveries.sameScore;
-  const discovery = pair ? {
-    score: `${pair.jetsScore}–${pair.oppScore}`, wins: discoveries.scope.wins, firstSeason: discoveries.scope.firstSeason!, lastDate: discoveries.scope.lastDate!,
-    low: { label: `${pair.low.season} ${pair.low.atHome ? "vs" : "at"} ${placeName(pair.low.opponentDisplay)}`, chance: pair.low.troughH2Wp! },
-    high: { label: `${pair.high.season} ${pair.high.atHome ? "vs" : "at"} ${placeName(pair.high.opponentDisplay)}`, chance: pair.high.troughH2Wp! },
-  } : null;
-
-  return { checkedAt: snapshot?.checkedAt ?? null, last, next, season, division, film, media: mediaMoment, discovery };
+  return { checkedAt: snapshot?.checkedAt ?? null, last, next, season, division, media: mediaMoment };
 }

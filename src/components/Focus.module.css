@@ -55,6 +55,8 @@
 .reveal { margin: 0; font: 500 16px/1.5 var(--data); color: var(--ink); }
 .note { margin: 0; font: 400 13px/1.5 var(--data); color: var(--quiet); }
 .stale { margin: 0; padding: 8px 12px; border-left: 3px solid var(--loss); background: var(--raise); font-size: 14px; }
+.staleWrap { padding: 24px 16px 0; }
+.staleWrap + .moment { padding-top: 20px; }
 
 /* An in-place disclosure styled as the moment's action; the summary keeps the site's .disclosure pattern. */
 .unfold > summary { display: inline-flex; align-items: center; width: fit-content; max-width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 20px; border-radius: 999px; background: var(--ink); color: var(--bg); font: 600 15px/1.2 var(--text); cursor: pointer; }
@@ -115,17 +117,19 @@
   :global(html):has([data-focus-page]) { scroll-padding-top: 0; }
   .app { display: grid; grid-template-columns: 288px minmax(0, 1fr); }
   .bar { display: none; }
-  .rail { position: sticky; top: 0; height: 100svh; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px; padding: 32px 24px 28px 32px; border-right: 1px solid var(--faint); }
-  .rail ol { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
-  .rail > nav { min-height: 0; overflow-y: auto; margin-left: -12px; padding-left: 12px; }
+  .rail { position: sticky; top: 0; height: 100svh; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; padding: 24px 24px 20px 32px; border-right: 1px solid var(--faint); }
+  .rail ol { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+  .rail > nav { min-height: 0; overflow-y: auto; scrollbar-width: thin; margin-left: -12px; padding-left: 12px; }
   /* Moments out of view recede by color, which keeps their text above 4.5:1. */
-  .rail ol a { display: grid; gap: 3px; margin-left: -12px; padding: 7px 12px; border-radius: 10px; color: var(--quiet); text-decoration: none; transition: color .3s, background .3s; }
+  .rail ol a { display: grid; gap: 3px; margin-left: -12px; padding: 5px 12px; border-radius: 10px; color: var(--quiet); text-decoration: none; transition: color .3s, background .3s; }
   .rail ol a:hover { color: var(--ink); }
   .rail ol a[aria-current] { color: var(--ink); background: var(--raise); }
   .rail ol span { font: 500 13px/1.3 var(--data); color: var(--quiet); }
   .rail ol b { font: 600 16px/1.25 var(--display); letter-spacing: -.01em; }
   .rail .note { margin-top: auto; }
   .stack { min-width: 0; }
+  .staleWrap { padding: 32px clamp(32px, 5vw, 88px) 0; }
+  .staleWrap + .moment { padding-top: 28px; }
   .moment { gap: 16px; padding: 64px clamp(32px, 5vw, 88px); }
   .say { font-size: clamp(44px, 4.4vw, 76px); max-width: 16em; }
   .sections ul { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); column-gap: 32px; max-width: 980px; }
