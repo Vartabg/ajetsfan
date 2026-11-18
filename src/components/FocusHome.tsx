@@ -18,8 +18,8 @@ const pct = (wp: number) => `${Math.round(wp * 100)}%`;
 const QUARTER = ["first quarter", "second quarter", "third quarter", "fourth quarter"];
 const quarterName = (q: number) => QUARTER[q - 1] ?? "overtime";
 
-function Toggle({ pressed, onChange, show, hide }: { pressed: boolean; onChange: (next: boolean) => void; show: string; hide: string }) {
-  return <button type="button" className={shared.button} aria-pressed={pressed} onClick={() => onChange(!pressed)}>{pressed ? hide : show}</button>;
+function Toggle({ pressed, onChange, show, hide, className = shared.button }: { pressed: boolean; onChange: (next: boolean) => void; show: string; hide: string; className?: string }) {
+  return <button type="button" className={className} aria-pressed={pressed} onClick={() => onChange(!pressed)}>{pressed ? hide : show}</button>;
 }
 
 function Go({ href, children }: { href: string; children: ReactNode }) {
@@ -34,11 +34,11 @@ function LastGame({ last, first }: { last: NonNullable<FocusData["last"]>; first
   return <FocusMoment id="last" first={first}
     label={`Last game · ${last.postseason ? "Playoffs" : `Week ${last.week}`} · ${dayOf(last.date)}`}
     heading={<>{verb} {last.us}–{last.them} <em>{last.home ? "vs" : "at"} {last.place}.</em></>}
-    actions={<>{line ? <Toggle pressed={keys} onChange={setKeys} show="Show the key moments" hide="Hide the key moments" /> : null}<Go href={last.href}>{last.hrefLabel}</Go></>}>
+    actions={<>{line ? <Toggle pressed={keys} onChange={setKeys} show="Show chart labels" hide="Hide chart labels" className={last.turningPoint ? styles.chartLabels : undefined} /> : null}<Go href={last.href}>{last.hrefLabel}</Go></>}>
     <figure className={shared.shape}>
-      {line && best ? <WinLine line={line} keys={keys} label={`Jets win chance, play by play: ${pct(line[0][0])} at kickoff, best ${pct(best[0])} in the ${quarterName(best[1])}, ${pct(line.at(-1)![0])} at the end.`} />
+      {line && best ? <WinLine line={line} keys={keys} turningPoint={last.turningPoint} label={`Estimated Jets win chance, play by play: ${pct(line[0][0])} at kickoff, best ${pct(best[0])} in the ${quarterName(best[1])}, ${pct(line.at(-1)![0])} at the end.`} />
         : <div className={styles.score} role="img" aria-label={`Jets ${last.us}, ${last.place} ${last.them}`}><span style={{ width: `${last.us / Math.max(last.us, last.them, 1) * 100}%` }}>NYJ {last.us}</span><span style={{ width: `${last.them / Math.max(last.us, last.them, 1) * 100}%` }}>{last.opponent} {last.them}</span></div>}
-      <figcaption>{line && best ? `The line is the Jets’ chance to win, play by play. It started at ${pct(line[0][0])}. The best it got was ${pct(best[0])}, in the ${quarterName(best[1])}.` : "The play-by-play line appears here once the game’s data is published."}</figcaption>
+      <figcaption>{line && best ? `The line estimates the Jets’ chance to win, play by play. It started at ${pct(line[0][0])}. The best it got was ${pct(best[0])}, in the ${quarterName(best[1])}.` : "The play-by-play line appears here once the game’s data is published."}</figcaption>
     </figure>
   </FocusMoment>;
 }
@@ -92,6 +92,7 @@ function Media({ media, first }: { media: NonNullable<FocusData["media"]>; first
 type HomeMoment = { content: ReactNode; title: string; answer: string };
 export default function FocusHome({
   data,
+  renderedAt,
   firstId = null,
   showNext = Boolean(data.next),
   livePlacement = null,
@@ -101,6 +102,7 @@ export default function FocusHome({
   className = "",
 }: {
   data: FocusData;
+  renderedAt: number;
   firstId?: string | null;
   showNext?: boolean;
   livePlacement?: "lead" | "postgame" | null;
@@ -109,7 +111,7 @@ export default function FocusHome({
   newsMoment?: HomeMoment;
   className?: string;
 }) {
-  const now = useMinuteClock();
+  const now = useMinuteClock() || renderedAt;
   const verb = (outcome: "win" | "loss" | "tie") => outcome === "win" ? "Won" : outcome === "loss" ? "Lost" : "Tied";
   const entries = [
     livePlacement === "lead" && liveMoment ? { id: "live", title: liveMoment.title, answer: liveMoment.answer } : null,
@@ -126,14 +128,13 @@ export default function FocusHome({
   const stale = data.checkedAt && now && now - Date.parse(data.checkedAt) > 86_400_000;
   const days = stale ? Math.floor((now - Date.parse(data.checkedAt!)) / 86_400_000) : 0;
   const status = stale ? <p className={shared.stale} role="status" aria-label="Results update status"><strong>Update overdue.</strong> Results were last checked {days} {days === 1 ? "day" : "days"} ago, so newer results may be missing.</p> : null;
-  const wins = data.season?.wins ?? 0, losses = data.season?.losses ?? 0, ties = data.season?.ties ?? 0;
 
   return <FocusShell page="home" entries={entries} checkedAt={data.checkedAt} className={className}>
     {status ? <div className={shared.staleWrap}>{status}</div> : null}
     {livePlacement === "lead" ? liveMoment?.content : null}
     {data.last ? <LastGame last={data.last} first={firstId === "last"} /> : null}
     {livePlacement === "postgame" ? liveMoment?.content : null}
-    {showNext && data.next ? <FocusNext next={data.next} wins={wins} losses={losses} ties={ties} first={firstId === "next"} go={{ href: "/game-day", label: "Game Day" }} /> : null}
+    {showNext && data.next ? <FocusNext next={data.next} initialTime={renderedAt} matchup={stale ? null : data.next.matchup} first={firstId === "next"} go={{ href: "/game-day", label: "Game Day" }} /> : null}
     {data.season ? <Season season={data.season} first={firstId === "season"} /> : null}
     {data.division ? <Division division={data.division} first={firstId === "division"} /> : null}
     {leadersMoment?.content}

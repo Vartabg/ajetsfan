@@ -59,8 +59,9 @@ export default function Boards({ heartbreak, miracle, caseIds = [] }: { heartbre
 
   function update(changes: Record<string, string | null>, replace = false) {
     focusResult.current = null;
-    const next = new URLSearchParams(params.toString());
-    next.set("board", board);
+    // A second input can arrive before useSearchParams renders the first URL change.
+    const next = new URLSearchParams(window.location.search);
+    next.set("board", archiveBoard(next, games));
     for (const [key, value] of Object.entries(changes)) {
       if (value && value !== "all") next.set(key, value);
       else next.delete(key);

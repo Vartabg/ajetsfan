@@ -1,14 +1,14 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import type { FocusPoint } from "@/lib/focus";
+import { useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
+import type { FocusPoint, FocusTurningPoint } from "@/lib/focus";
 import styles from "./WinLine.module.css";
 
 const pct = (wp: number) => `${Math.round(wp * 100)}%`;
 
 /** The game's shape: one point per play, evenly spaced, as the site's other charts do. */
 /** `played` (0–1) is how much of the game the line covers; a game in progress leaves the rest of the width empty. */
-export default function WinLine({ line, keys = false, label, end = "Final", played = 1 }: { line: FocusPoint[]; keys?: boolean; label: string; end?: string; played?: number }) {
+export default function WinLine({ line, keys = false, label, end = "Final", played = 1, turningPoint }: { line: FocusPoint[]; keys?: boolean; label: string; end?: string; played?: number; turningPoint?: FocusTurningPoint | null }) {
   const [at, setAt] = useState<number | null>(null);
   const box = useRef<HTMLDivElement>(null);
   const last = line.length - 1;
@@ -31,7 +31,7 @@ export default function WinLine({ line, keys = false, label, end = "Final", play
     setAt((current) => Math.min(last, Math.max(0, (current ?? (event.key === "ArrowLeft" ? last + 1 : -1)) + (event.key === "ArrowLeft" ? -1 : 1))));
   };
   const reading = at === null ? null : line[at];
-  return <div ref={box} className={styles.chart} role="img" aria-label={label} tabIndex={0} onPointerMove={move} onPointerDown={(event) => read(event.clientX)} onPointerLeave={() => setAt(null)} onKeyDown={step} onBlur={() => setAt(null)} data-focus-chart>
+  const chart = <div ref={box} className={styles.chart} role="img" aria-label={label} tabIndex={0} onPointerMove={move} onPointerDown={(event) => read(event.clientX)} onPointerLeave={() => setAt(null)} onKeyDown={step} onBlur={() => setAt(null)} data-focus-chart>
     <svg viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true">
       {quarters.map((quarter) => <line key={quarter.index} className={styles.tick} x1={x(quarter.index)} x2={x(quarter.index)} y1="0" y2="300" />)}
       <line className={styles.even} x1="0" x2="1000" y1="150" y2="150" />
@@ -46,5 +46,21 @@ export default function WinLine({ line, keys = false, label, end = "Final", play
       return <span key={mark.text} className={`${mark.below ? styles.below : ""} ${edge}`} style={{ left: `${left}%`, top: `${y(line[mark.index][0]) / 3}%` }}>{mark.text}</span>;
     })}</div> : null}
     {reading ? <><span className={styles.cursor} style={{ left: `${x(at!) / 10}%` }} aria-hidden="true" /><span className={styles.readout} role="status">{reading[1] > 4 ? "OT" : `Q${reading[1]}`} · {pct(reading[0])}</span></> : null}
+  </div>;
+  if (!turningPoint) return chart;
+  const left = x(turningPoint.index) / 10;
+  const height = y(line[turningPoint.index][0]) / 300;
+  return <div className={styles.annotated}>
+    {chart}
+    <details className={styles.turningPoint}>
+      <summary className={styles.marker} data-label-left={left > 50 || undefined} style={{ "--marker-x": `${left}%`, "--marker-y": height } as CSSProperties}>
+        <span>Turning point</span>
+      </summary>
+      <div className={styles.play}>
+        <p className={styles.playContext}>{turningPoint.clock} · <strong>{turningPoint.change}</strong> in estimated Jets win chance</p>
+        <p>{turningPoint.description}</p>
+        <a href={turningPoint.href}>See the play in the game report <span aria-hidden="true">→</span></a>
+      </div>
+    </details>
   </div>;
 }

@@ -108,8 +108,9 @@ for (const width of [1280, 390, 320]) {
     });
     expect(violations).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    // Phones show progress dashes; they keep their width until the bar runs out of room.
-    if (width < 1024) expect((await page.locator("header [aria-hidden=true] i").first().boundingBox())!.width).toBeGreaterThanOrEqual(width >= 390 ? 13 : 3);
+    await expect(page.getByRole("link", { name: "Browse sections", exact: true })).toBeVisible();
+    if (width < 1024) await expect(page.getByRole("link", { name: "On this page", exact: true })).toBeVisible();
+    else await expect(page.getByRole("navigation", { name: "On this page", exact: true })).toBeVisible();
   });
 }
 

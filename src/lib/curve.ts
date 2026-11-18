@@ -7,16 +7,13 @@ export type PlayPoint = {
   desc: string | null;
 };
 
-/** The chart marker must identify the same play as the published analysis. */
-export function keyPlayIndex(points: PlayPoint[], keyPlay: KeyPlay): number {
-  if (keyPlay.playId != null && points.some((point) => point.playId != null)) {
-    return points.findIndex((point) => point.playId === keyPlay.playId);
-  }
-  if (!keyPlay.desc) return -1;
-  return points.findIndex(
-    (point) =>
-      point.desc === keyPlay.desc &&
-      point.q === keyPlay.qtr &&
-      point.t === keyPlay.secondsLeft,
-  );
+/** Match a unique source identity. Only curves without play IDs use the legacy tuple. */
+export function keyPlayIndex(points: readonly PlayPoint[], keyPlay: KeyPlay): number {
+  const hasPlayIds = points.some((point) => point.playId != null);
+  if (hasPlayIds ? keyPlay.playId == null : !keyPlay.desc) return -1;
+  const matches = (point: PlayPoint) => hasPlayIds
+    ? point.playId === keyPlay.playId
+    : point.desc === keyPlay.desc && point.q === keyPlay.qtr && point.t === keyPlay.secondsLeft;
+  const index = points.findIndex(matches);
+  return index === points.findLastIndex(matches) ? index : -1;
 }

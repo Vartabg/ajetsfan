@@ -6,7 +6,7 @@ import type { CurrentSnapshot, ScheduledGame } from "@/lib/current";
 import { currentSeasonSummary, formatDate } from "@/lib/current";
 import { placeName } from "@/lib/focus";
 import { ordinal, record } from "@/lib/focus-format";
-import { previewQuestions, type PreviewQuestion } from "@/lib/football-preview";
+import { previewQuestions, unitHeading, unitAnchor } from "@/lib/football-preview";
 import { selectMatchdayReport } from "@/lib/matchday-report";
 import MatchdayDesk from "./MatchdayDesk";
 import shared from "./Focus.module.css";
@@ -16,13 +16,6 @@ export { ordinal };
 
 const capital = (words: string) => words.charAt(0).toUpperCase() + words.slice(1);
 const plural = (name: string) => name.startsWith("the ");
-
-/** The plain question each measured pairing answers. */
-function unitQuestion(question: PreviewQuestion, opponent: string): string {
-  if (question.id === "passing") return "When the Jets throw";
-  if (question.id === "rushing") return "When the Jets run";
-  return `When ${opponent} throw${plural(opponent) ? "" : "s"}`;
-}
 
 const rankOf = (measure: LeagueMeasure, team: string) => measure.entries.find((entry) => entry.team === team)?.rank ?? null;
 
@@ -83,8 +76,8 @@ export default function SundayBriefing({ game, overdue, snapshot, analytics }: {
       <ol className={styles.units} aria-label="Measured unit comparisons">{questions.map((question) => {
         const measure = measures[question.unit === "dropback" ? "passEpaPerPlay" : "rushEpaPerPlay"];
         const unit = question.unit === "dropback" ? "dropback" : "rush";
-        return <li key={question.id}>
-          <h3>{unitQuestion(question, opponent)}</h3>
+        return <li key={question.id} id={unitAnchor(game.id, question.id)}>
+          <h3>{unitHeading(question.id, opponent)}</h3>
           <dl className={styles.pair} aria-label={`${question.title} comparison`}>
             <Unit side="offense" name={game.opponent} us={question.offense.team === "NYJ"} measure={measure.offense} epa={question.offense.epa} plays={question.offense.plays} games={question.offense.games} unit={unit} />
             <Unit side="defense" name={game.opponent} us={question.defense.team === "NYJ"} measure={measure.defense} epa={question.defense.epa} plays={question.defense.plays} games={question.defense.games} unit={unit} />

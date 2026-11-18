@@ -45,8 +45,8 @@ async function checkLayout(page: Page, route: string, enlarged = false) {
   }
   const navigation = page.getByRole("navigation", { name: "Site sections" });
   const links = navigation.getByRole("link");
-  // The frame keeps its Menu on phones and its moment index on wide screens.
-  const entry = page.viewportSize()!.width >= 1024 ? page.getByRole("navigation", { name: "On this page" }) : page.getByRole("button", { name: "Menu", exact: true });
+  await expect(page.getByRole("link", { name: "Browse sections", exact: true })).toBeVisible();
+  const entry = page.viewportSize()!.width >= 1024 ? page.getByRole("navigation", { name: "On this page" }) : page.getByRole("link", { name: "On this page", exact: true });
   await expect(entry).toBeVisible();
   await expect(links).toHaveCount(SECTIONS.length);
   // Read one layout frame: streamed content or scroll restoration must not mix

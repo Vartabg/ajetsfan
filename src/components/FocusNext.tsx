@@ -1,25 +1,24 @@
 "use client";
 
-import { useState } from "react";
 import Link from "./IntentLink";
 import FocusMoment from "./FocusMoment";
 import { leadPlace } from "@/lib/focus";
-import { etDay, noon, on, record } from "@/lib/focus-format";
+import { etDay, noon, on } from "@/lib/focus-format";
 import { useMinuteClock } from "@/lib/use-minute-clock";
 import styles from "./Focus.module.css";
 
 export type FocusNextGame = { id?: string; week: number; postseason: boolean; place: string; home: boolean; date: string; kickoff: string | null; overdue: boolean };
 
 /** The next game as the week it falls in: today is marked once the browser knows the date. */
-export default function FocusNext({ id = "next", first = false, next, wins, losses, ties, stakes = true, go }: {
-  id?: string; first?: boolean; next: FocusNextGame; wins: number; losses: number; ties: number; stakes?: boolean; go: { href: string; label: string };
+export default function FocusNext({ id = "next", first = false, next, initialTime = 0, matchup, go }: {
+  id?: string; first?: boolean; next: FocusNextGame; initialTime?: number; matchup?: { href: string; label: string } | null; go: { href: string; label: string };
 }) {
-  const [meaning, setMeaning] = useState(false);
-  const now = useMinuteClock();
+  const now = useMinuteClock() || initialTime;
   const kickoff = next.kickoff ?? `${next.date}T17:00:00Z`;
-  const passed = now ? now >= Date.parse(kickoff) : next.overdue;
   const gameDay = etDay(kickoff);
   const today = now ? etDay(now) : null;
+  const passed = next.overdue || (next.kickoff ? now >= Date.parse(next.kickoff) : today !== null && today > next.date);
+  const action = matchup && !passed ? matchup : go;
   const days = today ? Math.round((noon(gameDay) - noon(today)) / 86_400_000) : null;
   const when = days === null ? on(kickoff, { weekday: "long", month: "short", day: "numeric" }) : days <= 0 ? "Today" : days === 1 ? "Tomorrow" : `In ${days} days`;
   const strip = Array.from({ length: 7 }, (_, index) => {
@@ -29,13 +28,12 @@ export default function FocusNext({ id = "next", first = false, next, wins, loss
   return <FocusMoment id={id} first={first}
     label={`Next game · ${next.postseason ? "Playoffs" : `Week ${next.week}`}`}
     heading={<>{next.home ? leadPlace(next.place) : `At ${next.place}`}, {on(kickoff, { weekday: "long" })} <em>{next.kickoff ? `${on(kickoff, { hour: "numeric", minute: "2-digit" })} ET` : on(kickoff, { month: "short", day: "numeric" })}</em></>}
-    actions={<>{stakes ? <button type="button" className={styles.button} aria-pressed={meaning} onClick={() => setMeaning(!meaning)}>{meaning ? "Hide" : "What each result means"}</button> : null}<Link href={go.href} className={styles.go}>{go.label} <span aria-hidden="true">→</span></Link></>}>
+    actions={<Link href={action.href} className={styles.go}>{action.label} <span aria-hidden="true">→</span></Link>}>
     <figure className={styles.shape}>
       <div className={styles.week} role="img" aria-label={`The week before the game. Game day is ${on(kickoff, { weekday: "long", month: "long", day: "numeric" })}.`}>
         {strip.map((day) => <span key={day.key} className={`${styles.day} ${day.game ? styles.gameDay : ""} ${day.today ? styles.today : ""} ${day.past ? styles.past : ""}`}><i />{day.letter}</span>)}
       </div>
       <figcaption>{passed ? "Kickoff has passed. The final score appears here once it is recorded." : `${when}, ${next.home ? "at home" : "on the road"}. The filled circle is game day.`}</figcaption>
-      {stakes && meaning ? <p className={styles.reveal} data-focus-reveal>A win makes them {record(wins + 1, losses, ties)}. A loss makes them {record(wins, losses + 1, ties)}.</p> : null}
     </figure>
   </FocusMoment>;
 }

@@ -11,7 +11,14 @@ import rail from "./FocusRail.module.css";
 export type FocusEntry = { id: string; title: string; answer: string };
 const MORE: FocusEntry = { id: "more", title: "Everything else", answer: "Team, seasons, archive…" };
 
-/** The frame every focus page shares: a slim bar on phones, an index of moments on wide screens, and the site's sections last. */
+const followsNormally = (event: MouseEvent<HTMLAnchorElement>) =>
+  !event.defaultPrevented && event.button === 0 && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey;
+
+function followSection(event: MouseEvent<HTMLAnchorElement>) {
+  if (followsNormally(event)) event.currentTarget.closest("dialog")?.close();
+}
+
+/** The frame every focus page shares: the section directory and an index of this page's moments. */
 /** `section` names the site section a page belongs to when its path does not say so, such as a game under Seasons. `name` titles a page below its section. */
 export default function FocusShell({ page, entries, checkedAt, section, name, className = "", style, children }: { page: string; entries: FocusEntry[]; checkedAt: string | null; section?: string; name?: string; className?: string; style?: CSSProperties; children: ReactNode }) {
   const pathname = usePathname();
@@ -30,25 +37,31 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
     {title ? <p className={rail.name}>{title}</p> : null}
   </div> : null;
   const [active, setActive] = useState(0);
-  const [open, setOpen] = useState(false);
-  const sheet = useRef<HTMLDialogElement>(null);
+  const [open, setOpen] = useState<"sections" | "moments" | null>(null);
+  const directory = useRef<HTMLDialogElement>(null);
+  const pageIndex = useRef<HTMLDialogElement>(null);
   const stack = useRef<HTMLElement>(null);
 
-  // Menu opens a sheet over the current screen instead of scrolling the page to its last moment:
-  // a long jump through snap points is what iPhone Safari pulls back to the top. Without JavaScript it stays a link to #more.
-  const openMenu = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (!sheet.current?.showModal) return;
+  // An enhanced shortcut opens over the current screen. Its fragment remains usable before hydration and without JavaScript.
+  const openDialog = (event: MouseEvent<HTMLAnchorElement>, dialog: HTMLDialogElement | null, kind: "sections" | "moments") => {
+    if (!followsNormally(event) || !dialog?.showModal) return;
     event.preventDefault();
-    sheet.current.showModal();
-    setOpen(true);
+    // Some browsers leave links unfocused on pointer activation. Record the opener for native focus return without moving the page.
+    event.currentTarget.focus({ preventScroll: true });
+    dialog.showModal();
+    dialog.scrollTop = 0;
+    setOpen(kind);
   };
-  const closeMenu = () => sheet.current?.close();
-  // A moment chosen in the sheet: close it, then go there directly, without smooth scrolling through every screen between.
+  // Close the index and move keyboard focus to the selected moment.
   const goTo = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    const target = document.getElementById(id);
+    if (!followsNormally(event) || !target) return;
     event.preventDefault();
-    closeMenu();
+    pageIndex.current?.close();
     history.replaceState(history.state, "", `#${id}`);
-    document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "instant" });
+    if (!target.hasAttribute("tabindex")) target.tabIndex = -1;
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: "start", behavior: "instant" });
   };
 
   useEffect(() => {
@@ -74,7 +87,7 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
     });
     if (stack.current) replacements.observe(stack.current, { childList: true });
     const keys = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || sheet.current?.open || event.altKey || event.ctrlKey || event.metaKey || (event.target as HTMLElement).closest("input, select, textarea, [contenteditable], [data-focus-chart], [data-focus-tools], [data-inline-media], video, audio")) return;
+      if (event.defaultPrevented || directory.current?.open || pageIndex.current?.open || event.altKey || event.ctrlKey || event.metaKey || (event.target as HTMLElement).closest("input, select, textarea, [contenteditable], [data-focus-chart], [data-focus-tools], [data-inline-media], video, audio")) return;
       const step = ["ArrowDown", "j"].includes(event.key) ? 1 : ["ArrowUp", "k"].includes(event.key) ? -1 : 0;
       if (!step) return;
       const middle = innerHeight / 2;
@@ -95,33 +108,50 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entryIds]);
 
+  const siteNavigation = <div className={styles.siteNavigation}>
+    <Link href="/" className={styles.brand} aria-label="ajetsfan">ajets<span>fan</span></Link>
+    <a href="#more" className={`${styles.shortcut} ${styles.browse}`} aria-haspopup="dialog" aria-expanded={open === "sections"} aria-controls="focus-sections" onClick={(event) => openDialog(event, directory.current, "sections")}>Browse sections</a>
+  </div>;
+  const findGame = (onClick?: (event: MouseEvent<HTMLAnchorElement>) => void) =>
+    <Link href="/find" className={styles.findGame} aria-current={pathname === "/find" ? "page" : undefined} onClick={onClick}>Find a game</Link>;
+  const sectionLinks = (label: string, onClick?: (event: MouseEvent<HTMLAnchorElement>) => void) =>
+    <nav aria-label={label} className={styles.sections}><ul>{SECTIONS.map((section) => <li key={section.href}>
+      <Link href={section.href} onClick={onClick} pendingHint={!onClick} aria-current={current(section.href)}><b>{section.label}</b><span>{section.note}</span></Link>
+    </li>)}</ul></nav>;
+  const momentLinks = (moments: FocusEntry[], inDialog = false) =>
+    <ol>{moments.map((entry, at) => <li key={entry.id}>
+      <a href={`#${entry.id}`} aria-current={at === active ? "true" : undefined} onClick={inDialog ? (event) => goTo(event, entry.id) : undefined}><span>{entry.title}</span><b>{entry.answer}</b></a>
+    </li>)}</ol>;
   return <div className={`${styles.app} ${className}`} style={style} data-focus-page={page}>
     <header className={styles.bar}>
-      <Link href="/" className={styles.brand}>ajets<span>fan</span></Link>
-      <span className={styles.progress} aria-hidden="true">{index.map((entry, at) => <i key={entry.id} data-on={at === active ? "" : undefined} />)}</span>
-      <a href="#more" role="button" className={styles.menu} aria-haspopup="dialog" aria-expanded={open} aria-controls="focus-menu" onClick={openMenu}>Menu</a>
+      {siteNavigation}
+      {entries.length ? <a href="#focus-page-index" className={`${styles.shortcut} ${styles.pageShortcut}`} aria-haspopup="dialog" aria-expanded={open === "moments"} aria-controls="focus-moments" onClick={(event) => openDialog(event, pageIndex.current, "moments")}>On this page</a> : null}
     </header>
-    <dialog ref={sheet} id="focus-menu" className={styles.sheet} aria-labelledby="focus-menu-heading" onClose={() => setOpen(false)}
-      onClick={(event) => { if (event.target === event.currentTarget) closeMenu(); }}>
-      <div className={styles.sheetHead}><h2 id="focus-menu-heading">Menu</h2><button type="button" className={styles.sheetClose} onClick={closeMenu}>Close</button></div>
+    <aside id="focus-page-index" className={styles.rail} tabIndex={-1}>
+      {siteNavigation}
       {context}
-      {entries.length ? <nav aria-label="This page"><p className={styles.label}>On this page</p><ol className={styles.sheetMoments}>{entries.map((entry, at) => <li key={entry.id}>
-        <a href={`#${entry.id}`} aria-current={at === active ? "true" : undefined} onClick={(event) => goTo(event, entry.id)}><span>{entry.title}</span><b>{entry.answer}</b></a>
-      </li>)}</ol></nav> : null}
-      <nav aria-label="All sections" className={styles.sections}><p className={styles.label}>Sections</p><ul>{SECTIONS.map((section) => <li key={section.href}><Link href={section.href} onClick={closeMenu} aria-current={current(section.href)}><b>{section.label}</b><span>{section.note}</span></Link></li>)}</ul></nav>
-    </dialog>
-    <aside className={styles.rail}>
-      <Link href="/" className={styles.brand}>ajets<span>fan</span></Link>
-      {context}
-      <nav aria-label="On this page"><p className={rail.label}>On this page</p><ol>{index.map((entry, at) => <li key={entry.id}><a href={`#${entry.id}`} aria-current={at === active ? "true" : undefined}><span>{entry.title}</span><b>{entry.answer}</b></a></li>)}</ol></nav>
+      <nav className={styles.sheetMoments} aria-label="On this page"><p className={rail.label}>On this page</p>{momentLinks(index)}</nav>
       {checkedAt ? <p className={styles.note}>Results checked {on(checkedAt, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} ET.</p> : null}
     </aside>
+    <dialog ref={directory} id="focus-sections" className={styles.sheet} aria-labelledby="focus-sections-heading" onClose={(event) => { if (!event.currentTarget.open) setOpen((kind) => kind === "sections" ? null : kind); }}
+      onClick={(event) => { if (event.target === event.currentTarget) directory.current?.close(); }}>
+      <div className={styles.sheetHead}><h2 id="focus-sections-heading">Browse sections</h2><button type="button" className={styles.sheetClose} onClick={() => directory.current?.close()}>Close</button></div>
+      {findGame(followSection)}
+      {sectionLinks("All sections", followSection)}
+    </dialog>
+    {entries.length ?
+      <dialog ref={pageIndex} id="focus-moments" className={styles.sheet} aria-labelledby="focus-moments-heading" onClose={(event) => { if (!event.currentTarget.open) setOpen((kind) => kind === "moments" ? null : kind); }}>
+        <div className={styles.sheetHead}><h2 id="focus-moments-heading">On this page</h2><button type="button" className={styles.sheetClose} onClick={() => pageIndex.current?.close()}>Close</button></div>
+        {context}
+        <nav className={styles.sheetMoments} aria-labelledby="focus-moments-heading">{momentLinks(entries, true)}</nav>
+      </dialog> : null}
     <main ref={stack} id="main" className={styles.stack}>
       {children}
-      <section id="more" className={styles.moment} aria-labelledby="more-heading" data-focus-moment="more">
+      <section id="more" className={styles.moment} aria-labelledby="more-heading" data-focus-moment="more" tabIndex={-1}>
         <p className={styles.label}>ajetsfan</p>
         {entries.length ? <h2 id="more-heading" className={styles.say}>Everything else.</h2> : <h1 id="more-heading" className={styles.say}>Everything else.</h1>}
-        <nav aria-label="Site sections" className={styles.sections}><ul>{SECTIONS.map((section) => <li key={section.href}><Link href={section.href} pendingHint aria-current={current(section.href)}><b>{section.label}</b><span>{section.note}</span></Link></li>)}</ul></nav>
+        {findGame()}
+        {sectionLinks("Site sections")}
         {checkedAt ? <p className={styles.note}>Results checked {on(checkedAt, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })} ET.</p> : null}
       </section>
     </main>

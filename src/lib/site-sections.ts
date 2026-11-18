@@ -1,5 +1,5 @@
 /** Pages rebuilt as focus views; they carry their own navigation instead of the site header and footer. */
-export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/legends", "/film-room", "/media", "/seasons", "/morgue", "/discover", "/stories", "/history", "/history/trades", "/history/quarterbacks", "/puzzle", "/how-made"];
+export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/legends", "/film-room", "/media", "/seasons", "/morgue", "/find", "/discover", "/stories", "/history", "/history/trades", "/history/quarterbacks", "/puzzle", "/how-made"];
 /** Every published destination shares the focus frame, including its detail pages. */
 export const isFocusRoute = (pathname: string) => FOCUS_ROUTES.includes(pathname) || pathname === "/stories/monday-night-miracle" || /^\/seasons\/\d{4}(?:\/guide)?$/.test(pathname) || pathname.startsWith("/games/") || pathname.startsWith("/players/") || pathname.startsWith("/legends/");
 

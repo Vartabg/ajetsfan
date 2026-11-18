@@ -11,6 +11,7 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 - **The name is ajetsfan** (PR #61), written as "ajets" plus a green "fan" where the type allows it.
 - **Colors**: the focus palette in `src/components/Focus.module.css` (`--bg`, `--ink`, `--quiet`, `--green`, `--faint`), with era greens from `src/lib/jets-eras.ts` used sparingly.
 - **Current week and season on Home** (2026-11-16): the front page shows only this week and this season — scores, schedule, standings, player stats, team news and current coverage. Archive games, legends, drawn plays, puzzles and history stay in their own sections when fans go looking for them.
+- **Finding games and sections** (2026-11-17): place Browse sections beside the name. Keep the page index available independently. A fan can search by opponent and season, then open the game and its related stories or film. On Home, connect the latest game's chart to the recorded turning point and the next kickoff to a measured matchup.
 
 ## Rejected
 

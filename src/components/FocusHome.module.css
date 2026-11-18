@@ -33,3 +33,5 @@
 
 @media (min-width: 1024px) { .chart { height: clamp(240px, 44svh, 520px); } }
 @media (max-width: 1023px) and (max-height: 520px) and (orientation: landscape) { .chart { height: 62svh; } }
+.chartLabels { min-height: 44px; padding: 0 14px; border: 1px solid var(--quiet); border-radius: 999px; background: transparent; color: var(--ink); font: 500 14px/1.2 var(--text); cursor: pointer; }
+.chartLabels:hover, .chartLabels[aria-pressed="true"] { background: var(--raise); }

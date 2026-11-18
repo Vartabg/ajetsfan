@@ -44,9 +44,10 @@ async function expectCurrentSection(page: Page, href: string) {
 }
 
 for (const width of [320, 390]) {
-  test(`the focus menu stays available after scrolling and has 44px targets at ${width}px`, async ({ page }) => {
+  test(`both navigation shortcuts stay available after scrolling and have 44px targets at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/history", { waitUntil: "domcontentloaded" });
+    if (width === 320) await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
     const navigation = page.getByRole("navigation", { name: "Site sections" });
     await expect(navigation.getByRole("link")).toHaveCount(SECTIONS.length);
     await expectTouchTargets(navigation.getByRole("link"));
@@ -57,37 +58,98 @@ for (const width of [320, 390]) {
     await expect.poll(async () => (await bar.boundingBox())!.y).toBeGreaterThanOrEqual(0);
     await expect.poll(async () => (await bar.boundingBox())!.y).toBeLessThanOrEqual(2);
     await expect(bar).toBeInViewport({ ratio: 1 });
-    const opener = page.getByRole("button", { name: "Menu", exact: true });
-    await expectTouchTargets(opener);
+    const browse = bar.getByRole("link", { name: "Browse sections", exact: true });
+    const onThisPage = bar.getByRole("link", { name: "On this page", exact: true });
+    await expectTouchTargets(bar.getByRole("link"));
+    expect(await bar.getByRole("link").evaluateAll((links) => new Set(links.map((link) => link.getBoundingClientRect().top)).size)).toBe(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 
     const before = await page.evaluate(() => scrollY);
     // Click the fixed on-screen hit area without asking Playwright to scroll the sticky bar.
-    const button = (await opener.boundingBox())!;
-    await page.mouse.click(button.x + button.width / 2, button.y + button.height / 2);
-    const menu = page.getByRole("dialog", { name: "Menu" });
-    await expect(menu).toBeVisible();
-    await expect(opener).toHaveAttribute("aria-expanded", "true");
-    const menuSections = menu.getByRole("navigation", { name: "All sections" }).getByRole("link");
+    const opener = (await browse.boundingBox())!;
+    await page.mouse.click(opener.x + opener.width / 2, opener.y + opener.height / 2);
+    const directory = page.getByRole("dialog", { name: "Browse sections" });
+    await expect(directory).toBeVisible();
+    await expect(browse).toHaveAttribute("aria-expanded", "true");
+    const search = directory.getByRole("link", { name: "Find a game" });
+    await expect(search).toBeInViewport({ ratio: 1 });
+    await expectTouchTargets(search);
+    const menuSections = directory.getByRole("navigation", { name: "All sections" }).getByRole("link");
     await expect(menuSections).toHaveCount(SECTIONS.length);
+    await expect(menuSections.filter({ hasText: /^History/ })).toHaveAttribute("aria-current", "page");
     await expectTouchTargets(menuSections);
-    await expectTouchTargets(menu.getByRole("button", { name: "Close", exact: true }));
+    await expectTouchTargets(directory.getByRole("button", { name: "Close", exact: true }));
+    expect(await directory.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
     await page.keyboard.press("Escape");
-    await expect(menu).toBeHidden();
-    await expect(opener).toHaveAttribute("aria-expanded", "false");
-    await expect(opener).toBeFocused();
+    await expect(directory).toBeHidden();
+    await expect(browse).toHaveAttribute("aria-expanded", "false");
+    await expect(browse).toBeFocused();
     expect(await page.evaluate(() => scrollY)).toBe(before);
 
-    await page.mouse.click(button.x + button.width / 2, button.y + button.height / 2);
-    const firstMoment = menu.getByRole("navigation", { name: "This page" }).getByRole("link").first();
+    await page.keyboard.press("Tab");
+    await expect(onThisPage).toBeFocused();
+    await page.keyboard.press("Enter");
+    const index = page.getByRole("dialog", { name: "On this page" });
+    const firstMoment = index.getByRole("navigation", { name: "On this page" }).getByRole("link").first();
     await expectTouchTargets(firstMoment);
-    await firstMoment.click();
-    await expect(menu).toBeHidden();
+    await firstMoment.press("Enter");
+    await expect(index).toBeHidden();
     await expect(page).toHaveURL(/#fan-stand$/);
+    await expect(page.locator("#fan-stand")).toBeFocused();
     await expect(page.getByRole("heading", { level: 1 })).toBeInViewport({ ratio: 1 });
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThanOrEqual(56);
   });
 }
+
+test("the desktop directory opens beside the page index and puts game search first", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 860 });
+  await page.goto("/team/roster");
+  const rail = page.locator("aside").filter({ has: page.getByRole("navigation", { name: "On this page" }) });
+  await rail.getByRole("link", { name: "ajetsfan" }).focus();
+  await page.keyboard.press("Tab");
+  const browse = rail.getByRole("link", { name: "Browse sections" });
+  await expect(browse).toBeFocused();
+  await page.keyboard.press("Enter");
+  const directory = page.getByRole("dialog", { name: "Browse sections" });
+  await expect(directory.getByRole("link", { name: /^Team / })).toHaveAttribute("aria-current", "page");
+  const close = directory.getByRole("button", { name: "Close", exact: true });
+  await expect(close).toBeFocused();
+  await page.keyboard.press("Tab");
+  const search = directory.getByRole("link", { name: "Find a game" });
+  await expect(search).toBeInViewport({ ratio: 1 });
+  await expect(search).toBeFocused();
+  await expect(search).toHaveAttribute("href", "/find");
+  await close.click();
+  await expect(directory).toBeHidden();
+  await expect(browse).toBeFocused();
+  await page.keyboard.press("Enter");
+  await search.press("Enter");
+  await expect(page).toHaveURL(/\/find$/);
+  await expect(page.getByRole("searchbox", { name: "Search games" })).toBeVisible();
+});
+
+test("without JavaScript both phone shortcuts open their fragment destinations", async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 844 }, baseURL });
+  try {
+    const page = await context.newPage();
+    await page.goto("/history");
+    await page.getByRole("link", { name: "On this page", exact: true }).click();
+    await expect(page).toHaveURL(/#focus-page-index$/);
+    const index = page.getByRole("navigation", { name: "On this page", exact: true });
+    await expect(index).toBeVisible();
+    await index.locator('a[href="#fan-stand"]').click();
+    await expect(page).toHaveURL(/#fan-stand$/);
+    await expect(index).toBeHidden();
+    await page.getByRole("link", { name: "Browse sections" }).click();
+    await expect(page).toHaveURL(/#more$/);
+    const fallback = page.locator("#more");
+    await expect(fallback.getByRole("link", { name: "Find a game" })).toHaveAttribute("href", "/find");
+    await fallback.getByRole("link", { name: /^Game Day/ }).click();
+    await expect(page).toHaveURL(/\/game-day$/);
+  } finally {
+    await context.close();
+  }
+});
 
 test("site navigation updates the current section after route changes and browser back", async ({ page }) => {
   await page.goto("/history", { waitUntil: "domcontentloaded" });

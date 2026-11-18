@@ -69,6 +69,8 @@ export async function loadGames({ live = true } = {}): Promise<Game[]> {
 }
 
 export type CurvePoint = {
+  playId?: number;
+  meaningful?: boolean;
   q: number;
   t: number | null;
   wp: number;

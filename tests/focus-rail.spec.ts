@@ -24,11 +24,11 @@ for (const view of [
   });
 }
 
-test("the phone menu carries the same back link and page name", async ({ page }) => {
+test("the phone page index carries the same back link and page name", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/seasons/2026");
-  await page.getByRole("button", { name: "Menu" }).click();
-  const sheet = page.getByRole("dialog", { name: "Menu" });
+  await page.getByRole("link", { name: "On this page", exact: true }).click();
+  const sheet = page.getByRole("dialog", { name: "On this page" });
   await expect(sheet.getByRole("link", { name: "Back to Seasons" })).toHaveAttribute("href", "/seasons");
   await expect(sheet.locator("p").filter({ hasText: /^2026 season$/ })).toBeVisible();
 });
