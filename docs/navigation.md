@@ -17,6 +17,7 @@ their filters and place intact.
 | `/seasons/[year]` | One selected view: games, rankings, tracking, moments or coverage |
 | `/stories` | Monday Night Miracle three-part journey invitation (with browser-only save/resume) and interactive visual game timelines |
 | `/stories/monday-night-miracle` | Three connected steps: the Miami comeback, Elliott’s illustrated catch, and comparison with Cleveland; explicit browser-only save and share controls |
+| `/find` | Find a published Jets game by opponent, season or recorded play and open its report, available visual story or Film Room material |
 | `/discover` | Same-score games with different paths, improbable finishes and recorded play changes; scoped findings with linked evidence |
 | `/history` | Classic moments, rivalry records, Jets games on today’s date, and Jets legends |
 | `/history/trades` | Every recorded Jets trade, each pick followed to what it became |
@@ -24,6 +25,8 @@ their filters and place intact.
 | `/film-room` | Focus view: the six recorded plays, one moment each, then the chalkboard and the sourced game record |
 | `/morgue` | Explore ranked finishes and the interactive game tape |
 | `/puzzle` | The daily puzzle: guess the recorded game from its clues |
+
+Browse sections opens the site directory from the wordmark area. On this page opens the local index on phones. The desktop index stays visible. The last section at `#more` remains directly addressable.
 
 Keep global navigation labels stable and mark the parent destination on detail
 pages. Every published route and recovery page owns `FocusShell`; the root layout mounts no legacy masthead or footer. Roster, stats and news keep Team tabs (`TeamFocusNavigation`) within that frame. Season controls sit

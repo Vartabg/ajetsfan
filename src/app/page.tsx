@@ -1,3 +1,4 @@
+import { cache } from "react";
 import FocusHome from "@/components/FocusHome";
 import FocusMoment from "@/components/FocusMoment";
 import FootballLiveCard, { footballOpponent, showFootballMoment } from "@/components/football-live-card";
@@ -8,7 +9,7 @@ import { selectLead } from "@/lib/current";
 import { buildFocus } from "@/lib/focus";
 import { dayOf } from "@/lib/focus-format";
 import { loadCoverage } from "@/lib/load-coverage";
-import { loadCurrent, loadCurve, loadGames } from "@/lib/load-games";
+import { loadAnalytics, loadCurrent, loadCurve, loadGames } from "@/lib/load-games";
 import { loadMediaCollection, scheduleStaleMediaRecovery } from "@/lib/load-media";
 import { loadFootballLive } from "@/lib/load-football";
 import { editionClock } from "@/lib/live-plays";
@@ -16,6 +17,9 @@ import { pageMetadata } from "@/lib/site";
 import { buildTeamFocus } from "@/lib/team-focus";
 import { focusFonts } from "./focus-fonts";
 import shared from "@/components/Focus.module.css";
+
+// The server and hydrating client start from the same minute before the browser clock takes over.
+const requestMinute = cache(() => Math.floor(Date.now() / 60_000) * 60_000);
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 180;
@@ -25,13 +29,13 @@ export const metadata = pageMetadata({
 });
 
 export default async function Home() {
-  const [games, snapshot, mediaCollection, live, coverage] = await Promise.all([
-    loadGames(), loadCurrent(), loadMediaCollection(), loadFootballLive(), loadCoverage(),
+  const [games, snapshot, mediaCollection, live, coverage, analytics] = await Promise.all([
+    loadGames(), loadCurrent(), loadMediaCollection(), loadFootballLive(), loadCoverage(), loadAnalytics().catch(() => null),
   ]);
   await scheduleStaleMediaRecovery();
   const lead = selectLead(games, snapshot);
   const curve = lead.kind === "current" && lead.analysisStatus === "ready" && lead.analysis ? await loadCurve(lead.analysis.id) : [];
-  const data = buildFocus({ games, snapshot, curve, media: mediaCollection });
+  const data = buildFocus({ games, snapshot, curve, media: mediaCollection, analytics });
   const team = buildTeamFocus(coverage, snapshot?.season ?? null);
 
   const candidate = live && showFootballMoment(live, data.last?.id) && (!snapshot || live.featured?.season === snapshot.season) ? live.featured : null;
@@ -80,6 +84,6 @@ export default async function Home() {
     content: <TeamNewsMoment news={team.news} first={firstId === "headlines"} />,
   } : undefined;
 
-  return <FocusHome data={data} firstId={firstId} showNext={showNext} livePlacement={livePlacement}
+  return <FocusHome data={data} renderedAt={requestMinute()} firstId={firstId} showNext={showNext} livePlacement={livePlacement}
     liveMoment={liveMoment} leadersMoment={leadersMoment} newsMoment={newsMoment} className={focusFonts} />;
 }

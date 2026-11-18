@@ -46,7 +46,7 @@ test("Back returns to the ledger with the year the reader opened", async ({ page
   await page.locator("#trades-2018 > summary").click();
   await expect(page.locator("#trades-2018")).toHaveAttribute("open", "");
   await page.locator('[data-trade="1284"]').scrollIntoViewIfNeeded();
-  await page.getByRole("button", { name: "Menu", exact: true }).click();
+  await page.getByRole("link", { name: "Browse sections", exact: true }).click();
   await page.getByRole("dialog").getByRole("link", { name: /^History/ }).click();
   await expect(page).toHaveURL(/\/history$/);
   await page.goBack();

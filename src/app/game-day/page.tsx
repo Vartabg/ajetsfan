@@ -31,7 +31,7 @@ export const metadata = pageMetadata({ path: "/game-day", title: "Jets Game Day 
 export const dynamic = "force-dynamic";
 
 export default async function GameDayPage() {
-  const [games, snapshot, rawAnalytics, history, live] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics(), loadLeagueHistory(), loadFootballLive()]);
+  const [games, snapshot, rawAnalytics, history, live] = await Promise.all([loadGames(), loadCurrent(), loadAnalytics().catch(() => null), loadLeagueHistory(), loadFootballLive()]);
   const analytics = rawAnalytics?.season === snapshot?.season ? rawAnalytics : null;
   const next = nextScheduledGame(snapshot);
   const summary = currentSeasonSummary(snapshot);
@@ -71,7 +71,7 @@ export default async function GameDayPage() {
       actions={<Link href="/team/stats" className={shared.go}>Game &amp; player numbers <span aria-hidden="true">→</span></Link>}>
       <figure className={shared.shape}>{liveGame.state === "live" ? <LivePlays event={liveGame.eventId} nickname={footballOpponent(liveGame)} us={liveGame.jetsScore} them={liveGame.oppScore} clock={editionClock(liveGame)} />
         : <FootballLiveCard feed={live} id="game-day-football-score" />}</figure>
-    </FocusMoment> : nextGame && next ? <FocusNext id="kickoff" first next={nextGame} wins={summary.wins} losses={summary.losses} ties={summary.ties} stakes={false} go={{ href: "#ticket", label: "Make your call" }} />
+    </FocusMoment> : nextGame && next ? <FocusNext id="kickoff" first next={nextGame} go={{ href: "#ticket", label: "Make your call" }} />
       : <FocusMoment id="kickoff" first label="Next game" heading="No game on the schedule."><p className={shared.caption}>{snapshot ? "No remaining fixture is listed in this edition." : "The next fixture is unavailable in this edition."}</p></FocusMoment>}
 
     {next && snapshot ? <FocusMoment id="briefing" hosts>

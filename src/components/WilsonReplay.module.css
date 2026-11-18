@@ -40,7 +40,8 @@
 :global(html):has(.studioShell){scroll-snap-type:none;scroll-padding-top:44px}
 .studioShell[data-focus-page]{display:block}
 .studioShell[data-focus-page]>aside{display:none}
-.studioShell[data-focus-page]>header{display:flex;height:44px;padding:0 16px;border-bottom:1px solid var(--faint)}
+.studioShell[data-focus-page]>aside:target{display:grid;position:static;height:auto;gap:12px;padding:16px}
+.studioShell[data-focus-page]>header{display:flex;min-height:44px;height:auto;box-shadow:inset 0 -1px var(--faint)}
 .page{max-width:none;padding:10px 12px 28px}
 .titlebar{display:flex;align-items:center;justify-content:space-between;gap:10px 24px;min-height:62px;margin-bottom:8px}
 .heading{margin:0;min-width:0}

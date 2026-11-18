@@ -11,6 +11,15 @@ export type PreviewQuestion = {
   evidence: string;
 };
 
+/** Shared by the kickoff link and the corresponding measured unit on Game Day. */
+export function unitHeading(id: PreviewQuestion["id"], opponent: string) {
+  if (id === "passing") return "When the Jets throw";
+  if (id === "rushing") return "When the Jets run";
+  return `When ${opponent} throw${opponent.startsWith("the ") ? "" : "s"}`;
+}
+
+export const unitAnchor = (gameId: string, id: PreviewQuestion["id"]) => `matchup-${gameId}-${id}`;
+
 type Split = "pass" | "rush";
 
 const footballNames: Record<string, string> = {
