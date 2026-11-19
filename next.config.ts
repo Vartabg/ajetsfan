@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import path from "node:path";
+import { buildSecurityHeaders } from "./src/lib/security-headers.mjs";
 // Editorial and roster images retain their fixed publisher paths. Media pictures use the local,
 // versioned catalog route, so a feed can add any number of exact recorded pictures.
 const publisherPatterns = [
@@ -12,6 +13,13 @@ const publisherPatterns = [
 ];
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  async headers() {
+    return buildSecurityHeaders({
+      isProduction: process.env.NODE_ENV === "production",
+      isVercel: Boolean(process.env.VERCEL),
+    });
+  },
   // The public snapshot URL must use the same runtime edition as pages and health.
   rewrites: () => ({ beforeFiles: [
     { source: "/data/media.json", destination: "/api/media" },
