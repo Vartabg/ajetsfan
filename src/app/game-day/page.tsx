@@ -66,6 +66,7 @@ export default async function GameDayPage() {
   ].filter((entry): entry is FocusEntry => entry !== null);
 
   return <FocusShell page="game-day" entries={entries} checkedAt={snapshot?.checkedAt ?? null} className={focusFonts}>
+    <div className={styles.followEntrance}><a href="/game-day/follow" className={shared.go}>Watching on delay? Follow at my TV clock <span aria-hidden="true">→</span></a></div>
     {liveGame && live ? <FocusMoment id="kickoff" first label={`${live.status === "retained" ? "Last verified game update" : liveGame.state === "live" ? "Live game" : "Latest game update"} · ${liveGame.seasonType === "POST" ? "Playoffs" : `Week ${liveGame.week}`}`}
       heading={<>Jets {liveGame.atHome ? "vs" : "at"} {footballOpponent(liveGame)}.</>}
       actions={<Link href="/team/stats" className={shared.go}>Game &amp; player numbers <span aria-hidden="true">→</span></Link>}>

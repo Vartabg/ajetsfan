@@ -36,7 +36,18 @@ const nextConfig: NextConfig = {
     "/*": ["./public/data/*.json", "./public/data/drives/*.json"],
     // Player pages read every season's player file (readdir), which tracing cannot follow on its own.
     "/players/*": ["./public/data/players/*.json"],
+    "/plays": ["./public/data/snaps/*.json.gz"],
+    "/plays/*": ["./public/data/snaps/*.json.gz"],
+    "/games/*": ["./public/data/snaps/*.json.gz"],
+    "/find": ["./public/data/snaps/*.json.gz"],
+    "/stories": ["./public/data/snaps/*.json.gz"],
     "/api/cron/analysis": ["./node_modules/@duckdb/node-bindings-linux-x64/**/*", "./public/data/curves/*.json"],
+  },
+  // The generic football snapshot fallback also traces subdirectories. Only routes
+  // that actually open a snap season need the compressed play-by-play archive.
+  outputFileTracingExcludes: {
+    "/{api,discover,film-room,game-day,history,how-made,legends,media,morgue,players,puzzle,seasons,team}{,/**}": ["./public/data/snaps/*.json.gz"],
+    "/**/opengraph-image": ["./public/data/snaps/*.json.gz"],
   },
   images: {
     formats: ["image/avif", "image/webp"],

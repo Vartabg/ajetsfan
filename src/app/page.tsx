@@ -15,6 +15,9 @@ import { loadFootballLive } from "@/lib/load-football";
 import { editionClock } from "@/lib/live-plays";
 import { pageMetadata } from "@/lib/site";
 import { buildTeamFocus } from "@/lib/team-focus";
+import { loadSnapGame } from "@/lib/load-snaps";
+import { featuredSnap, snapPath, snapTime } from "@/lib/snap-explorer";
+import { snapHeadline } from "@/components/SnapEvidence";
 import { focusFonts } from "./focus-fonts";
 import shared from "@/components/Focus.module.css";
 
@@ -36,6 +39,15 @@ export default async function Home() {
   const lead = selectLead(games, snapshot);
   const curve = lead.kind === "current" && lead.analysisStatus === "ready" && lead.analysis ? await loadCurve(lead.analysis.id) : [];
   const data = buildFocus({ games, snapshot, curve, media: mediaCollection, analytics });
+  if (data.last?.turningPoint && lead.kind === "current" && lead.analysis) {
+    const archive = await loadSnapGame(lead.analysis.id);
+    const play = featuredSnap(archive, lead.analysis.keyPlay);
+    if (play && archive) {
+      const label = snapHeadline(archive, play);
+      data.last.turningPoint.snap = { href: snapPath(archive.id, play.key),
+        label: label.startsWith("The play at ") ? "Open " + snapTime(play) + " play" : label.replace(/\.$/, "") };
+    }
+  }
   const team = buildTeamFocus(coverage, snapshot?.season ?? null);
 
   const candidate = live && showFootballMoment(live, data.last?.id) && (!snapshot || live.featured?.season === snapshot.season) ? live.featured : null;

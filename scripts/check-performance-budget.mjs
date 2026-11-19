@@ -21,6 +21,10 @@ export const performanceBudgets = [
   { route: "/legends", file: "legends", html: 26, js: 200 },
   { route: "/legends/curtis-martin", file: "legends/curtis-martin", html: 14, js: 200 },
   { route: "/game-day", file: "game-day", html: 28, js: 200 },
+  // Readers ship one drive and its probability prefix. The season archive stays on the server.
+  { route: "/game-day/follow", file: "game-day/follow", html: 12, js: 200 },
+  { route: "/plays", file: "plays", html: 14, js: 200 },
+  { route: "/plays/2022_02_NYJ_CLE/4199", file: "plays/2022_02_NYJ_CLE/4199", html: 15, js: 200 },
   { route: "/stories", file: "stories", html: 18, js: 200 },
   // Three-step journey measured 11.1 KiB HTML / 191.1 KiB initial JS; the other stages are smaller.
   { route: "/stories/monday-night-miracle", file: "stories/monday-night-miracle", html: 15, js: 205 },

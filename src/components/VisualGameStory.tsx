@@ -65,6 +65,7 @@ function StoryExperience({ stories }: { stories: VisualStory[] }) {
   const selection = parseVisualStorySelection(search, stories)!;
   const { story, index } = selection;
   const selected = story.points[index];
+  const selectedSnap = story.snapKeys?.[index];
   const nextPoint = story.points[index + 1];
   const currentChapter = [...story.chapters].reverse().find((chapter) => chapter.index <= index) ?? story.chapters[0];
   const exactChapter = story.chapters.find((chapter) => chapter.index === index);
@@ -224,6 +225,7 @@ function StoryExperience({ stories }: { stories: VisualStory[] }) {
       <details className={styles.inspector}><summary className="disclosure"><span className="when-closed">Source play and methods</span><span className="when-open">Hide source play and methods</span></summary><div><p className={styles.sourceLabel}>Original published play description</p><p>{selected.desc || "Play description unavailable."}</p><p className={styles.sourceReadout}>Recorded clock: {clock || "unavailable"} · Before this play: {pct(selected.wp)} · Reported change: {wpaLabel(selected.d)}</p><p className={styles.sourceReadout}>This is a visualization of recorded play-by-play and model estimates. The final score is confirmed separately.</p><a href={`/data/curves/${story.id}.json`} target="_blank" rel="noreferrer">Published curve data <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a></div></details>
       <div className={styles.share}><button type="button" onClick={copyMoment}>Copy this moment <span aria-hidden="true">↗</span></button><p role="status">{copyStatus}</p>{copyFallback ? <label className={styles.copyFallback}>Moment link<input type="text" readOnly value={copyFallback} onFocus={(event) => event.currentTarget.select()} /></label> : null}</div>
     </div>
-    <footer className={styles.source}><p>Recorded play-by-play: nflverse · rounded model estimates</p><div><Link href={`/games/${story.id}`}>Complete game evidence <span aria-hidden="true">↗</span></Link><a href={story.source.url} target="_blank" rel="noreferrer">{story.source.label} <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a><Link href={`/film-room?play=${story.id === "2022_02_NYJ_CLE" ? "wilson-cleveland" : "elliott-miami"}`}>Study the source film <span aria-hidden="true">↗</span></Link><Link href="/how-made">Methods &amp; definitions <span aria-hidden="true">↗</span></Link></div></footer>
+    {selectedSnap && <Link href={`/plays/${story.id}/${selectedSnap}`}>Open this recorded play</Link>}
+    <footer className={styles.source}><p>Recorded play-by-play: nflverse · rounded model estimates</p><div><Link href={`/games/${story.id}`}>Complete game evidence <span aria-hidden="true">↗</span></Link><a href={story.source.url} target="_blank" rel="noreferrer">{story.source.label} <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a><Link href={`/film-room?play=${story.id === "2022_02_NYJ_CLE" ? "wilson-cleveland" : "elliott-miami"}`}>{story.id === "2022_02_NYJ_CLE" ? "Related film · Wilson’s touchdown" : "Related film · Elliott’s touchdown"} <span aria-hidden="true">↗</span></Link><Link href="/how-made">Methods &amp; definitions <span aria-hidden="true">↗</span></Link></div></footer>
   </section>;
 }

@@ -79,7 +79,7 @@ export default function FootballRefresh({ initialRevision }: { initialRevision?:
   useEffect(() => {
     // The Media Room owns its players and selection. Football updates never
     // cause a media page to re-render underneath an open recording.
-    if (pathname === "/media" || pathname.startsWith("/media/")) return;
+    if (pathname === "/media" || pathname.startsWith("/media/") || pathname.startsWith("/plays/") || pathname === "/game-day/follow") return;
     let stopped = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
     let retry: ReturnType<typeof setTimeout> | null = null;

@@ -1,0 +1,32 @@
+.choices, .transport, .clockForm { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.choices a, .transport a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 6px 15px; border: 1px solid var(--faint); border-radius: var(--round); text-decoration: none; font-size: 15px; }
+.choices a[aria-current="true"], .transport .advance { background: var(--green); border-color: var(--green); color: var(--bg); }
+.choices a:hover, .transport a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%),1fr)); align-items: end; gap: 12px; max-width: 760px; }
+.rules > div, .clockForm > div { display: grid; gap: 4px; font-size: 14px; font-weight: 600; }
+.rules select, .clockForm select, .clockForm input, .share input { min-width: 0; min-height: 44px; padding: 6px 10px; background: var(--bg); color: var(--ink); border: 1px solid var(--quiet); border-radius: 12px; font: inherit; }
+.clockForm { align-items: end; margin-block: 8px; }
+.clockForm input { width: 8rem; }
+.clockButton { min-height: 44px; padding: 6px 15px; border: 0; border-radius: var(--round); color: var(--bg); background: var(--green); font: inherit; font-size: 15px; cursor: pointer; }
+.results { display: grid; gap: 12px; margin-top: 12px; scroll-margin-top: 70px; }
+.results h3, .results p, .account, .drive p { margin: 0; }
+.resultList, .driveList { margin: 0; padding: 0; list-style: none; }
+.resultList li, .driveList li { border-top: 1px solid var(--faint); }
+.resultList a { display: grid; gap: 2px; padding: 12px 0; text-underline-offset: 4px; }
+.resultList span { font-weight: 600; }
+.resultList small, .driveList small, .context { color: var(--quiet); font-size: 14px; }
+.account { max-width: 58ch; font-size: clamp(17px, 2vw, 21px); }
+.score { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 20px; padding-block: 8px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.score span { display: flex; align-items: baseline; gap: 8px; }
+.score strong { font-size: clamp(38px, 6vw, 68px); line-height: 1.05; }
+.trace { width: min(100%, 680px); margin: 8px 0; }
+.trace svg { width: 100%; height: 112px; display: block; }
+.trace figcaption, .drive summary { font-size: 15px; }
+.trace figcaption { color: var(--quiet); }
+.drive summary, .jump summary { cursor: pointer; width: fit-content; padding: 9px 0; min-height: 44px; font-weight: 600; }
+.driveList li { padding: 8px 0; max-width: 65ch; }
+.share { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.share button { min-height: 44px; padding: 6px 12px; border: 0; border-radius: var(--round); color: var(--green); background: var(--tint); font: inherit; font-size: 15px; cursor: pointer; }
+.share input { width: min(24rem, 100%); }
+.clockChoices { padding-inline-start: 1.25em; }
+.clockChoices a { display: inline-flex; align-items: center; min-height: 44px; text-underline-offset: 4px; }

@@ -29,6 +29,8 @@ import shared from "@/components/Focus.module.css";
 import { buildVisualStory } from "@/lib/visual-story";
 import { buildFilmCases } from "@/lib/film-room";
 import GameEvidence from "@/components/GameEvidence";
+import { featuredSnap, snapPath } from "@/lib/snap-explorer";
+import { loadSnapGame } from "@/lib/load-snaps";
 import PressChart from "@/components/PressChart";
 import SeasonReturn from "@/components/SeasonReturn";
 import { focusFonts } from "../../focus-fonts";
@@ -67,7 +69,8 @@ export default async function GamePage({ params }: Props) {
   const mediaCollection = await loadMediaCollection();
   const memory = fanMemoryForGame(game);
   const board = game.outcome === "win" ? "miracle" : "heartbreak";
-  const [rawPoints, analytics, drives] = await Promise.all([loadCurve(game.id), loadAnalytics(), loadGameDrives(game.season, game.id)]);
+  const [rawPoints, analytics, drives, archive] = await Promise.all([loadCurve(game.id), loadAnalytics(), loadGameDrives(game.season, game.id), loadSnapGame(game.id)]);
+  const snap = featuredSnap(archive, game.keyPlay);
   const jetsDrives = drives?.filter((drive) => drive.jets) ?? [];
   const statistics = analytics?.season === game.season ? analytics.games.find((item) => item.id === game.id) ?? null : null;
   const points = rawPoints.filter((point) => Number.isFinite(point.wp) && point.wp >= 0 && point.wp <= 1);
@@ -146,7 +149,8 @@ export default async function GamePage({ params }: Props) {
     </FocusMoment> : null}
 
     <FocusMoment id="play" label={`From the play-by-play · ${clock}`} heading={<>{keyPlayEvidenceLabel(game)}. <em>{wpaLabel(game.keyPlay.wpa)}</em></>}
-      actions={filmCase ? <Link className={shared.go} href={`/film-room?play=${filmCase.id}`}>Study this game in the Film Room <span aria-hidden="true">→</span></Link> : null}>
+      actions={<>{snap && <Link prefetch={false} className={shared.go} href={snapPath(game.id, snap.key)}>Follow this exact play <span aria-hidden="true">→</span></Link>}
+        {filmCase && <Link className={shared.go} href={`/film-room?play=${filmCase.id}`}>{filmCase.play.desc === game.keyPlay.desc ? "Study this play" : "Also in this game"} · {filmCase.title}</Link>}</>}>
       {game.keyPlay.desc ? <p className={styles.account}>{game.keyPlay.desc}</p> : <p className={shared.caption}>No featured play description is available in this edition.</p>}
       <p className={shared.caption}>Jets model win-probability change on this play: <strong>{wpaLabel(game.keyPlay.wpa)}</strong>.</p>
       {hasEvidence ? null : sources}

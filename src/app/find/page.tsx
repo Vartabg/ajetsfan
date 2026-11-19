@@ -6,6 +6,8 @@ import { formatDate } from "@/lib/current";
 import { loadGameDiscovery } from "@/lib/load-game-discovery";
 import { pageMetadata } from "@/lib/site";
 import { teamName } from "@/lib/teams";
+import { snapPath } from "@/lib/snap-explorer";
+import { loadSnapGame } from "@/lib/load-snaps";
 import { focusFonts } from "../focus-fonts";
 import styles from "./page.module.css";
 
@@ -30,6 +32,8 @@ export default async function FindPage({ searchParams }: { searchParams: Promise
   const page = /^[1-9]\d*$/.test(pageParam) ? Math.min(pages, Number(pageParam)) : 1;
   const start = (page - 1) * PAGE_SIZE;
   const visible = results.slice(start, start + PAGE_SIZE);
+  const archives = await Promise.all(visible.map(({ game }) => loadSnapGame(game.id)));
+  const playable = new Set(archives.flatMap(game => game ? [game.id] : []));
   const resultRange = total > PAGE_SIZE ? `Showing ${start + 1}–${start + visible.length} of ${total} games.` : `${total} ${total === 1 ? "game" : "games"} found.`;
   const linkToPage = (number: number) => `/find?${new URLSearchParams({ q: query, ...(number > 1 ? { page: String(number) } : {}) })}#search-results`;
 
@@ -46,6 +50,7 @@ export default async function FindPage({ searchParams }: { searchParams: Promise
           <button className={shared.button} type="submit">Search</button>
         </div>
       </form>
+      <Link prefetch={false} className={shared.go} href="/plays">Find two-minute comebacks</Link>
     </FocusMoment>
 
     {query ? <FocusMoment id="search-results" heading={total ? "Matching games" : "No games match."}>
@@ -60,6 +65,7 @@ export default async function FindPage({ searchParams }: { searchParams: Promise
               <p className={styles.resultLine}><time dateTime={game.date}>{date}</time><span aria-hidden="true">·</span><strong>{resultVerb[game.outcome]} {game.jetsScore}–{game.oppScore}</strong></p>
               <div className={styles.links}>
                 <Link href={`/games/${game.id}`} prefetch={false} className={shared.go}>Game report<span className="sr-only"> for {heading} on {date}</span></Link>
+                {playable.has(game.id) && <Link prefetch={false} className={shared.go} href={snapPath(game.id, "start")}>Follow play by play<span className="sr-only"> for {heading} on {date}</span></Link>}
                 {material.map(({ href, label }) => <Link key={href} href={href} prefetch={false} className={shared.go}>{label}<span className="sr-only"> for {heading} on {date}</span></Link>)}
               </div>
             </li>;
