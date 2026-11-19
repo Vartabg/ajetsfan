@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => { await page.emulateMedia({ reducedMotion: "
 test("Deep cuts connects its scoped findings to the matching game evidence", async ({ page }) => {
   await page.goto("/discover");
   await expect(page.locator("main")).toHaveCount(1);
-  await expect(page.locator("#top, footer")).toHaveCount(0);
+  await expect(page.locator("#top, body > header, body > footer")).toHaveCount(0);
   await expect(page.locator("#evidence")).toContainText(`${findings.scope.games} published Jets game cases`);
   if (findings.sameScore) {
     await expect(page.getByRole("heading", { level: 1 })).toContainText(`Two ${findings.sameScore.jetsScore}–${findings.sameScore.oppScore} wins.`);

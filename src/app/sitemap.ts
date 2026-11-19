@@ -5,14 +5,13 @@ import { publishedGames, publishedPlayers } from "@/lib/published-pages";
 import { siteOrigin } from "@/lib/site";
 import { loadSeasonArchive } from "@/lib/load-season-archive";
 import { legends } from "@/lib/legends";
-import { JOURNEY_PATH } from "@/lib/miracle-journey";
+import { STATIC_SITEMAP_PATHS } from "@/lib/sitemap-paths";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = siteOrigin();
   if (!origin) return [];
   const [games, current, coverage, seasons] = await Promise.all([loadGames({ live: false }), loadCurrent({ live: false }), loadCoverage({ live: false }), loadSeasonArchive({ liveMedia: false })]);
-  const paths = ["/", "/game-day", "/stories", "/discover", "/history", "/history/trades", "/history/quarterbacks", "/puzzle", "/team", "/team/roster", "/team/stats", "/team/news", "/morgue", "/find", "/film-room", "/media", "/media/rants", "/seasons", "/how-made",
-    JOURNEY_PATH, "/legends", ...legends.map((person) => `/legends/${person.slug}`),
+  const paths = [...STATIC_SITEMAP_PATHS, ...legends.map((person) => `/legends/${person.slug}`),
     ...seasons.map((season) => `/seasons/${season.year}`),
     ...seasons.map((season) => `/seasons/${season.year}/guide`),
     ...publishedGames(games, current).map((game) => `/games/${encodeURIComponent(game.id)}`),

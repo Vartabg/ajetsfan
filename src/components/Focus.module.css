@@ -126,11 +126,17 @@
 .sections a:hover b, .sections a[aria-current="page"] b { color: var(--green); }
 .sections a[aria-current="page"] b { text-decoration: underline; text-underline-offset: 4px; }
 
+.foot { display: flex; flex-direction: column; gap: 6px; padding: 20px 16px calc(28px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--faint); font-size: 14px; line-height: 1.55; color: var(--quiet); }
+.foot p { max-width: 58ch; margin: 0; text-wrap: pretty; }
+.footLinks { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
+.footLinks a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; color: var(--ink); font-weight: 500; text-decoration: underline; text-decoration-color: var(--faint); text-underline-offset: 4px; }
+.footLinks a:hover { text-decoration-color: currentColor; }
+
 @media (min-width: 1024px) {
   :global(html):has([data-focus-page]) { scroll-padding-top: 0; }
-  .app { display: grid; grid-template-columns: 288px minmax(0, 1fr); }
+  .app { display: grid; grid-template-columns: 288px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
   .bar { display: none; }
-  .rail { position: sticky; top: 0; height: 100svh; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; padding: 24px 24px 20px 32px; border-right: 1px solid var(--faint); }
+  .rail { grid-column: 1; grid-row: 1 / span 2; position: sticky; top: 0; height: 100svh; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; padding: 24px 24px 20px 32px; border-right: 1px solid var(--faint); }
   .rail ol { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
   .rail > nav { min-height: 0; overflow-y: auto; scrollbar-width: thin; margin-left: -12px; padding-left: 12px; }
   /* Moments out of view recede by color, which keeps their text above 4.5:1. */
@@ -141,7 +147,8 @@
   .rail ol b { font: 600 16px/1.25 var(--display); letter-spacing: -.01em; }
   .rail ol a[aria-current] b { color: inherit; }
   .rail .note { margin-top: auto; }
-  .stack { min-width: 0; }
+  .stack { grid-column: 2; grid-row: 1; min-width: 0; }
+  .foot { grid-column: 2; grid-row: 2; padding: 24px clamp(32px, 5vw, 88px) 32px; }
   .staleWrap { padding: 32px clamp(32px, 5vw, 88px) 0; }
   .staleWrap + .moment { padding-top: 28px; }
   .moment { gap: 16px; padding: 64px clamp(32px, 5vw, 88px); }

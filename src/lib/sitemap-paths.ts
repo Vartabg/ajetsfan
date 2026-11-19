@@ -1,0 +1,26 @@
+import { JOURNEY_PATH } from "./miracle-journey";
+
+export const STATIC_SITEMAP_PATHS = [
+  "/",
+  "/game-day",
+  "/stories",
+  "/discover",
+  "/history",
+  "/history/trades",
+  "/history/quarterbacks",
+  "/puzzle",
+  "/team",
+  "/team/roster",
+  "/team/stats",
+  "/team/news",
+  "/morgue",
+  "/find",
+  "/film-room",
+  "/film-room/replay/wilson-cleveland",
+  "/media",
+  "/media/rants",
+  "/seasons",
+  "/how-made",
+  JOURNEY_PATH,
+  "/legends",
+] as const;

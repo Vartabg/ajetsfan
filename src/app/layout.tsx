@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import Telemetry from "@/components/Telemetry";
 import { indexableSite, siteOrigin } from "@/lib/site";
@@ -23,6 +23,17 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  colorScheme: "light dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f2f4f0" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e2a20" },
+  ],
+};
+
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
@@ -31,6 +42,14 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const wear = wearLevel(streak);
   const result = selectLead(games, snapshot).result;
   const latestReport = result && publishedGames(games, snapshot).some((game) => game.id === result.id) ? `/games/${encodeURIComponent(result.id)}` : `/seasons/${snapshot?.season ?? result?.season ?? 2026}`;
+  const websiteJsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "ajetsfan",
+    url: siteOrigin()?.origin ?? "https://ajetsfan.com",
+    description: metadata.description,
+    inLanguage: "en-US",
+  }).replace(/</g, "\\u003c");
 
   return (
     <html
@@ -39,6 +58,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       className={focusFonts}
     >
       <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: websiteJsonLd }} />
         <a className="skip-link" href="#main">Skip to content</a>
         <LegacyNavigation latestReport={latestReport} />
         {children}

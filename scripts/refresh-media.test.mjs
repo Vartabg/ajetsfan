@@ -109,22 +109,24 @@ test('WordPress numeric entities and first-party film routes preserve readable v
   }
 });
 
-test('NYPost Jets reporting imports even when the same tag feed also carries betting articles', () => {
+test('NYPost Jets reporting imports even when the same tag feed also carries betting or other non-sports sections', () => {
   const source = MEDIA_SOURCES.find((value) => value.id === 'new-york-post');
   const destination = (url, title = 'Jets &amp; Browns practice') => xmlItem().replace('https://www.newyorkjets.com/news/practice', url).replace('Jets &amp; Browns practice', title);
   const article = 'https://nypost.com/2026/10/09/sports/jets-browns-game-report/';
   const video = 'https://nypost.com/video/jets-browns-reaction/';
-  const promotions = [
+  const nonSports = [
     'https://nypost.com/2026/10/09/betting/fanatics-sportsbook-promo-code/',
     'https://nypost.com/2026/10/09/betting/jets-browns-prediction-best-bet/',
+    'https://nypost.com/2026/11/17/real-estate/jets-owner-duplex-sale/',
+    'https://nypost.com/2026/11/17/business/nfl-broadcast-deal-update/',
   ];
   const excluded = new Set();
-  const items = parseMediaSource(rss(destination(promotions[0], 'Jets sportsbook offer'), destination(article), destination(promotions[1], 'Jets best bet'), destination(video)), source, now, new Map(), excluded);
+  const items = parseMediaSource(rss(destination(nonSports[0], 'Jets sportsbook offer'), destination(article), destination(nonSports[1], 'Jets best bet'), destination(nonSports[2], 'Owner real estate story'), destination(video), destination(nonSports[3], 'Business item')), source, now, new Map(), excluded);
   assert.deepEqual(items.map((item) => item.url).sort(), [article, video].sort());
   assert.equal(items.find((item) => item.url === article).kind, 'article');
   assert.equal(items.find((item) => item.url === video).kind, 'video');
-  assert.deepEqual([...excluded].sort(), promotions.sort());
-  assert.deepEqual(parseMediaSource(rss(...promotions.map((url) => destination(url))), source, now), []);
+  assert.deepEqual([...excluded].sort(), nonSports.sort());
+  assert.deepEqual(parseMediaSource(rss(...nonSports.map((url) => destination(url))), source, now), []);
 });
 
 test('NYPost betting exclusions never bypass publisher, private destination or malformed link checks', () => {

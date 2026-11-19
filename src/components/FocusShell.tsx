@@ -155,5 +155,12 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
         {checkedAt ? <p className={styles.note}>Results checked {on(checkedAt, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })} ET.</p> : null}
       </section>
     </main>
+    <footer className={styles.foot}>
+      <p>ajetsfan is an independent, unofficial New York Jets fan publication. Not affiliated with or endorsed by the New York Jets or the NFL.</p>
+      <div className={styles.footLinks}>
+        <Link href="/how-made">Methods &amp; sources</Link>
+        <a href="/.well-known/security.txt">Security</a>
+      </div>
+    </footer>
   </div>;
 }
