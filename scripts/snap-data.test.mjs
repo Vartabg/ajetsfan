@@ -146,6 +146,21 @@ test('a field finish requires consistent ordinary gain, scoring and credit evide
   }
 });
 
+test('turnover facts require adjudicated credits for this exact play', () => {
+  const pick = { complete_pass: 0, interception: 1, interception_player_id: '00-1234567', penalty: 1 };
+  const lost = { fumble: 1, fumble_lost: 1, fumbled_1_player_id: '00-7654321', fumbled_1_team: 'CLE' };
+  const downs = { down: 4, fourth_down_failed: 1, fourth_down_converted: 0, first_down: 0, drive_play_id_ended: 991,
+    drive_end_transition: 'Downs', fixed_drive_result: 'Turnover on downs' };
+  assert.deepEqual(completionFacts(pick).turnovers, ['interception']);
+  assert.deepEqual(completionFacts({ ...pick, ...lost }).turnovers, ['interception', 'lostFumble']);
+  assert.deepEqual(completionFacts(downs).turnovers, ['downs']);
+  for (const override of [{ ...lost, fumble_lost: 0 }, { ...lost, fumbled_1_team: 'CIN' },
+    { ...pick, two_point_attempt: 1 }, { ...pick, play_type: 'no_play' }, { ...pick, interception: 0 },
+    { ...pick, play_deleted: 1 }, { ...downs, drive_play_id_ended: 999 }, { ...downs, drive_end_transition: 'End of half' }]) {
+    assert.equal(completionFacts(override).turnovers, undefined);
+  }
+});
+
 test('v1 season parsing accepts absent facts and validates optional facts before use', () => {
   const game = verifiedSnapGame(fixture, sourceRows());
   const parse = () => parseSnapSeason(JSON.stringify({ season: 2022, schemaVersion: 1, games: [game] }), 2022);
@@ -158,6 +173,7 @@ test('v1 season parsing accepts absent facts and validates optional facts before
   assert.deepEqual(parse(), [game]);
   delete game.plays[0].postWp;
   for (const facts of [null, [], { timeouts: [1, 4] }, { touchdown: 1 }, { kind: 'penalty' }, { epa: '1' },
+    { turnovers: [] }, { turnovers: ['fumble'] }, { turnovers: ['downs', 'interception'] }, { turnovers: ['lostFumble', 'lostFumble'] },
     { airYards: 121 }, { afterCatch: -121 }, { yards: -101 }, { passer: '' }, { dropbackProbability: 1.01 },
     { completionProbability: 0.4, kind: 'rush' }, { afterCatch: 4, kind: 'interception' },
     { simpleAdvance: true, kind: 'completion', yards: 50 }, { simpleAdvance: true, kind: 'sack', yards: -2 }]) {
@@ -318,6 +334,7 @@ test('published historical seasons reproduce the two-minute cohort and its linke
   const seattle = games.find((game) => game.id === '2024_13_SEA_NYJ').plays.find((p) => p.key === '3620');
   assert.deepEqual([seattle.wp, seattle.delta, seattle.postWp], [0.649, -0.152, undefined]);
   assert.deepEqual(davis.facts, {
+    turnovers: ['interception'],
     timeouts: [0, 1], kind: 'interception', goalToGo: false, yards: 0, firstDown: false, touchdown: false,
     passer: 'J.Brissett', target: 'A.Cooper', interceptor: 'A.Davis', epa: -0.7408111404813765,
     dropbackProbability: 0.975856602191925, completionProbability: 0.5842199325561523, airYards: 18,

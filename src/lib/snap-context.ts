@@ -2,6 +2,8 @@ import { BUFFALO, CLEVELAND } from "./snap-explorer";
 import type { Snap, SnapGame, SnapScore } from "./snap-types";
 import { teamIdentity } from "./teams";
 
+type ContextGame = Pick<SnapGame, "id" | "opponent" | "source">;
+
 const downs = ["", "1st", "2nd", "3rd", "4th"];
 const penalty = /\bpenalt(?:y|ies)\b/i;
 const reviewed = /\b(challenged|reviewed|reversed|overturned|replay official)\b/i;
@@ -12,14 +14,14 @@ function recordedTeam(code: string) {
   return identity?.nickname ?? identity?.city;
 }
 
-function teams(game: SnapGame, play: Snap) {
+function teams(game: ContextGame, play: Snap) {
   const other = teamIdentity(game.opponent);
   const opponent = other?.nickname ?? other?.city ?? game.opponent;
   const offense = play.possession === "jets" ? "Jets" : play.possession === "opponent" ? opponent : null;
   return { opponent, offense, defense: offense === null ? null : play.possession === "jets" ? opponent : "Jets" };
 }
 
-export function fieldSpot(game: SnapGame, play: Snap, toGoal: number, short = false): string {
+export function fieldSpot(game: ContextGame, play: Snap, toGoal: number, short = false): string {
   if (toGoal === 50) return short ? "50" : "midfield";
   const { offense, defense } = teams(game, play);
   const ownHalf = toGoal > 50;
@@ -42,7 +44,7 @@ function actionGroup(play: Snap) {
   return "other";
 }
 
-export function snapSituation(game: SnapGame, play: Snap): string {
+export function snapSituation(game: ContextGame, play: Snap): string {
   const { offense } = teams(game, play);
   const group = actionGroup(play);
   if (group === "timeout") {
@@ -66,7 +68,7 @@ export function snapSituation(game: SnapGame, play: Snap): string {
   return [start, line].filter(Boolean).join(" · ") || "Pre-play situation unavailable";
 }
 
-export function fieldPosition(game: SnapGame, play: Snap) {
+export function fieldPosition(game: ContextGame, play: Snap) {
   if (actionGroup(play) !== "scrimmage" || penalty.test(play.description) || !play.possession || !play.down ||
       play.yardline === null || play.distance === null || play.distance <= 0) return null;
   const start = play.yardline;
@@ -98,12 +100,12 @@ function cleanedAccount(text: string) {
     .replace(/\bPENALTY\b/g, "Penalty").replace(/\bCLV\b/g, "CLE").trim();
 }
 
-function espnTouchdownPass(game: SnapGame, play: Snap) {
+function espnTouchdownPass(game: ContextGame, play: Snap) {
   if (game.source !== "espn" || play.type?.toLowerCase() !== "passing touchdown") return null;
   return play.description.match(/^([\p{L} .’'-]+?) pass from ([\p{L} .’'-]+?) for (\d{1,2}) yds?, touchdown\.?$/iu);
 }
 
-export function snapHeadline(game: SnapGame, play: Snap): string {
+export function snapHeadline(game: ContextGame, play: Snap): string {
   const text = play.description;
   const f = play.facts;
   if (game.id === BUFFALO && play.key === "2511" && /J\.Allen pass.*D\.Kincaid.*54 yards/i.test(text)) return "Allen to Kincaid for 54 yards.";
@@ -141,7 +143,7 @@ export function snapHeadline(game: SnapGame, play: Snap): string {
   return play.type === "run" ? "A run from scrimmage." : play.type === "pass" ? "A passing play." : "The play on the field.";
 }
 
-export function snapAccount(game: SnapGame, play: Snap): string {
+export function snapAccount(game: ContextGame, play: Snap): string {
   const text = play.description;
   const f = play.facts;
   const field = fieldPosition(game, play);

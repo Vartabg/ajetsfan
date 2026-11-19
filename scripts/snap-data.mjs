@@ -28,7 +28,27 @@ const optionalColumns = [
   'lateral_receiver_player_name', 'lateral_rusher_player_name', 'lateral_interception_player_name',
   'penalty', 'two_point_attempt', 'extra_point_attempt', 'special_teams_play', 'special', 'aborted_play', 'play_deleted',
   'fumble', 'fumble_lost', 'safety', 'replay_or_challenge', ...laterals,
+  'fumbled_1_player_id', 'fumbled_1_team', 'fumbled_2_player_id', 'fumbled_2_team',
+  'fourth_down_converted', 'fourth_down_failed', 'drive_end_transition', 'drive_play_id_ended', 'fixed_drive_result',
 ];
+
+function recordedTurnovers(row) {
+  const events = [];
+  if (!row.posteam || row.play_type === 'no_play' || row.play_deleted === 1 ||
+    row.two_point_attempt !== 0 || row.extra_point_attempt !== 0) return events;
+  // These are adjudicated credits. A foul during the return need not erase an interception.
+  if (row.interception === 1 && row.pass_attempt === 1 && row.interception_player_id &&
+    (row.play_type === 'pass' || !row.play_type)) events.push('interception');
+  if (row.fumble === 1 && row.fumble_lost === 1 && ['1', '2'].some((n) =>
+    row[`fumbled_${n}_player_id`] && [row.home_team, row.away_team].includes(row[`fumbled_${n}_team`]))) events.push('lostFumble');
+  // The drive result describes every snap in that drive. It is usable only on
+  // the explicitly identified ending row, alongside the failed attempt itself.
+  if (!events.length && row.down === 4 && row.fourth_down_failed === 1 && row.fourth_down_converted === 0 &&
+    row.first_down === 0 && (row.play_type === 'pass' || row.play_type === 'run') &&
+    row.drive_play_id_ended === row.play_id && row.drive_end_transition?.toUpperCase() === 'DOWNS' &&
+    row.fixed_drive_result === 'Turnover on downs') events.push('downs');
+  return events;
+}
 
 function scrimmageKind(row) {
   if (!row.posteam || !integerIn(row.down, 1, 4) || row.penalty !== 0 || row.two_point_attempt !== 0 ||
@@ -74,6 +94,8 @@ function simpleAdvance(row, facts) {
 
 function snapFacts(row, atHome) {
   const facts = {};
+  const turnovers = recordedTurnovers(row);
+  if (turnovers.length) facts.turnovers = turnovers;
   if ([row.home_timeouts_remaining, row.away_timeouts_remaining].every((n) => integerIn(n, 0, 3))) {
     facts.timeouts = atHome ? [row.home_timeouts_remaining, row.away_timeouts_remaining] : [row.away_timeouts_remaining, row.home_timeouts_remaining];
   }

@@ -109,7 +109,8 @@ export default async function GamePage({ params }: Props) {
     <FocusMoment id="final" first
       label={`${when} · ${formatDate(game.date)}`}
       heading={<>{verb} {game.jetsScore}–{game.oppScore} <em>{game.atHome ? "vs" : "at"} {placeName(game.opponentDisplay)}{game.wentToOt ? " in overtime" : ""}.</em></>}
-      actions={<><SeasonReturn year={game.season} fallback={`/seasons/${game.season}`} fallbackLabel={`The ${game.season} season`} className={shared.go} /><Link href="/morgue#archive-filters" className={shared.go}>Find another game</Link></>}>
+      actions={<>{archive && <Link href={"/replay/" + game.id} prefetch={false} className={shared.go}>Replay this game</Link>}
+        <SeasonReturn year={game.season} fallback={`/seasons/${game.season}`} fallbackLabel={`The ${game.season} season`} className={shared.go} /><Link href="/morgue#archive-filters" className={shared.go}>Find another game</Link></>}>
       <div className={shared.shape}>
         <div className={styles.score} style={rival} role="group" aria-label={`Final score: Jets ${game.jetsScore}, ${game.opponentDisplay} ${game.oppScore}`}>
           <span data-team="jets">NYJ <strong>{game.jetsScore}</strong></span>

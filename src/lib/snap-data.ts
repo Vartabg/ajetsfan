@@ -29,7 +29,7 @@ const kinds = new Set(["completion", "incompletion", "interception", "rush", "sa
 const booleanFacts = ["goalToGo", "firstDown", "touchdown", "simpleAdvance"] as const;
 const playerFacts = ["passer", "target", "rusher", "interceptor"] as const;
 const probabilities = ["dropbackProbability", "completionProbability"] as const;
-const factKeys = new Set<string>(["timeouts", "kind", "yards", "airYards", "afterCatch", "epa",
+const factKeys = new Set<string>(["timeouts", "kind", "turnovers", "yards", "airYards", "afterCatch", "epa",
   ...booleanFacts, ...playerFacts, ...probabilities]);
 
 function validFacts(play: Snap): boolean {
@@ -38,6 +38,10 @@ function validFacts(play: Snap): boolean {
   if (!facts || typeof facts !== "object" || Array.isArray(facts) || Object.keys(facts).some((k) => !factKeys.has(k))) return false;
   if (facts.timeouts !== undefined && (!score(facts.timeouts) || facts.timeouts.some((n) => n > 3))) return false;
   if (facts.kind !== undefined && !kinds.has(facts.kind)) return false;
+  if (facts.turnovers !== undefined && (!Array.isArray(facts.turnovers) || !facts.turnovers.length ||
+    facts.turnovers.some((value) => !["interception", "lostFumble", "downs"].includes(value)) ||
+    new Set(facts.turnovers).size !== facts.turnovers.length ||
+    (facts.turnovers.includes("downs") && facts.turnovers.length !== 1))) return false;
   if (booleanFacts.some((k) => facts[k] !== undefined && typeof facts[k] !== "boolean")) return false;
   if (playerFacts.some((k) => facts[k] !== undefined && (typeof facts[k] !== "string" || !facts[k].trim() || facts[k].length > 100))) return false;
   if (probabilities.some((k) => facts[k] !== undefined && (!Number.isFinite(facts[k]) || facts[k] < 0 || facts[k] > 1))) return false;

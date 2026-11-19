@@ -32,6 +32,7 @@ export default async function FollowPage() {
       <h2>Replay a game</h2>
       <GameChoice id={BUFFALO} label="Buffalo · 2026" />
       <GameChoice id={CLEVELAND} label="Cleveland · 2022" />
+      <Link href="/replay" prefetch={false} className={shared.go}>Browse all game replays</Link>
     </FocusMoment>
   </FocusShell>;
 }

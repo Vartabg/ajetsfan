@@ -45,3 +45,21 @@ export const loadSnapArchive = cache(async (): Promise<SnapGame[]> => {
   const files = await Promise.all(years.map(loadSeason));
   return files.flat().filter((game) => snapMatchesFixture(game, byId.get(game.id)));
 });
+
+/** The selector needs only fixture identities. Open one season to verify which games can be replayed. */
+export const loadReplayDirectory = cache(async (requestedSeason: number | null) => {
+  const fixtures = await loadPublishedGames();
+  const years = [...new Set(fixtures.map(game => game.season))].sort((a, b) => b - a);
+  const opponents = [...new Set(fixtures.map(game => game.opponentDisplay))];
+  const season = requestedSeason ?? years[0] ?? null;
+  const scheduled = fixtures.filter(game => game.season === season);
+  const records = season !== null && scheduled.length ? await loadSeason(season) : [];
+  const byId = new Map(records.map(game => [game.id, game]));
+  const games = scheduled.flatMap(fixture => {
+    const game = byId.get(fixture.id);
+    if (!game || !snapMatchesFixture(game, fixture)) return [];
+    const { id, date, atHome, opponentDisplay, week, seasonType } = fixture;
+    return [{ id, date, atHome, opponentDisplay, week, seasonType }];
+  }).sort((a, b) => a.date.localeCompare(b.date) || a.week - b.week);
+  return { years, opponents, season, games, pending: scheduled.length - games.length };
+});

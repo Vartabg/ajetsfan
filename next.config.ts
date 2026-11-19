@@ -36,6 +36,8 @@ const nextConfig: NextConfig = {
     "/*": ["./public/data/*.json", "./public/data/drives/*.json"],
     // Player pages read every season's player file (readdir), which tracing cannot follow on its own.
     "/players/*": ["./public/data/players/*.json"],
+    "/replay": ["./public/data/snaps/*.json.gz"],
+    "/replay/*": ["./public/data/snaps/*.json.gz"],
     "/plays": ["./public/data/snaps/*.json.gz"],
     "/plays/*": ["./public/data/snaps/*.json.gz"],
     "/games/*": ["./public/data/snaps/*.json.gz"],

@@ -1,13 +1,14 @@
 /** Pages rebuilt as focus views; they carry their own navigation instead of the site header and footer. */
-export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/legends", "/film-room", "/media", "/seasons", "/morgue", "/find", "/discover", "/stories", "/history", "/history/trades", "/history/quarterbacks", "/puzzle", "/how-made"];
+export const FOCUS_ROUTES = ["/", "/game-day", "/team", "/team/roster", "/team/stats", "/team/news", "/legends", "/film-room", "/media", "/seasons", "/replay", "/morgue", "/find", "/discover", "/stories", "/history", "/history/trades", "/history/quarterbacks", "/puzzle", "/how-made"];
 /** Every published destination shares the focus frame, including its detail pages. */
-export const isFocusRoute = (pathname: string) => FOCUS_ROUTES.includes(pathname) || pathname === "/stories/monday-night-miracle" || /^\/seasons\/\d{4}(?:\/guide)?$/.test(pathname) || pathname.startsWith("/games/") || pathname.startsWith("/players/") || pathname.startsWith("/legends/");
+export const isFocusRoute = (pathname: string) => FOCUS_ROUTES.includes(pathname) || pathname === "/stories/monday-night-miracle" || /^\/seasons\/\d{4}(?:\/guide)?$/.test(pathname) || pathname.startsWith("/replay/") || pathname.startsWith("/games/") || pathname.startsWith("/players/") || pathname.startsWith("/legends/");
 
 /** Every destination the home page offers, in the order a visitor scans them. */
 export const SECTIONS = [
   { href: "/game-day", label: "Game Day", note: "Schedule, standings and the matchup" },
   { href: "/team", label: "Team", note: "Roster, player stats and news" },
   { href: "/media", label: "Media", note: "Video, posts, articles and audio" },
+  { href: "/replay", label: "Game replays", note: "Follow a game from its first play" },
   { href: "/seasons", label: "Seasons", note: "Every season’s results" },
   { href: "/legends", label: "Legends", note: "Ring of Honor, Hall of Famers and their stories" },
   { href: "/film-room", label: "Film Room", note: "Big plays, drawn out" },

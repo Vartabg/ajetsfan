@@ -1,0 +1,41 @@
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  max-width: 48rem;
+}
+.filters > div { display: grid; grid-template-columns: minmax(0, 1fr); gap: 5px; min-width: 0; font-size: 15px; font-weight: 600; }
+.filters select {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--quiet);
+  border-radius: var(--field-round);
+  padding: 6px 12px;
+  color: var(--ink);
+  background: var(--bg);
+  font: inherit;
+}
+.filters select:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+.games { width: 100%; max-width: 49rem; margin-block-start: 10px; }
+.games h2 { margin: 0 0 10px; font-size: clamp(20px, 3vw, 27px); }
+.games ul { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--faint); }
+.games li { border-bottom: 1px solid var(--faint); }
+.games li a { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 16px; min-height: 44px; padding: 12px 0; text-decoration: none; }
+.games li a:hover strong, .games li a:focus-visible strong { text-decoration: underline; text-underline-offset: 4px; }
+.games li strong { font-size: 17px; }
+.games li span { color: var(--quiet); font-size: 14px; }
+@media (max-width: 520px) {
+  .filters { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end; }
+  .filters button { justify-self: start; grid-column: 1 / -1; }
+  .games li a { display: grid; }
+}
+
+@media (max-width: 360px) {
+  .filters { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 1023px) and (max-height: 520px) and (orientation: landscape) {
+  :global([data-focus-page="replay-directory"]) :global([data-focus-moment="choose-game"]) { display: flex; }
+}

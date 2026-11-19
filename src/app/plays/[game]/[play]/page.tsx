@@ -133,6 +133,7 @@ export default async function SnapPage({ params, searchParams }: Props) {
           : isLiveSource ? <a href={path}>Check for the next play</a> : <span>End of the recorded plays.</span>}
         <CopySnap key={path} path={path} />
       </div>
+      {!isLiveSource && <Link href={"/replay/" + id + "?play=" + play.key} prefetch={false} className={shared.go}>Replay the game from this play</Link>}
       <div className={styles.disclosures}>
         <details className={styles.jump}><summary>Match my TV clock</summary><ClockPicker gameId={id} play={play} /></details>
         <details className={styles.jump}><summary>Read the play record</summary><p className={styles.record}>{play.description}</p></details>

@@ -25,6 +25,7 @@ export default async function PlaysPage({ searchParams }: { searchParams: Promis
       {games.length > 0
         ? <SnapMatches result={result} path="/plays" params={params} filters={{ below: threshold }} unavailable={unavailable} retrospective />
         : <p className={shared.caption}>The historical play files are currently unavailable.</p>}
+      <Link prefetch={false} href="/replay" className={shared.go}>Browse game replays</Link>
       <p className={shared.note}>Either team may have the ball. Each link opens that game’s lowest qualifying pre-play estimate. Wins are listed first, then losses. Estimates come from nflverse play-by-play.</p>
     </FocusMoment>
   </FocusShell>;

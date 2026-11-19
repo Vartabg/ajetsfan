@@ -50,7 +50,10 @@ export default async function FindPage({ searchParams }: { searchParams: Promise
           <button className={shared.button} type="submit">Search</button>
         </div>
       </form>
-      <Link prefetch={false} className={shared.go} href="/plays">Find two-minute comebacks</Link>
+      <div className={styles.links}>
+        <Link prefetch={false} className={shared.go} href="/replay">Browse game replays</Link>
+        <Link prefetch={false} className={shared.go} href="/plays">Find two-minute comebacks</Link>
+      </div>
     </FocusMoment>
 
     {query ? <FocusMoment id="search-results" heading={total ? "Matching games" : "No games match."}>
@@ -65,7 +68,10 @@ export default async function FindPage({ searchParams }: { searchParams: Promise
               <p className={styles.resultLine}><time dateTime={game.date}>{date}</time><span aria-hidden="true">·</span><strong>{resultVerb[game.outcome]} {game.jetsScore}–{game.oppScore}</strong></p>
               <div className={styles.links}>
                 <Link href={`/games/${game.id}`} prefetch={false} className={shared.go}>Game report<span className="sr-only"> for {heading} on {date}</span></Link>
-                {playable.has(game.id) && <Link prefetch={false} className={shared.go} href={snapPath(game.id, "start")}>Follow play by play<span className="sr-only"> for {heading} on {date}</span></Link>}
+                {playable.has(game.id) && <>
+                  <Link prefetch={false} className={shared.go} href={"/replay/" + game.id}>Replay this game<span className="sr-only"> for {heading} on {date}</span></Link>
+                  <Link prefetch={false} className={shared.go} href={snapPath(game.id, "start")}>Follow play by play<span className="sr-only"> for {heading} on {date}</span></Link>
+                </>}
                 {material.map(({ href, label }) => <Link key={href} href={href} prefetch={false} className={shared.go}>{label}<span className="sr-only"> for {heading} on {date}</span></Link>)}
               </div>
             </li>;

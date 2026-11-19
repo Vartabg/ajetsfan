@@ -2,11 +2,14 @@
 export type SnapScore = [number, number];
 
 export type SnapKind = "completion" | "incompletion" | "interception" | "rush" | "sack" | "kneel" | "spike";
+export type SnapTurnover = "interception" | "lostFumble" | "downs";
 export type SnapFacts = {
   /** Timeouts remaining as recorded on this row, in Jets/opponent order. */
   timeouts?: [number, number];
   goalToGo?: boolean;
   kind?: SnapKind;
+  /** Official possession changes on this row; an intercepted return can itself end in a lost fumble. */
+  turnovers?: SnapTurnover[];
   yards?: number;
   firstDown?: boolean;
   /** Offensive touchdown, with the scoring side verified. */

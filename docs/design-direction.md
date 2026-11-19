@@ -17,6 +17,8 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 
 - **Reading an exact play** (2026-11-19). The fan needs the score, clock, offense, down and field position together, with a plain account of the result. Put play-level football analysis below that context.
 
+- **Reliving a game** (2026-11-19). A fan can pick a Jets game, click forward or backward, and see the score and a visual account of how the game unfolded. They can explore the underlying football data at their own pace.
+
 ## Rejected
 
 - The initial exact-play view separated the score and play text from the down, distance and field position. The owner said it missed the basics of what was happening in the game.
@@ -28,6 +30,8 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 - New names for pages that still carry newspaper names: "The Morgue" (shown as "Game archive" in the menu) and "How the paper is made".
 
 - Whether fans find and share evidence faster than on the official site awaits a head-to-head usability session.
+
+- The default replay pace, its selection threshold and the fixed-direction field are design choices to try with fans.
 
 ## Share cards
 

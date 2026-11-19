@@ -25,6 +25,9 @@ export const performanceBudgets = [
   { route: "/game-day/follow", file: "game-day/follow", html: 12, js: 200 },
   { route: "/plays", file: "plays", html: 14, js: 200 },
   { route: "/plays/2022_02_NYJ_CLE/4199", file: "plays/2022_02_NYJ_CLE/4199", html: 15, js: 200 },
+  // A replay opens on a single play. The complete game is requested during interaction.
+  { route: "/replay", file: "replay", html: 14, js: 200 },
+  { route: "/replay/2022_02_NYJ_CLE", file: "replay/2022_02_NYJ_CLE", html: 14, js: 204 },
   { route: "/stories", file: "stories", html: 18, js: 200 },
   // Three-step journey measured 11.1 KiB HTML / 191.1 KiB initial JS; the other stages are smaller.
   { route: "/stories/monday-night-miracle", file: "stories/monday-night-miracle", html: 15, js: 205 },
