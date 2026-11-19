@@ -4,10 +4,14 @@ import { notFound, redirect } from "next/navigation";
 import FocusMoment from "@/components/FocusMoment";
 import FocusShell from "@/components/FocusShell";
 import CopySnap from "@/components/CopySnap";
-import { ClockPicker, DriveSoFar, ProbabilityTrace, SituationLine, snapHeadline } from "@/components/SnapEvidence";
+import { ClockPicker, DriveSoFar, ProbabilityTrace } from "@/components/SnapEvidence";
+import { GameScoreboard, PlayAnalysis, SnapField } from "@/components/SnapGameState";
+import { snapAccount, snapHeadline } from "@/lib/snap-context";
 import SnapMatches, { SituationForm } from "@/components/SnapMatches";
 import shared from "@/components/Focus.module.css";
 import styles from "@/components/SnapReader.module.css";
+import { ANALYSIS as WILSON_STUDY } from "@/lib/wilson-analysis.mjs";
+import { epaLabel } from "@/lib/analytics";
 import { formatDate } from "@/lib/current";
 import { confirmedSnapForEspn } from "@/lib/espn-snaps";
 import { loadEspnSnapGame } from "@/lib/load-espn-snaps";
@@ -26,6 +30,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const meta = pageMetadata({ path: snapPath(game, play), title: "Follow a Jets play · ajetsfan", description: "Follow the recorded score and drive through your selected play." });
   const images = [{ url: "/plays/opengraph-image", width: 1200, height: 630, alt: "A recorded Jets play on ajetsfan" }];
   return { ...meta, openGraph: { ...meta.openGraph, images }, twitter: { ...meta.twitter, images } };
+}
+
+function WilsonCharting({ epa }: { epa?: number }) {
+  const { participation, ftn } = WILSON_STUDY.charting.raw;
+  const coverage = WILSON_STUDY.charting.fields.find(field => field.key === "coverage")?.value;
+  const filmEpa = WILSON_STUDY.metrics.find(metric => metric.key === "epa")?.value;
+  const sources = WILSON_STUDY.sources.filter(source => source.id === "participation" || source.id === "ftn");
+  return <div className={styles.charting}>
+    <h3>How Cleveland defended Wilson</h3>
+    <p>Next Gen Stats charted <strong>{coverage}</strong> against the Jets’ three receivers. Cleveland sent {participation.number_of_pass_rushers} rushers.
+      {typeof participation.time_to_throw === "number" && <> Flacco released the ball in <strong>{participation.time_to_throw.toFixed(2)} seconds.</strong></>}
+      {ftn.n_blitzers === 0 && <> FTN charted no blitz.</>}</p>
+    <details className={styles.jump}><summary>Charting and source editions</summary>
+      <p className={shared.note}>The participation record supplies coverage, personnel and release time. FTN supplies the blitz tag.</p>
+      <p className={shared.note}>{sources.map(source => source.url && <span key={source.id}><a href={source.url}>{source.attribution}</a>{" · "}</span>)}
+        <a href={WILSON_STUDY.provenance.license.url}>CC BY-SA 4.0</a></p>
+      {epa != null && typeof filmEpa === "number" && <p className={shared.note}>
+        The play reader’s nflverse edition gives the Jets {epaLabel(epa)} EPA. The film study preserves the October 20, 2026 source edition, which gives them {epaLabel(filmEpa)}.
+      </p>}
+    </details>
+    <Link href="/film-room/replay/wilson-cleveland" prefetch={false} className={shared.go}>Study Wilson’s catch in 3D · includes the game result</Link>
+  </div>;
 }
 
 function ClockSelection({ game, query }: { game: SnapGame; query: SearchValues }) {
@@ -96,27 +122,28 @@ export default async function SnapPage({ params, searchParams }: Props) {
   const sourceUrl = isLiveSource ? "https://www.espn.com/nfl/playbyplay/_/gameId/" + game.eventId : "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_" + id.slice(0, 4) + ".parquet";
   return <FocusShell page="play-reader" name="Play by play" section="/game-day" checkedAt={null} entries={[
     { id: "snap", title: "Your play", answer: snapTime(play) },
-    { id: "evidence", title: "The drive", answer: "Through this play" },
+    { id: "evidence", title: "Inside the play", answer: "Field, numbers and drive" },
     { id: "compare", title: "Similar situations", answer: "Earlier Jets games" },
   ]}>
-    <FocusMoment id="snap" first label={formatDate(game.date) + " · Jets " + (game.home ? "vs. " : "at ") + (opponent?.city ?? game.opponent) + " · " + snapTime(play)} heading={snapHeadline(game, play)}>
-      <p className={styles.account}>{play.description}</p>
-      {play.after ? <div className={styles.score} aria-label="Score after this play"><span>Jets <strong>{play.after[0]}</strong></span><span>{nickname} <strong>{play.after[1]}</strong></span></div> : null}
-      <p className={shared.note}>{play.after ? "Score after this play" : "Score after this play unavailable"} · {isLiveSource ? "ESPN play record" : "nflverse play-by-play"}</p>
+    <FocusMoment id="snap" first status={<GameScoreboard game={game} plays={prefix} nickname={nickname} />} heading={snapHeadline(game, play)}>
+      <p className={styles.account}>{snapAccount(game, play)}</p>
       <div className={styles.transport} aria-label="Play controls">
         {index > 0 && <Link prefetch={false} href={snapPath(id, game.plays[index - 1].key)}>Previous play</Link>}
         {index + 1 < game.plays.length ? <Link prefetch={false} className={styles.advance} href={snapPath(id, game.plays[index + 1].key)}>Next play</Link>
           : isLiveSource ? <a href={path}>Check for the next play</a> : <span>End of the recorded plays.</span>}
         <CopySnap key={path} path={path} />
       </div>
-      <details className={styles.jump}><summary>Match my TV clock</summary><ClockPicker gameId={id} play={play} /></details>
+      <div className={styles.disclosures}>
+        <details className={styles.jump}><summary>Match my TV clock</summary><ClockPicker gameId={id} play={play} /></details>
+        <details className={styles.jump}><summary>Read the play record</summary><p className={styles.record}>{play.description}</p></details>
+      </div>
     </FocusMoment>
-    <FocusMoment id="evidence" label="Play evidence" heading="The drive so far.">
-      <SituationLine play={play} opponent={nickname} />
-      <ProbabilityTrace plays={prefix} live={isLiveSource} />
-      {play.delta !== null && <p className={shared.note}>Change on this play · {play.delta > 0 ? "+" : ""}{Number((play.delta * 100).toFixed(1))} percentage points</p>}
+    <FocusMoment id="evidence" label="Through this play" heading="Inside the play.">
+      <SnapField game={game} play={play} />
+      <PlayAnalysis plays={prefix} game={game} />
+      {isWilson && <WilsonCharting epa={play.facts?.epa} />}
+      <div className={styles.driveEvidence}><h3>Win probability through this play</h3><ProbabilityTrace plays={prefix} live={isLiveSource} /></div>
       <DriveSoFar plays={prefix} gameId={id} />
-      {isWilson && <Link href="/film-room/replay/wilson-cleveland" prefetch={false} className={shared.go}>Study Wilson’s catch in 3D · includes the game result</Link>}
       <p className={shared.note}>{isLiveSource ? "ESPN event " + game.eventId : "nflverse game " + game.id} · play {isLiveSource ? key.slice(2) : key}</p>
       <a href={sourceUrl} className={shared.go} target="_blank" rel="noreferrer">Full {isLiveSource ? "ESPN record" : "nflverse source"} · includes later plays <span className="sr-only">(opens in a new tab)</span></a>
     </FocusMoment>

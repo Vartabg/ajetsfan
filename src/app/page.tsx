@@ -16,8 +16,8 @@ import { editionClock } from "@/lib/live-plays";
 import { pageMetadata } from "@/lib/site";
 import { buildTeamFocus } from "@/lib/team-focus";
 import { loadSnapGame } from "@/lib/load-snaps";
-import { featuredSnap, snapPath, snapTime } from "@/lib/snap-explorer";
-import { snapHeadline } from "@/components/SnapEvidence";
+import { featuredSnap, snapPath } from "@/lib/snap-explorer";
+import { snapHeadline } from "@/lib/snap-context";
 import { focusFonts } from "./focus-fonts";
 import shared from "@/components/Focus.module.css";
 
@@ -43,9 +43,7 @@ export default async function Home() {
     const archive = await loadSnapGame(lead.analysis.id);
     const play = featuredSnap(archive, lead.analysis.keyPlay);
     if (play && archive) {
-      const label = snapHeadline(archive, play);
-      data.last.turningPoint.snap = { href: snapPath(archive.id, play.key),
-        label: label.startsWith("The play at ") ? "Open " + snapTime(play) + " play" : label.replace(/\.$/, "") };
+      data.last.turningPoint.snap = { href: snapPath(archive.id, play.key), label: snapHeadline(archive, play).replace(/\.$/, "") };
     }
   }
   const team = buildTeamFocus(coverage, snapshot?.season ?? null);

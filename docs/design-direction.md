@@ -15,8 +15,11 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 
 - **Following a play** (2026-11-19). A fan watching on delay chooses the last clock they saw and advances the game one recorded play at a time. Each play can be shared and compared with earlier Jets games. The first two examples are Cleveland in 2022 and Buffalo in 2026.
 
+- **Reading an exact play** (2026-11-19). The fan needs the score, clock, offense, down and field position together, with a plain account of the result. Put play-level football analysis below that context.
+
 ## Rejected
 
+- The initial exact-play view separated the score and play text from the down, distance and field position. The owner said it missed the basics of what was happening in the game.
 - The newspaper identity: "The Back Page", mastheads, desks, editions, datelines, stamps, paper tints and the condensed all-caps display type. It was an earlier agent's idea; the owner finds it corny.
 - Any other themed concept proposed on his behalf.
 

@@ -19,6 +19,43 @@ function score(value: SnapScore | null): value is SnapScore {
   return Array.isArray(value) && value.length === 2 && value.every((n) => integer(n, 0));
 }
 
+/** Reconcile the provider's after-play estimate with its same-row change when both operands exist. */
+export function validPostWp(post: number, before: number | null, change: number | null, tolerance: number): boolean {
+  return Number.isFinite(post) && post >= 0 && post <= 1 &&
+    (before == null || change == null || Math.abs(post - before - change) <= tolerance + Number.EPSILON);
+}
+
+const kinds = new Set(["completion", "incompletion", "interception", "rush", "sack", "kneel", "spike"]);
+const booleanFacts = ["goalToGo", "firstDown", "touchdown", "simpleAdvance"] as const;
+const playerFacts = ["passer", "target", "rusher", "interceptor"] as const;
+const probabilities = ["dropbackProbability", "completionProbability"] as const;
+const factKeys = new Set<string>(["timeouts", "kind", "yards", "airYards", "afterCatch", "epa",
+  ...booleanFacts, ...playerFacts, ...probabilities]);
+
+function validFacts(play: Snap): boolean {
+  const facts = play.facts;
+  if (facts === undefined) return true; // Earlier v1 season files.
+  if (!facts || typeof facts !== "object" || Array.isArray(facts) || Object.keys(facts).some((k) => !factKeys.has(k))) return false;
+  if (facts.timeouts !== undefined && (!score(facts.timeouts) || facts.timeouts.some((n) => n > 3))) return false;
+  if (facts.kind !== undefined && !kinds.has(facts.kind)) return false;
+  if (booleanFacts.some((k) => facts[k] !== undefined && typeof facts[k] !== "boolean")) return false;
+  if (playerFacts.some((k) => facts[k] !== undefined && (typeof facts[k] !== "string" || !facts[k].trim() || facts[k].length > 100))) return false;
+  if (probabilities.some((k) => facts[k] !== undefined && (!Number.isFinite(facts[k]) || facts[k] < 0 || facts[k] > 1))) return false;
+  if (facts.epa !== undefined && !Number.isFinite(facts.epa)) return false;
+  if (facts.yards !== undefined && !integer(facts.yards, -100, 100)) return false;
+  if ([facts.airYards, facts.afterCatch].some((n) => n !== undefined && !integer(n, -120, 120))) return false;
+  if ((facts.completionProbability !== undefined || facts.airYards !== undefined) &&
+    (!facts.target || !["completion", "incompletion", "interception"].includes(facts.kind ?? ""))) return false;
+  if (facts.afterCatch !== undefined && (facts.kind !== "completion" || !facts.target)) return false;
+  if (facts.simpleAdvance === true) {
+    if ((facts.kind !== "rush" && facts.kind !== "completion") || play.possession === null ||
+      play.down === null || play.distance === null || play.yardline === null || facts.yards === undefined) return false;
+    const finish = play.yardline - facts.yards;
+    if (finish < 0 || finish >= 100 || (finish === 0) !== (facts.touchdown === true)) return false;
+  }
+  return true;
+}
+
 function validPlay(play: Snap): boolean {
   return !!play && typeof play.key === "string" && /^[1-9]\d*$/.test(play.key) &&
     Number.isSafeInteger(Number(play.key)) && integer(play.quarter, 1) &&
@@ -31,8 +68,10 @@ function validPlay(play: Snap): boolean {
     (play.drive === null || integer(play.drive, 1)) &&
     (play.wp === null || Number.isFinite(play.wp) && play.wp >= 0 && play.wp <= 1) &&
     (play.delta === null || Number.isFinite(play.delta) && Math.abs(play.delta) <= 1) &&
+    // The published pre, post and delta each round independently to .001.
+    (play.postWp == null || validPostWp(play.postWp, play.wp, play.delta, 0.002)) &&
     (play.type === null || typeof play.type === "string" && !!play.type.trim()) &&
-    typeof play.description === "string" && !!play.description.trim();
+    typeof play.description === "string" && !!play.description.trim() && validFacts(play);
 }
 
 /** Compressed season files contain complete games in source play order. IDs are identities, not order keys. */

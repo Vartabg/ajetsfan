@@ -1,5 +1,30 @@
 /** Score pairs use Jets, opponent order, irrespective of who is at home. */
 export type SnapScore = [number, number];
+
+export type SnapKind = "completion" | "incompletion" | "interception" | "rush" | "sack" | "kneel" | "spike";
+export type SnapFacts = {
+  /** Timeouts remaining as recorded on this row, in Jets/opponent order. */
+  timeouts?: [number, number];
+  goalToGo?: boolean;
+  kind?: SnapKind;
+  yards?: number;
+  firstDown?: boolean;
+  /** Offensive touchdown, with the scoring side verified. */
+  touchdown?: boolean;
+  /** The start spot and recorded gain establish the offense's finish on an uncomplicated play. */
+  simpleAdvance?: boolean;
+  passer?: string;
+  target?: string;
+  rusher?: string;
+  interceptor?: string;
+  /** Expected points added from the source possession team's perspective (the receiving side on a kickoff). */
+  epa?: number;
+  dropbackProbability?: number;
+  completionProbability?: number;
+  airYards?: number;
+  afterCatch?: number;
+};
+
 export type Snap = {
   key: string;
   quarter: number;
@@ -15,10 +40,11 @@ export type Snap = {
   /** Pre-play model estimate and the source-reported change, both from the Jets' perspective. */
   wp: number | null;
   delta: number | null;
-  /** ESPN supplies an after-play model instead. */
+  /** Provider-reported Jets win probability after this play. ESPN supplies this timing only. */
   postWp?: number | null;
   type: string | null;
   description: string;
+  facts?: SnapFacts;
 };
 
 export type SnapGame = {

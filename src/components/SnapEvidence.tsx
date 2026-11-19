@@ -1,23 +1,7 @@
 import Link from "next/link";
-import { BUFFALO, CLEVELAND, chance, clockText, periodName, snapPath, snapTime } from "@/lib/snap-explorer";
-import type { Snap, SnapGame } from "@/lib/snap-types";
+import { chance, clockText, periodName, snapPath, snapTime } from "@/lib/snap-explorer";
+import type { Snap } from "@/lib/snap-types";
 import styles from "./SnapReader.module.css";
-
-export function snapHeadline(game: SnapGame, play: Snap): string {
-  if (game.id === BUFFALO && play.key === "2511" && /J\.Allen pass.*D\.Kincaid.*54 yards/i.test(play.description)) return "Allen to Kincaid for 54 yards.";
-  if (game.id === CLEVELAND && play.key === "4199" && /G\.Wilson for 15 yards, TOUCHDOWN/i.test(play.description)) return "Garrett Wilson catches the touchdown.";
-  if (game.id === CLEVELAND && play.key === "4276" && /INTERCEPTED by (?:\d+-)?A\.Davis/i.test(play.description)) return "Ashtyn Davis intercepts Brissett.";
-  return "The play at " + snapTime(play) + ".";
-}
-
-export function SituationLine({ play, opponent }: { play: Snap; opponent: string }) {
-  const side = play.possession === "jets" ? "Jets" : play.possession === "opponent" ? opponent : null;
-  const downs = ["", "1st", "2nd", "3rd", "4th"];
-  const pieces = [side && side + " ball", play.down && downs[play.down] + " down",
-    play.distance !== null && play.distance + (play.distance === 1 ? " yard to go" : " yards to go"),
-    play.yardline !== null && play.yardline + " yards from goal"];
-  return <p className={styles.context}>{pieces.filter(Boolean).join(" · ") || "Pre-play field position unavailable."}</p>;
-}
 
 export function ClockPicker({ gameId, play }: { gameId: string; play?: Pick<Snap, "quarter" | "clock"> }) {
   return <form className={styles.clockForm} method="get" action={snapPath(gameId, "clock")}>

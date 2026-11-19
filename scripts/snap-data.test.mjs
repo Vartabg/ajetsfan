@@ -67,6 +67,105 @@ test('score fallbacks use the immediate running score from the correct side of t
   assert.deepEqual(interception.after, [7, 0]);
 });
 
+test('post-play win probability comes from this row and reconciles at source precision', () => {
+  const rows = sourceRows();
+  const first = () => verifiedSnapGame(fixture, rows).plays[0];
+  rows[0].home_wp_post = 0.56598;
+  rows[1].away_wp = 0.43402;
+  assert.equal(first().postWp, undefined); // Neither the opponent's estimate nor the next snap supplies it.
+  rows[0].away_wp_post = 0.43402;
+  assert.equal(first().postWp, 0.434);
+  rows[0].away_wp_post = 0.43502;
+  assert.equal(first().postWp, 0.435); // One .001 publication unit of discrepancy.
+  for (const value of [0.43503, 1.01, -0.01, NaN, '0.434', null]) {
+    rows[0].away_wp_post = value;
+    assert.equal(first().postWp, undefined);
+  }
+  rows[0].away_wp_post = 0;
+  rows[0].wpa = null;
+  assert.equal(first().postWp, 0);
+  rows[0].away_wp = null;
+  rows[0].away_wp_post = 1;
+  rows[0].wpa = 0.12;
+  assert.equal(first().postWp, 1);
+  rows[0].posteam = null;
+  assert.equal(first().postWp, undefined);
+});
+
+function completionFacts(changes = {}) {
+  const rows = sourceRows();
+  Object.assign(rows[0], {
+    home_timeouts_remaining: 2, away_timeouts_remaining: 0, goal_to_go: 1, yardline_100: 6, ydstogo: 6,
+    pass_attempt: 1, rush_attempt: 0, qb_spike: 0, qb_kneel: 0, sack: 0, interception: 0, complete_pass: 1,
+    incomplete_pass: 0, penalty: 0, two_point_attempt: 0, extra_point_attempt: 0, special_teams_play: 0, aborted_play: 0,
+    yards_gained: 6, passing_yards: 6, receiving_yards: 6, air_yards: -1, yards_after_catch: 7,
+    touchdown: 1, pass_touchdown: 1, td_team: 'NYJ', first_down: 1, fumble: 0, fumble_lost: 0, safety: 0,
+    lateral_rush: 0, lateral_reception: 0, lateral_return: 0, lateral_recovery: 0, replay_or_challenge: 0,
+    passer_player_name: 'J.Flacco', receiver_player_name: 'G.Wilson', epa: -0.00037, xpass: 0, cp: 0.40454,
+    ...changes,
+  });
+  return verifiedSnapGame(fixture, rows).plays[0].facts;
+}
+
+test('same-row facts preserve measured zero, signed yardage, model precision and distinct roles', () => {
+  assert.deepEqual(completionFacts(), { timeouts: [0, 2], goalToGo: true, kind: 'completion', yards: 6,
+    firstDown: true, touchdown: true, simpleAdvance: true, passer: 'J.Flacco', target: 'G.Wilson',
+    epa: -0.00037, dropbackProbability: 0, completionProbability: 0.40454, airYards: -1, afterCatch: 7 });
+  const unknown = completionFacts({ epa: null, home_timeouts_remaining: null, cp: null, xpass: null,
+    receiver_player_name: null, first_down: null, goal_to_go: null, yards_gained: null });
+  for (const key of ['epa', 'timeouts', 'target', 'completionProbability', 'dropbackProbability',
+    'firstDown', 'goalToGo', 'yards', 'simpleAdvance', 'airYards', 'afterCatch']) assert.ok(!(key in unknown), key);
+  const invalid = completionFacts({ epa: Infinity, cp: -0.01, xpass: 1.01, home_timeouts_remaining: 4,
+    air_yards: 121, yards_after_catch: '7', yards_gained: 500 });
+  for (const key of ['epa', 'completionProbability', 'dropbackProbability', 'timeouts', 'airYards', 'afterCatch', 'yards']) {
+    assert.ok(!(key in invalid), key);
+  }
+  const interception = completionFacts({ complete_pass: 0, interception: 1, receiver_player_id: 'same',
+    interception_player_id: 'same', interception_player_name: 'A.Davis' });
+  assert.equal(interception.kind, 'interception');
+  assert.deepEqual([interception.target, interception.interceptor, interception.completionProbability], [undefined, undefined, undefined]);
+  assert.equal(completionFacts({ receiver_player_name: 'A.One; B.Two' }).target, undefined);
+  assert.equal(completionFacts({ receiver_player_id: 'first/second' }).target, undefined);
+});
+
+test('a field finish requires consistent ordinary gain, scoring and credit evidence', () => {
+  for (const change of [{ fumble: 1 }, { fumble_lost: 1 }, { lateral_reception: 1 }, { lateral_rusher_player_name: 'A.Other' },
+    { replay_or_challenge: 1 }, { replay_or_challenge: null }, { description: 'Pass caught. The Replay Official reviewed the ruling.' },
+    { description: 'Pass caught. Lateral to A.Other.' }, { description: 'Handed off. Reverse to A.Other.' },
+    { safety: 1 }, { passing_yards: 5 }, { receiving_yards: null },
+    { air_yards: 8 }, { yardline_100: 3 }, { touchdown: 0 }, { touchdown: 1, td_team: 'CLE' }]) {
+    assert.equal(completionFacts(change).simpleAdvance, undefined, JSON.stringify(change));
+  }
+  for (const change of [{ play_type: 'kickoff' }, { play_type: 'no_play' }, { down: null }, { incomplete_pass: 1 },
+    { penalty: 1 }, { description: 'Pass complete. Penalty on NYJ, declined.' }, { two_point_attempt: 1 },
+    { extra_point_attempt: 1 }, { special_teams_play: 1 }, { aborted_play: 1 }]) {
+    const facts = completionFacts(change);
+    assert.equal(facts.kind, undefined, JSON.stringify(change));
+    assert.equal(facts.simpleAdvance, undefined);
+    assert.equal(facts.completionProbability, undefined);
+  }
+});
+
+test('v1 season parsing accepts absent facts and validates optional facts before use', () => {
+  const game = verifiedSnapGame(fixture, sourceRows());
+  const parse = () => parseSnapSeason(JSON.stringify({ season: 2022, schemaVersion: 1, games: [game] }), 2022);
+  assert.deepEqual(parse(), [game]);
+  for (const post of [1.02, -0.01, '0.434', 0.2]) {
+    game.plays[0].postWp = post;
+    assert.throws(parse, /Invalid/);
+  }
+  game.plays[0].postWp = 0.436; // Published 0.123 pre and 0.311 change were rounded separately.
+  assert.deepEqual(parse(), [game]);
+  delete game.plays[0].postWp;
+  for (const facts of [null, [], { timeouts: [1, 4] }, { touchdown: 1 }, { kind: 'penalty' }, { epa: '1' },
+    { airYards: 121 }, { afterCatch: -121 }, { yards: -101 }, { passer: '' }, { dropbackProbability: 1.01 },
+    { completionProbability: 0.4, kind: 'rush' }, { afterCatch: 4, kind: 'interception' },
+    { simpleAdvance: true, kind: 'completion', yards: 50 }, { simpleAdvance: true, kind: 'sack', yards: -2 }]) {
+    game.plays[0].facts = facts;
+    assert.throws(parse, /Invalid/);
+  }
+});
+
 test('play descriptions withhold later notes but retain penalties and replay rulings', () => {
   assert.equal(snapDescription('Run left for 3 yards. ** Injury Update: NYJ-98-B.Hector has returned to the game. PENALTY on NYJ, Holding - No Play.'),
     'Run left for 3 yards. PENALTY on NYJ, Holding - No Play.');
@@ -186,6 +285,8 @@ test('published historical seasons reproduce the two-minute cohort and its linke
   const early = games.find((game) => game.id === '1999_02_NYJ_BUF').plays.find((play) => play.key === '1425');
   assert.equal(early.type, null);
   assert.match(early.description, /D\.Ward left tackle/);
+  const reverse = games.find((game) => game.id === '2000_02_NE_NYJ').plays.find((play) => play.key === '371');
+  assert.deepEqual([reverse.facts.yards, reverse.facts.rusher, reverse.facts.simpleAdvance], [undefined, undefined, undefined]);
   const cleveland = games.find((game) => game.id === '2022_02_NYJ_CLE');
   const wilson = cleveland.plays.findIndex((play) => play.key === '4199');
   assert.deepEqual([cleveland.plays[wilson].before, cleveland.plays[wilson].after,
@@ -205,4 +306,35 @@ test('published historical seasons reproduce the two-minute cohort and its linke
   const kincaid = buffalo.plays.find((p) => p.key === '2511');
   assert.match(kincaid.description, /Kincaid.*54 yards/);
   assert.deepEqual([kincaid.quarter, kincaid.clock, kincaid.before, kincaid.wp, kincaid.delta], [3, 594, [9, 10], 0.427, -0.116]);
+  // Literal observations from the named nflverse Parquet rows. Keep model timing
+  // and direction distinct from observed yards, the next kick and the game final.
+  assert.deepEqual(cleveland.plays[wilson].facts, {
+    timeouts: [0, 1], kind: 'completion', goalToGo: false, yards: 15, firstDown: true, touchdown: true,
+    passer: 'J.Flacco', target: 'G.Wilson', simpleAdvance: true, epa: 3.846828027839408,
+    dropbackProbability: 0.9855244755744934, completionProbability: 0.4148028492927551, airYards: 14, afterCatch: 1,
+  });
+  const davis = cleveland.plays.find((play) => play.key === '4276');
+  assert.deepEqual([cleveland.plays[wilson].postWp, davis.postWp, kincaid.postWp], [0.573, 0.894, 0.311]);
+  const seattle = games.find((game) => game.id === '2024_13_SEA_NYJ').plays.find((p) => p.key === '3620');
+  assert.deepEqual([seattle.wp, seattle.delta, seattle.postWp], [0.649, -0.152, undefined]);
+  assert.deepEqual(davis.facts, {
+    timeouts: [0, 1], kind: 'interception', goalToGo: false, yards: 0, firstDown: false, touchdown: false,
+    passer: 'J.Brissett', target: 'A.Cooper', interceptor: 'A.Davis', epa: -0.7408111404813765,
+    dropbackProbability: 0.975856602191925, completionProbability: 0.5842199325561523, airYards: 18,
+  });
+  assert.deepEqual(kincaid.facts, {
+    timeouts: [3, 3], kind: 'completion', goalToGo: false, yards: 54, firstDown: true, touchdown: false,
+    passer: 'J.Allen', target: 'D.Kincaid', simpleAdvance: true, epa: 2.9467543336770037,
+    dropbackProbability: 0.488914430141449, completionProbability: 0.4996108412742615, airYards: 21, afterCatch: 33,
+  });
+  const find = (key) => cleveland.plays.find((play) => play.key === key);
+  assert.deepEqual(find('4224').facts, { timeouts: [0, 1], epa: 0.06000000000000005 });
+  assert.deepEqual(find('4240').facts, { timeouts: [0, 1], epa: 0 });
+  assert.deepEqual([find('63').facts.kind, find('63').facts.rusher, find('63').facts.yards, find('63').facts.simpleAdvance],
+    ['rush', 'Mi.Carter', 1, true]);
+  assert.deepEqual([find('1263').facts.goalToGo, find('1263').facts.touchdown, find('1263').facts.afterCatch], [true, true, 0]);
+  assert.equal(find('1433').facts.kind, undefined); // Recorded rush with an enforced penalty.
+  assert.equal(find('622').facts.simpleAdvance, undefined); // Nullified snap.
+  assert.equal(find('4177').facts.completionProbability, undefined); // Throw with no identified target.
+  assert.equal(find('4307').facts.kind, 'kneel');
 });
