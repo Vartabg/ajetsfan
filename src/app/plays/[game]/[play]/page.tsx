@@ -11,6 +11,7 @@ import styles from "@/components/SnapReader.module.css";
 import { formatDate } from "@/lib/current";
 import { confirmedSnapForEspn } from "@/lib/espn-snaps";
 import { loadEspnSnapGame } from "@/lib/load-espn-snaps";
+import { loadFootballState } from "@/lib/load-football";
 import { loadLeagueHistory } from "@/lib/load-league-history";
 import { loadPublishedGames } from "@/lib/load-published-pages";
 import { loadSnapArchive, loadSnapGame } from "@/lib/load-snaps";
@@ -53,7 +54,8 @@ export default async function SnapPage({ params, searchParams }: Props) {
   const needsProvider = providerKey || !archived && (key === "start" || key === "clock");
   const game = needsProvider ? await loadEspnSnapGame(id) : archived;
   if (!game?.plays.length) {
-    const fixture = (await loadLeagueHistory())?.games.find(row => row.id === id);
+    const [football, history] = await Promise.all([loadFootballState(), loadLeagueHistory().catch(() => null)]);
+    const fixture = football.edition.current.schedule.find(row => row.id === id) ?? history?.games.find(row => row.id === id);
     if (!fixture && !game && !archived) notFound();
     const waiting = key === "start" || key === "clock";
     return <FocusShell page="play-waiting" name="Follow the game" section="/game-day" checkedAt={null} entries={[{ id: "waiting", title: "Play by play", answer: "Pending" }]}>
