@@ -194,7 +194,10 @@ test("retrospective controls keep distinct-game denominators, outcome filters an
   await page.getByRole("link", { name: "Wins", exact: true }).click();
   await expect(list.getByRole("listitem")).toHaveCount(5);
   await expect(list.getByRole("link", { name: /Browns/ })).toHaveAttribute("href", clevelandPath + "/3866");
-  await page.getByRole("link", { name: "Losses", exact: true }).click();
+  const losses = page.getByRole("link", { name: "Losses", exact: true });
+  await losses.click();
+  await expect(losses).toHaveAttribute("aria-current", "true");
+  await expect(list.getByRole("listitem")).toHaveCount(8);
   const hrefs = () => list.getByRole("link").evaluateAll(links => links.map(link => link.getAttribute("href")));
   const first = await hrefs();
   await page.getByRole("link", { name: "Next results" }).click();
