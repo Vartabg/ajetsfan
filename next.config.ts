@@ -37,9 +37,9 @@ const nextConfig: NextConfig = {
     // Player pages read every season's player file (readdir), which tracing cannot follow on its own.
     "/players/*": ["./public/data/players/*.json"],
     "/replay": ["./public/data/snaps/*.json.gz"],
-    "/replay/*": ["./public/data/snaps/*.json.gz"],
+    "/replay/*": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
     "/plays": ["./public/data/snaps/*.json.gz"],
-    "/plays/*": ["./public/data/snaps/*.json.gz"],
+    "/plays/*": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
     "/games/*": ["./public/data/snaps/*.json.gz"],
     "/find": ["./public/data/snaps/*.json.gz"],
     "/stories": ["./public/data/snaps/*.json.gz"],
@@ -49,7 +49,9 @@ const nextConfig: NextConfig = {
   // that actually open a snap season need the compressed play-by-play archive.
   outputFileTracingExcludes: {
     "/{api,discover,film-room,game-day,history,how-made,legends,media,morgue,players,puzzle,seasons,team}{,/**}": ["./public/data/snaps/*.json.gz"],
-    "/**/opengraph-image": ["./public/data/snaps/*.json.gz"],
+    "/{api,discover,film-room,find,game-day,games,history,how-made,legends,media,morgue,players,puzzle,seasons,stories,team}{,/**}": ["./public/data/participation/*.json.gz"],
+    "/{replay,plays}{,/page}": ["./public/data/participation/*.json.gz"],
+    "/**/opengraph-image": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
   },
   images: {
     formats: ["image/avif", "image/webp"],

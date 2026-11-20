@@ -326,7 +326,7 @@ test('published historical seasons reproduce the two-minute cohort and its linke
   // and direction distinct from observed yards, the next kick and the game final.
   assert.deepEqual(cleveland.plays[wilson].facts, {
     timeouts: [0, 1], kind: 'completion', goalToGo: false, yards: 15, firstDown: true, touchdown: true,
-    passer: 'J.Flacco', target: 'G.Wilson', simpleAdvance: true, epa: 3.846828027839408,
+    passer: 'J.Flacco', target: 'G.Wilson', simpleAdvance: true, epa: 3.846828027839408, shotgun: true, direction: 'middle', passLength: 'short',
     dropbackProbability: 0.9855244755744934, completionProbability: 0.4148028492927551, airYards: 14, afterCatch: 1,
   });
   const davis = cleveland.plays.find((play) => play.key === '4276');
@@ -336,17 +336,21 @@ test('published historical seasons reproduce the two-minute cohort and its linke
   assert.deepEqual(davis.facts, {
     turnovers: ['interception'],
     timeouts: [0, 1], kind: 'interception', goalToGo: false, yards: 0, firstDown: false, touchdown: false,
-    passer: 'J.Brissett', target: 'A.Cooper', interceptor: 'A.Davis', epa: -0.7408111404813765,
+    passer: 'J.Brissett', target: 'A.Cooper', interceptor: 'A.Davis', epa: -0.7408111404813765, shotgun: true, direction: 'left',
+    passLength: 'deep', interceptionReturnYards: 14, defenders: [{ name: 'A.Davis', role: 'passDefended' }],
     dropbackProbability: 0.975856602191925, completionProbability: 0.5842199325561523, airYards: 18,
   });
   assert.deepEqual(kincaid.facts, {
     timeouts: [3, 3], kind: 'completion', goalToGo: false, yards: 54, firstDown: true, touchdown: false,
-    passer: 'J.Allen', target: 'D.Kincaid', simpleAdvance: true, epa: 2.9467543336770037,
+    passer: 'J.Allen', target: 'D.Kincaid', simpleAdvance: true, epa: 2.9467543336770037, shotgun: true, direction: 'right',
+    passLength: 'deep', defenders: [{ name: 'D.Belton', role: 'assistTackle' }, { name: 'M.Moore', role: 'assistTackle' }],
     dropbackProbability: 0.488914430141449, completionProbability: 0.4996108412742615, airYards: 21, afterCatch: 33,
   });
   const find = (key) => cleveland.plays.find((play) => play.key === key);
-  assert.deepEqual(find('4224').facts, { timeouts: [0, 1], epa: 0.06000000000000005 });
-  assert.deepEqual(find('4240').facts, { timeouts: [0, 1], epa: 0 });
+  assert.deepEqual(find('4224').facts, { timeouts: [0, 1], epa: 0.06000000000000005,
+    kick: { kind: 'extraPoint', kicker: 'G.Zuerlein', kickYards: 33, outcome: 'made' } });
+  assert.deepEqual(find('4240').facts, { timeouts: [0, 1], epa: 0,
+    kick: { kind: 'kickoff', kicker: 'G.Zuerlein', kickYards: 65, touchback: true } });
   assert.deepEqual([find('63').facts.kind, find('63').facts.rusher, find('63').facts.yards, find('63').facts.simpleAdvance],
     ['rush', 'Mi.Carter', 1, true]);
   assert.deepEqual([find('1263').facts.goalToGo, find('1263').facts.touchdown, find('1263').facts.afterCatch], [true, true, 0]);
@@ -354,4 +358,40 @@ test('published historical seasons reproduce the two-minute cohort and its linke
   assert.equal(find('622').facts.simpleAdvance, undefined); // Nullified snap.
   assert.equal(find('4177').facts.completionProbability, undefined); // Throw with no identified target.
   assert.equal(find('4307').facts.kind, 'kneel');
+});
+
+test('diagram facts require applicable action, source direction, credited identities and the correct side', () => {
+  const routine = { defteam: 'CLE', shotgun: 1, pass_location: 'left', pass_length: 'short', run_gap: 'guard',
+    assist_tackle_1_team: 'CLE', assist_tackle_1_player_name: 'D.Guard', assist_tackle_1_player_id: '00-0022334',
+    assist_tackle_2_team: 'NYJ', assist_tackle_2_player_name: 'W.Player', assist_tackle_2_player_id: '00-0000001' };
+  const facts = completionFacts(routine);
+  assert.equal(facts.direction, 'left');
+  assert.equal(facts.passLength, 'short');
+  assert.equal(facts.shotgun, true);
+  assert.equal(facts.runGap, undefined);
+  assert.deepEqual(facts.defenders, [{ name: 'D.Guard', role: 'assistTackle' }]);
+  for (const fix of [{ fumble: 1 }, { replay_or_challenge: 1 }, { lateral_return: 1 }, { penalty: 1 }, { defteam: 'DET' }]) {
+    const changed = completionFacts({ ...routine, ...fix });
+    assert.equal(changed.direction, undefined);
+    assert.equal(changed.defenders, undefined);
+  }
+  assert.equal(completionFacts({ ...routine, pass_location: 'near' }).direction, undefined);
+  assert.equal(completionFacts({ ...routine, assist_tackle_1_player_id: null }).defenders, undefined);
+  assert.equal(completionFacts({ ...routine, receiver_player_id: routine.assist_tackle_1_player_id }).defenders, undefined);
+  const sack = completionFacts({ ...routine, complete_pass: 0, sack: 1,
+    half_sack_1_player_name: 'D.Guard', half_sack_1_player_id: routine.assist_tackle_1_player_id,
+    half_sack_2_player_name: 'P.Edge', half_sack_2_player_id: '00-0012345' });
+  assert.deepEqual(sack.defenders, [{ name: 'D.Guard', role: 'halfSack' }, { name: 'P.Edge', role: 'halfSack' }]);
+  assert.equal(sack.passLength, undefined);
+});
+
+test('a separate participation derivative cannot enter the PBP season; incomplete or inconsistent kick and defender shapes fail validation', () => {
+  const game = verifiedSnapGame(fixture, sourceRows());
+  for (const facts of [{ kind: 'completion', charting: { formation: 'SHOTGUN' } }, { kind: 'sack', passLength: 'deep' },
+    { kind: 'interception', interceptionReturnYards: -1 }, { kind: 'rush', defenders: [{ name: 'D.Player', role: 'sack' }] },
+    { kind: 'rush', defenders: [{ name: 'A', role: 'assistTackle' }, { name: 'A', role: 'soloTackle' }] },
+    { kick: { kind: 'fieldGoal', outcome: 'made' } }, { kick: { kind: 'kickoff', touchback: true, returnYards: 3 } }]) {
+    game.plays[0].facts = facts;
+    assert.throws(() => parseSnapSeason(JSON.stringify({ schemaVersion: 1, season: 2022, games: [game] }), 2022), /Invalid/);
+  }
 });

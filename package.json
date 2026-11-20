@@ -19,6 +19,7 @@
     "data:history": "node scripts/league-history.mjs",
     "data:drives": "node scripts/drives.mjs",
     "data:snaps": "node scripts/snap-data.mjs",
+    "data:participation": "node scripts/snap-participation.mjs",
     "data:players": "node scripts/player-pages.mjs"
   },
   "dependencies": {

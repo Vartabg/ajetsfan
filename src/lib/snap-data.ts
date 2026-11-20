@@ -1,5 +1,5 @@
 import type { Game } from "./games";
-import type { Snap, SnapGame, SnapScore } from "./snap-types";
+import type { Snap, SnapGame, SnapKick, SnapScore } from "./snap-types";
 
 /** Some nflverse gamebooks append an injury update or another play to the original description. */
 export function snapDescription(text: string): string {
@@ -25,17 +25,65 @@ export function validPostWp(post: number, before: number | null, change: number 
     (before == null || change == null || Math.abs(post - before - change) <= tolerance + Number.EPSILON);
 }
 
+const diagramFactKeys = ["direction", "passLength", "runGap", "shotgun", "defenders", "kick", "interceptionReturnYards"] as const;
+const kickTypes = { kickoff: "kickoff", punt: "punt", fieldGoal: "field_goal", extraPoint: "extra_point" };
+const kickKeys = new Set(["kind", "kicker", "returner", "kickYards", "returnYards", "touchback", "outcome"]);
+const passKinds = new Set(["completion", "incompletion", "interception"]);
+const tackleRoles = new Set(["soloTackle", "tackleWithAssist", "assistTackle"]);
+const playerName = (name: unknown): name is string => typeof name === "string" && !!name.trim() && name.length <= 100;
+const yards = (n: number, min: number) => Number.isSafeInteger(n) && n >= min && n <= 120;
+
+function validKick(kick: SnapKick, play: Snap): boolean {
+  if (!kick || typeof kick !== "object" || !Object.hasOwn(kickTypes, kick.kind) || play.type !== kickTypes[kick.kind] ||
+    !play.possession || play.facts?.kind || Object.keys(kick).length < 2 || Object.keys(kick).some((key) => !kickKeys.has(key))) return false;
+  if ([kick.kicker, kick.returner].some((name) => name !== undefined && !playerName(name))) return false;
+  if (kick.kickYards !== undefined && !yards(kick.kickYards, 0)) return false;
+  if (kick.kind === "fieldGoal" || kick.kind === "extraPoint") {
+    return (kick.outcome === "made" || kick.outcome === "missed") &&
+      kick.touchback === undefined && kick.returnYards === undefined && kick.returner === undefined;
+  }
+  return kick.outcome === undefined && (kick.touchback === undefined || (kick.touchback === true && kick.returner === undefined)) &&
+    (kick.returnYards === undefined || (kick.returner !== undefined && yards(kick.returnYards, -120)));
+}
+
+function validDiagramFacts(play: Snap): boolean {
+  const facts = play.facts;
+  if (!facts) return true;
+  const { kind, direction, passLength, runGap, interceptionReturnYards, defenders, kick, shotgun } = facts;
+  const pass = passKinds.has(kind ?? "");
+  if (direction !== undefined && ((!pass && kind !== "rush") || !["left", "middle", "right"].includes(direction))) return false;
+  if (passLength !== undefined && (!pass || !["short", "deep"].includes(passLength))) return false;
+  if (runGap !== undefined && (kind !== "rush" || !["end", "guard", "tackle"].includes(runGap))) return false;
+  if (shotgun !== undefined && (!kind || shotgun !== true)) return false;
+  if (interceptionReturnYards !== undefined && (kind !== "interception" || !facts.interceptor || !yards(interceptionReturnYards, -120))) return false;
+  if (kick !== undefined && !validKick(kick, play)) return false;
+  if (defenders !== undefined) {
+    if (!Array.isArray(defenders) || !defenders.length || defenders.length > 12) return false;
+    const names = new Set<string>();
+    for (const defender of defenders) {
+      if (!defender || Object.keys(defender).some((key) => key !== "name" && key !== "role") || !playerName(defender.name) || names.has(defender.name)) return false;
+      names.add(defender.name);
+      if (tackleRoles.has(defender.role)) {
+        if (!["rush", "sack", "completion"].includes(kind ?? "") && kick?.returnYards === undefined) return false;
+      } else if (defender.role === "sack" || defender.role === "halfSack") {
+        if (kind !== "sack") return false;
+      } else if (defender.role !== "passDefended" || (kind !== "incompletion" && kind !== "interception")) return false;
+    }
+  }
+  return true;
+}
+
 const kinds = new Set(["completion", "incompletion", "interception", "rush", "sack", "kneel", "spike"]);
 const booleanFacts = ["goalToGo", "firstDown", "touchdown", "simpleAdvance"] as const;
 const playerFacts = ["passer", "target", "rusher", "interceptor"] as const;
 const probabilities = ["dropbackProbability", "completionProbability"] as const;
 const factKeys = new Set<string>(["timeouts", "kind", "turnovers", "yards", "airYards", "afterCatch", "epa",
-  ...booleanFacts, ...playerFacts, ...probabilities]);
+  ...booleanFacts, ...playerFacts, ...probabilities, ...diagramFactKeys]);
 
 function validFacts(play: Snap): boolean {
   const facts = play.facts;
   if (facts === undefined) return true; // Earlier v1 season files.
-  if (!facts || typeof facts !== "object" || Array.isArray(facts) || Object.keys(facts).some((k) => !factKeys.has(k))) return false;
+  if (!facts || typeof facts !== "object" || Array.isArray(facts) || Object.keys(facts).some((k) => !factKeys.has(k)) || !validDiagramFacts(play)) return false;
   if (facts.timeouts !== undefined && (!score(facts.timeouts) || facts.timeouts.some((n) => n > 3))) return false;
   if (facts.kind !== undefined && !kinds.has(facts.kind)) return false;
   if (facts.turnovers !== undefined && (!Array.isArray(facts.turnovers) || !facts.turnovers.length ||

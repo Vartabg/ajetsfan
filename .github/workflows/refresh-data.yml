@@ -41,6 +41,7 @@ jobs:
       - run: npm run data:history
       - run: npm run data:drives
       - run: npm run data:snaps
+      - run: npm run data:participation
       - run: npm run data:players
       - run: npm run data:media
         env:

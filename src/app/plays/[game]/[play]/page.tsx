@@ -5,6 +5,8 @@ import FocusMoment from "@/components/FocusMoment";
 import FocusShell from "@/components/FocusShell";
 import CopySnap from "@/components/CopySnap";
 import { ClockPicker, DriveSoFar, ProbabilityTrace } from "@/components/SnapEvidence";
+import { DiagramLinks, SnapChalkboard } from "@/components/SnapChalkboard";
+import { replayHref } from "@/lib/game-replay";
 import { GameScoreboard, PlayAnalysis, SnapField } from "@/components/SnapGameState";
 import { snapAccount, snapHeadline } from "@/lib/snap-context";
 import SnapMatches, { SituationForm } from "@/components/SnapMatches";
@@ -18,7 +20,7 @@ import { loadEspnSnapGame } from "@/lib/load-espn-snaps";
 import { loadFootballState } from "@/lib/load-football";
 import { loadLeagueHistory } from "@/lib/load-league-history";
 import { loadPublishedGames } from "@/lib/load-published-pages";
-import { loadSnapArchive, loadSnapGame } from "@/lib/load-snaps";
+import { loadSnapArchive, loadChartedSnapGame } from "@/lib/load-snaps";
 import { CLEVELAND, clockCandidates, clockText, periodName, situationMatches, situationRules, snapPath, snapTime, type SearchValues } from "@/lib/snap-explorer";
 import type { SnapGame } from "@/lib/snap-types";
 import { pageMetadata } from "@/lib/site";
@@ -75,7 +77,7 @@ function ClockSelection({ game, query }: { game: SnapGame; query: SearchValues }
 export default async function SnapPage({ params, searchParams }: Props) {
   const [{ game: id, play: key }, query] = await Promise.all([params, searchParams]);
   if (!/^\d{4}_\d{2}_(?:NYJ_[A-Z]{2,3}|[A-Z]{2,3}_NYJ)$/.test(id) || !/^(?:start|clock|[1-9]\d{0,8}|e-\d{1,24})$/.test(key)) notFound();
-  const archived = await loadSnapGame(id);
+  const archived = await loadChartedSnapGame(id);
   const providerKey = key.startsWith("e-");
   const needsProvider = providerKey || !archived && (key === "start" || key === "clock");
   const game = needsProvider ? await loadEspnSnapGame(id) : archived;
@@ -100,13 +102,20 @@ export default async function SnapPage({ params, searchParams }: Props) {
   const canonical = providerKey && archived ? confirmedSnapForEspn(game, play, archived) : null;
   if (canonical) {
     const params = new URLSearchParams();
-    for (const name of ["compare", "window", "margin", "possession", "down", "distance", "outcome", "p"]) {
+    for (const name of ["compare", "window", "margin", "possession", "down", "distance", "outcome", "p", "view"]) {
       const value = query[name];
       if (typeof value === "string") params.set(name, value);
     }
     redirect(snapPath(id, canonical.key) + (params.size ? "?" + params : "") + (query.compare === "1" ? "#compare" : ""));
   }
   const path = snapPath(id, key);
+  const chalk = query.view === "chalk";
+  const diagramQuery = new URLSearchParams();
+  for (const [name, value] of Object.entries(query)) if (name !== "view" && typeof value === "string") diagramQuery.set(name, value);
+  const fieldHref = path + (diagramQuery.size ? "?" + diagramQuery : "") + "#evidence";
+  diagramQuery.set("view", "chalk");
+  const chalkHref = path + "?" + diagramQuery + "#evidence";
+  const modeSuffix = chalk ? "?view=chalk" : "";
   const prefix = game.plays.slice(0, index + 1);
   const opponent = teamIdentity(game.opponent);
   const nickname = opponent?.nickname ?? opponent?.city ?? game.opponent;
@@ -128,19 +137,20 @@ export default async function SnapPage({ params, searchParams }: Props) {
     <FocusMoment id="snap" first status={<GameScoreboard game={game} plays={prefix} nickname={nickname} />} heading={snapHeadline(game, play)}>
       <p className={styles.account}>{snapAccount(game, play)}</p>
       <div className={styles.transport} aria-label="Play controls">
-        {index > 0 && <Link prefetch={false} href={snapPath(id, game.plays[index - 1].key)}>Previous play</Link>}
-        {index + 1 < game.plays.length ? <Link prefetch={false} className={styles.advance} href={snapPath(id, game.plays[index + 1].key)}>Next play</Link>
+        {index > 0 && <Link prefetch={false} href={snapPath(id, game.plays[index - 1].key) + modeSuffix}>Previous play</Link>}
+        {index + 1 < game.plays.length ? <Link prefetch={false} className={styles.advance} href={snapPath(id, game.plays[index + 1].key) + modeSuffix}>Next play</Link>
           : isLiveSource ? <a href={path}>Check for the next play</a> : <span>End of the recorded plays.</span>}
-        <CopySnap key={path} path={path} />
+        <CopySnap key={path + modeSuffix} path={path + modeSuffix} />
       </div>
-      {!isLiveSource && <Link href={"/replay/" + id + "?play=" + play.key} prefetch={false} className={shared.go}>Replay the game from this play</Link>}
+      {!isLiveSource && <Link href={replayHref(id, play.key, "key", chalk)} prefetch={false} className={shared.go}>Replay the game from this play</Link>}
       <div className={styles.disclosures}>
         <details className={styles.jump}><summary>Match my TV clock</summary><ClockPicker gameId={id} play={play} /></details>
         <details className={styles.jump}><summary>Read the play record</summary><p className={styles.record}>{play.description}</p></details>
       </div>
     </FocusMoment>
     <FocusMoment id="evidence" label="Through this play" heading="Inside the play.">
-      <SnapField game={game} play={play} />
+      <DiagramLinks chalk={chalk} fieldHref={fieldHref} chalkHref={chalkHref} />
+      {chalk ? <SnapChalkboard game={game} play={play} /> : <SnapField game={game} play={play} />}
       <PlayAnalysis plays={prefix} game={game} />
       {isWilson && <WilsonCharting epa={play.facts?.epa} />}
       <div className={styles.driveEvidence}><h3>Win probability through this play</h3><ProbabilityTrace plays={prefix} live={isLiveSource} /></div>

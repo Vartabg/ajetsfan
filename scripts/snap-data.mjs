@@ -1,12 +1,13 @@
 /** Publish a verified season of Jets plays. --full rebuilds 1999 onward; --source-dir reads YEAR.parquet offline. */
-import { access, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
-import { gunzipSync, gzipSync } from 'node:zlib';
+import { publishGzipSeason } from './snap-publish.mjs';
 import { publishedGames } from '../src/lib/published-pages.ts';
 import { parseSnapSeason, snapDescription, validPostWp } from '../src/lib/snap-data.ts';
 import { downloadPbp, PbpAvailabilityError } from './build-data.mjs';
+import { addKickDiagram, addScrimmageDiagram, diagramColumns, player } from './snap-diagram-facts.mjs';
 import { pbpSource, TEAM, withDataLock } from './data-refresh.mjs';
 
 const pair = (a, b) => Number.isSafeInteger(a) && a >= 0 && Number.isSafeInteger(b) && b >= 0 ? [a, b] : null;
@@ -19,7 +20,7 @@ const binary = (n) => n === 0 || n === 1;
 const actions = { completion: 'complete_pass', incompletion: 'incomplete_pass', interception: 'interception', sack: 'sack' };
 const laterals = ['lateral_reception', 'lateral_rush', 'lateral_return', 'lateral_recovery'];
 const optionalColumns = [
-  'home_wp_post', 'away_wp_post',
+  ...diagramColumns, 'home_wp_post', 'away_wp_post',
   'home_timeouts_remaining', 'away_timeouts_remaining', 'goal_to_go', 'yards_gained', 'first_down',
   'touchdown', 'td_team', 'pass_touchdown', 'rush_touchdown', 'yards_after_catch', 'air_yards', 'epa', 'xpass', 'cp',
   'pass_attempt', 'rush_attempt', 'qb_kneel', 'qb_spike', ...Object.values(actions), 'passing_yards', 'receiving_yards', 'rushing_yards',
@@ -66,14 +67,6 @@ function scrimmageKind(row) {
   }
 }
 
-function player(value, id) {
-  if (typeof value !== 'string') return;
-  const name = value.trim();
-  if (!name || name.length > 100 || /^(?:na|none|null|team|unknown)$/i.test(name) || /[;,|/\n&]|\band\b/i.test(name)) return;
-  if (id != null && (typeof id !== 'string' || /[;,|/\s&]/.test(id))) return;
-  return name;
-}
-
 function simpleAdvance(row, facts) {
   const { kind, yards } = facts;
   if ((kind !== 'completion' && kind !== 'rush') || yards === undefined ||
@@ -101,7 +94,10 @@ function snapFacts(row, atHome) {
   }
   if (row.posteam && row.play_type && Number.isFinite(row.epa)) facts.epa = row.epa;
   const kind = scrimmageKind(row);
-  if (!kind) return facts;
+  if (!kind) {
+    addKickDiagram(facts, row);
+    return facts;
+  }
   facts.kind = kind;
   if (binary(row.goal_to_go)) facts.goalToGo = row.goal_to_go === 1;
   if (binary(row.first_down)) facts.firstDown = row.first_down === 1;
@@ -133,6 +129,7 @@ function snapFacts(row, atHome) {
       if (kind === 'completion' && integerIn(row.yards_after_catch, -120, 120)) facts.afterCatch = row.yards_after_catch;
     }
   }
+  addScrimmageDiagram(facts, row);
   if (simpleAdvance(row, facts)) facts.simpleAdvance = true;
   return facts;
 }
@@ -233,27 +230,6 @@ export async function extractSnapGames(db, file, fixtures) {
   return fixtures.map((fixture) => verifiedSnapGame(fixture, groups.get(fixture.id) ?? [])).filter(Boolean);
 }
 
-async function publishSeason(filename, staged, season, games) {
-  const json = JSON.stringify({ schemaVersion: 1, season, source: pbpSource(season), games });
-  parseSnapSeason(json, season);
-  let old;
-  try { old = await readFile(filename); }
-  catch (error) { if (error.code !== 'ENOENT') throw error; }
-  // Different zlib builds may encode identical JSON differently. Keep identical
-  // editions byte-for-byte on daily runs, including across Mac/Linux rebuilds.
-  if (old) {
-    try { if (gunzipSync(old).toString('utf8') === json) return false; }
-    catch (error) { if (error.code !== 'Z_DATA_ERROR' && error.code !== 'Z_BUF_ERROR') throw error; }
-  }
-  const bytes = gzipSync(json, { level: 9 });
-  bytes[9] = 255; // RFC 1952's unspecified OS. No build timestamp or host metadata.
-  await writeFile(staged, bytes);
-  if (gunzipSync(await readFile(staged)).toString('utf8') !== json)
-    throw new Error(`Staged snap season ${season} failed verification`);
-  await rename(staged, filename);
-  return true;
-}
-
 export async function refreshSnapData({
   dataDir = path.join(process.cwd(), 'public', 'data'), sourceDir, full = false,
   fetcher = fetch, onWarning = console.warn,
@@ -295,7 +271,9 @@ export async function refreshSnapData({
             throw new PbpAvailabilityError(`incomplete or conflicting evidence for ${fixtures.filter((game) => !found.has(game.id)).map((game) => game.id).join(', ')}`);
           }
           const name = `${year}.json.gz`;
-          if (await publishSeason(path.join(out, name), path.join(stage, name), year, games)) written.push(year);
+          const json = JSON.stringify({ schemaVersion: 1, season: year, source: pbpSource(year), games });
+          parseSnapSeason(json, year);
+          if (await publishGzipSeason(path.join(out, name), path.join(stage, name), json)) written.push(year);
         } catch (error) {
           if (!(error instanceof PbpAvailabilityError) && !(sourceDir && error.code === 'ENOENT')) throw error;
           if (full && year !== current.season) throw new Error(`Historical snap season ${year} unavailable: ${error.message}`, { cause: error });

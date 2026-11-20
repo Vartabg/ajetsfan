@@ -19,6 +19,8 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 
 - **Reliving a game** (2026-11-19). A fan can pick a Jets game, click forward or backward, and see the score and a visual account of how the game unfolded. They can explore the underlying football data at their own pace.
 
+- **Seeing the play design** (2026-11-19). The owner liked the game replay and asked to add Xs and Os for the selected play. Keep the score and game controls available while the diagram explains the football action.
+
 ## Rejected
 
 - The initial exact-play view separated the score and play text from the down, distance and field position. The owner said it missed the basics of what was happening in the game.
@@ -32,6 +34,8 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 - Whether fans find and share evidence faster than on the official site awaits a head-to-head usability session.
 
 - The default replay pace, its selection threshold and the fixed-direction field are design choices to try with fans.
+
+- The coaching-board orientation, phase control and level of schematic detail are implementation choices for fan testing.
 
 ## Share cards
 

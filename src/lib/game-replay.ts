@@ -18,10 +18,11 @@ export type ReplayView = {
   terminalScore: SnapScore | null;
 };
 
-export function replayHref(gameId: string, playKey?: string, pace: ReplayPace = "key"): string {
+export function replayHref(gameId: string, playKey?: string, pace: ReplayPace = "key", chalk = false): string {
   const params = new URLSearchParams();
   if (playKey !== undefined) params.set("play", playKey);
   if (pace === "all") params.set("pace", pace);
+  if (chalk) params.set("view", "chalk");
   const query = params.toString();
   return "/replay/" + encodeURIComponent(gameId) + (query ? "?" + query : "");
 }

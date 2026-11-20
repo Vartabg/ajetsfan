@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import FocusShell from "@/components/FocusShell";
 import GameReplay from "@/components/GameReplay";
 import { replayHref, replayView } from "@/lib/game-replay";
-import { loadSnapGame } from "@/lib/load-snaps";
+import { loadChartedSnapGame } from "@/lib/load-snaps";
 import { pageMetadata } from "@/lib/site";
 import type { SearchValues } from "@/lib/snap-explorer";
 
@@ -19,12 +19,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function GameReplayPage({ params, searchParams }: Props) {
   const [{ game: id }, query] = await Promise.all([params, searchParams]);
-  const game = await loadSnapGame(id);
+  const game = await loadChartedSnapGame(id);
   if (!game || (query.play !== undefined && typeof query.play !== "string")) notFound();
   const view = replayView(game, query.play, query.pace === "all" ? "all" : "key");
   if (!view) notFound();
   return <FocusShell page="game-replay" name="Game replay" section="/replay" checkedAt={null}
     entries={[{ id: "replay-viewer", title: "Game replay", answer: "Field and scoreboard" }]}>
-    <GameReplay key={[id, view.play.key, view.pace].join("/")} initial={view} />
+    <GameReplay key={[id, view.play.key, view.pace].join("/")} initial={view} initialChalk={query.view === "chalk"} />
   </FocusShell>;
 }

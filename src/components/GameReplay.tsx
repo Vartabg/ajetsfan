@@ -7,19 +7,26 @@ import { snapAccount, snapHeadline, snapSituation, scoreContext } from "@/lib/sn
 import { chance, clockText, periodName, snapPath, snapTime } from "@/lib/snap-explorer";
 import type { SnapGame } from "@/lib/snap-types";
 import { teamIdentity } from "@/lib/teams";
+import { DiagramLinks, SnapChalkboard } from "./SnapChalkboard";
 import { ReplayField, ReplayMargin } from "./ReplayGraphics";
 import styles from "./GameReplay.module.css";
 
 type Move = "previous" | "next" | "first" | ReplayPace;
 
-function destination(view: ReplayView, move: Move) {
+function destination(view: ReplayView, move: Move, chalk: boolean) {
   const key = move === "next" || move === "previous" ? view[move] : move === "first" ? view.first : view.play.key;
   const pace = move === "key" || move === "all" ? move : view.pace;
-  return key === null ? null : { key, pace, href: replayHref(view.game.id, key, pace) };
+  return key === null ? null : { key, pace, href: replayHref(view.game.id, key, pace, chalk) };
 }
 
-function useReplay(initial: ReplayView) {
+function followsNormally(event: MouseEvent<HTMLAnchorElement>) {
+  return event.button === 0 && !event.defaultPrevented && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+}
+
+function useReplay(initial: ReplayView, initialChalk: boolean) {
   const [view, show] = useState(initial);
+  const [chalk, setChalk] = useState(initialChalk);
+  const currentChalk = useRef(initialChalk);
   const [loading, setLoading] = useState(false);
   const current = useRef(initial);
   const deck = useRef<SnapGame | null>(null);
@@ -31,11 +38,11 @@ function useReplay(initial: ReplayView) {
   }, []);
 
   const go = useCallback((move: Move) => {
-    const target = destination(current.current, move);
+    const target = destination(current.current, move, currentChalk.current);
     if (!target) return;
     const apply = (game: SnapGame, action: Move) => {
       const from = current.current;
-      const to = destination(from, action);
+      const to = destination(from, action, currentChalk.current);
       if (!to || (to.key === from.play.key && to.pace === from.pace)) return;
       const next = replayView(game, to.key, to.pace);
       if (!next) throw new Error("Archived play no longer available");
@@ -61,7 +68,11 @@ function useReplay(initial: ReplayView) {
         deck.current = game;
         for (const action of request.moves) apply(game, action);
       })
-      .catch(() => { if (pending.current === request) window.location.assign(target.href); })
+      .catch(() => {
+        if (pending.current !== request) return;
+        const fallback = destination(current.current, move, currentChalk.current);
+        if (fallback) window.location.assign(fallback.href);
+      })
       .finally(() => {
         window.clearTimeout(timeout);
         if (pending.current === request) { pending.current = null; setLoading(false); }
@@ -78,6 +89,8 @@ function useReplay(initial: ReplayView) {
       setLoading(false);
       const url = new URL(window.location.href);
       if (url.pathname !== replayHref(initial.game.id)) return;
+      currentChalk.current = url.searchParams.get("view") === "chalk";
+      setChalk(currentChalk.current);
       const pace = url.searchParams.get("pace") === "all" ? "all" : "key";
       const key = url.searchParams.get("play") ?? initial.first;
       if (key === initial.play.key && pace === initial.pace) return display(initial);
@@ -106,15 +119,23 @@ function useReplay(initial: ReplayView) {
   }, [initial, display, go]);
 
   function click(event: MouseEvent<HTMLAnchorElement>, action: Move) {
-    if (event.button !== 0 || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (!followsNormally(event)) return;
     event.preventDefault();
     go(action);
   }
-  return { view, click, loading };
+  function chooseDiagram(event: MouseEvent<HTMLAnchorElement>, next: boolean) {
+    if (!followsNormally(event)) return;
+    event.preventDefault();
+    if (next === currentChalk.current) return;
+    currentChalk.current = next;
+    setChalk(next);
+    window.history.pushState(null, "", event.currentTarget.href);
+  }
+  return { view, click, loading, chalk, chooseDiagram };
 }
 
-export default function GameReplay({ initial }: { initial: ReplayView }) {
-  const { view, click, loading } = useReplay(initial);
+export default function GameReplay({ initial, initialChalk }: { initial: ReplayView; initialChalk: boolean }) {
+  const { view, click, loading, chalk, chooseDiagram } = useReplay(initial, initialChalk);
   const { game, play } = view;
   const identity = teamIdentity(game.opponent);
   const opponent = identity?.nickname ?? identity?.city ?? game.opponent;
@@ -128,7 +149,7 @@ export default function GameReplay({ initial }: { initial: ReplayView }) {
   const hasOdds = play.wp !== null || play.postWp != null;
   const quarters = Array.from({ length: Math.max(4, play.quarter) }, (_, i) => i + 1);
   const navLink = (move: "previous" | "next", label: string) => {
-    const to = destination(view, move);
+    const to = destination(view, move, chalk);
     return <a href={to?.href} role="link" aria-disabled={to ? undefined : true}
       className={move === "next" ? styles.next : styles.previous} onClick={to ? e => click(e, move) : undefined}>
       {move === "previous" && <span aria-hidden="true">←</span>}{label}{move === "next" && <span aria-hidden="true">→</span>}
@@ -139,7 +160,7 @@ export default function GameReplay({ initial }: { initial: ReplayView }) {
       <h1 id="replay-match">{title}</h1></header>
     <div className={styles.controls}>
       <nav className={styles.paces} aria-label="Replay pace">{(["key", "all"] as const).map(pace =>
-        <a key={pace} href={replayHref(game.id, play.key, pace)} aria-current={pace === view.pace ? "true" : undefined}
+        <a key={pace} href={replayHref(game.id, play.key, pace, chalk)} aria-current={pace === view.pace ? "true" : undefined}
           onClick={e => click(e, pace)}>{pace === "key" ? "Key plays" : "Every play"}</a>)}</nav>
       <nav className={styles.steps} aria-label="Replay controls">{navLink("previous", "Previous")}{navLink("next", "Next")}</nav>
     </div>
@@ -162,7 +183,9 @@ export default function GameReplay({ initial }: { initial: ReplayView }) {
       <h2 id="replay-play">{heading}</h2>
       {account && account !== heading && <p className={styles.account}>{account}</p>}
       <p className={styles.scoreChange}>{caption}</p>
-      <ReplayField view={view} />
+      <DiagramLinks chalk={chalk} fieldHref={replayHref(game.id, play.key, view.pace)}
+        chalkHref={replayHref(game.id, play.key, view.pace, true)} onChoose={chooseDiagram} />
+      {chalk ? <SnapChalkboard key={play.key} game={game} play={play} /> : <ReplayField view={view} />}
     </article>
     <ReplayMargin view={view} opponent={opponent} />
     {(hasOdds || epa != null) && <dl className={styles.metrics}>
@@ -171,8 +194,8 @@ export default function GameReplay({ initial }: { initial: ReplayView }) {
       {epa != null && <div><dt>{offense} expected points added</dt><dd>{epa > 0 ? "+" : ""}{epa.toFixed(2)}</dd></div>}
     </dl>}
     <div className={styles.links}>
-      <a href={snapPath(game.id, play.key)}>Analyze this play</a>
-      {view.last && <><a href={replayHref(game.id, view.first, view.pace)} onClick={e => click(e, "first")}>Replay from the start</a>
+      <a href={snapPath(game.id, play.key) + (chalk ? "?view=chalk#evidence" : "")}>Analyze this play</a>
+      {view.last && <><a href={replayHref(game.id, view.first, view.pace, chalk)} onClick={e => click(e, "first")}>Replay from the start</a>
         <a href={"/games/" + encodeURIComponent(game.id)}>Full game report</a></>}
       <a href={"/replay?season=" + encodeURIComponent(game.id.slice(0, 4))}>Choose another game</a>
     </div>

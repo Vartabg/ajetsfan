@@ -6,36 +6,48 @@ import { gunzip } from "node:zlib";
 import { cache } from "react";
 import { loadPublishedGames } from "./load-published-pages";
 import { parseSnapSeason, snapMatchesFixture } from "./snap-data";
+import { parseParticipationSeason, withParticipation } from "./snap-participation";
 import type { SnapGame } from "./snap-types";
 
 const decompress = promisify(gunzip);
-const seasons = new Map<number, { version: string; games: Promise<SnapGame[]> }>();
+// Cache verified bytes across requests. An atomic file replacement invalidates only that season.
+function cachedPack<T>(filename: (year: number) => string, parse: (json: string, year: number) => T, empty: () => T) {
+  const seasons = new Map<number, { version: string; result: Promise<T> }>();
+  return cache(async (year: number): Promise<T> => {
+    const file = filename(year);
+    try {
+      const info = await stat(file, { bigint: true });
+      const version = `${info.ino}-${info.size}-${info.mtimeNs}`;
+      const prior = seasons.get(year);
+      if (prior?.version === version) return await prior.result;
+      const result = readFile(file).then((bytes) => decompress(bytes)).then((plain) => parse(plain.toString("utf8"), year));
+      seasons.set(year, { version, result });
+      return await result;
+    } catch (error) {
+      seasons.delete(year);
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") console.warn(`Football data unavailable for ${file}`, error);
+      return empty();
+    }
+  });
+}
 
-// Cache the expensive decompression and parsing across requests. An atomic season replacement
-// invalidates this cache even while a local server is running. Publication eligibility stays live.
-const loadSeason = cache(async (year: number): Promise<SnapGame[]> => {
-  const filename = path.join(process.cwd(), "public", "data", "snaps", `${year}.json.gz`);
-  try {
-    const info = await stat(filename, { bigint: true });
-    const version = `${info.ino}-${info.size}-${info.mtimeNs}`;
-    const prior = seasons.get(year);
-    if (prior?.version === version) return await prior.games;
-    const games = readFile(filename).then((bytes) => decompress(bytes))
-      .then((plain) => parseSnapSeason(plain.toString("utf8"), year));
-    seasons.set(year, { version, games });
-    return await games;
-  } catch (error) {
-    seasons.delete(year);
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") console.warn(`Snap season ${year} unavailable`, error);
-    return [];
-  }
-});
+const loadSeason = cachedPack((year) => path.join(process.cwd(), "public", "data", "snaps", `${year}.json.gz`), parseSnapSeason, () => []);
+const loadParticipation = cachedPack((year) => path.join(process.cwd(), "public", "data", "participation", `${year}.json.gz`),
+  parseParticipationSeason, () => new Map());
 
 export const loadSnapGame = cache(async (id: string): Promise<SnapGame | null> => {
   const fixture = (await loadPublishedGames()).find((entry) => entry.id === id);
   if (!fixture) return null;
   const game = (await loadSeason(fixture.season)).find((entry) => entry.id === id);
   return game && snapMatchesFixture(game, fixture) ? game : null;
+});
+
+/** Only pages presenting a single verified play need the participation derivative. */
+export const loadChartedSnapGame = cache(async (id: string): Promise<SnapGame | null> => {
+  const game = await loadSnapGame(id);
+  if (!game) return null;
+  const year = Number(id.split("_")[0]);
+  return year < 2016 ? game : withParticipation(game, await loadParticipation(year));
 });
 
 export const loadSnapArchive = cache(async (): Promise<SnapGame[]> => {
