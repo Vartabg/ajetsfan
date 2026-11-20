@@ -112,8 +112,10 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
     <Link href="/" className={styles.brand} aria-label="ajetsfan">ajets<span>fan</span></Link>
     <a href="#more" className={`${styles.shortcut} ${styles.browse}`} aria-haspopup="dialog" aria-expanded={open === "sections"} aria-controls="focus-sections" onClick={(event) => openDialog(event, directory.current, "sections")}>Browse sections</a>
   </div>;
-  const findGame = (onClick?: (event: MouseEvent<HTMLAnchorElement>) => void) =>
-    <Link href="/find" className={styles.findGame} aria-current={pathname === "/find" ? "page" : undefined} onClick={onClick}>Find a game</Link>;
+  const gameLinks = (onClick?: (event: MouseEvent<HTMLAnchorElement>) => void) => <>
+    <Link href="/find" className={styles.findGame} aria-current={pathname === "/find" ? "page" : undefined} onClick={onClick}>Find a game</Link>
+    <Link href="/game-day/follow" className={styles.findGame} aria-current={pathname === "/game-day/follow" ? "page" : undefined} onClick={onClick}>Follow at my TV clock</Link>
+  </>;
   const sectionLinks = (label: string, onClick?: (event: MouseEvent<HTMLAnchorElement>) => void) =>
     <nav aria-label={label} className={styles.sections}><ul>{SECTIONS.map((section) => <li key={section.href}>
       <Link href={section.href} onClick={onClick} pendingHint={!onClick} aria-current={current(section.href)}><b>{section.label}</b><span>{section.note}</span></Link>
@@ -136,7 +138,7 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
     <dialog ref={directory} id="focus-sections" className={styles.sheet} aria-labelledby="focus-sections-heading" onClose={(event) => { if (!event.currentTarget.open) setOpen((kind) => kind === "sections" ? null : kind); }}
       onClick={(event) => { if (event.target === event.currentTarget) directory.current?.close(); }}>
       <div className={styles.sheetHead}><h2 id="focus-sections-heading">Browse sections</h2><button type="button" className={styles.sheetClose} onClick={() => directory.current?.close()}>Close</button></div>
-      {findGame(followSection)}
+      {gameLinks(followSection)}
       {sectionLinks("All sections", followSection)}
     </dialog>
     {entries.length ?
@@ -150,7 +152,7 @@ export default function FocusShell({ page, entries, checkedAt, section, name, cl
       <section id="more" className={styles.moment} aria-labelledby="more-heading" data-focus-moment="more" tabIndex={-1}>
         <p className={styles.label}>ajetsfan</p>
         {entries.length ? <h2 id="more-heading" className={styles.say}>Everything else.</h2> : <h1 id="more-heading" className={styles.say}>Everything else.</h1>}
-        {findGame()}
+        {gameLinks()}
         {sectionLinks("Site sections")}
         {checkedAt ? <p className={styles.note}>Results checked {on(checkedAt, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })} ET.</p> : null}
       </section>

@@ -13,14 +13,29 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 - **Current week and season on Home** (2026-11-16): the front page shows only this week and this season — scores, schedule, standings, player stats, team news and current coverage. Archive games, legends, drawn plays, puzzles and history stay in their own sections when fans go looking for them.
 - **Finding games and sections** (2026-11-17): place Browse sections beside the name. Keep the page index available independently. A fan can search by opponent and season, then open the game and its related stories or film. On Home, connect the latest game's chart to the recorded turning point and the next kickoff to a measured matchup.
 
+- **Following a play** (2026-11-19). A fan watching on delay chooses the last clock they saw and advances the game one recorded play at a time. Each play can be shared and compared with earlier Jets games. The first two examples are Cleveland in 2022 and Buffalo in 2026.
+
+- **Reading an exact play** (2026-11-19). The fan needs the score, clock, offense, down and field position together, with a plain account of the result. Put play-level football analysis below that context.
+
+- **Reliving a game** (2026-11-19). A fan can pick a Jets game, click forward or backward, and see the score and a visual account of how the game unfolded. They can explore the underlying football data at their own pace.
+
+- **Seeing the play design** (2026-11-19). The owner liked the game replay and asked to add Xs and Os for the selected play. Keep the score and game controls available while the diagram explains the football action.
+
 ## Rejected
 
+- The initial exact-play view separated the score and play text from the down, distance and field position. The owner said it missed the basics of what was happening in the game.
 - The newspaper identity: "The Back Page", mastheads, desks, editions, datelines, stamps, paper tints and the condensed all-caps display type. It was an earlier agent's idea; the owner finds it corny.
 - Any other themed concept proposed on his behalf.
 
 ## Not decided
 
 - New names for pages that still carry newspaper names: "The Morgue" (shown as "Game archive" in the menu) and "How the paper is made".
+
+- Whether fans find and share evidence faster than on the official site awaits a head-to-head usability session.
+
+- The default replay pace, its selection threshold and the fixed-direction field are design choices to try with fans.
+
+- The coaching-board orientation, phase control and level of schematic detail are implementation choices for fan testing.
 
 ## Share cards
 

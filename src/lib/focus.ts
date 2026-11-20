@@ -13,7 +13,7 @@ import { teamIdentity } from "./teams";
 
 /** One play of a game's line: the Jets' pre-play win chance and the quarter (5+ is overtime). */
 export type FocusPoint = [wp: number, quarter: number];
-export type FocusTurningPoint = { index: number; description: string; clock: string; change: string; href: string };
+export type FocusTurningPoint = { index: number; description: string; clock: string; change: string; href: string; snap?: { href: string; label: string } };
 export type WeekState = "win" | "loss" | "tie" | "next" | "upcoming" | "bye";
 
 export type FocusData = {

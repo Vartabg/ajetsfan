@@ -3,6 +3,9 @@ import { JOURNEY_PATH } from "./miracle-journey";
 export const STATIC_SITEMAP_PATHS = [
   "/",
   "/game-day",
+  "/game-day/follow",
+  "/plays",
+  "/replay",
   "/stories",
   "/discover",
   "/history",
