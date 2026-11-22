@@ -7,9 +7,12 @@ import { snapAccount, snapHeadline, snapSituation, scoreContext } from "@/lib/sn
 import { chance, clockText, periodName, snapPath, snapTime } from "@/lib/snap-explorer";
 import type { SnapGame } from "@/lib/snap-types";
 import { teamIdentity } from "@/lib/teams";
-import { DiagramLinks, SnapChalkboard } from "./SnapChalkboard";
+import dynamic from "next/dynamic";
+import { DiagramLinks } from "./DiagramLinks";
 import { ReplayField, ReplayMargin } from "./ReplayGraphics";
 import styles from "./GameReplay.module.css";
+
+const SnapChalkboard = dynamic(() => import("./SnapChalkboard").then(module => module.SnapChalkboard));
 
 type Move = "previous" | "next" | "first" | ReplayPace;
 

@@ -21,9 +21,12 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 
 - **Seeing the play design** (2026-11-19). The owner liked the game replay and asked to add Xs and Os for the selected play. Keep the score and game controls available while the diagram explains the football action.
 
+- **Seeing both teams** (2026-11-22). The owner liked stepping through the Cleveland series and asked to see the entire Xs and Os. Keep all the players on the same field when revealing a snap, including the blocking, rush and coverage around the ball.
+
 ## Rejected
 
 - The initial exact-play view separated the score and play text from the down, distance and field position. The owner said it missed the basics of what was happening in the game.
+- A drive diagram showing only Flacco, a throw and its destination leaves out the rest of the football play.
 - The newspaper identity: "The Back Page", mastheads, desks, editions, datelines, stamps, paper tints and the condensed all-caps display type. It was an earlier agent's idea; the owner finds it corny.
 - Any other themed concept proposed on his behalf.
 

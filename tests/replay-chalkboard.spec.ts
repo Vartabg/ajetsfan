@@ -11,6 +11,59 @@ const path = (frame: Locator, kind: string) => frame.locator('[data-path="' + ki
 const player = (frame: Locator, unit: "O" | "X", surname: string) =>
   frame.locator('[data-unit="' + unit + '"][data-label*="' + surname + '" i]').first();
 
+// The week-two participation and roster records name these players on each of the three snaps.
+const jetsCore = ["Joe Flacco", "Michael Carter", "Tyler Conklin", "George Fant", "Laken Tomlinson",
+  "Connor McGovern", "Alijah Vera-Tucker", "Max Mitchell"];
+const brownsCore = ["Isaiah Thomas", "Jordan Elliott", "Jeremiah Owusu-Koramoah", "Anthony Walker",
+  "Grant Delpit", "Martin Emerson", "John Johnson", "Greg Newsome", "Denzel Ward"];
+const finalSeries = [
+  { key: "4155", receivers: ["Corey Davis", "Elijah Moore", "Garrett Wilson"], front: ["Alex Wright", "Chase Winovich"] },
+  { key: "4177", receivers: ["Corey Davis", "Braxton Berrios", "Jeff Smith"], front: ["Myles Garrett", "Taven Bryan"] },
+  { key: "4199", receivers: ["Braxton Berrios", "Elijah Moore", "Garrett Wilson"], front: ["Myles Garrett", "Taven Bryan"] },
+];
+
+async function fullTeams(field: Locator) {
+  await expect(field).toBeVisible();
+  const marks = field.locator('svg :is([data-unit="O"], [data-unit="X"])[data-player-id]');
+  await expect(marks).toHaveCount(22);
+  const result = await marks.evaluateAll(elements => ({
+    fields: new Set(elements.map(element => element.closest("svg"))).size,
+    players: elements.map(element => ({
+      id: element.getAttribute("data-player-id")!, unit: element.getAttribute("data-unit")!,
+      participant: element.getAttribute("data-participant-id"),
+      tag: element.getAttribute("data-tag"), label: element.getAttribute("data-label") ?? "",
+      visible: element.checkVisibility({ opacityProperty: true, visibilityProperty: true }) && element.getBoundingClientRect().width > 0,
+    })),
+  }));
+  expect(result.fields).toBe(1);
+  expect(result.players.every(mark => mark.id.trim() && mark.visible)).toBe(true);
+  for (const unit of ["O", "X"]) {
+    const side = result.players.filter(mark => mark.unit === unit);
+    expect(side).toHaveLength(11);
+    expect(new Set(side.map(mark => mark.id)).size).toBe(11);
+  }
+  return result.players;
+}
+
+const playerIds = (marks: Awaited<ReturnType<typeof fullTeams>>) => marks.map(mark => mark.unit + "/" + mark.id).sort();
+const duties = (field: Locator, duty: string) => field.locator('svg [data-duty="' + duty + '"]');
+
+function verifiedPlayers(marks: Awaited<ReturnType<typeof fullTeams>>, play: typeof finalSeries[number]) {
+  const units = { O: [...jetsCore, ...play.receivers], X: [...brownsCore, ...play.front] };
+  const joined: string[] = [];
+  for (const [unit, names] of Object.entries(units)) {
+    for (const name of names) {
+      const matches = marks.filter(mark => mark.unit === unit && mark.label.includes(name));
+      expect(matches, play.key + " " + name).toHaveLength(1);
+      const mark = matches[0];
+      expect(mark.participant).toMatch(/^00-\d{7}$/);
+      joined.push([unit, name, mark.participant, mark.id].join("/"));
+    }
+  }
+  expect(new Set(marks.map(mark => mark.participant)).size).toBe(22);
+  return joined;
+}
+
 async function expectReplaySelection(page: Page, game: string, key: string, pace: "all" | "key" = "all") {
   await expect(page).toHaveURL(url => url.pathname === "/replay/" + game && url.searchParams.get("play") === key &&
     url.searchParams.get("view") === "chalk" && (url.searchParams.get("pace") ?? "key") === pace);
@@ -33,6 +86,58 @@ async function drawnRise(mark: Locator) {
 
 test.describe("native links and radio controls without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
+
+  test("three Cleveland snaps keep the verified players in both phases and substitute the actual second-down units", async ({ page }) => {
+    await page.goto(replay(cleveland, "4155") + "&view=chalk");
+    const region = board(page), viewer = page.locator("#replay-viewer");
+    const action = frame(region, "action"), setup = frame(region, "snap");
+    for (const [index, play] of finalSeries.entries()) {
+      if (index) await viewer.getByRole("link", { name: "Next", exact: true }).press("Enter");
+      await expectReplaySelection(page, cleveland, play.key);
+      const moving = await fullTeams(action);
+      const lineup = verifiedPlayers(moving, play);
+      expect(await duties(action, "block").count()).toBeGreaterThanOrEqual(5);
+      await expect(duties(action, "rush")).toHaveCount(4);
+      expect(await duties(action, "cover").count()).toBeGreaterThan(0);
+      if (play.key === "4177") {
+        await expect(region).toContainText(/empty/i);
+        await expect(region).toContainText(/cover 2/i);
+        const throwDirection = action.locator('[data-direction-only="right"]');
+        await expect(throwDirection).toBeVisible();
+        await expect(throwDirection).toContainText(/depth unrecorded/i);
+        await expect(throwDirection).toContainText(/target unrecorded/i);
+        await expect(action).toContainText(/quarterback hit by Myles Garrett/i);
+        await expect(action.locator('[data-path="pass"][data-to], [data-path="incomplete"][data-to], [data-path="carry"]')).toHaveCount(0);
+        await expect(action.locator('svg [data-unit="ball"]')).toHaveCount(0);
+      } else {
+        await expect(region).toContainText(/cover 6/i);
+        await expect(path(action, play.key === "4155" ? "incomplete" : "pass")).toBeVisible();
+      }
+      await phase(region, "Play action").press("ArrowLeft");
+      const standing = await fullTeams(setup);
+      expect(verifiedPlayers(standing, play)).toEqual(lineup);
+      if (play.key === "4177") {
+        const y = async (role: string) => setup.locator('svg [data-unit="O"][data-tag="' + role + '"]').evaluate(element => {
+          const rect = element.getBoundingClientRect();
+          return rect.top + rect.height / 2;
+        });
+        expect(standing.filter(mark => mark.unit === "O" && mark.tag === "WR")).toHaveLength(3);
+        expect(await y("RB")).toBeLessThan(await y("QB"));
+        expect(await y("TE")).toBeLessThan(await y("QB"));
+      }
+      await phase(region, "At the snap").press("ArrowRight");
+    }
+    const disclosure = region.locator("summary").filter({ hasText: /^All 22 players$/ });
+    await disclosure.press("Enter");
+    const key = disclosure.locator("xpath=parent::details");
+    await expect(key).toHaveAttribute("open", "");
+    await expect(key).toContainText("Garrett Wilson");
+    await expect(key).toContainText("Myles Garrett");
+    await viewer.getByRole("link", { name: "Previous", exact: true }).press("Enter");
+    await expectReplaySelection(page, cleveland, "4177");
+    await expect(player(action, "O", "Jeff Smith")).toBeVisible();
+    await expect(player(action, "O", "Garrett Wilson")).toHaveCount(0);
+  });
 
   for (const surface of ["game replay", "exact play"]) {
     test(surface + " offers one field view and switches Wilson’s diagram without changing the clock", async ({ page }) => {
@@ -72,7 +177,7 @@ test.describe("native links and radio controls without JavaScript", () => {
       await expect(region).toContainText(/X\s*Browns defense/i);
       await expect(region).toContainText(/cover[ _-]?6/i);
       await expect(region).toContainText(/4 (?:pass )?rushers/i);
-      await expect(region).toContainText(/schematic/i);
+      await expect(region).toContainText(/schematic|illustrat|example (?:positions|assignments)/i);
       await phase(region, "At the snap").press("ArrowRight");
       await expect(phase(region, "Play action")).toBeChecked();
       await expect(frame(region, "action")).toBeVisible();
@@ -90,6 +195,49 @@ test.describe("native links and radio controls without JavaScript", () => {
   }
 });
 
+test("the player picker follows each unit across both phases and distinguishes recorded credits from example assignments", async ({ page }) => {
+  await page.goto(exact(cleveland, "4199") + "?view=chalk");
+  const region = board(page), action = frame(region, "action"), setup = frame(region, "snap");
+  const picker = region.getByRole("combobox", { name: "Follow a player", exact: true });
+  const detail = region.locator("[data-player-lookup]").getByRole("status");
+  const selected = (field: Locator) => field.locator('svg [data-player-id][data-selected="true"]');
+  const focusedTrail = action.locator('svg polyline[data-trail-for][data-focus="true"]');
+  const formation = playerIds(await fullTeams(action));
+  await expect(picker.locator("optgroup")).toHaveCount(2);
+  for (const team of ["Jets", "Browns"]) {
+    await expect(picker.locator('optgroup[label*="' + team + '"] option')).toHaveCount(11);
+  }
+  const receiver = picker.getByRole("option", { name: /#17 Garrett Wilson.*WR/ });
+  await expect(receiver).toHaveCount(1);
+  const receiverId = (await receiver.getAttribute("value"))!;
+  await picker.selectOption(receiverId);
+  await expect(detail).toContainText("Garrett Wilson");
+  await expect(detail).toContainText(/recorded.*receiver/i);
+  await expect(detail).toContainText(/example assignment.*break inside/i);
+  await expect(selected(action)).toHaveAttribute("data-player-id", receiverId);
+  await expect(selected(action)).toHaveAttribute("data-label", /Garrett Wilson/);
+  await expect(focusedTrail).toHaveAttribute("data-trail-for", receiverId);
+  expect(playerIds(await fullTeams(action))).toEqual(formation);
+
+  await phase(region, "Play action").press("ArrowLeft");
+  await expect(selected(setup)).toHaveAttribute("data-player-id", receiverId);
+  const edge = picker.getByRole("option", { name: /#95 Myles Garrett.*DE/ });
+  await expect(edge).toHaveCount(1);
+  const edgeId = (await edge.getAttribute("value"))!;
+  await picker.selectOption(edgeId);
+  await expect(selected(setup)).toHaveAttribute("data-player-id", edgeId);
+  await expect(selected(setup)).toHaveAttribute("data-label", /Myles Garrett/);
+  await expect(detail).toContainText(/Myles Garrett.*example assignment/i);
+  await expect(detail).not.toContainText(/recorded|Garrett Wilson/i);
+  expect(playerIds(await fullTeams(setup))).toEqual(formation);
+  await phase(region, "At the snap").press("ArrowRight");
+  await expect(focusedTrail).toHaveAttribute("data-trail-for", edgeId);
+  await picker.selectOption({ label: "Entire formation" });
+  await expect(selected(action)).toHaveCount(0);
+  await expect(focusedTrail).toHaveCount(0);
+  expect(playerIds(await fullTeams(action))).toEqual(formation);
+});
+
 test("a kickoff assigns the units correctly and its initial payload contains only the selected play’s evidence", async ({ page, request }) => {
   const url = "/replay/" + cleveland + "?view=chalk";
   const html = await page.goto(url);
@@ -98,10 +246,11 @@ test("a kickoff assigns the units correctly and its initial payload contains onl
   expect(flight.headers()["content-type"]).toContain("text/x-component");
   for (const payload of [await html!.text(), await flight.text()]) {
     expect(payload).toContain("C.York kicks 56 yards");
-    expect(payload).not.toMatch(/Mi\.Carter left guard to NYJ 32|G\.Wilson for 15 yards, TOUCHDOWN|INTERCEPTED by 21-A\.Davis|31[–-]30/);
+    expect(payload).not.toMatch(/Mi\.Carter left guard to NYJ 32|G\.Wilson for 15 yards, TOUCHDOWN|INTERCEPTED by 21-A\.Davis|31[–-]30|Jeff Smith|00-0035510/);
   }
   const action = frame(board(page), "action");
-  await expect(action).toBeVisible();
+  const returning = await fullTeams(action);
+  await expect(board(page).getByRole("radio", { name: "Before the kick" })).toBeAttached();
   await expect(player(action, "O", "York")).toBeVisible();
   await expect(player(action, "X", "Berrios")).toBeVisible();
   await expect(player(action, "O", "Delpit")).toBeVisible();
@@ -109,6 +258,8 @@ test("a kickoff assigns the units correctly and its initial payload contains onl
   await expect(board(page)).toContainText(/X\s*Jets receive/i);
   expect(await drawnRise(path(action, "kick"))).toBeGreaterThan(0);
   expect(await drawnRise(path(action, "return"))).toBeLessThan(0);
+  await phase(board(page), "Play action").press("ArrowLeft");
+  expect(playerIds(await fullTeams(frame(board(page), "snap")))).toEqual(playerIds(returning));
 });
 
 test("Buffalo’s completion separates the flight from the run after the catch on an offense-up board", async ({ page }) => {
@@ -133,6 +284,9 @@ test("a later charted game credits FTN, preserves zero rushers and separates the
   const region = board(page), action = frame(region, "action");
   await expect(region).toContainText("0 pass rushers");
   await expect(region).toContainText(/cover 4/i);
+  await fullTeams(action);
+  await expect(duties(action, "rush")).toHaveCount(0);
+  expect(await duties(action, "cover").count()).toBeGreaterThan(0);
   await expect(player(action, "O", "Conklin")).toBeVisible();
   await expect(path(action, "pass")).toBeVisible();
   await expect(path(action, "carry")).toHaveCount(0);
@@ -153,8 +307,12 @@ test("runs, incompletions, sacks and interceptions retain their credited actors 
   await page.goto(exact("1999_01_NE_NYJ", "97") + "?view=chalk");
   await expect(player(action, "O", "Faulk")).toBeVisible();
   expect(await drawnRise(path(action, "carry"))).toBeLessThan(0);
+  const oldRun = await fullTeams(action);
   await expect(region).toContainText(/play-by-play/i);
-  await expect(region.getByRole("radio", { name: "At the snap", exact: true })).toHaveCount(0);
+  await phase(region, "Play action").press("ArrowLeft");
+  expect(playerIds(await fullTeams(frame(region, "snap")))).toEqual(playerIds(oldRun));
+  await expect(region).toContainText(/illustrat|example/i);
+  await expect(region).toContainText(/alignment|position|spacing|package|formation/i);
   await expect(region).not.toContainText(/next gen stats|FTN Data/i);
   await page.goto(exact(buffalo, "221") + "?view=chalk");
   await expect(player(action, "O", "Allen")).toBeVisible();
@@ -165,11 +323,13 @@ test("runs, incompletions, sacks and interceptions retain their credited actors 
   await expect(region).toContainText(/sack/i);
   await expect(player(action, "O", "Klubnik")).toBeVisible();
   await expect(player(action, "X", "Hoecht")).toBeVisible();
+  await fullTeams(action);
   await expect(region).toContainText("loss of 3 yards");
   await expect(path(action, "pass")).toHaveCount(0);
   await page.goto(exact(cleveland, "4276") + "?view=chalk");
   await expect(player(action, "O", "Brissett")).toBeVisible();
   await expect(player(action, "X", "Davis")).toBeVisible();
+  await fullTeams(action);
   await expect(path(action, "interception")).toBeVisible();
   expect(await drawnRise(path(action, "return"))).toBeLessThan(0);
   await expect(region).toContainText("14 yards");
@@ -183,6 +343,7 @@ test("a nullified play gives its ruling and record without drawing ball movement
   await expect(region).toContainText(/recorded ruling/i);
   await expect(page.locator("#snap")).toContainText(/neutral zone infraction/i);
   await expect(region.locator("[data-path]")).toHaveCount(0);
+  await expect(region.locator("svg [data-player-id], svg [data-duty]")).toHaveCount(0);
 });
 
 test("the Elliott touchdown opens its own 22-player teaching board", async ({ page }) => {

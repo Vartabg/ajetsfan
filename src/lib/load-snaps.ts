@@ -6,6 +6,7 @@ import { gunzip } from "node:zlib";
 import { cache } from "react";
 import { loadPublishedGames } from "./load-published-pages";
 import { parseSnapSeason, snapMatchesFixture } from "./snap-data";
+import { withClevelandDriveLineups } from "./cleveland-drive-lineups";
 import { parseParticipationSeason, withParticipation } from "./snap-participation";
 import type { SnapGame } from "./snap-types";
 
@@ -47,7 +48,7 @@ export const loadChartedSnapGame = cache(async (id: string): Promise<SnapGame | 
   const game = await loadSnapGame(id);
   if (!game) return null;
   const year = Number(id.split("_")[0]);
-  return year < 2016 ? game : withParticipation(game, await loadParticipation(year));
+  return year < 2016 ? game : withClevelandDriveLineups(withParticipation(game, await loadParticipation(year)));
 });
 
 export const loadSnapArchive = cache(async (): Promise<SnapGame[]> => {

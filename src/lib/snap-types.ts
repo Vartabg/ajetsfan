@@ -1,6 +1,8 @@
 /** Score pairs use Jets, opponent order, irrespective of who is at home. */
 export type SnapScore = [number, number];
 
+export type SnapParticipant = { id: string; name: string; position: string; number: number };
+
 export type SnapKind = "completion" | "incompletion" | "interception" | "rush" | "sack" | "kneel" | "spike";
 export type SnapTurnover = "interception" | "lostFumble" | "downs";
 export type SnapDefender = {
@@ -53,6 +55,8 @@ export type SnapFacts = {
   kick?: SnapKick;
   /** Added on a single-game read from the separately licensed participation pack. */
   charting?: SnapCharting;
+  /** Exact-play membership from participation and week-specific rosters. Position comes from the roster or gamebook. */
+  onField?: { offense: SnapParticipant[]; defense: SnapParticipant[]; quarterbackHitBy?: string };
   /** Expected points added from the source possession team's perspective (the receiving side on a kickoff). */
   epa?: number;
   dropbackProbability?: number;
