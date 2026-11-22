@@ -3,8 +3,7 @@ import type { ReactNode } from "react";
 import Telemetry from "@/components/Telemetry";
 import { indexableSite, siteOrigin } from "@/lib/site";
 import { loadGames, loadCurrent } from "@/lib/load-games";
-import { mergeResults, selectLead } from "@/lib/current";
-import { currentStreak, wearLevel } from "@/lib/paper";
+import { selectLead } from "@/lib/current";
 import LegacyNavigation from "@/components/LegacyNavigation";
 import FootballRefresh from "@/components/football-refresh";
 import { loadFootballViewerStatus } from "@/lib/football-viewer-status";
@@ -38,8 +37,6 @@ export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const [games, snapshot, football] = await Promise.all([loadGames(), loadCurrent(), loadFootballViewerStatus()]);
-  const streak = currentStreak(mergeResults(games, snapshot));
-  const wear = wearLevel(streak);
   const result = selectLead(games, snapshot).result;
   const latestReport = result && publishedGames(games, snapshot).some((game) => game.id === result.id) ? `/games/${encodeURIComponent(result.id)}` : `/seasons/${snapshot?.season ?? result?.season ?? 2026}`;
   const websiteJsonLd = JSON.stringify({
@@ -54,7 +51,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html
       lang="en"
-      data-wear={wear}
       className={focusFonts}
     >
       <body>

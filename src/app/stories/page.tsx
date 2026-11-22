@@ -1,5 +1,7 @@
 import { pageMetadata } from "@/lib/site";
 import { loadGames, loadCurrent, loadCurve } from "@/lib/load-games";
+import { loadSnapGame } from "@/lib/load-snaps";
+import { featuredSnap } from "@/lib/snap-explorer";
 import { publishedGames } from "@/lib/published-pages";
 import { buildVisualStory, visualStoryIds, type VisualStory } from "@/lib/visual-story";
 import JourneyHome from "@/components/JourneyHome";
@@ -16,7 +18,12 @@ export default async function StoriesPage() {
   const available = publishedGames(games, snapshot);
   const candidates = await Promise.all(visualStoryIds.map(async (id) => {
     const game = available.find((item) => item.id === id);
-    return game ? buildVisualStory(game, await loadCurve(id)) : null;
+    if (!game) return null;
+    const [curve, snaps] = await Promise.all([loadCurve(id), loadSnapGame(id)]);
+    const story = buildVisualStory(game, curve);
+    if (story && snaps) story.snapKeys = story.points.map(point =>
+      featuredSnap(snaps, { playId: point.playId, desc: point.desc, qtr: point.q, secondsLeft: point.t, wpa: point.d })?.key ?? null);
+    return story;
   }));
   const stories = candidates.filter((story): story is VisualStory => story !== null);
   return <FocusShell page="stories" entries={[

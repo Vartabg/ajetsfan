@@ -1,0 +1,91 @@
+.diagram {
+  --fs-turf: #eaf0e7;
+  --fs-grid: #c6d2c3;
+  --fs-line: #526d60;
+  --fs-sticks: #875c32;
+  --fs-offense: #195941;
+  --fs-defense: #754c4b;
+  --fs-ball: #98410d;
+  --fs-prior: #53677a;
+  --fs-ink: #233e31;
+  container-type: inline-size;
+}
+.frame { margin: 0; }
+.field { display: block; width: 100%; background: var(--fs-turf); border: 1px solid var(--board-edge, var(--faint)); border-radius: 7px; }
+.lines { pointer-events: none; }
+.yardStripe { fill: none; stroke: var(--fs-grid); stroke-width: .8; }
+.endZone { fill: var(--fs-offense); opacity: .075; }
+.lines line { stroke: var(--fs-line); stroke-width: 1.15; }
+.lines [data-line="gain"] line { stroke: var(--fs-sticks); stroke-width: 1.35; stroke-dasharray: 7 4; }
+.lines [data-line="goal"] line { stroke: var(--fs-offense); stroke-width: 1.75; }
+.lines text { fill: var(--fs-ink); font: 600 14px system-ui, sans-serif; }
+.priorThrow { pointer-events: none; }
+.priorThrow line { stroke: var(--fs-prior); stroke-dasharray: 2 5; stroke-linecap: round; stroke-width: 1.6; }
+.priorThrow circle { fill: var(--fs-turf); stroke: var(--fs-prior); stroke-width: 1.8; }
+.priorThrow text { fill: var(--fs-prior); font: 650 13px var(--font-sans, system-ui), sans-serif; paint-order: stroke; stroke: var(--fs-turf); stroke-width: 3px; }
+.trails { pointer-events: none; }
+.trails polyline { stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
+.trails [data-unit-trail="offense"] { stroke: var(--fs-offense); }
+.trails [data-unit-trail="defense"] { stroke: var(--fs-defense); stroke-dasharray: 4 3.5; }
+.field[data-focused] .trails polyline:not([data-focus]) { opacity: .4; }
+.field .trails [data-focus] { stroke-width: 3; }
+.ballLayer { pointer-events: none; }
+.ballPath { stroke: var(--fs-ball); stroke-width: 3.1; stroke-linejoin: round; stroke-linecap: round; }
+.ballPath[data-path="pass"], .ballPath[data-path="incomplete"],
+.ballPath[data-path="interception"], .ballPath[data-path="kick"] { stroke-dasharray: 8 4; }
+.ball { fill: var(--fs-ball); stroke: var(--fs-turf); stroke-width: 1; }
+.lace { fill: none; stroke: var(--fs-turf); stroke-width: 1; }
+.scoreFlag { fill: var(--fs-ball); stroke: var(--fs-ball); stroke-width: 1.8; stroke-linejoin: round; }
+.eventLabel { fill: var(--fs-ball); font: 650 15px system-ui, sans-serif; paint-order: stroke; stroke: var(--fs-turf); stroke-width: 3px; }
+.player { cursor: pointer; }
+.player .o { fill: var(--fs-turf); stroke: var(--fs-offense); stroke-width: 2.1; }
+.player .x { fill: none; stroke: var(--fs-defense); stroke-width: 2.6; stroke-linecap: round; }
+.player .ring { stroke: var(--fs-ink); stroke-width: 2; stroke-dasharray: 2 2; fill: var(--fs-turf); }
+.player .number { pointer-events: none; fill: var(--fs-ink); font: 650 8px system-ui, sans-serif; }
+.player[data-unit="X"] .number { font-size: 11px; paint-order: stroke; stroke: var(--fs-turf); stroke-width: 3px; }
+.nameplates { pointer-events: none; }
+.nameplates text { fill: var(--fs-ink); font: 550 14px var(--font-sans, system-ui), sans-serif; paint-order: stroke; stroke: var(--fs-turf); stroke-width: 4px; stroke-linejoin: round; }
+.legend { display: flex; flex-wrap: wrap; gap: 3px 15px; margin: 6px 0; color: var(--quiet); font-size: 13px; line-height: 1.45; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { width: 16px; border-top: 1px solid var(--fs-line); }
+.legend [data-key="sticks"] { border-top: 2px dashed var(--fs-sticks); }
+.legend [data-key="goal"] { border-top: 2px solid var(--fs-offense); }
+.legend [data-key="ball"] { border-top: 3px dashed var(--fs-ball); }
+.legend [data-key="prior"] { border-top: 2px dotted var(--fs-prior); }
+.frame .account, .frame .direction { margin: 6px 0; color: var(--ink); font-size: 15px; line-height: 1.5; }
+.frame .direction { font-weight: 600; }
+.explanation { margin: 6px 0; }
+.explanation p, .diagram .sources { color: var(--quiet); font-size: 13px; line-height: 1.5; margin: 3px 0; }
+.assignmentKey span { display: inline-block; margin-left: 12px; font-size: 16px; font-weight: 650; }
+.assignmentKey span:first-child { margin-left: 0; }
+.routeKey, .blockKey { color: var(--fs-offense); }
+.defenseKey { color: var(--fs-defense); }
+.lookup { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 9px 0 0; }
+.lookup label { font-size: 14px; font-weight: 550; }
+.lookup select { min-height: 44px; min-width: 0; max-width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--faint); border-radius: var(--round); padding: 2px 8px; font: inherit; font-size: 16px; }
+.apply { min-height: 44px; padding: 2px 14px; border: 1px solid var(--faint); border-radius: var(--round); color: var(--green); font-size: 14px; font-weight: 550; }
+.lookup select:focus-visible, .apply:focus-visible, .roster summary:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+.choice { flex-basis: 100%; font-size: 14px; line-height: 1.5; }
+.choice:empty { display: none; }
+.choice > *, .teams li > * { display: block; }
+.roster { margin: 3px 0; font-size: 14px; line-height: 1.5; }
+.roster summary { cursor: pointer; width: fit-content; align-content: center; min-height: 44px; color: var(--green); font-weight: 550; }
+.teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 8px 24px; }
+.teams h4 { margin: 3px 0; font-size: 16px; }
+.teams ul { margin: 0; padding: 0; list-style: none; }
+.teams li { padding: 5px 0; border-top: 1px solid var(--faint); }
+.teams li span { color: var(--quiet); }
+.sources a { text-underline-offset: 2px; }
+@container (max-width: 440px) {
+  .player .number { display: none; }
+  .player[data-selected] .number { display: block; }
+  .lines text, .nameplates text { font-size: 17px; }
+  .priorThrow text { font-size: 16px; }
+}
+@media (prefers-color-scheme: dark) {
+  .diagram {
+    --fs-turf: #162d24; --fs-grid: #2a4437; --fs-line: #8fa69a;
+    --fs-sticks: #d2b18e; --fs-offense: #a2ddba; --fs-defense: #edb4ab;
+    --fs-ball: #ffc17a; --fs-prior: #afc3d3; --fs-ink: #ebf2e6;
+  }
+}

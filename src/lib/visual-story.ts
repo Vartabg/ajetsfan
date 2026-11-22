@@ -15,6 +15,7 @@ export type VisualStory = {
   dek: string;
   game: Game;
   points: CurvePoint[];
+  snapKeys?: (string | null)[];
   chapters: VisualChapter[];
   source: { label: string; url: string };
 };

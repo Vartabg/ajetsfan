@@ -1,0 +1,4 @@
+.views { display: inline-flex; align-self: flex-start; width: fit-content; max-width: 100%; gap: 2px; margin: 14px 0 3px; padding: 2px; border: 1px solid var(--faint); border-radius: var(--round); }
+.views a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 4px 16px; border-radius: var(--round); font-size: 14px; font-weight: 550; line-height: 1.2; text-decoration: none; cursor: pointer; }
+.views a[aria-current="true"] { background: var(--green); color: var(--bg); }
+.views a:hover:not([aria-current="true"]) { background: var(--raise); }

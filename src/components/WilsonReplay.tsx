@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { REPLAY, clampReplayTime, eventAt, sampleActor, sampleBall, samplePose } from "@/lib/wilson-replay.mjs";
 import { TEACHING } from "@/lib/wilson-teaching.mjs";
@@ -293,7 +294,7 @@ export default function WilsonReplay() {
       <h2 id="evidence-heading">What we know. What we’ve filled in.</h2>
       <p className={styles.evidenceIntro}>This is an evidence-based teaching reconstruction, not player tracking or recovered game footage. The 3D geometry, poses and timing are inferred. Exact-play participation identifies all 22 players below; the 20 supporting figures retain teaching roles because their coordinates and matchups are not mapped.</p>
       <div className={styles.evidenceGrid}>
-        <article><span className={styles.badge} data-basis="recorded">Recorded</span><h3>The play and its result</h3><p>Flacco to Wilson: a 15-yard touchdown from shotgun, on 3rd-and-10 at the Cleveland 15. The score became 30–30; the extra point made the final 31–30.</p><p className={styles.record}>{REPLAY.record.desc}</p><small>{REPLAY.record.canonicalPlayId}</small></article>
+        <article><span className={styles.badge} data-basis="recorded">Recorded</span><h3>The play and its result</h3><p>Flacco to Wilson: a 15-yard touchdown from shotgun, on 3rd-and-10 at the Cleveland 15. The score became 30–30; the extra point made the final 31–30.</p><p className={styles.record}>{REPLAY.record.desc}</p><small>{REPLAY.record.canonicalPlayId}</small> <Link href={`/plays/${REPLAY.record.game_id}/${REPLAY.record.play_id}`}>Open this recorded touchdown</Link></article>
         <article><span className={styles.badge} data-basis="observed">Observed</span><h3>Frames from the official replay</h3><p>These paused broadcast views corroborate the sequence. Their video locators do not establish exact event boundaries or measured movement.</p><ul className={styles.observations}>{REPLAY.sourceFrames.map(frame => <li key={frame.id}><a href={frame.url} target="_blank" rel="noreferrer">{sourceTime(frame.seconds)} <span aria-hidden="true">↗</span></a><span>{frame.observation}</span></li>)}</ul></article>
         <article><span className={styles.badge} data-basis="reported">Reported</span><h3>The inward break and the window</h3><p>The Jets’ account calls the route a slant; participation charting and Boord’s film analysis call it a post. Flacco recalled a window behind the linebackers. <a href="#film-study">Inspect the tactical claims and charting</a>, including Cover 6 and the route-label disagreement.</p></article>
         <article><span className={styles.badge} data-basis="inferred">Inferred</span><h3>The movement you see</h3><p>Starting alignments, route angles, every defender’s path, protection, ball arc, body motion and subsecond timing are authored teaching choices. They show one possible way to understand the account.</p></article>

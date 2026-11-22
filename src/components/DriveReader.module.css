@@ -1,0 +1,49 @@
+.reader { box-sizing: border-box; width: 100%; max-width: 790px; min-width: 0; margin-inline: auto; padding: 18px clamp(16px, 4vw, 45px) 50px; scroll-margin-top: 60px; }
+.reader :is(h1, h2, p, figure) { margin: 0; }
+.header p, .foot, .history small { color: var(--quiet); }
+.header p { font-size: 14px; }
+.header h1 { text-wrap: balance; margin: 3px 0 15px; font-size: clamp(28px, 4.7vw, 45px); line-height: 1.09; letter-spacing: -.035em; font-weight: 650; }
+.scoreboard { background: #153e2f; color: #f3f8f2; border-radius: var(--field-round); padding: 12px clamp(14px, 3vw, 20px); font-variant-numeric: tabular-nums; }
+.scoreboard .scoreLabel { font-size: 13px; color: #d0e5d5; margin-bottom: 6px; }
+.scores { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) auto; gap: 12px; }
+.scores > div { display: grid; align-content: start; line-height: 1.18; }
+.scores span, .scores small { color: #d0e5d5; font-size: 14px; }
+.scores small { font-size: 12px; }
+.scores strong { font-size: clamp(31px, 5vw, 48px); line-height: 1.08; letter-spacing: -.055em; font-weight: 650; }
+.clock { border-left: 1px solid #6e8878; padding-left: clamp(12px, 4vw, 25px); text-align: right; }
+.clock b { margin-top: 4px; font-size: clamp(23px, 4vw, 32px); letter-spacing: -.045em; font-weight: 550; }
+.scoreboard .situation { margin-top: 10px; padding-top: 8px; border-top: 1px solid #5e7969; font-size: 15px; line-height: 1.4; }
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 11px 0 16px; }
+.controls a, .controls span { display: flex; justify-content: center; align-items: center; min-height: 44px; padding-inline: 8px; border: 1px solid var(--faint); border-radius: var(--round); font-size: 15px; font-weight: 550; line-height: 1.2; text-align: center; text-decoration: none; }
+.controls [aria-disabled] { color: var(--quiet); background: var(--raise); border-color: transparent; }
+.controls a.advance { color: var(--bg); background: var(--green); border-color: var(--green); }
+.controls a:hover, .foot a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.tactics h2, .history h2 { font-weight: 600; letter-spacing: -.025em; line-height: 1.2; }
+.tactics h2 { text-wrap: pretty; font-size: clamp(23px, 3.2vw, 31px); }
+.units { display: grid; gap: 2px; margin: 8px 0 10px; }
+.units p { display: flex; gap: 8px; align-items: baseline; color: var(--quiet); font-size: 14px; line-height: 1.45; }
+.units b { flex: 0 0 1em; color: var(--green); text-align: center; }
+.units p + p b { color: var(--loss); }
+.units strong, .changes strong { color: var(--ink); font-weight: 550; }
+.tactics .account { margin: 8px 0; font-size: 16px; }
+.tactics .chartNote { margin: 5px 0 9px; color: var(--quiet); font-size: 14px; line-height: 1.55; }
+.changes { margin-top: 4px; border-top: 1px solid var(--faint); color: var(--quiet); font-size: 14px; line-height: 1.55; }
+.changes summary { width: fit-content; min-height: 44px; box-sizing: border-box; padding-block: 11px; cursor: pointer; color: var(--ink); font-weight: 550; }
+.changes > div { margin-bottom: 8px; }
+.history { margin-top: 16px; }
+.history h2 { font-size: 21px; }
+.history table { width: 100%; margin-top: 7px; border-collapse: collapse; font-size: 14px; line-height: 1.4; font-variant-numeric: tabular-nums; }
+.history :is(th, td) { text-align: left; vertical-align: top; border-bottom: 1px solid var(--faint); padding: 7px 8px 7px 0; }
+.history th { font-weight: 550; }
+.history thead { color: var(--quiet); }
+.history small { display: block; font-weight: 400; }
+.foot { margin-top: 14px; font-size: 13px; line-height: 1.55; }
+.foot a { text-underline-offset: 3px; }
+.foot div { display: flex; flex-wrap: wrap; gap: 0 16px; }
+.foot div a { display: inline-flex; align-items: center; min-height: 44px; color: var(--green); font-size: 14px; font-weight: 550; }
+@media (min-width: 1024px) { .reader { padding-block: 32px 58px; scroll-margin: 0; } }
+@media (max-width: 400px) {
+  .reader { padding-inline: 12px; }
+  .history table { font-size: 13px; }
+  .history :is(th, td) { padding-right: 5px; }
+}

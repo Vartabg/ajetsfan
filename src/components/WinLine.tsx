@@ -50,11 +50,12 @@ export default function WinLine({ line, keys = false, label, end = "Final", play
   if (!turningPoint) return chart;
   const left = x(turningPoint.index) / 10;
   const height = y(line[turningPoint.index][0]) / 300;
+  const position = { "--marker-x": `${left}%`, "--marker-y": height } as CSSProperties;
   return <div className={styles.annotated}>
     {chart}
     <details className={styles.turningPoint}>
-      <summary className={styles.marker} data-label-left={left > 50 || undefined} style={{ "--marker-x": `${left}%`, "--marker-y": height } as CSSProperties}>
-        <span>Turning point</span>
+      <summary className={styles.marker} data-label-left={left > 50 || undefined} style={position}>
+        <span className={turningPoint.snap ? styles.onlyDot : undefined}>Turning point</span>
       </summary>
       <div className={styles.play}>
         <p className={styles.playContext}>{turningPoint.clock} · <strong>{turningPoint.change}</strong> in estimated Jets win chance</p>
@@ -62,5 +63,6 @@ export default function WinLine({ line, keys = false, label, end = "Final", play
         <a href={turningPoint.href}>See the play in the game report <span aria-hidden="true">→</span></a>
       </div>
     </details>
+    {turningPoint.snap && <a className={styles.snapLink} data-label-left={left > 50 || undefined} style={position} href={turningPoint.snap.href}>{turningPoint.snap.label}</a>}
   </div>;
 }

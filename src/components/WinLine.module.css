@@ -53,3 +53,9 @@
 .playContext { color: var(--quiet); font-size: 14px; }
 .playContext strong { color: var(--ink); }
 .play a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; text-underline-offset: 5px; }
+.marker .onlyDot { width: 1px; height: 1px; min-height: 0; overflow: hidden; clip-path: inset(50%); padding: 0; border: 0; }
+.snapLink { position: absolute; top: calc((var(--chart-height) - 24px) * var(--marker-y)); left: calc(var(--marker-x) + 22px);
+  transform: translateY(-50%); display: flex; align-items: center; width: max-content; max-width: min(36%, 16rem); min-height: 44px;
+  padding: 5px 10px; border: 1px solid var(--green); border-radius: var(--round); background: var(--bg); font: 600 13px/1.25 var(--data); text-align: center; text-decoration: none; }
+.snapLink[data-label-left] { left: auto; right: calc(100% - var(--marker-x) + 22px); }
+.snapLink:hover, .snapLink:focus-visible { text-decoration: underline; text-underline-offset: 3px; }

@@ -1,0 +1,82 @@
+.viewer {
+  width: 100%; max-width: 850px; box-sizing: border-box; margin-inline: auto;
+  padding: 18px clamp(16px, 4vw, 48px) 42px; scroll-margin-top: 60px;
+}
+.viewer p, .viewer h1, .viewer h2, .viewer figure, .viewer dl, .viewer dd { margin: 0; }
+.header > p, .snapNumber, .method, .scoreChange, .plotKey { color: var(--quiet); }
+.header > p { font-size: 14px; }
+.header h1 { margin-top: 2px; font-size: clamp(28px, 4.7vw, 46px); line-height: 1.12; letter-spacing: -.038em; font-weight: 650; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; margin: 16px 0 13px; }
+.paces, .steps { display: flex; align-items: center; }
+.paces { padding: 2px; border-radius: var(--round); background: var(--raise); }
+.controls a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: var(--round); font-size: 14px; font-weight: 550; text-decoration: none; line-height: 1.2; white-space: nowrap; touch-action: manipulation; }
+.paces a { padding: 0 13px; color: var(--quiet); }
+.paces a[aria-current] { background: var(--bg); color: var(--ink); box-shadow: inset 0 0 0 1px var(--faint); }
+.steps { gap: 7px; }
+.steps a { min-width: 88px; padding: 0 13px; border: 1px solid var(--faint); }
+.steps a span { font-size: 19px; line-height: 1; }
+.steps .next { color: var(--bg); background: var(--green); border-color: transparent; }
+.steps a[aria-disabled] { background: var(--raise); color: var(--quiet); border-color: transparent; cursor: default; }
+.controls a[href]:hover { box-shadow: inset 0 0 0 2px var(--green); }
+.board { background: #153e2f; color: #f3f8f2; padding: 14px 18px 12px; border-radius: 14px; }
+.board .boardLabel { margin-bottom: 6px; color: #d0e5d5; font-size: 13px; line-height: 1.25; }
+.situation span { font-weight: 400; color: #d0e5d5; }
+.scoreline { display: grid; grid-template-columns: 1fr 1fr .85fr; gap: 12px; align-items: center; }
+.team, .clock { display: grid; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.team > span, .clock span { color: #d0e5d5; font-size: 15px; font-weight: 500; }
+.team strong { font-size: clamp(35px, 6vw, 56px); font-weight: 650; letter-spacing: -.065em; }
+.team small { font-size: 13px; color: #d0e5d5; }
+.clock { border-left: 1px solid #678170; padding-left: 14px; text-align: end; }
+.clock b { margin-top: 3px; font-size: clamp(23px, 4vw, 34px); font-weight: 550; letter-spacing: -.05em; }
+.periodTrack { display: flex; gap: 4px; margin: 11px 0 8px; }
+.periodTrack > span { flex: 1; height: 3px; border-radius: 3px; background: #49705c; overflow: hidden; }
+.periodTrack i { display: block; height: 100%; background: #c2e4b3; }
+.periodTrack .activePeriod { background: #789783; }
+.situation { font-size: 15px; font-weight: 500; line-height: 1.45; }
+.readDrive { display: inline-flex; align-items: center; min-height: 44px; color: var(--green); font-size: 15px; font-weight: 550; text-underline-offset: 4px; }
+.play { margin-top: 8px; }
+.snapNumber { font-size: 13px; font-variant-numeric: tabular-nums; }
+.snapNumber span { color: var(--green); }
+.play h2 { margin: 3px 0 6px; font-size: clamp(22px, 3.2vw, 32px); font-weight: 650; letter-spacing: -.025em; line-height: 1.16; }
+.account, .scoreChange { max-width: 62ch; line-height: 1.5; }
+.account { font-size: 16px; }
+.play .scoreChange { margin-top: 5px; font-size: 14px; }
+.play .field, .viewer .margin { margin-top: 17px; }
+.field figcaption, .margin figcaption { display: flex; flex-wrap: wrap; gap: 0 10px; align-items: baseline; justify-content: space-between; font-size: 15px; }
+.field figcaption span, .margin figcaption span { color: var(--quiet); font-size: 13px; }
+.pitch { display: block; width: 100%; height: auto; margin: 5px 0; }
+.yardNumber { font: 500 9px var(--font-sans), sans-serif; fill: #c9dacf; }
+.endZone { font: 650 12px var(--font-sans), sans-serif; letter-spacing: .04em; fill: #ebf2ec; }
+.spots { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 13px; line-height: 1.5; color: var(--quiet); }
+.spots > span { white-space: nowrap; }
+.spots i { display: inline-block; width: 7px; height: 7px; margin-right: 4px; border: 1.5px solid currentColor; border-radius: 50%; }
+.spots i:is([data-symbol="finish"], [data-symbol="return"]) { background: var(--green); border-color: var(--green); }
+.spots i:is([data-symbol="catch"], [data-symbol="landing"]) { border-radius: 0; transform: rotate(45deg); background: var(--tint); }
+.spots i[data-symbol="gain"] { width: 3px; height: 10px; border: 0; border-left: 2px dashed currentColor; border-radius: 0; }
+.field .yardSplit { margin-top: 4px; font-size: 14px; color: var(--quiet); }
+.yardSplit b { color: var(--ink); font-weight: 550; }
+.spots b { font-weight: 550; color: var(--ink); }
+.viewer .margin { border-top: 1px solid var(--faint); padding-top: 12px; }
+.marginPlot { display: block; width: 100%; height: clamp(52px, 8vw, 78px); margin-top: 3px; color: var(--quiet); }
+.plotCaption { display: flex; justify-content: space-between; font-size: 13px; color: var(--quiet); }
+.plotKey { font-size: 13px; line-height: 1.5; }
+.viewer .emptyChart { margin-top: 12px; color: var(--quiet); }
+.viewer .metrics { border-block: 1px solid var(--faint); display: flex; flex-wrap: wrap; gap: 10px 30px; padding: 12px 0; margin-top: 16px; font-variant-numeric: tabular-nums; }
+.metrics dt { font-size: 13px; color: var(--quiet); }
+.metrics dd { font-size: 18px; font-weight: 550; }
+.links { display: flex; flex-wrap: wrap; gap: 0 18px; margin-top: 7px; }
+.links a, .method summary { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; font-weight: 550; text-underline-offset: 4px; }
+.method summary { display: list-item; width: fit-content; cursor: pointer; padding-block: 10px; box-sizing: border-box; }
+.method p, .ending { font-size: 14px; line-height: 1.55; }
+.viewer .ending { margin-block: 8px; }
+@media (min-width: 1024px) { .viewer { padding-block: 38px 60px; scroll-margin: 0; } }
+@media (max-width: 530px) {
+  .controls { display: grid; grid-template-columns: 1fr; gap: 6px; margin: 10px 0; }
+  .paces { width: fit-content; }
+  .paces a { min-height: 44px; }
+  .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .board { padding: 12px 14px 10px; }
+  .pitch { min-height: 86px; }
+  .yardNumber[data-major="false"] { display: none; }
+  .yardNumber { font-size: 14px; }
+}

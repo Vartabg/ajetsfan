@@ -68,6 +68,7 @@ export default async function DiscoverPage() {
         <p className={styles.note}>{belowOnePercent.length} of {scope.wins} eligible wins. {range}</p>
       </div>
       <Link className={shared.go} href="/morgue?board=miracle">Explore every comeback →</Link>
+      <Link className={shared.go} href="/plays">Compare the final two minutes</Link>
     </FocusMoment>
     <FocusMoment id="ninety-five" label="The lead that got away" heading={<>{aboveNinetyFivePercent.length} {aboveNinetyFivePercent.length === 1 ? "loss" : "losses"} after 95%. <em>See where they turned.</em></>}>
       <div className={shared.shape}>

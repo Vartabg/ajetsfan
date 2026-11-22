@@ -30,3 +30,6 @@
   .schedule li > span:nth-of-type(2) { grid-area: score; text-align: right; }
   .schedule li > :last-child { grid-area: report; justify-self: end; }
 }
+.followEntrance { padding: 8px 16px; background: var(--tint); }
+.followEntrance a { min-height: 44px; font-size: 15px; }
+@media (min-width: 1024px) { .followEntrance { padding-inline: clamp(32px, 5vw, 80px); } }

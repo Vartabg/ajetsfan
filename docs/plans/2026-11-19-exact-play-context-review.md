@@ -1,0 +1,16 @@
+# Exact-play context review
+
+An independent Antigravity session using Gemini 3.8 Flash High reviewed revision 1 against `963ff5c`. The fresh session received the plan, the site's design direction, excerpts of the reader, snap type, compiler and parser, and selected source records for Cleveland and Buffalo. The stream returned a successful terminal result after 104 seconds.
+
+Revision 2 incorporates the five material findings. It spells out the optional schema and backwards compatibility, orients timeout counts when New York is away, attributes EPA to the team on offense, restricts the field graphic to verifiable scrimmage situations, and defines the within-game ranking population and ties. Zero and negative measurements need explicit presence checks. The selected play's observed result and scoreboard belong in the opening section. Missing ESPN models have no cells to render. The field and the statistical explanation can follow the human account.
+
+The reviewer suggested a numerical threshold for showing the rank. Half a percentage point suppresses trivial swings without discarding the recorded value from the chart or the comparison population. Mathematical ranks count strictly larger swings, including all plays tied ahead. The review did not observe fans using the reader.
+
+The October 20 Wilson film package records +3.93 Jets EPA for the 2022 release with hash `931121d8897779d7944e2a293e92ed8799c8e5cceef84096ac42339003fedc09`. The rebuilt reader draws +3.85 from `167dff9290b11a47822157443af586877b38de1b6a90e41f95ac52e524cf4bb3`. The field, participants and scoring action match. A bounded Research Vault query returned no football claim, so the source comparison uses the archived play package and the two source editions. The October film package separately records Cover 6, four rushers and a 2.036-second release on this numbered play.
+
+A targeted independent revision 2 review using the same model completed in a separate empty workspace after 102 seconds. Four observations were checked against implementation and records.
+
+- The compiler checks the unrounded after-play win probability against pre-play probability and the signed change on the same row. The loader validates the separately rounded published values. A DuckDB comparison matched all published post-play estimates.
+- Both scores appear on scoring plays. The scoreboard gives the result, and the line directly below names the leading team and exact entering score. The Wilson and extra-point tests cover consecutive changes. A missing ESPN score is explicitly labeled.
+- Wilson’s charting disclosure names its sources separately and always gives both available EPA estimates and the film edition date. Both derivatives use CC BY-SA 4.0 per the [participation provider](https://nflreadr.nflverse.com/reference/load_participation.html) and [FTN provider](https://nflreadr.nflverse.com/reference/load_ftn_charting.html). The specific edition hashes are recorded above.
+- A negative-depth reception reports how far behind the line the catch occurred and how many yards the receiver gained after it. Shares of positive net gains are reserved for positive contributions to the gain. The −3 air, 16 after-catch fixture exercises this choice.
