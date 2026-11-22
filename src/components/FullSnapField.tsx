@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { PriorThrowTrace } from "@/lib/drive-read";
 import type { FullSnapBoard, FullSnapPlayer, FullSnapPoint } from "@/lib/full-snap";
 import type { ChalkPath } from "@/lib/snap-chalkboard";
@@ -216,6 +216,15 @@ export function FullSnapField(props: Props) {
   const { board, id, study } = props;
   const value = study?.value ?? localSelection;
   const select = study?.onSelect ?? setLocalSelection;
+  const pickerRef = useRef<HTMLSelectElement>(null);
+  const checkedInitialPick = useRef(false);
+  useEffect(() => {
+    if (!study || checkedInitialPick.current || !pickerRef.current) return;
+    checkedInitialPick.current = true;
+    // A native select retains a choice made before React attached its change listener.
+    const initialPick = pickerRef.current.value;
+    if (initialPick !== study.value) study.onSelect(initialPick);
+  }, [study]);
   const playerValue = (p: FullSnapPlayer) => study ? (p.participantId ?? "slot:" + p.id) : p.id;
   const current = board.players.find(p => playerValue(p) === value);
   const selected = current?.id ?? "";
@@ -228,7 +237,7 @@ export function FullSnapField(props: Props) {
   const phases = study ? [study.phase] : ["snap", "action"] as const;
   const picker = <>
     <label htmlFor={id + "-player"}>Follow a player</label>
-    <select id={id + "-player"} name={study ? "follow" : undefined} value={value} onChange={event => select(event.target.value)}>
+    <select ref={pickerRef} id={id + "-player"} name={study ? "follow" : undefined} value={value} onChange={event => select(event.target.value)}>
       <option value="">Entire formation</option>
       {absent && <option value={value}>{absent.label}</option>}
       {units.map(unit => <optgroup key={unit.unit} label={unit.unit + " · " + unit.title}>

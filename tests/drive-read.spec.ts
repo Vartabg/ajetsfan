@@ -98,6 +98,40 @@ test("the opening document and Flight response contain only first-down setup, an
   expect(premature).toEqual([]);
 });
 
+test("a player selected before hydration stays on the field and in the Reveal link", async ({ page }) => {
+  let releaseScripts!: () => void;
+  const mayLoad = new Promise<void>(resolve => { releaseScripts = resolve; });
+  let scriptHeld = false;
+  await page.route(url => url.pathname.startsWith("/_next/static/") && url.pathname.endsWith(".js"), async route => {
+    scriptHeld = true;
+    await mayLoad;
+    await route.continue();
+  });
+
+  const picker = reader(page).getByRole("combobox", { name: "Follow a player" });
+  try {
+    await page.goto(series, { waitUntil: "commit" });
+    await expect(picker).toBeVisible();
+    await expect.poll(() => scriptHeld).toBe(true);
+    await expect(picker).toHaveValue("");
+    await picker.selectOption(wilson);
+    await expect(picker).toHaveValue(wilson);
+  } finally {
+    releaseScripts();
+  }
+
+  await at(page, "4155", "snap", wilson);
+  const marker = reader(page).locator('svg [data-participant-id="' + wilson + '"]');
+  await expect(marker).toHaveAttribute("data-selected", "true");
+  const reveal = link(page, "Reveal play");
+  await expect(reveal).toHaveAttribute("href", new RegExp("[?&]follow=" + wilson + "(?:&|$)"));
+  await reveal.click();
+  await at(page, "4155", "action", wilson);
+  await expect(reader(page).locator('svg[data-full-field="action"]')).toBeVisible();
+  await expect(picker).toHaveValue(wilson);
+  await expect(marker).toHaveAttribute("data-selected", "true");
+});
+
 test("six series states preserve player slots, follow Wilson through the substitution, and stop at the tying touchdown", async ({ page }) => {
   const deck: string[] = [];
   page.on("request", req => { if (new URL(req.url()).pathname.endsWith("/frames")) deck.push(req.url()); });
