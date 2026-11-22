@@ -1,7 +1,7 @@
 import { fullSnapBoard } from "@/lib/full-snap";
 import { FullSnapField } from "./FullSnapField";
 import { snapChalkboard } from "@/lib/snap-chalkboard";
-import { participationProvenance } from "@/lib/snap-participation";
+import { chartLabel, participationProvenance } from "@/lib/snap-participation";
 import type { Snap, SnapCharting, SnapGame } from "@/lib/snap-types";
 import { teamIdentity } from "@/lib/teams";
 import styles from "./SnapChalkboard.module.css";
@@ -30,14 +30,6 @@ function RouteConcept({ route, id, label = "Charted primary route" }: { route: s
       <circle cx={Number(start[1])} cy={Number(start[2])} r="3.5"/></svg>}
     <div><span>{label}</span><b>{route.toLowerCase().replaceAll("/", " / ")}</b>{path && <small>Illustrative route shape</small>}</div>
   </div>;
-}
-
-function chartLabel(value?: string) {
-  if (!value) return null;
-  if (value === "I_FORM") return "I formation";
-  if (value === "2_MAN") return "2-Man";
-  const words = value.toLowerCase().replaceAll("_", " ");
-  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 function UnitSummary({ board, chart, shotgun, kicking }: { board: Board; chart?: SnapCharting; shotgun: boolean; kicking: boolean }) {

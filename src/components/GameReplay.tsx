@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { formatDate } from "@/lib/current";
+import { driveReadHref } from "@/lib/drive-read-links";
 import { replayHref, replayView, type ReplayPace, type ReplayView } from "@/lib/game-replay";
 import { snapAccount, snapHeadline, snapSituation, scoreContext } from "@/lib/snap-context";
 import { chance, clockText, periodName, snapPath, snapTime } from "@/lib/snap-explorer";
@@ -181,6 +182,7 @@ export default function GameReplay({ initial, initialChalk }: { initial: ReplayV
       })}</div>
       <p className={styles.situation}><span>Before the play</span> · {snapSituation(game, play)}</p>
     </div>
+    <a className={styles.readDrive} href={driveReadHref(game.id, { play: play.key })}>Read the drive</a>
     <article className={styles.play} aria-labelledby="replay-play">
       <p className={styles.snapNumber}>Play {view.index + 1}{view.reason && <span> · {view.reason}</span>}</p>
       <h2 id="replay-play">{heading}</h2>

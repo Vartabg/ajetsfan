@@ -1,5 +1,5 @@
 import { defensiveFormations, offensiveFormations, type PlaybookPlayer } from "./playbook";
-import type { Chalkboard, ChalkFrame, ChalkMark, ChalkPath } from "./snap-chalkboard";
+import { personnel, type Chalkboard, type ChalkFrame, type ChalkMark, type ChalkPath } from "./snap-chalkboard";
 import type { Snap, SnapGame, SnapParticipant } from "./snap-types";
 
 export type FullSnapPoint = [number, number];
@@ -46,11 +46,10 @@ function fromTemplate(p: PlaybookPlayer): FullSnapPlayer {
   return slot(p.id, unit, templateGroup(p), p.label, point(x, y));
 }
 
-function recordedGroups(board: Chalkboard, unit: Unit, members?: SnapParticipant[]): string[] {
+function recordedGroups(unit: Unit, season: number, source?: string, members?: SnapParticipant[]): string[] {
   const full = members?.map(p => positions[p.position]);
   if (full?.length === 11 && full.every(Boolean)) return full;
-  const marks = board.snap.marks.filter(p => p.unit === unit);
-  return marks.length === 11 && marks.every(p => p.tag) ? marks.map(p => p.tag!) : [];
+  return personnel(unit, source, season).map(p => p.tag!);
 }
 
 function offensiveUnit(groups: string[], formation: string | undefined, shotgun: boolean, elliott: boolean): FullSnapPlayer[] {
@@ -139,14 +138,14 @@ function fitsRole(position: string, role: string): boolean {
   return false;
 }
 
-function assignMembership(players: FullSnapPlayer[], members: SnapParticipant[] | undefined, outside?: string) {
+function assignMembership(players: FullSnapPlayer[], members: SnapParticipant[] | undefined, outsideId?: string) {
   if (members?.length !== 11 || new Set(members.map(p => p.id)).size !== 11) return;
-  const priority = (p: SnapParticipant) => outside && rosterMatch(outside,p) ? -2 : p.position === positions[p.position] ? 1 : 0;
+  const priority = (p: SnapParticipant) => outsideId === p.id ? -2 : p.position === positions[p.position] ? 1 : 0;
   const pairs: [FullSnapPlayer, SnapParticipant][] = [];
   const available = [...players];
   for (const p of [...members].sort((a,b) => priority(a)-priority(b) || a.number-b.number)) {
     const candidates = available.filter(s => s.group === positions[p.position]);
-    const matched = outside && rosterMatch(outside,p) ? candidates.find(s => s.start[0] <= 15 || s.start[0] >= 85) :
+    const matched = outsideId === p.id ? candidates.find(s => s.start[0] <= 15 || s.start[0] >= 85) :
       candidates.find(s => fitsRole(p.position, s.role));
     const slot = matched ?? candidates[0];
     if (!slot) return;
@@ -241,11 +240,14 @@ function specialPaths(players: FullSnapPlayer[], kind: KickKind) {
   }
 }
 
+function cleveland15(game: Game, p: Snap) {
+  return game.source === "nflverse" && game.id === "2022_02_NYJ_CLE" && game.opponent === "CLE" && p.possession === "jets" &&
+    p.quarter === 4 && p.yardline === 15 && p.distance === 10 && ["4155","4177","4199"].includes(p.key);
+}
+
 function scaleFor(game: Game, p: Snap, old: Chalkboard) {
   const f = p.facts!, k = f.kick;
-  const series = game.source === "nflverse" && game.id === "2022_02_NYJ_CLE" && p.possession === "jets" &&
-    p.quarter === 4 && p.yardline === 15 && ["4155","4177","4199"].includes(p.key);
-  if (series) return 3.3;
+  if (cleveland15(game,p)) return 3.3;
   if (old.studyId === "sanchez-thanksgiving") return .75;
   const distances = [f.airYards ?? 0, f.simpleAdvance || f.kind === "sack" ? f.yards ?? 0 : 0,
     (f.airYards ?? 0) - (f.interceptionReturnYards ?? 0), k?.kickYards ?? 0, (k?.kickYards ?? 0) - (k?.returnYards ?? 0)];
@@ -254,21 +256,53 @@ function scaleFor(game: Game, p: Snap, old: Chalkboard) {
 
 const defenderCredits = { soloTackle: "Solo tackle", tackleWithAssist: "Tackle with help", assistTackle: "Tackle assist", sack: "Sack", halfSack: "Half sack", passDefended: "Pass defended" };
 
+function lineup(game: Game, play: Snap, elliott = false, sanchez = false) {
+  const f = play.facts;
+  const season = Number(game.id.slice(0,4));
+  const o = recordedGroups("O", season, f?.charting?.offensePersonnel, f?.onField?.offense);
+  const d = recordedGroups("X", season, f?.charting?.defensePersonnel, f?.onField?.defense);
+  const offense = offensiveUnit(o, sanchez ? "I_FORM" : f?.charting?.formation, !!f?.shotgun, elliott);
+  const defense = defensiveUnit(d);
+  // PFF reported Wilson lined up outside on this snap. Neither his absolute side nor the illustrated release is known.
+  const outsideId = cleveland15(game,play) && play.key === "4199" && play.clock === 25 && play.down === 3 ? "00-0037740" : undefined;
+  assignMembership(offense, f?.onField?.offense, outsideId);
+  assignMembership(defense, f?.onField?.defense);
+  return { players:[...offense,...defense], offenseGroups:o, defenseGroups:d };
+}
+
+function fieldLines(play: Snap, scale: number): Pick<FullSnapBoard,"gainLine" | "goalLineY"> {
+  const lines: Pick<FullSnapBoard,"gainLine" | "goalLineY"> = {};
+  if (play.yardline == null || play.yardline <= 0) return lines;
+  const goal = lineY - play.yardline * scale;
+  if (goal >= 4 && goal < lineY) lines.goalLineY = goal;
+  if (play.down && play.distance && play.distance > 0) {
+    const goalToGo = play.facts?.goalToGo || play.distance >= play.yardline;
+    const gain = goalToGo ? goal : lineY - play.distance * scale;
+    if (gain >= 4 && gain < lineY) lines.gainLine = { y:gain, label:goalToGo ? "Goal line" : "Line to gain" };
+  }
+  return lines;
+}
+
+/** Only starting information is read here. No action board, credited player or post-play fact is projected. */
+export function beforeFullSnap(game: Game, play: Snap): FullSnapBoard | null {
+  if (!play.possession || !play.down || play.distance == null || play.yardline == null) return null;
+  const {players,offenseGroups,defenseGroups} = lineup(game,play);
+  const scale = cleveland15(game,play) ? 3.3 : Math.min(4,52 / Math.max(12,play.distance));
+  const note = players.every(p => p.participantId) ? "The roster identifies all 22 players. Their starting spots are illustrated." :
+    offenseGroups.length && defenseGroups.length ? "The charted personnel groups are shown in an example alignment." :
+    "Player positions are illustrated. Unrecorded personnel use example units.";
+  return { players,lineY,yardsToY:scale,paths:[],events:[],note,...fieldLines(play,scale) };
+}
+
 export function fullSnapBoard(game: Game, play: Snap, board: Chalkboard): FullSnapBoard | null {
   const f = play.facts;
   const elliott = board.studyId === "elliott-miami", sanchez = board.studyId === "sanchez-thanksgiving";
   if (!play.possession || !f || (board.kind === "other" && !elliott && !sanchez)) return null;
   const kick = f.kick;
   const scale = scaleFor(game, play, board), y = (d: number) => lineY - d * scale;
-  const o = recordedGroups(board, "O", f.onField?.offense), d = recordedGroups(board, "X", f.onField?.defense);
-  const players = kick ? kickUnits(kick.kind, Number(game.id.slice(0,4)) >= 2024) : [
-    ...offensiveUnit(o, sanchez ? "I_FORM" : f.charting?.formation, !!f.shotgun, elliott), ...defensiveUnit(d),
-  ];
+  const {players,offenseGroups:o,defenseGroups:d} = kick ? { players:kickUnits(kick.kind, Number(game.id.slice(0,4)) >= 2024),offenseGroups:[],defenseGroups:[] } :
+    lineup(game,play,elliott,sanchez);
   const offense = players.filter(p => p.unit === "O"), defense = players.filter(p => p.unit === "X");
-  if (!kick) {
-    assignMembership(offense, f.onField?.offense, board.wilsonStudy ? f.target : undefined);
-    assignMembership(defense, f.onField?.defense);
-  }
   const pass = f.kind === "completion" || f.kind === "incompletion" || f.kind === "interception" || f.kind === "sack";
   const qb = offense.filter(p => p.group === "QB");
   const eligible = offense.filter(p => p.group !== "OL" && p.group !== "QB" || elliott && p.id === "O-y");
@@ -308,14 +342,7 @@ export function fullSnapBoard(game: Game, play: Snap, board: Chalkboard): FullSn
   else if (f.charting?.coverage === "COVER_2") model.note += " Two deep halves and two outside flats illustrate Cover 2.";
   if (elliott) model.note += " The gamebook records Testaverde’s three-yard touchdown to eligible tackle Jumbo Elliott and the upheld ruling. Catch depth is unavailable.";
   if (sanchez) model.note += " Sanchez’s account identifies the collision with Brandon Moore. The gamebook credits Steve Gregory’s recovery and 32-yard touchdown return.";
-  if (!kick && play.yardline != null && play.yardline > 0) {
-    const goal = y(play.yardline);
-    if (goal >= 4 && goal < lineY) model.goalLineY = goal;
-    if (play.down && play.distance && play.distance > 0) {
-      const isGoal = f.goalToGo || play.distance >= play.yardline, gain = isGoal ? goal : y(play.distance);
-      if (gain >= 4 && gain < lineY) model.gainLine = { y: gain, label: isGoal ? "Goal line" : "Line to gain" };
-    }
-  }
+  if (!kick) Object.assign(model,fieldLines(play,scale));
   const x = f.direction === "left" ? 23 : f.direction === "right" ? 77 : 50;
   const at = (x: number, yards: number): FullSnapPoint => [x,y(yards)];
   const event = ([x,y]: FullSnapPoint, label: string, shortLabel = label) => model.events.push({ x,y,unit:"ball", label,shortLabel });
@@ -346,7 +373,7 @@ export function fullSnapBoard(game: Game, play: Snap, board: Chalkboard): FullSn
     passer.path = [finish]; event(finish,"Sack spot","Sack");
   } else if (pass && passer) {
     const interception = f.kind === "interception";
-    if (f.airYards == null || (interception ? !taker : !receiver)) {
+    if (!f.direction || f.airYards == null || !receiver || (interception && !taker)) {
       model.directionOnly = f.direction;
       model.unplacedThrow = { depth: f.airYards, targetKnown: !!f.target };
       return model;

@@ -1,9 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import type { PriorThrowTrace } from "@/lib/drive-read";
 import type { FullSnapBoard, FullSnapPlayer, FullSnapPoint } from "@/lib/full-snap";
 import type { ChalkPath } from "@/lib/snap-chalkboard";
 import styles from "./FullSnapField.module.css";
+
+export type DriveFieldOptions = {
+  phase: "snap" | "action";
+  traces: PriorThrowTrace[];
+  value: string;
+  onSelect: (value: string) => void;
+  absent?: { label: string; message: string };
+  formAction: string;
+  formParams: Record<string, string>;
+};
 
 type Props = {
   board: FullSnapBoard;
@@ -15,6 +26,7 @@ type Props = {
   kicking: boolean;
   caption: string;
   verifiedLineups: boolean;
+  study?: DriveFieldOptions;
 };
 
 // Shared by the alignment, the teaching assignments and the recorded ball. Keep a small sideline gutter.
@@ -106,10 +118,10 @@ function BallEvents({ board }: { board: FullSnapBoard }) {
   });
 }
 
-function PlayerMark({ p, selected, select }: { p: FullSnapPlayer; selected: boolean; select: (id: string) => void }) {
+function PlayerMark({ p, selected, select }: { p: FullSnapPlayer; selected: boolean; select: (player: FullSnapPlayer) => void }) {
   return <g transform={"translate(" + xy(p.start) + ")"} className={styles.player}
     data-unit={p.unit} data-tag={p.group} data-player-id={p.id} data-participant-id={p.participantId} data-label={label(p)} data-selected={selected || undefined}
-    onClick={() => select(p.id)}>
+    onClick={() => select(p)}>
     <title>{label(p)}</title>
     <circle r="12" fill="transparent" />
     {selected && <circle r="12" className={styles.ring}/>}
@@ -144,17 +156,30 @@ function Nameplates({ players, action, selected }: { players: FullSnapPlayer[]; 
   return <g className={styles.nameplates} aria-hidden="true">{captions}</g>;
 }
 
+function EarlierThrow({ trace }: { trace: PriorThrowTrace }) {
+  const cx = x(trace.to[0]), cy = y(trace.to[1]);
+  const labelOnLeft = trace.to[0] > 50;
+  return <g className={styles.priorThrow} data-prior-throw={trace.key} data-to={trace.to.join(",")} data-from={trace.from?.join(",")}>
+    <title>{"Earlier throw · " + trace.label}</title>
+    {trace.from && <line x1={x(trace.from[0])} y1={y(trace.from[1])} x2={cx} y2={cy}/>}
+    <circle cx={cx} cy={cy} r="4"/>
+    <text x={cx + (labelOnLeft ? -7 : 7)} y={cy < 24 ? cy + 14 : cy - 5} textAnchor={labelOnLeft ? "end" : "start"}>{trace.label}</text>
+  </g>;
+}
+
 function Field({ board, id, phase, selected, select, ...props }: Props & {
-  phase: "snap" | "action"; selected: string; select: (id: string) => void;
+  phase: "snap" | "action"; selected: string; select: (player: FullSnapPlayer) => void;
 }) {
   const action = phase === "action";
   const svgId = id + "-" + phase;
+  const traces = props.study?.traces;
   return <figure className={styles.frame} data-phase={phase}>
     <svg viewBox="0 0 450 300" className={styles.field} data-full-field={phase} data-focused={!!selected || undefined}
       role="img" aria-label={props.offense + " and " + props.defense + ", eleven players each. " +
       (action ? "Illustrated assignments and recorded play action." : "Illustrated starting positions.")}>
-      <MarkerDefs id={svgId}/>
+      {(action || !props.study) && <MarkerDefs id={svgId}/>}
       <FieldLines board={board} yardline={props.yardline} distance={props.distance} kicking={props.kicking}/>
+      {traces?.map(trace => <EarlierThrow key={trace.key} trace={trace}/>)}
       {action && <g className={styles.trails}>
         {board.players.map(p => <PlayerTrail key={p.id} player={p} id={svgId} focus={selected}/>)}
       </g>}
@@ -177,6 +202,7 @@ function Field({ board, id, phase, selected, select, ...props }: Props & {
         {board.gainLine?.label === "Line to gain" && <span><i data-key="sticks"/>Line to gain</span>}
         {board.goalLineY != null || board.gainLine?.label === "Goal line" ? <span><i data-key="goal"/>Goal line</span> : null}
         {action && board.paths.length > 0 && <span><i data-key="ball"/>Recorded ball</span>}
+        {traces?.length ? <span><i data-key="prior"/>Earlier {traces.length === 1 ? "throw" : "throws"} · {traces.map(trace => trace.label).join(", ")}</span> : null}
       </div>
       {action && <p className={styles.account}>{props.caption}</p>}
       {action && board.players.filter(p => p.credit?.includes("Quarterback hit")).map(p =>
@@ -186,43 +212,63 @@ function Field({ board, id, phase, selected, select, ...props }: Props & {
 }
 
 export function FullSnapField(props: Props) {
-  const [selected, select] = useState("");
-  const { board, id } = props;
-  const current = board.players.find(p => p.id === selected);
+  const [localSelection, setLocalSelection] = useState("");
+  const { board, id, study } = props;
+  const value = study?.value ?? localSelection;
+  const select = study?.onSelect ?? setLocalSelection;
+  const playerValue = (p: FullSnapPlayer) => study ? (p.participantId ?? "slot:" + p.id) : p.id;
+  const current = board.players.find(p => playerValue(p) === value);
+  const selected = current?.id ?? "";
+  const absent = !current && value ? study?.absent : undefined;
+  const showAssignments = study?.phase !== "snap";
   const units = [
     { title: props.offense, unit: "O", players: board.players.filter(p => p.unit === "O") },
     { title: props.defense, unit: "X", players: board.players.filter(p => p.unit === "X") },
   ];
+  const phases = study ? [study.phase] : ["snap", "action"] as const;
+  const picker = <>
+    <label htmlFor={id + "-player"}>Follow a player</label>
+    <select id={id + "-player"} name={study ? "follow" : undefined} value={value} onChange={event => select(event.target.value)}>
+      <option value="">Entire formation</option>
+      {absent && <option value={value}>{absent.label}</option>}
+      {units.map(unit => <optgroup key={unit.unit} label={unit.unit + " · " + unit.title}>
+        {unit.players.map(p => <option value={playerValue(p)} key={p.id}>{playerLabel(p, board.players)}</option>)}
+      </optgroup>)}
+    </select>
+    {study && <noscript><button type="submit" className={styles.apply}>Follow</button></noscript>}
+    <div role="status" aria-live="polite" className={styles.choice}>
+      {current && <><strong>{playerLabel(current, board.players)}</strong>
+        {showAssignments && current.credit && <span>Recorded · {current.credit}</span>}
+        {showAssignments && <span>Example assignment · {current.assignment}</span>}</>}
+      {absent && <><strong>{absent.label}</strong><span>{absent.message}</span></>}
+    </div>
+  </>;
   return <div className={styles.diagram} data-full-snap>
-    <Field {...props} phase="snap" selected={selected} select={select}/>
-    <Field {...props} phase="action" selected={selected} select={select}/>
+    {phases.map(phase => <Field key={phase} {...props} phase={phase} selected={selected} select={p => select(playerValue(p))}/>)}
     <div className={styles.explanation}>
-      <p>{board.note}{board.paths.length > 0 && " Ball lines show the reported play using schematic lateral positions."}</p>
-      <p className={styles.assignmentKey}><span className={styles.routeKey}>↗</span> Release or movement
-        <span className={styles.blockKey}>⊣</span> Block
-        <span className={styles.defenseKey}>⇢</span> Defensive assignment</p>
+      {showAssignments ? <>
+        <p>{board.note}{board.paths.length > 0 && " Ball lines show the reported play using schematic lateral positions."}</p>
+        <p className={styles.assignmentKey}><span className={styles.routeKey}>↗</span> Release or movement
+          <span className={styles.blockKey}>⊣</span> Block
+          <span className={styles.defenseKey}>⇢</span> Defensive assignment</p>
+      </> : <p>{props.verifiedLineups
+        ? "Participation records identify all 22 players. Starting positions are illustrated."
+        : "Starting positions are illustrated. Players without confirmed participation are shown by role."}</p>}
     </div>
-    <div className={styles.lookup} data-player-lookup>
-      <label htmlFor={id + "-player"}>Follow a player</label>
-      <select id={id + "-player"} value={selected} onChange={event => select(event.target.value)}>
-        <option value="">Entire formation</option>
-        {units.map(unit => <optgroup key={unit.unit} label={unit.unit + " · " + unit.title}>
-          {unit.players.map(p => <option value={p.id} key={p.id}>{playerLabel(p, board.players)}</option>)}
-        </optgroup>)}
-      </select>
-      <div role="status" aria-live="polite" className={styles.choice}>
-        {current && <><strong>{playerLabel(current, board.players)}</strong>
-          {current.credit && <span>Recorded · {current.credit}</span>}
-          <span>Example assignment · {current.assignment}</span></>}
-      </div>
-    </div>
-    <noscript><style>{"[data-player-lookup]{display:none}"}</style></noscript>
+    {study ? <form action={study.formAction} method="get" className={styles.lookup} data-player-lookup>
+      {["play", "phase", "series"].map(name => study.formParams[name] !== undefined &&
+        <input type="hidden" key={name} name={name} value={study.formParams[name]}/>)}
+      {picker}
+    </form> : <>
+      <div className={styles.lookup} data-player-lookup>{picker}</div>
+      <noscript><style>{"div[data-player-lookup]{display:none}"}</style></noscript>
+    </>}
     <details className={styles.roster}><summary>All 22 players</summary>
       <div className={styles.teams}>{units.map(unit => <section key={unit.unit} aria-label={unit.title + " lineup"}>
         <h4>{unit.unit} · {unit.title}</h4>
         <ul>{unit.players.map(p => <li key={p.id}><strong>{playerLabel(p, board.players)}</strong>
-          {p.credit && <span>Recorded · {p.credit}</span>}
-          <span>Example · {p.assignment}</span></li>)}</ul>
+          {showAssignments && p.credit && <span>Recorded · {p.credit}</span>}
+          {showAssignments && <span>Example · {p.assignment}</span>}</li>)}</ul>
       </section>)}</div>
     </details>
     {props.verifiedLineups && <p className={styles.sources}>Lineups from participation records. Names, numbers and positions checked against the{" "}

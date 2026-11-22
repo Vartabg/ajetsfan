@@ -3,6 +3,8 @@ import FocusMoment from "@/components/FocusMoment";
 import FocusShell from "@/components/FocusShell";
 import shared from "@/components/Focus.module.css";
 import { formatDate } from "@/lib/current";
+import { driveReadHref } from "@/lib/drive-read-links";
+import { CLEVELAND } from "@/lib/snap-explorer";
 import { loadReplayDirectory } from "@/lib/load-snaps";
 import { pageMetadata } from "@/lib/site";
 import { teamName } from "@/lib/teams";
@@ -28,6 +30,7 @@ export default async function ReplayDirectory({ searchParams }: Props) {
     entries={[{ id: "choose-game", title: "Choose a game", answer: season ? String(season) : "Seasons" }]}>
     <FocusMoment id="choose-game" first heading="Replay a Jets game.">
       <p className={shared.caption}>{coverage}Start at the first recorded play, then follow the key plays or every snap.</p>
+      {years.includes(2022) && <Link prefetch={false} className={shared.go} href={driveReadHref(CLEVELAND, { series: "cleveland-15" })}>Read three downs at Cleveland’s 15</Link>}
       {years.length > 0 && <form action="/replay" method="get" className={styles.filters} aria-label="Choose a season and opponent">
         <div><label htmlFor="replay-season">Season</label><select id="replay-season" name="season" defaultValue={season ?? ""}>
           {season !== null && !years.includes(season) && <option value={season}>{season}</option>}

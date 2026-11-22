@@ -38,6 +38,7 @@ const nextConfig: NextConfig = {
     "/players/*": ["./public/data/players/*.json"],
     "/replay": ["./public/data/snaps/*.json.gz"],
     "/replay/*": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
+    "/replay/*/read": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
     "/plays": ["./public/data/snaps/*.json.gz"],
     "/plays/*": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
     "/games/*": ["./public/data/snaps/*.json.gz"],

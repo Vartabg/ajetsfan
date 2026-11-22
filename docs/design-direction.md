@@ -23,6 +23,8 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 
 - **Seeing both teams** (2026-11-22). The owner liked stepping through the Cleveland series and asked to see the entire Xs and Os. Keep all the players on the same field when revealing a snap, including the blocking, rush and coverage around the ball.
 
+- **Reading a drive before the result** (2026-11-22). The owner approved the interactive Cleveland series and asked to add it to the website. Open on the formation and score before the snap, reveal the play on demand, keep earlier throws on the field, and let a fan follow the same identified player through substitutions.
+
 ## Rejected
 
 - The initial exact-play view separated the score and play text from the down, distance and field position. The owner said it missed the basics of what was happening in the game.

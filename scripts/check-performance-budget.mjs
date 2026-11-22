@@ -28,6 +28,8 @@ export const performanceBudgets = [
   // A replay opens on a single play. The complete game is requested during interaction.
   { route: "/replay", file: "replay", html: 14, js: 200 },
   { route: "/replay/2022_02_NYJ_CLE", file: "replay/2022_02_NYJ_CLE", html: 14, js: 204 },
+  // The drive reader sends one phase, previously revealed throws and a single field.
+  { route: "/replay/2022_02_NYJ_CLE/read", file: "replay/2022_02_NYJ_CLE/read", html: 14, js: 204 },
   { route: "/stories", file: "stories", html: 18, js: 200 },
   // Three-step journey measured 11.1 KiB HTML / 191.1 KiB initial JS; the other stages are smaller.
   { route: "/stories/monday-night-miracle", file: "stories/monday-night-miracle", html: 15, js: 205 },

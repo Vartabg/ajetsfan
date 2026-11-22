@@ -1,3 +1,4 @@
+import { driveReadHref } from "@/lib/drive-read-links";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -144,6 +145,7 @@ export default async function SnapPage({ params, searchParams }: Props) {
         <CopySnap key={path + modeSuffix} path={path + modeSuffix} />
       </div>
       {!isLiveSource && <Link href={replayHref(id, play.key, "key", chalk)} prefetch={false} className={shared.go}>Replay the game from this play</Link>}
+      {!isLiveSource && <Link href={driveReadHref(id, { play: play.key })} prefetch={false} className={shared.go}>Read the drive</Link>}
       <div className={styles.disclosures}>
         <details className={styles.jump}><summary>Match my TV clock</summary><ClockPicker gameId={id} play={play} /></details>
         <details className={styles.jump}><summary>Read the play record</summary><p className={styles.record}>{play.description}</p></details>

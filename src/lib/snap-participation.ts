@@ -9,6 +9,14 @@ const positions = new Set(["QB", "RB", "FB", "WR", "TE", "OL", "C", "G", "T", "D
 const fields = ["formation", "offensePersonnel", "defensePersonnel", "box", "rushers", "primaryRoute", "coverage", "manZone"] as const;
 const chartFieldNames = new Set<string>(fields);
 
+export function chartLabel(value?: string) {
+  if (!value) return null;
+  if (value === "I_FORM") return "I formation";
+  if (value === "2_MAN") return "2-Man";
+  const words = value.toLowerCase().replaceAll("_", " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
 export function participationProvenance(season: number) {
   return {
     provider: season < 2023 ? "NFL Next Gen Stats via nflverse" : "FTN Data via nflverse",

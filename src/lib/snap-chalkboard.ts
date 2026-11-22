@@ -43,7 +43,7 @@ const groups = {
 } as const;
 type Group = keyof typeof groups;
 
-function personnel(unit: "O" | "X", source: string | undefined, season: number): ChalkMark[] {
+export function personnel(unit: "O" | "X", source: string | undefined, season: number): ChalkMark[] {
   if (!source) return [];
   const counts = new Map<Group, number>(), seen = new Set<string>();
   const table: Readonly<Record<string, Group>> = positions[unit];
@@ -282,6 +282,11 @@ function playbookStudy(game: Game, play: Snap, wilsonStudy: boolean): string | n
   return null;
 }
 
+export function hasComplexRuling(play: Snap): boolean {
+  return /\b(?:penalt(?:y|ies)|no play|fumbl\w*|muff\w*|lateral\w*|backwards? pass|reverse|review(?:ed)?|challeng\w*|overturned|reversed|aborted|on[ -]?side|blocked|safety|fake[sd]?|turnover on downs)\b/i.test(play.description) ||
+    !!play.facts?.turnovers?.some(t => t !== "interception");
+}
+
 /** Project a single selected snap. Coordinates are percentages; the initial offense attacks toward decreasing y. */
 export function snapChalkboard(game: Game, play: Snap): Chalkboard {
   const facts = play.facts ?? {}, kick = facts.kick;
@@ -293,8 +298,7 @@ export function snapChalkboard(game: Game, play: Snap): Chalkboard {
   const jetsO = play.possession === "jets" ? !invert : play.possession === "opponent" ? invert : null;
   const offense = jetsO === null ? recordedKick ? "Kicking team" : "Offense" : jetsO ? "NYJ" : game.opponent;
   const defense = jetsO === null ? recordedKick ? "Receiving team" : "Defense" : jetsO ? game.opponent : "NYJ";
-  const complex = /\b(?:penalt(?:y|ies)|no play|fumbl\w*|muff\w*|lateral\w*|backwards? pass|reverse|review(?:ed)?|challeng\w*|overturned|reversed|aborted|on[ -]?side|blocked|safety|fake[sd]?|turnover on downs)\b/i.test(play.description) ||
-    facts.turnovers?.some(t => t !== "interception");
+  const complex = hasComplexRuling(play);
   const kind = complex || !play.possession ? "other" : kick?.kind ?? (scrimmage ? k : "other");
   const notes: string[] = [];
   const route = facts.charting?.primaryRoute ?? null;
