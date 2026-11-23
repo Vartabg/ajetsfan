@@ -16,6 +16,7 @@ const rounded = (value) => value == null ? null : Math.round(value * 1000) / 100
 const integerIn = (n, min, max) => Number.isSafeInteger(n) && n >= min && n <= max;
 const probability = (n) => Number.isFinite(n) && n >= 0 && n <= 1;
 const binary = (n) => n === 0 || n === 1;
+const gsis = (id) => typeof id === 'string' && /^00-\d{7}$/.test(id);
 
 const actions = { completion: 'complete_pass', incompletion: 'incomplete_pass', interception: 'interception', sack: 'sack' };
 const laterals = ['lateral_reception', 'lateral_rush', 'lateral_return', 'lateral_recovery'];
@@ -151,8 +152,13 @@ function snapFacts(row, atHome) {
   if (integerIn(row.yards_gained, -100, 100)) facts.yards = row.yards_gained;
   const runner = kind === 'rush' || kind === 'kneel';
   const actor = runner ? player(row.rusher_player_name, row.rusher_player_id) : player(row.passer_player_name, row.passer_player_id);
-  if (actor) facts[runner ? 'rusher' : 'passer'] = actor;
-  if (kind === 'completion' || kind === 'incompletion' || kind === 'interception') {
+  const passAttempt = kind === 'completion' || kind === 'incompletion' || kind === 'interception';
+  if (actor) {
+    facts[runner ? 'rusher' : 'passer'] = actor;
+    if (kind === 'rush' && gsis(row.rusher_player_id)) facts.rusherId = row.rusher_player_id;
+    if (passAttempt && gsis(row.passer_player_id)) facts.passerId = row.passer_player_id;
+  }
+  if (passAttempt) {
     const target = player(row.receiver_player_name, row.receiver_player_id);
     const interceptor = kind === 'interception' ? player(row.interception_player_name, row.interception_player_id) : undefined;
     const conflicted = kind === 'interception' && (target && target === interceptor ||
@@ -160,6 +166,7 @@ function snapFacts(row, atHome) {
     if (interceptor && !conflicted) facts.interceptor = interceptor;
     if (target && !conflicted) {
       facts.target = target;
+      if (gsis(row.receiver_player_id)) facts.targetId = row.receiver_player_id;
       if (probability(row.cp)) facts.completionProbability = row.cp;
       if (integerIn(row.air_yards, -120, 120)) facts.airYards = row.air_yards;
       if (kind === 'completion' && integerIn(row.yards_after_catch, -120, 120)) facts.afterCatch = row.yards_after_catch;

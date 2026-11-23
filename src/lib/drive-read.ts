@@ -1,4 +1,5 @@
 import { beforeFullSnap, fullSnapBoard, type FullSnapBoard, type FullSnapPoint } from "./full-snap";
+import { defenseCriteria, defenseMatchHref } from "./defense-match";
 import { hasComplexRuling, snapChalkboard } from "./snap-chalkboard";
 import { fieldSpot, snapAccount, snapHeadline, snapSituation } from "./snap-context";
 import { chartLabel } from "./snap-participation";
@@ -19,6 +20,7 @@ export type DriveReadFrame = {
   yardline: number | null; timeouts?: SnapScore; situation: string; offense: string; defense: string; kicking: boolean; kickKind?: SnapKick["kind"];
   formation?: string; offensePersonnel?: string; defensePersonnel?: string; coverage?: string; rushers?: number; box?: number; primaryRoute?: string;
   board: FullSnapBoard | null; caption: string; headline?: string; detail?: string;
+  defenseMatch?: string;
   verifiedLineups: boolean; charted: boolean; changes: DriveLineupChange[];
   history: DriveHistoryRow[]; traces: PriorThrowTrace[]; followed?: SnapParticipant; follow?: string;
 };
@@ -164,6 +166,7 @@ export function buildDriveRead(game: SnapGame, options: DriveReadOptions): Drive
     frame.headline = snapHeadline(game,p);
     frame.caption = frame.board && evidence.kind !== "other" ? evidence.action.caption : snapAccount(game,p);
     if (evidence.wilsonStudy) frame.detail = evidence.notes[0];
+    if (game.source === "nflverse" && defenseCriteria(p)) frame.defenseMatch = defenseMatchHref(id, p.key);
   }
   Object.assign(frame,throwHistory(plays,index,phase,frame.board));
   if (options.follow) {

@@ -53,6 +53,10 @@ export type SnapFacts = {
   passer?: string;
   target?: string;
   rusher?: string;
+  /** Individual nflverse GSIS credits on an unambiguous carry or pass attempt. */
+  passerId?: string;
+  targetId?: string;
+  rusherId?: string;
   interceptor?: string;
   interceptionReturnYards?: number;
   direction?: "left" | "middle" | "right";

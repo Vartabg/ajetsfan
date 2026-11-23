@@ -128,6 +128,23 @@ test('same-row facts preserve measured zero, signed yardage, model precision and
   assert.equal(completionFacts({ receiver_player_id: 'first/second' }).target, undefined);
 });
 
+test('individual role IDs require a credited player and keep ambiguous or nullified plays out', () => {
+  const passer = '00-0026158', receiver = '00-0037740', runner = '00-0039794';
+  const pass = { passer_player_id: passer, receiver_player_id: receiver };
+  const ids = facts => [facts.passerId, facts.targetId, facts.rusherId];
+  assert.deepEqual(ids(completionFacts(pass)), [passer, receiver, undefined]);
+  assert.deepEqual(ids(completionFacts({ ...pass, receiver_player_id: null })), [passer, undefined, undefined]);
+  assert.deepEqual(ids(completionFacts({ ...pass, passer_player_id: 'not-gsis', receiver_player_name: null })), [undefined, undefined, undefined]);
+  assert.deepEqual(ids(completionFacts({ ...pass, interception: 1, complete_pass: 0, interception_player_id: receiver })), [passer, undefined, undefined]);
+  for (const change of [{ fumble: 1 }, { lateral_reception: 1 }, { penalty: 1 }, { play_type: 'no_play' }]) {
+    assert.deepEqual(ids(completionFacts({ ...pass, ...change })), [undefined, undefined, undefined]);
+  }
+  const rush = { ...pass, play_type: 'run', pass_attempt: 0, rush_attempt: 1, complete_pass: 0,
+    rusher_player_name: 'B.Allen', rusher_player_id: runner };
+  assert.deepEqual(ids(completionFacts(rush)), [undefined, undefined, runner]);
+  assert.deepEqual(ids(completionFacts({ ...rush, play_type: 'qb_kneel', qb_kneel: 1 })), [undefined, undefined, undefined]);
+});
+
 test('a field finish requires consistent ordinary gain, scoring and credit evidence', () => {
   for (const change of [{ fumble: 1 }, { fumble_lost: 1 }, { lateral_reception: 1 }, { lateral_rusher_player_name: 'A.Other' },
     { replay_or_challenge: 1 }, { replay_or_challenge: null }, { description: 'Pass caught. The Replay Official reviewed the ruling.' },
@@ -215,6 +232,8 @@ test('v1 season parsing accepts absent facts and validates optional facts before
     { turnovers: [] }, { turnovers: ['fumble'] }, { turnovers: ['downs', 'interception'] }, { turnovers: ['lostFumble', 'lostFumble'] },
     { airYards: 121 }, { afterCatch: -121 }, { yards: -101 }, { passer: '' }, { dropbackProbability: 1.01 },
     { completionProbability: 0.4, kind: 'rush' }, { afterCatch: 4, kind: 'interception' },
+    { kind: 'completion', targetId: '00-0037740' }, { kind: 'completion', target: 'G.Wilson', targetId: '12345' },
+    { kind: 'completion', rusher: 'B.Allen', rusherId: '00-0039794' }, { kind: 'rush', rusher: 'B.Allen', rusherId: '00-0039794' },
     { simpleAdvance: true, kind: 'completion', yards: 50 }, { simpleAdvance: true, kind: 'sack', yards: -2 }]) {
     game.plays[0].facts = facts;
     assert.throws(parse, /Invalid/);
@@ -366,7 +385,7 @@ test('published historical seasons reproduce the two-minute cohort and its linke
   // and direction distinct from observed yards, the next kick and the game final.
   assert.deepEqual(cleveland.plays[wilson].facts, {
     timeouts: [0, 1], kind: 'completion', goalToGo: false, yards: 15, firstDown: true, touchdown: true, thirdDownResult: 'converted',
-    passer: 'J.Flacco', target: 'G.Wilson', simpleAdvance: true, epa: 3.846828027839408, shotgun: true, direction: 'middle', passLength: 'short',
+    passer: 'J.Flacco', passerId: '00-0026158', target: 'G.Wilson', targetId: '00-0037740', simpleAdvance: true, epa: 3.846828027839408, shotgun: true, direction: 'middle', passLength: 'short',
     dropbackProbability: 0.9855244755744934, completionProbability: 0.4148028492927551, airYards: 14, afterCatch: 1,
   });
   const davis = cleveland.plays.find((play) => play.key === '4276');
@@ -376,13 +395,13 @@ test('published historical seasons reproduce the two-minute cohort and its linke
   assert.deepEqual(davis.facts, {
     turnovers: ['interception'],
     timeouts: [0, 1], kind: 'interception', goalToGo: false, yards: 0, firstDown: false, touchdown: false,
-    passer: 'J.Brissett', target: 'A.Cooper', interceptor: 'A.Davis', epa: -0.7408111404813765, shotgun: true, direction: 'left',
+    passer: 'J.Brissett', passerId: '00-0033119', target: 'A.Cooper', targetId: '00-0031544', interceptor: 'A.Davis', epa: -0.7408111404813765, shotgun: true, direction: 'left',
     passLength: 'deep', interceptionReturnYards: 14, defenders: [{ name: 'A.Davis', role: 'passDefended' }],
     dropbackProbability: 0.975856602191925, completionProbability: 0.5842199325561523, airYards: 18,
   });
   assert.deepEqual(kincaid.facts, {
     timeouts: [3, 3], kind: 'completion', goalToGo: false, yards: 54, firstDown: true, touchdown: false,
-    passer: 'J.Allen', target: 'D.Kincaid', simpleAdvance: true, epa: 2.9467543336770037, shotgun: true, direction: 'right',
+    passer: 'J.Allen', passerId: '00-0034857', target: 'D.Kincaid', targetId: '00-0038933', simpleAdvance: true, epa: 2.9467543336770037, shotgun: true, direction: 'right',
     passLength: 'deep', defenders: [{ name: 'D.Belton', role: 'assistTackle' }, { name: 'M.Moore', role: 'assistTackle' }],
     dropbackProbability: 0.488914430141449, completionProbability: 0.4996108412742615, airYards: 21, afterCatch: 33,
   });

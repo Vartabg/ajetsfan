@@ -27,6 +27,8 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 
 - **Situation studies** (2026-11-23). The owner approved comparing throws against the sticks, studying four versus five rushers, and making a fourth-down call before the reveal. Team Stats should explain how the Jets operate in the red zone, on key downs and at different game times. A fan can connect each comparison to real plays without watching film.
 
+- **Finding the pattern behind a play** (2026-11-23). The owner approved comparing two earlier defensive looks, finding a player's plays by situation, and following Ashtyn Davis onto the field in Cleveland. Let fans read the two formations before seeing the throws, open the snaps behind a player's rate, and discover why Davis entered for one defensive snap.
+
 ## Rejected
 
 - The initial exact-play view separated the score and play text from the down, distance and field position. The owner said it missed the basics of what was happening in the game.

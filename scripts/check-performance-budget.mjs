@@ -13,6 +13,7 @@ export const performanceBudgets = [
   { route: "/", file: "index", html: 14, js: 203 },
   // 2026-10-06: the focus view adds the frame, a list of the plays and one drawn moment per play (about 2.4 KiB).
   { route: "/film-room", file: "film-room", html: 24, js: 220 },
+  { route: "/film-room/replay/davis-cleveland", file: "film-room/replay/davis-cleveland", html: 9, js: 200 },
   // 2026-10-10: 24 sources, 96 items with measured artwork, inline controls and the rant archive.
   { route: "/media", file: "media", html: 38, js: 205 },
   { route: "/media/rants", file: "media/rants", html: 18, js: 200 },
@@ -34,6 +35,8 @@ export const performanceBudgets = [
   { route: "/replay/studies/throws", file: "replay/studies/throws", html: 14, js: 204 },
   { route: "/replay/studies/pass-rush", file: "replay/studies/pass-rush", html: 14, js: 204 },
   { route: "/replay/studies/fourth-down", file: "replay/studies/fourth-down", html: 14, js: 204 },
+  { route: "/replay/studies/defense", file: "replay/studies/defense", html: 14, js: 204 },
+  { route: "/replay/studies/player", file: "replay/studies/player", html: 11, js: 200 },
   { route: "/stories", file: "stories", html: 18, js: 200 },
   // Three-step journey measured 11.1 KiB HTML / 191.1 KiB initial JS; the other stages are smaller.
   { route: "/stories/monday-night-miracle", file: "stories/monday-night-miracle", html: 15, js: 205 },

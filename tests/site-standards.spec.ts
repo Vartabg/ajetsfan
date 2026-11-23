@@ -1,7 +1,27 @@
 import { test, expect } from "@playwright/test";
 import path from "node:path";
+import { readdirSync, readFileSync } from "node:fs";
 import { STATIC_SITEMAP_PATHS } from "../src/lib/sitemap-paths";
 import { siteOrigin } from "../src/lib/site";
+
+test("the packaged study routes include the play, player and participation seasons they use", () => {
+  const all = (name: string) => readdirSync(path.join("public/data", name)).filter(file => /^\d{4}\.json(?:\.gz)?$/.test(file)).sort();
+  function seasons(route: string, folder: string) {
+    const trace = JSON.parse(readFileSync(path.join(".next/server/app", route, "page.js.nft.json"), "utf8")) as { files: string[] };
+    return trace.files.filter(file => file.includes("/public/data/" + folder + "/")).map(file => path.basename(file)).sort();
+  }
+  expect(seasons("replay", "snaps")).toEqual(all("snaps"));
+  expect(seasons("replay/studies/player", "snaps")).toEqual(all("snaps"));
+  expect(seasons("replay/studies/player", "players")).toEqual(all("players"));
+  expect(seasons("replay/studies/player", "participation")).toEqual([]);
+  expect(seasons("replay/studies/defense", "snaps")).toEqual(all("snaps"));
+  expect(seasons("replay/studies/defense", "participation")).toEqual(all("participation"));
+  for (const folder of ["snaps", "participation"]) {
+    expect(seasons("film-room", folder)).toEqual([]);
+    expect(seasons("film-room/replay/davis-cleveland", folder)).toEqual(["2022.json.gz"]);
+    expect(seasons("film-room/replay/wilson-cleveland", folder)).toEqual([]);
+  }
+});
 
 test("security headers, public discovery endpoints, icons, and Wilson share card respond cleanly", async ({ request }) => {
   const home = await request.get("/");

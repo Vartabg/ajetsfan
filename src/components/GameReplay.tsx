@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { formatDate } from "@/lib/current";
+import { defenseCriteria, defenseMatchHref } from "@/lib/defense-match";
 import { driveReadHref } from "@/lib/drive-read-links";
 import { replayHref, replayView, type ReplayPace, type ReplayView } from "@/lib/game-replay";
 import { snapAccount, snapHeadline, snapSituation, scoreContext } from "@/lib/snap-context";
@@ -199,6 +200,7 @@ export default function GameReplay({ initial, initialChalk }: { initial: ReplayV
       {epa != null && <div><dt>{offense} expected points added</dt><dd>{epa > 0 ? "+" : ""}{epa.toFixed(2)}</dd></div>}
     </dl>}
     <div className={styles.links}>
+      {game.source === "nflverse" && defenseCriteria(play) && <a href={defenseMatchHref(game.id, play.key)}>Find this defense again</a>}
       <a href={snapPath(game.id, play.key) + (chalk ? "?view=chalk#evidence" : "")}>Analyze this play</a>
       {view.last && <><a href={replayHref(game.id, view.first, view.pace, chalk)} onClick={e => click(e, "first")}>Replay from the start</a>
         <a href={"/games/" + encodeURIComponent(game.id)}>Full game report</a></>}

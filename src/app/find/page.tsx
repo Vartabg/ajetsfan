@@ -52,6 +52,7 @@ export default async function FindPage({ searchParams }: { searchParams: Promise
       </form>
       <div className={styles.links}>
         <Link prefetch={false} className={shared.go} href="/replay">Browse game replays</Link>
+        <Link prefetch={false} className={shared.go} href="/replay/studies/player">Find a player by situation</Link>
         <Link prefetch={false} className={shared.go} href="/plays">Find two-minute comebacks</Link>
       </div>
     </FocusMoment>

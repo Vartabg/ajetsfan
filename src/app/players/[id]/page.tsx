@@ -7,6 +7,7 @@ import { archiveDiffersFromStats, focusOf, lineText, playText, sumLines, type Pl
 import { formatCheckedAt, formatDate } from "@/lib/current";
 import { playerStatLines, playerStatsMessage, statsForPlayer } from "@/lib/roster";
 import { playerActionPhoto } from "@/lib/editorial-photos";
+import { defaultPlayerRole, playerStudyHref } from "@/lib/player-situations";
 import { pageMetadata } from "@/lib/site";
 import { teamIdentity } from "@/lib/teams";
 import EditorialPhoto from "@/components/EditorialPhoto";
@@ -118,6 +119,8 @@ export default async function PlayerPage({ params }: Props) {
   const statsMessage = playerStatsMessage(coverage.stats, player, season);
   const archiveDiffers = history ? archiveDiffersFromStats(history, player.id, coverage.stats) : false;
   const photo = playerActionPhoto(player.id, season);
+  const role = defaultPlayerRole(player.position);
+  const hasSituationStudy = ["QB", "RB", "HB", "FB", "WR", "TE"].includes(player.position) && /^00-\d{7}$/.test(player.id);
   const rosterHref = `/team/roster?${new URLSearchParams({ player: player.id })}#roster`;
   const entries: FocusEntry[] = [
     { id: "player", title: "The player", answer: player.name },
@@ -132,7 +135,12 @@ export default async function PlayerPage({ params }: Props) {
   return <FocusShell page="player" section="/team" entries={entries} checkedAt={coverage.roster.checkedAt} className={focusFonts}>
     <FocusMoment id="player" first heading={player.name} status={<TeamFocusNavigation />}
       label={`${season} source roster${coverage.roster.week !== null ? ` · Week ${coverage.roster.week}` : ""}`}
-      actions={<Link className={shared.go} href={rosterHref}>Find {player.name.split(" ")[0]} in the roster <span aria-hidden="true">→</span></Link>}>
+      actions={<>
+        {hasSituationStudy && <Link className={shared.go} href={playerStudyHref(player.id, season, role)}>
+          Study {player.name.split(" ")[0]}’s third-and-short {role === "pass" ? "throws" : role === "target" ? "targets" : "carries"} <span aria-hidden="true">→</span>
+        </Link>}
+        <Link className={shared.go} href={rosterHref}>Find {player.name.split(" ")[0]} in the roster <span aria-hidden="true">→</span></Link>
+      </>}>
       <p className={styles.position}>{player.position}{player.jersey !== null ? ` · No. ${player.jersey}` : ""} · New York Jets</p>
       <p className={shared.caption}>Source roster status: <strong>{player.statusLabel}</strong> ({player.status})</p>
       <div className={shared.shape}>{photo

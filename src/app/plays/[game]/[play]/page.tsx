@@ -9,6 +9,8 @@ import { ClockPicker, DriveSoFar, ProbabilityTrace } from "@/components/SnapEvid
 import { DiagramLinks } from "@/components/DiagramLinks";
 import { SnapChalkboard } from "@/components/SnapChalkboard";
 import { replayHref } from "@/lib/game-replay";
+import { defenseCriteria, defenseMatchHref } from "@/lib/defense-match";
+import { davisCasePlay, davisGame, davisPlay } from "@/app/film-room/replay/davis-cleveland/record";
 import { GameScoreboard, PlayAnalysis, SnapField } from "@/components/SnapGameState";
 import { snapAccount, snapHeadline } from "@/lib/snap-context";
 import SnapMatches, { SituationForm } from "@/components/SnapMatches";
@@ -155,6 +157,9 @@ export default async function SnapPage({ params, searchParams }: Props) {
       <DiagramLinks chalk={chalk} fieldHref={fieldHref} chalkHref={chalkHref} />
       {chalk ? <SnapChalkboard game={game} play={play} /> : <SnapField game={game} play={play} />}
       <PlayAnalysis plays={prefix} game={game} />
+      {!isLiveSource && defenseCriteria(play) && <Link prefetch={false} className={shared.go} href={defenseMatchHref(id, key)}>Find this defense again</Link>}
+      {id === davisGame && key === davisPlay && davisCasePlay(game) &&
+        <Link prefetch={false} className={shared.go} href="/film-room/replay/davis-cleveland">Follow Ashtyn Davis in the Film Room</Link>}
       {isWilson && <WilsonCharting epa={play.facts?.epa} />}
       <div className={styles.driveEvidence}><h3>Win probability through this play</h3><ProbabilityTrace plays={prefix} live={isLiveSource} /></div>
       <DriveSoFar plays={prefix} gameId={id} />

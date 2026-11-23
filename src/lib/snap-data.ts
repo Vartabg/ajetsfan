@@ -78,7 +78,7 @@ const booleanFacts = ["goalToGo", "firstDown", "touchdown", "simpleAdvance"] as 
 const playerFacts = ["passer", "target", "rusher", "interceptor"] as const;
 const probabilities = ["dropbackProbability", "completionProbability"] as const;
 const factKeys = new Set<string>(["timeouts", "kind", "turnovers", "yards", "airYards", "afterCatch", "epa", "thirdDownResult", "statCall", "statYards", "statTouchdown",
-  ...booleanFacts, ...playerFacts, ...probabilities, ...diagramFactKeys]);
+  "passerId", "targetId", "rusherId", ...booleanFacts, ...playerFacts, ...probabilities, ...diagramFactKeys]);
 
 function validFacts(play: Snap): boolean {
   const facts = play.facts;
@@ -108,6 +108,13 @@ function validFacts(play: Snap): boolean {
     (facts.turnovers.includes("downs") && facts.turnovers.length !== 1))) return false;
   if (booleanFacts.some((k) => facts[k] !== undefined && typeof facts[k] !== "boolean")) return false;
   if (playerFacts.some((k) => facts[k] !== undefined && (typeof facts[k] !== "string" || !facts[k].trim() || facts[k].length > 100))) return false;
+  for (const [role, key] of [["rusher", "rusherId"], ["passer", "passerId"], ["target", "targetId"]] as const) {
+    const id = facts[key];
+    if (id === undefined) continue;
+    const appropriate = role === "rusher" ? facts.kind === "rush" && play.type === "run" :
+      ["completion", "incompletion", "interception"].includes(facts.kind ?? "") && play.type === "pass";
+    if (!appropriate || !play.possession || !facts[role] || typeof id !== "string" || !/^00-\d{7}$/.test(id)) return false;
+  }
   if (probabilities.some((k) => facts[k] !== undefined && (!Number.isFinite(facts[k]) || facts[k] < 0 || facts[k] > 1))) return false;
   if (facts.epa !== undefined && !Number.isFinite(facts.epa)) return false;
   if (facts.yards !== undefined && !integer(facts.yards, -100, 100)) return false;

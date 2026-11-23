@@ -129,6 +129,7 @@ export default function DriveReader({ frame }: { frame: DriveReadFrame }) {
     <footer className={styles.foot}>
       {frame.charted && <p>Formation and participation from <a href={source.sourceUrl}>{source.provider}</a> · <a href={source.licenseUrl}>{source.license}</a>.</p>}
       <div>{action && <Link prefetch={false} scroll={false} href={href(key, "snap")}>Back to the snap</Link>}
+        {frame.defenseMatch && <a href={frame.defenseMatch}>Find this defense again</a>}
         <Link prefetch={false} href={replayHref(game.id, key, "all", true)}>Open game replay</Link>
         {action && <Link prefetch={false} href={"/plays/" + encodeURIComponent(game.id) + "/" + encodeURIComponent(key)}>Analyze this play</Link>}
       </div>
