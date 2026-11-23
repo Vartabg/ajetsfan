@@ -1,0 +1,16 @@
+.filters { display: flex; flex-wrap: wrap; align-items: end; gap: 12px 16px; }
+.filters label { display: grid; min-width: 0; max-width: 100%; gap: 6px; color: var(--quiet); font: 550 .9rem/1.3 var(--text); }
+.filters select, .filters input { min-width: 0; max-width: 100%; min-height: 44px; padding: 7px 12px; border: 1px solid var(--quiet); border-radius: 12px; background: var(--bg); color: var(--ink); font: 500 1rem/1.4 var(--text); }
+.summary { display: grid; gap: 8px; max-width: 52rem; padding: 20px 0; border-block: 1px solid var(--faint); }
+.summary h2, .summary p { margin: 0; }
+.summary h2 { font: 650 1.15rem/1.45 var(--display); }
+.summary h2 span, .scope, .plays small { color: var(--quiet); }
+.summary .rate { font: 540 clamp(1.4rem,3vw,2.4rem)/1.2 var(--display); }
+.rate strong { color: var(--green); font-variant-numeric: tabular-nums; }
+.scope { max-width: 58em; margin: 0; font: 400 .92rem/1.55 var(--text); }
+.plays { list-style: none; padding: 0; margin: 0; width: 100%; max-width: 52rem; }
+.plays li { border-top: 1px solid var(--faint); }
+.plays a { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 12px 0; color: var(--ink); text-decoration: none; }
+.plays small { display: block; font: 400 .9rem/1.45 var(--text); }
+.outcome { flex: none; color: var(--green); text-align: right; text-decoration: underline; text-underline-offset: 3px; }
+.pages { display: flex; flex-wrap: wrap; gap: 16px; }

@@ -39,7 +39,11 @@ export default async function FilmRoomPage() {
   return <FocusShell page="film-room" entries={entries} checkedAt={null} className={focusFonts}>
     <FocusMoment id="reel" first label="Film Room" heading={<>Big Jets plays, <em>drawn out.</em></>}
       status={<SeasonReturn fallback={null} className={styles.seasonReturn} />}
-      actions={<>{opener ? <a href={`#play-${opener.id}`} className={shared.go}>Start with {shortTitle(opener)} <span aria-hidden="true">↓</span></a> : null}<Link href="/film-room/replay/wilson-cleveland" className={shared.go}>Explore Wilson’s touchdown in 3D <span aria-hidden="true">→</span></Link></>}>
+      actions={<>
+        {opener && <a href={`#play-${opener.id}`} className={shared.go}>Start with {shortTitle(opener)} <span aria-hidden="true">↓</span></a>}
+        <Link href="/film-room/replay/wilson-cleveland" className={shared.go}>Explore Wilson’s touchdown in 3D <span aria-hidden="true">→</span></Link>
+        <Link href="/film-room/replay/davis-cleveland" prefetch={false} className={shared.go}>Follow Ashtyn Davis into the Cleveland game <span aria-hidden="true">→</span></Link>
+      </>}>
       <div className={shared.shape}>
         <ol className={styles.reel}>{jetsPlays.map((play) => <li key={play.id} data-category={play.category}>
           <a href={`#play-${play.id}`}><b>{shortTitle(play)}</b><span>{play.date.slice(0, 4)} · {outcome(play)}</span></a>

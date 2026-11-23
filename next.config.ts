@@ -36,11 +36,15 @@ const nextConfig: NextConfig = {
     "/*": ["./public/data/*.json", "./public/data/drives/*.json"],
     // Player pages read every season's player file (readdir), which tracing cannot follow on its own.
     "/players/*": ["./public/data/players/*.json"],
-    "/replay": ["./public/data/snaps/*.json.gz"],
+    // Match the directory itself. The two Film Room stories also contain a /replay segment.
+    "/replay!(/**)": ["./public/data/snaps/*.json.gz"],
     "/replay/\\[game\\]{,/frames,/read}": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
     "/team/stats": ["./public/data/snaps/*.json.gz"],
     "/replay/studies/\\[study\\]": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
     "/replay/studies/fourth-down": ["./public/data/snaps/*.json.gz"],
+    "/replay/studies/defense": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
+    "/replay/studies/player": ["./public/data/snaps/*.json.gz", "./public/data/players/*.json"],
+    "/film-room/replay/davis-cleveland": ["./public/data/snaps/2022.json.gz", "./public/data/participation/2022.json.gz"],
     "/plays": ["./public/data/snaps/*.json.gz"],
     "/plays/*": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
     "/games/*": ["./public/data/snaps/*.json.gz"],
@@ -51,12 +55,16 @@ const nextConfig: NextConfig = {
   // The generic football snapshot fallback also traces subdirectories. Only routes
   // that actually open a snap season need the compressed play-by-play archive.
   outputFileTracingExcludes: {
-    "/{api,discover,film-room,game-day,history,how-made,legends,media,morgue,players,puzzle,seasons}{,/**}": ["./public/data/snaps/*.json.gz"],
+    "/{api,discover,game-day,history,how-made,legends,media,morgue,players,puzzle,seasons}{,/**}": ["./public/data/snaps/*.json.gz"],
+    "/film-room": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
+    "/film-room/replay/wilson-cleveland": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
+    "/film-room/replay/davis-cleveland": ["./public/data/{snaps,participation}/{19*,20[013-9]*,202[013-9]}.json.gz", "./public/data/players/*.json"],
+    "/replay/studies/defense": ["./public/data/players/*.json"],
     "/team": ["./public/data/snaps/*.json.gz"],
     "/team/!(stats){,/**}": ["./public/data/snaps/*.json.gz"],
-    "/{api,discover,film-room,find,game-day,games,history,how-made,legends,media,morgue,players,puzzle,seasons,stories,team}{,/**}": ["./public/data/participation/*.json.gz"],
+    "/{api,discover,find,game-day,games,history,how-made,legends,media,morgue,players,puzzle,seasons,stories,team}{,/**}": ["./public/data/participation/*.json.gz"],
     "/{replay,plays}{,/page}": ["./public/data/participation/*.json.gz"],
-    "/replay/studies/fourth-down{,/**}": ["./public/data/participation/*.json.gz"],
+    "/replay/studies/{fourth-down,player}{,/**}": ["./public/data/participation/*.json.gz"],
     "/**/opengraph-image": ["./public/data/snaps/*.json.gz", "./public/data/participation/*.json.gz"],
   },
   images: {

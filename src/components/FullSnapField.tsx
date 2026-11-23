@@ -26,6 +26,7 @@ type Props = {
   kicking: boolean;
   caption: string;
   verifiedLineups: boolean;
+  singlePhase?: "snap" | "action";
   study?: DriveFieldOptions;
 };
 
@@ -177,7 +178,7 @@ function Field({ board, id, phase, selected, select, ...props }: Props & {
     <svg viewBox="0 0 450 300" className={styles.field} data-full-field={phase} data-focused={!!selected || undefined}
       role="img" aria-label={props.offense + " and " + props.defense + ", eleven players each. " +
       (action ? "Illustrated assignments and recorded play action." : "Illustrated starting positions.")}>
-      {(action || !props.study) && <MarkerDefs id={svgId}/>}
+      {(action || (!props.study && !props.singlePhase)) && <MarkerDefs id={svgId}/>}
       <FieldLines board={board} yardline={props.yardline} distance={props.distance} kicking={props.kicking}/>
       {traces?.map(trace => <EarlierThrow key={trace.key} trace={trace}/>)}
       {action && <g className={styles.trails}>
@@ -204,7 +205,7 @@ function Field({ board, id, phase, selected, select, ...props }: Props & {
         {action && board.paths.length > 0 && <span><i data-key="ball"/>Recorded ball</span>}
         {traces?.length ? <span><i data-key="prior"/>Earlier {traces.length === 1 ? "throw" : "throws"} · {traces.map(trace => trace.label).join(", ")}</span> : null}
       </div>
-      {action && <p className={styles.account}>{props.caption}</p>}
+      {action && props.caption && <p className={styles.account}>{props.caption}</p>}
       {action && board.players.filter(p => p.credit?.includes("Quarterback hit")).map(p =>
         <p className={styles.account} key={p.id}>Quarterback hit by {p.name}.</p>)}
     </figcaption>
@@ -229,12 +230,13 @@ export function FullSnapField(props: Props) {
   const current = board.players.find(p => playerValue(p) === value);
   const selected = current?.id ?? "";
   const absent = !current && value ? study?.absent : undefined;
-  const showAssignments = study?.phase !== "snap";
+  const singlePhase = study?.phase ?? props.singlePhase;
+  const showAssignments = singlePhase !== "snap";
   const units = [
     { title: props.offense, unit: "O", players: board.players.filter(p => p.unit === "O") },
     { title: props.defense, unit: "X", players: board.players.filter(p => p.unit === "X") },
   ];
-  const phases = study ? [study.phase] : ["snap", "action"] as const;
+  const phases = singlePhase ? [singlePhase] : ["snap", "action"] as const;
   const picker = <>
     <label htmlFor={id + "-player"}>Follow a player</label>
     <select ref={pickerRef} id={id + "-player"} name={study ? "follow" : undefined} value={value} onChange={event => select(event.target.value)}>
