@@ -1,0 +1,42 @@
+.filters { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 10px 16px; margin: 0; }
+.filters > div { display: grid; gap: 5px; }
+.filters > div, .filters select { min-width: 0; max-width: 100%; }
+.filters label { font: 600 14px/1.2 var(--text); }
+.filters select { min-height: 42px; padding: 6px 28px 6px 10px; border: 1px solid var(--quiet); border-radius: 8px; color: var(--ink); background: var(--bg); font: 500 16px/1.4 var(--text); }
+.takeaway { max-width: 40em; margin: 4px 0 0; font: 550 clamp(19px,2.2vw,27px)/1.36 var(--display); }
+.coverage, .explainer, .definition { max-width: 58em; margin: 0; color: var(--quiet); font: 400 15px/1.5 var(--text); }
+.coverage b { color: var(--ink); }
+.definition { font-size: 14px; }
+.compare { width: 100%; max-width: 900px; border-collapse: collapse; table-layout: fixed; color: var(--ink); font: 500 16px/1.35 var(--text); }
+.compare th, .compare td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--faint); text-align: left; vertical-align: top; }
+.compare thead th { border-bottom: 1px solid var(--quiet); font: 600 14px/1.4 var(--text); }
+.compare th:first-child { width: 34%; }
+.compare td strong { font-weight: 650; }
+.compare small, .plays small { display: block; margin-top: 3px; color: var(--quiet); font: 400 14px/1.4 var(--text); }
+.compare a, .studies a, .pager a, .definition a, .plays a { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+.compare td a { display: inline-block; text-decoration: none; }
+.compare a strong { text-decoration: underline; text-underline-offset: 3px; }
+.mobileLabel { display: none; }
+.studies, .pager { display: flex; gap: 3px 22px; flex-wrap: wrap; font: 600 15px/1.4 var(--text); }
+.studies a, .pager a { padding: 8px 0; }
+.sampleTitle { margin: 0; color: var(--ink); font: 650 clamp(18px,2.2vw,25px)/1.25 var(--display); }
+.plays { list-style: none; padding: 0; margin: 0; width: 100%; max-width: 900px; }
+.plays li { border-top: 1px solid var(--faint); }
+.plays li:last-child { border-bottom: 1px solid var(--faint); }
+.plays a { display: flex; gap: 6px 20px; align-items: baseline; justify-content: space-between; padding: 10px 2px; text-decoration: none; color: var(--ink); font: 500 16px/1.35 var(--text); }
+.plays strong { color: var(--green); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 575px) {
+  .filters { gap: 10px; }
+  .filters select { padding-right: 15px; }
+  .compare, .compare tbody { display: block; }
+  .compare thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .compare tbody tr { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 7px 12px; border-top: 1px solid var(--faint); padding: 12px 0; }
+  .compare th, .compare td { display: block; padding: 0; border: 0; }
+  .compare th:first-child { width: auto; grid-column: 1 / -1; }
+  .mobileLabel { display: block; margin-bottom: 3px; font: 500 13px/1.3 var(--text); color: var(--quiet); }
+  .plays a { align-items: flex-start; }
+  .plays strong { text-align: right; max-width: 52%; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .compare, .plays { grid-column: 1 / -1 !important; }
+}

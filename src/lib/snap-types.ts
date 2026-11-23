@@ -34,6 +34,14 @@ export type SnapFacts = {
   timeouts?: [number, number];
   goalToGo?: boolean;
   kind?: SnapKind;
+  /** Adjudicated nflverse third-down attempt flags. A penalty first down alone need not count as an attempt. */
+  thirdDownResult?: "converted" | "failed" | "no-attempt";
+  /** Credited scrimmage call when diagram facts omit it or a rushing scramble was a dropback. */
+  statCall?: "dropback" | "run";
+  /** Credited scrimmage yards excluding penalty or recovery yardage, when replay yards are unavailable. */
+  statYards?: number;
+  /** Additional credited offensive pass/rush touchdown, including a retained score on a flagged play. */
+  statTouchdown?: true;
   /** Official possession changes on this row; an intercepted return can itself end in a lost fumble. */
   turnovers?: SnapTurnover[];
   yards?: number;

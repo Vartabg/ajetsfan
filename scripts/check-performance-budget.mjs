@@ -30,6 +30,10 @@ export const performanceBudgets = [
   { route: "/replay/2022_02_NYJ_CLE", file: "replay/2022_02_NYJ_CLE", html: 14, js: 204 },
   // The drive reader sends one phase, previously revealed throws and a single field.
   { route: "/replay/2022_02_NYJ_CLE/read", file: "replay/2022_02_NYJ_CLE/read", html: 14, js: 204 },
+  // Samples and model probabilities stay on the server until the visitor opens a play or makes a call.
+  { route: "/replay/studies/throws", file: "replay/studies/throws", html: 14, js: 204 },
+  { route: "/replay/studies/pass-rush", file: "replay/studies/pass-rush", html: 14, js: 204 },
+  { route: "/replay/studies/fourth-down", file: "replay/studies/fourth-down", html: 14, js: 204 },
   { route: "/stories", file: "stories", html: 18, js: 200 },
   // Three-step journey measured 11.1 KiB HTML / 191.1 KiB initial JS; the other stages are smaller.
   { route: "/stories/monday-night-miracle", file: "stories/monday-night-miracle", html: 15, js: 205 },

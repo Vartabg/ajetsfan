@@ -1,0 +1,15 @@
+.chart { width: 100%; max-width: 900px; color: var(--ink); }
+.chart h3 { margin: 0; font: 600 clamp(19px, 2.2vw, 25px)/1.25 var(--display); }
+.chart p { margin: 5px 0 10px; max-width: 56ch; color: var(--quiet); font: 400 14px/1.5 var(--text); }
+.games, .trips { margin: 0; padding: 0; list-style: none; }
+.game { display: grid; grid-template-columns: 6rem 1fr; gap: 10px; align-items: center; padding: 5px 0; border-top: 1px solid var(--faint); }
+.game:last-child { border-bottom: 1px solid var(--faint); }
+.match { font: 600 15px/1.35 var(--text); }
+.match small { display: block; color: var(--quiet); font: 400 13px/1.45 var(--text); }
+.trips { display: flex; flex-wrap: wrap; gap: 4px; }
+.trips a { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 44px; min-width: 44px; padding: 4px 9px; border: 1px solid var(--quiet); border-radius: 5px; color: var(--ink); font: 600 14px/1.25 var(--text); text-decoration: none; }
+.trips .touchdown { border-color: var(--green); color: var(--bg); background: var(--green); }
+.trips a:hover, .trips a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+.empty { color: var(--quiet); font: 400 14px/1.4 var(--text); }
+@media (max-width: 575px) { .game { grid-template-columns: 4.25rem 1fr; } }
+@media (max-height: 520px) and (orientation: landscape) { .chart { grid-column: 1 / -1; } }

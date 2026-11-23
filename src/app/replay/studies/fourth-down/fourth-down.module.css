@@ -1,0 +1,25 @@
+.page header { margin-bottom: 22px; }
+.decision { max-width: 45rem; }
+.match, .scope, .source, .clock { color: var(--quiet); }
+.page .match { margin: 0 0 8px; font-size: 1rem; }
+.situation { padding: 18px 0; border-block: 1px solid var(--faint); margin-bottom: 24px; }
+.heading, .choose legend { font: 650 clamp(1.25rem, 3vw, 1.65rem)/1.2 var(--display); letter-spacing: -.025em; }
+.page .heading { margin: 24px 0 8px; }
+.situation .heading { margin: 0 0 12px; }
+.score { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; font-variant-numeric: tabular-nums; }
+.page .clock { margin: 6px 0 0; }
+.choose fieldset { padding: 0; margin: 0; border: 0; min-width: 0; }
+.choose legend { padding: 0; }
+.choose p { margin: 8px 0 14px; }
+.choose fieldset > div, .steps { display: flex; flex-wrap: wrap; gap: 8px; }
+.choose button { min-height: 46px; padding: 9px clamp(14px, 3vw, 23px); background: var(--bg); color: var(--green); border: 1px solid var(--green); border-radius: 5px; font: 650 1rem/1.2 var(--text); cursor: pointer; }
+.choose button:hover, .choose button:focus-visible { background: var(--green); color: var(--bg); }
+.odds { width: min(100%, 25rem); border-collapse: collapse; font-size: 1rem; font-variant-numeric: tabular-nums; }
+.odds th, .odds td { padding: 6px 10px 6px 0; text-align: left; border-bottom: 1px solid var(--faint); }
+.odds thead th { color: var(--quiet); font-weight: 500; }
+.odds th:last-child, .odds td { text-align: right; }
+.page .result { margin: 6px 0; }
+.page .scope { margin: 24px 0 4px; font-size: .94rem; }
+.steps { column-gap: 20px; border-bottom: 1px solid var(--faint); padding-bottom: 14px; }
+.steps a { display: inline-flex; min-height: 44px; align-items: center; }
+.source { max-width: 44rem; margin-top: 18px; font-size: .85rem; }

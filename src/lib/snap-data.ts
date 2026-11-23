@@ -77,13 +77,29 @@ const kinds = new Set(["completion", "incompletion", "interception", "rush", "sa
 const booleanFacts = ["goalToGo", "firstDown", "touchdown", "simpleAdvance"] as const;
 const playerFacts = ["passer", "target", "rusher", "interceptor"] as const;
 const probabilities = ["dropbackProbability", "completionProbability"] as const;
-const factKeys = new Set<string>(["timeouts", "kind", "turnovers", "yards", "airYards", "afterCatch", "epa",
+const factKeys = new Set<string>(["timeouts", "kind", "turnovers", "yards", "airYards", "afterCatch", "epa", "thirdDownResult", "statCall", "statYards", "statTouchdown",
   ...booleanFacts, ...playerFacts, ...probabilities, ...diagramFactKeys]);
 
 function validFacts(play: Snap): boolean {
   const facts = play.facts;
   if (facts === undefined) return true; // Earlier v1 season files.
   if (!facts || typeof facts !== "object" || Array.isArray(facts) || Object.keys(facts).some((k) => !factKeys.has(k)) || !validDiagramFacts(play)) return false;
+  if (facts.thirdDownResult !== undefined && (play.down !== 3 || !play.possession ||
+      !["converted", "failed", "no-attempt"].includes(facts.thirdDownResult))) return false;
+  if (facts.statCall !== undefined || facts.statYards !== undefined || facts.statTouchdown !== undefined) {
+    if (!play.possession || !play.down || (play.type !== "pass" && play.type !== "run" && !(play.type === null && facts.statCall)) ||
+      facts.kick || facts.kind === "kneel" || facts.kind === "spike" || (!facts.kind && !facts.statCall)) return false;
+    if (facts.statCall !== undefined && (facts.statCall !== "dropback" && facts.statCall !== "run" ||
+        facts.statCall === "run" && play.type === "pass" ||
+        facts.kind !== undefined && !(facts.kind === "rush" && facts.statCall === "dropback" && play.type === "run"))) return false;
+    if (facts.statYards !== undefined && (facts.yards !== undefined || !integer(facts.statYards, -100, 100))) return false;
+    if (facts.statTouchdown !== undefined) {
+      const offense = play.possession === "jets" ? 0 : 1, defense = 1 - offense;
+      if (facts.statTouchdown !== true || play.type === null || facts.touchdown !== undefined || facts.turnovers?.length ||
+        (facts.kind !== undefined && facts.kind !== (play.type === "pass" ? "completion" : "rush")) || !play.before || !play.after ||
+        play.after[offense] - play.before[offense] !== 6 || play.after[defense] !== play.before[defense]) return false;
+    }
+  }
   if (facts.timeouts !== undefined && (!score(facts.timeouts) || facts.timeouts.some((n) => n > 3))) return false;
   if (facts.kind !== undefined && !kinds.has(facts.kind)) return false;
   if (facts.turnovers !== undefined && (!Array.isArray(facts.turnovers) || !facts.turnovers.length ||

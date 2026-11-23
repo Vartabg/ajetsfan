@@ -39,3 +39,6 @@
 @media (max-width: 1023px) and (max-height: 520px) and (orientation: landscape) {
   :global([data-focus-page="replay-directory"]) :global([data-focus-moment="choose-game"]) { display: flex; }
 }
+
+.studies { display: flex; flex-wrap: wrap; gap: 0 18px; }
+.studies a { display: inline-flex; align-items: center; min-height: 44px; color: var(--green); font-size: 15px; font-weight: 550; text-underline-offset: 4px; }

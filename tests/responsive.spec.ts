@@ -123,9 +123,9 @@ for (const view of [{ width: 641, enlarged: false }, { width: 768, enlarged: fal
     await page.setViewportSize({ width: view.width, height: 1000 });
     await page.goto("/team/roster", { waitUntil: "domcontentloaded" });
     if (view.enlarged) await enlargeText(page);
-    await page.getByRole("navigation", { name: "Team sections" }).getByRole("link", { name: "Player stats", exact: true }).click();
+    await page.getByRole("navigation", { name: "Team sections" }).getByRole("link", { name: "Team stats", exact: true }).click();
     await expect(page).toHaveURL(/\/team\/stats$/);
-    const heading = page.getByRole("heading", { level: 1, name: "Player stats.", exact: true });
+    const heading = page.getByRole("heading", { level: 1, name: "Team stats.", exact: true });
     await expect(heading).toBeInViewport({ ratio: 1 });
     await expect.poll(async () => {
       const [target, navigation] = await Promise.all([

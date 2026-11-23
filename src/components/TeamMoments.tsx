@@ -19,7 +19,9 @@ export function TeamLeadersMoment({ season, stats, first = false, rosterLink = f
   return <FocusMoment id="leaders" first={first} label={`${season ? `${season} Jets` : "The Jets"}${stats.throughWeek != null ? ` · through Week ${stats.throughWeek}` : ""}`}
     heading={stats.say ?? "No player numbers yet."}
     status={stats.retained ? <p className={shared.stale}>The latest stats check failed, so these are the last verified numbers.</p> : null}
-    actions={stats.ready ? <><Link href="/team/stats" className={shared.go}>Every player’s numbers <span aria-hidden="true">→</span></Link>{rosterLink ? <Link href="/team/roster" className={shared.go}>Find a player <span aria-hidden="true">→</span></Link> : null}</> : null}>
+    actions={<><Link href="/team/stats" className={shared.go}>Explore Jets team stats <span aria-hidden="true">→</span></Link>
+      {stats.ready && <Link href="/team/stats#leaders" className={shared.go}>Every player’s numbers <span aria-hidden="true">→</span></Link>}
+      {stats.ready && rosterLink && <Link href="/team/roster" className={shared.go}>Find a player <span aria-hidden="true">→</span></Link>}</>}>
     {stats.leaders.length ? <figure className={shared.shape}>
       <ul className={styles.yards}>{stats.leaders.map((leader) => {
         const share = leader.team > 0 ? Math.min(1, Math.max(0, leader.yards / leader.team)) : 0;

@@ -51,6 +51,16 @@ export const loadChartedSnapGame = cache(async (id: string): Promise<SnapGame | 
   return year < 2016 ? game : withClevelandDriveLineups(withParticipation(game, await loadParticipation(year)));
 });
 
+/** A study can request one verified season, optionally with the participation chart for its plays. */
+export const loadStudySeason = cache(async (year: number, charted = false, regularOnly = false): Promise<SnapGame[]> => {
+  const fixtures = (await loadPublishedGames()).filter(game => game.season === year && (!regularOnly || game.seasonType === "REG"));
+  if (!fixtures.length) return [];
+  const byId = new Map(fixtures.map(game => [game.id, game]));
+  const [records, participation] = await Promise.all([loadSeason(year), charted && year >= 2016 ? loadParticipation(year) : null]);
+  const verified = records.filter(game => snapMatchesFixture(game, byId.get(game.id)));
+  return participation ? verified.map(game => withClevelandDriveLineups(withParticipation(game, participation))) : verified;
+});
+
 export const loadSnapArchive = cache(async (): Promise<SnapGame[]> => {
   const fixtures = await loadPublishedGames();
   const byId = new Map(fixtures.map((game) => [game.id, game]));

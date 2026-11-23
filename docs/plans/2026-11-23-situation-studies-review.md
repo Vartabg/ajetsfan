@@ -1,0 +1,9 @@
+# Situational studies design review
+
+Gemini 3.8 Flash High reviewed revision 1 from an empty workspace with the plan, design direction, verified snap loader, snap types, Team Stats route and drive-reader URL helper supplied as text at 65c62f3. The run finished successfully on November 23, 2026 (conversation 80f218be-a06c-4edf-8870-2bbe5c171d44). The lead checked the findings against the source and the model release.
+
+- Require an exact nflverse game and play join and name the selection bias in a three-option model sample. The reviewer suggested two-option decisions based on a presumed pattern of missing field-goal estimates. Inspection of the actual release found missing punt estimates at or inside the opponent’s 30. The owner chose a three-option game. Keep identifiable, fully modeled examples and display the eligibility rule.
+- The reviewer questioned generic Xs & Os. The existing drive-reader route and full-snap projection accept arbitrary archived plays and supply explicitly illustrated positional roles or the documented event. Retain that entry and use verified identities where available.
+- Use the participation source’s coverage floor for rusher counts. Reuse server-cached verified packs and return small cohort summaries, one diagram and a bounded list. Check the initial response size and server traces. A second vendored aggregation is unnecessary for the existing sub-megabyte charting archive.
+- Select and clamp the recent fixture window before intersecting verified play data, so an uncovered recent game stays visible in the coverage count. Produce evidence links only from verified rows. A zero-game or zero-attempt sample gets its own state.
+- Stable public game/play IDs enable deep linking. A random query token adds no factual spoiler protection. Test the pre-choice HTML and Flight response, including game headers, choices, adjacent links and all published model values.

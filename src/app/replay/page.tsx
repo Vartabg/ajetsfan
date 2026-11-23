@@ -31,6 +31,11 @@ export default async function ReplayDirectory({ searchParams }: Props) {
     <FocusMoment id="choose-game" first heading="Replay a Jets game.">
       <p className={shared.caption}>{coverage}Start at the first recorded play, then follow the key plays or every snap.</p>
       {years.includes(2022) && <Link prefetch={false} className={shared.go} href={driveReadHref(CLEVELAND, { series: "cleveland-15" })}>Read three downs at Cleveland’s 15</Link>}
+      <nav className={styles.studies} aria-label="Replay studies">
+        <Link prefetch={false} href="/replay/studies/throws">Throw to the sticks</Link>
+        <Link prefetch={false} href="/replay/studies/pass-rush">Four or five rushers</Link>
+        <Link prefetch={false} href="/replay/studies/fourth-down">Make the fourth-down call</Link>
+      </nav>
       {years.length > 0 && <form action="/replay" method="get" className={styles.filters} aria-label="Choose a season and opponent">
         <div><label htmlFor="replay-season">Season</label><select id="replay-season" name="season" defaultValue={season ?? ""}>
           {season !== null && !years.includes(season) && <option value={season}>{season}</option>}

@@ -146,6 +146,45 @@ test('a field finish requires consistent ordinary gain, scoring and credit evide
   }
 });
 
+test('official third-down credits distinguish conversions, failures and non-attempts on flagged plays', () => {
+  const third = { down: 3, penalty: 1, first_down: 1, first_down_penalty: 1 };
+  for (const [converted, failed, expected] of [[1, 0, 'converted'], [0, 1, 'failed'], [0, 0, 'no-attempt'],
+    [1, 1, undefined], [1, null, undefined], [null, 0, undefined]]) {
+    assert.equal(completionFacts({ ...third, third_down_converted: converted, third_down_failed: failed }).thirdDownResult, expected);
+  }
+  for (const change of [{ down: 2 }, { posteam: null }, { play_deleted: 1 }]) {
+    assert.equal(completionFacts({ ...third, third_down_converted: 1, third_down_failed: 0, ...change }).thirdDownResult, undefined);
+  }
+  const nullified = completionFacts({ ...third, play_type: 'no_play', third_down_converted: 0, third_down_failed: 0 });
+  assert.equal(nullified.thirdDownResult, 'no-attempt');
+  assert.equal(nullified.statCall, undefined);
+});
+
+test('statistical scrimmage credits survive accepted or declined fouls while replay facts remain independent', () => {
+  const flagged = { penalty: 1, rush_touchdown: 0, description: 'Touchdown pass. Unnecessary roughness between downs.' };
+  const f = completionFacts(flagged);
+  assert.deepEqual([f.statCall, f.statYards, f.statTouchdown, f.kind, f.touchdown], ['dropback', 6, true, undefined, undefined]);
+  const rush = { ...flagged, play_type: 'run', rush_attempt: 1, pass_attempt: 0, complete_pass: 0,
+    qb_scramble: 0, rusher_player_id: '00-1234567', rusher_player_name: 'Q.Runner', passing_yards: null, rushing_yards: 6 };
+  assert.equal(completionFacts(rush).statCall, 'run');
+  assert.equal(completionFacts({ ...rush, qb_scramble: 1 }).statCall, 'dropback');
+  assert.equal(completionFacts({ ...rush, penalty: 0, qb_scramble: 1 }).kind, 'rush');
+  const early = { ...rush, play_type: null, action: true, special: 0, kickoff_attempt: 0, field_goal_attempt: 0, punt_attempt: 0 };
+  assert.equal(completionFacts(early).statCall, 'run');
+  assert.equal(completionFacts({ ...early, rusher_player_id: null }).statCall, undefined);
+  for (const change of [{ play_type: 'no_play' }, { description: 'Holding. No Play.' }, { qb_kneel: 1 }, { qb_spike: 1 },
+    { two_point_attempt: 1 }, { extra_point_attempt: 1 }, { play_type: 'kickoff' }, { down: null }, { special_teams_play: 1 },
+    { punt_attempt: 1 }, { play_deleted: 1 }, { rush_attempt: 1 }, { aborted_play: 1 }]) {
+    const facts = completionFacts({ ...flagged, ...change });
+    assert.deepEqual([facts.statCall, facts.statYards, facts.statTouchdown], [undefined, undefined, undefined]);
+  }
+  for (const change of [{ td_team: 'CLE' }, { rush_touchdown: 1 }, { pass_touchdown: 0 }, { fumble_lost: 1 }]) {
+    assert.equal(completionFacts({ ...flagged, ...change }).statTouchdown, undefined);
+  }
+  assert.equal(completionFacts({ ...flagged, lateral_reception: 1 }).statYards, undefined);
+  assert.equal(completionFacts({ ...flagged, yards_gained: null }).statYards, undefined);
+});
+
 test('turnover facts require adjudicated credits for this exact play', () => {
   const pick = { complete_pass: 0, interception: 1, interception_player_id: '00-1234567', penalty: 1 };
   const lost = { fumble: 1, fumble_lost: 1, fumbled_1_player_id: '00-7654321', fumbled_1_team: 'CLE' };
@@ -283,9 +322,10 @@ test('offline publication is deterministic and retains a valid season through pa
   assert.deepEqual(await readFile(file), original);
 });
 
+const readSeason = async (year) => parseSnapSeason(gunzipSync(await readFile(
+  new URL(`../public/data/snaps/${year}.json.gz`, import.meta.url))).toString('utf8'), year);
+
 test('published historical seasons reproduce the two-minute cohort and its linked source plays', async () => {
-  const readSeason = async (year) => parseSnapSeason(gunzipSync(await readFile(
-    new URL(`../public/data/snaps/${year}.json.gz`, import.meta.url))).toString('utf8'), year);
   const seasons = await Promise.all(Array.from({ length: 27 }, (_, i) => readSeason(1999 + i)));
   const games = seasons.flat();
   const cohort = games.map((game) => {
@@ -325,7 +365,7 @@ test('published historical seasons reproduce the two-minute cohort and its linke
   // Literal observations from the named nflverse Parquet rows. Keep model timing
   // and direction distinct from observed yards, the next kick and the game final.
   assert.deepEqual(cleveland.plays[wilson].facts, {
-    timeouts: [0, 1], kind: 'completion', goalToGo: false, yards: 15, firstDown: true, touchdown: true,
+    timeouts: [0, 1], kind: 'completion', goalToGo: false, yards: 15, firstDown: true, touchdown: true, thirdDownResult: 'converted',
     passer: 'J.Flacco', target: 'G.Wilson', simpleAdvance: true, epa: 3.846828027839408, shotgun: true, direction: 'middle', passLength: 'short',
     dropbackProbability: 0.9855244755744934, completionProbability: 0.4148028492927551, airYards: 14, afterCatch: 1,
   });
@@ -355,9 +395,45 @@ test('published historical seasons reproduce the two-minute cohort and its linke
     ['rush', 'Mi.Carter', 1, true]);
   assert.deepEqual([find('1263').facts.goalToGo, find('1263').facts.touchdown, find('1263').facts.afterCatch], [true, true, 0]);
   assert.equal(find('1433').facts.kind, undefined); // Recorded rush with an enforced penalty.
+  assert.deepEqual([find('1433').facts.statCall, find('1433').facts.statYards], ['run', 6]);
+  assert.equal(early.facts.statCall, 'run');
+  assert.equal(early.facts.statYards, undefined); // Reverse with an unplaced second runner.
   assert.equal(find('622').facts.simpleAdvance, undefined); // Nullified snap.
   assert.equal(find('4177').facts.completionProbability, undefined); // Throw with no identified target.
   assert.equal(find('4307').facts.kind, 'kneel');
+});
+
+test('the first ten and eleven 2026 games match the source third-down flags on both sides', async () => {
+  const games = await readSeason(2026);
+  const totals = (selected, side) => {
+    const official = selected.flatMap(g => g.plays).filter(p => p.possession === side).map(p => p.facts?.thirdDownResult);
+    return [official.filter(v => v === 'converted').length, official.filter(v => v === 'converted' || v === 'failed').length];
+  };
+  const firstTen = games.filter(g => Number(g.id.split('_')[1]) <= 10);
+  const throughChargers = games.filter(g => Number(g.id.split('_')[1]) <= 11);
+  assert.deepEqual([totals(firstTen, 'jets'), totals(firstTen, 'opponent')], [[43, 126], [49, 121]]);
+  assert.deepEqual([totals(throughChargers, 'jets'), totals(throughChargers, 'opponent')], [[52, 137], [57, 133]]);
+  const flagged = games.find(g => g.id === '2026_08_LV_NYJ').plays.find(p => p.key === '545');
+  assert.deepEqual([flagged.facts.thirdDownResult, flagged.facts.statCall, flagged.facts.statYards, flagged.facts.statTouchdown,
+    flagged.facts.kind, flagged.facts.touchdown], ['converted', 'dropback', 12, true, undefined, undefined]);
+});
+
+test('statistics require their own situation, types and score evidence in a snap pack', () => {
+  const game = verifiedSnapGame(fixture, sourceRows());
+  const original = game.plays[0];
+  const parse = () => parseSnapSeason(JSON.stringify({ schemaVersion: 1, season: 2022, games: [game] }), 2022);
+  for (const [facts, situation] of [
+    [{ thirdDownResult: 'converted' }, {}], [{ thirdDownResult: 'unknown' }, { down: 3 }],
+    [{ statCall: 'run' }, {}], [{ statCall: 'dropback' }, { type: 'no_play' }],
+    [{ statCall: 'dropback', statYards: 101 }, {}], [{ statCall: 'dropback', statYards: 6, yards: 6 }, {}],
+    [{ statCall: 'dropback', statTouchdown: true }, { after: [0, 6] }],
+    [{ statCall: 'dropback', statTouchdown: true, turnovers: ['interception'] }, {}],
+  ]) {
+    game.plays[0] = { ...original, ...situation, facts };
+    assert.throws(parse, /Invalid/);
+  }
+  game.plays[0] = { ...original, facts: { statCall: 'dropback', statYards: 6, statTouchdown: true } };
+  assert.deepEqual(parse(), [game]);
 });
 
 test('diagram facts require applicable action, source direction, credited identities and the correct side', () => {

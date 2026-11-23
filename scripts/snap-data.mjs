@@ -30,8 +30,44 @@ const optionalColumns = [
   'penalty', 'two_point_attempt', 'extra_point_attempt', 'special_teams_play', 'special', 'aborted_play', 'play_deleted',
   'fumble', 'fumble_lost', 'safety', 'replay_or_challenge', ...laterals,
   'fumbled_1_player_id', 'fumbled_1_team', 'fumbled_2_player_id', 'fumbled_2_team',
+  'third_down_converted', 'third_down_failed', 'qb_scramble',
   'fourth_down_converted', 'fourth_down_failed', 'drive_end_transition', 'drive_play_id_ended', 'fixed_drive_result',
 ];
+
+function addStatisticalCredits(facts, row) {
+  if (!row.posteam || !integerIn(row.down, 1, 4) || row.play_deleted === 1) return;
+  const converted = row.third_down_converted;
+  const failed = row.third_down_failed;
+  if (row.down === 3 && binary(converted) && binary(failed) && converted + failed <= 1) {
+    facts.thirdDownResult = converted ? 'converted' : failed ? 'failed' : 'no-attempt';
+  }
+  if (row.qb_kneel !== 0 || row.qb_spike !== 0 || row.two_point_attempt !== 0 || row.extra_point_attempt !== 0 ||
+    row.special_teams_play === 1 || row.special === 1 ||
+    row.kickoff_attempt === 1 || row.field_goal_attempt === 1 || row.punt_attempt === 1 ||
+    row.aborted_play === 1 || /\bno play\b/i.test(row.description)) return;
+  // Some early gamebooks omit the normalized type on an otherwise credited player attempt.
+  const untyped = row.play_type == null && (row.special === 0 || row.special_teams_play === 0) &&
+    [row.kickoff_attempt, row.field_goal_attempt, row.punt_attempt].every(n => n === 0);
+  const rush = row.rush_attempt === 1 && row.pass_attempt === 0 && (row.play_type === 'run' ||
+    untyped && row.rusher_player_id && player(row.rusher_player_name, row.rusher_player_id));
+  const pass = row.pass_attempt === 1 && row.rush_attempt === 0 && (row.play_type === 'pass' ||
+    untyped && row.passer_player_id && player(row.passer_player_name, row.passer_player_id));
+  if (!rush && !pass) return;
+  const scramble = rush && row.qb_scramble === 1;
+  if (scramble || !facts.kind && (pass || binary(row.qb_scramble))) facts.statCall = pass || scramble ? 'dropback' : 'run';
+  if (!facts.kind && !facts.statCall) return;
+  const gain = row.yards_gained;
+  const creditedYards = rush ? row.rushing_yards : row.passing_yards;
+  if (facts.yards === undefined && integerIn(gain, -100, 100) && !laterals.some(key => row[key] === 1) &&
+      !/\b(?:lateral\w*|backwards? pass|reverse)\b/i.test(row.description) &&
+      (row.fumble !== 1 && row.fumble_lost !== 1 || creditedYards === gain)) facts.statYards = gain;
+  const touchdown = pass ? row.pass_touchdown === 1 && row.rush_touchdown === 0 && row.complete_pass === 1 :
+    row.rush_touchdown === 1 && row.pass_touchdown === 0;
+  if (!untyped && facts.touchdown !== true && touchdown && row.touchdown === 1 && row.td_team === row.posteam &&
+      !facts.turnovers?.length && row.interception !== 1 && row.fumble_lost !== 1 &&
+      row.posteam_score != null && row.posteam_score_post != null && row.posteam_score_post - row.posteam_score === 6 &&
+      row.defteam_score != null && row.defteam_score_post === row.defteam_score) facts.statTouchdown = true;
+}
 
 function recordedTurnovers(row) {
   const events = [];
@@ -184,6 +220,7 @@ export function verifiedSnapGame(fixture, rows) {
       const possession = !team ? null : team === TEAM ? 'jets' : 'opponent';
       const description = snapDescription(row.description) || 'Play description unavailable.';
       const facts = snapFacts(row, fixture.atHome);
+      addStatisticalCredits(facts, row);
       const pre = possession ? (fixture.atHome ? row.home_wp : row.away_wp) : null;
       const change = possession && row.wpa != null ? (team === TEAM ? row.wpa : -row.wpa) : null;
       const post = fixture.atHome ? row.home_wp_post : row.away_wp_post;

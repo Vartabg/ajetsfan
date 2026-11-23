@@ -66,7 +66,8 @@ test.describe("the Team page", () => {
       await expect(rows.nth(index)).toContainText(leader.name);
       await expect(rows.nth(index)).toContainText(leader.yards.toLocaleString("en-US"));
     }
-    if (statsReady) await expect(page.locator("#leaders").getByRole("link", { name: /^Every player’s numbers/ })).toHaveAttribute("href", "/team/stats");
+    await expect(page.locator("#leaders").getByRole("link", { name: /^Explore Jets team stats/ })).toHaveAttribute("href", "/team/stats");
+    if (statsReady) await expect(page.locator("#leaders").getByRole("link", { name: /^Every player’s numbers/ })).toHaveAttribute("href", "/team/stats#leaders");
   });
 
   test("shows every roster player once and opens a position's players", async ({ page }) => {

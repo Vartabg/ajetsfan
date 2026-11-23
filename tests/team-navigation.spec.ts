@@ -13,7 +13,7 @@ test("roster, stats and news keep the team tabs, and Overview opens the focus pa
   await expect(page.getByRole("main")).toHaveCount(1);
   await expect(page.locator("#top")).toHaveCount(0);
   const navigation = page.getByRole("navigation", { name: "Team sections", exact: true });
-  for (const [label, href] of [["Overview", "/team"], ["Roster", "/team/roster"], ["Player stats", "/team/stats"], ["News", "/team/news"]]) {
+  for (const [label, href] of [["Overview", "/team"], ["Roster", "/team/roster"], ["Team stats", "/team/stats"], ["News", "/team/news"]]) {
     await expect(navigation.getByRole("link", { name: label, exact: true })).toHaveAttribute("href", href);
   }
   await expect(navigation.getByRole("link", { name: "Roster", exact: true })).toHaveAttribute("aria-current", "page");
@@ -29,7 +29,7 @@ test("team navigation keeps the selected page and breadcrumb correct through bro
   const navigation = page.getByRole("navigation", { name: "Team sections", exact: true });
   for (const [label, path, heading, content] of [
     ["Roster", "/team/roster", "The roster.", "#roster"],
-    ["Player stats", "/team/stats", "Player stats.", "#season-leaders"],
+    ["Team stats", "/team/stats", "Team stats.", "#season-leaders"],
     ["News", "/team/news", "Team news.", "#news"],
   ]) {
     await navigation.getByRole("link", { name: label, exact: true }).click();
@@ -46,7 +46,7 @@ test("team navigation keeps the selected page and breadcrumb correct through bro
   }
   await page.goBack();
   await expect.poll(() => new URL(page.url()).pathname).toBe("/team/stats");
-  await expect(navigation.locator('[aria-current="page"]')).toHaveText("Player stats");
+  await expect(navigation.locator('[aria-current="page"]')).toHaveText("Team stats");
   await page.goBack();
   await expect.poll(() => new URL(page.url()).pathname).toBe("/team/roster");
   await expect(navigation.locator('[aria-current="page"]')).toHaveText("Roster");

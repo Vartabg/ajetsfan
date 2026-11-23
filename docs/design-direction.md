@@ -25,6 +25,8 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 
 - **Reading a drive before the result** (2026-11-22). The owner approved the interactive Cleveland series and asked to add it to the website. Open on the formation and score before the snap, reveal the play on demand, keep earlier throws on the field, and let a fan follow the same identified player through substitutions.
 
+- **Situation studies** (2026-11-23). The owner approved comparing throws against the sticks, studying four versus five rushers, and making a fourth-down call before the reveal. Team Stats should explain how the Jets operate in the red zone, on key downs and at different game times. A fan can connect each comparison to real plays without watching film.
+
 ## Rejected
 
 - The initial exact-play view separated the score and play text from the down, distance and field position. The owner said it missed the basics of what was happening in the game.
