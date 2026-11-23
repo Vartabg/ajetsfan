@@ -179,6 +179,6 @@ export default function SeasonArchive({ season, years, outlets, rankings = null,
     </SeasonChapter>
     </div>
     </div>
-    <footer className={styles.footer}>{season.current ? <Link href="/team/stats">Current-season players ↗</Link> : null}<Link href={guideHref}>Sources & definitions</Link><Link href="/seasons">All seasons</Link></footer>
+    <footer className={styles.footer}>{season.current ? <Link href="/team/stats#leaders">Current-season players ↗</Link> : null}<Link href={guideHref}>Sources & definitions</Link><Link href="/seasons">All seasons</Link></footer>
   </div>;
 }

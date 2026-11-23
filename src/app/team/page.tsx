@@ -13,8 +13,8 @@ import styles from "./overview.module.css";
 
 export const metadata = pageMetadata({
   path: "/team",
-  title: "Jets Team — leaders, roster and news",
-  description: "Who leads the Jets in passing, rushing and receiving, the roster by position, and the latest official team headlines.",
+  title: "Jets Team — stats, leaders, roster and news",
+  description: "Explore the Jets in key situations, find the passing, rushing and receiving leaders, browse the roster and read the latest team headlines.",
 });
 
 export default async function TeamPage() {
