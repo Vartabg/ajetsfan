@@ -73,6 +73,17 @@ const PLAYER_PHOTOS: EditorialPhotoAsset[] = [
     playerId: "00-0038120",
   },
   {
+    src: "https://static.clubs.nfl.com/image/upload/t_editorial_landscape_12_desktop/jets/ctzq9snta9khkmxb58wp.jpg",
+    alt: "Braelon Allen runs in his green number 0 jersey with the ball tucked under his left arm and Raiders defenders behind him.",
+    caption: "Vs Las Vegas · Nov 1, 2026",
+    credit: "Source: New York Jets",
+    sourceHref: "https://www.newyorkjets.com/news/braelon-allen-rushes-for-career-high-147-yards-in-jets-loss-to-raiders",
+    position: "50% 50%",
+    editionSeason: 2026,
+    gameId: "2026_08_LV_NYJ",
+    playerId: "00-0039794",
+  },
+  {
     src: "https://static.clubs.nfl.com/image/upload/t_editorial_landscape_12_desktop/jets/j1kmcnvic9zo339zmqgo.png",
     alt: "Garrett Wilson reaches for a contested catch with a Detroit defender alongside him.",
     caption: "At Detroit · Sep 27, 2026",

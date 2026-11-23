@@ -9,13 +9,13 @@
 .cardTop { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem; padding: .7rem 1rem; margin-bottom: .75rem; background: var(--forest); color: var(--paper); }
 .cardTop > span { min-width: 0; max-width: 100%; font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: .84rem; font-weight: 700; overflow-wrap: anywhere; }
 .cardTop > b { display: flex; align-items: baseline; gap: .25rem; font-size: .72rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.shirtLabel { font: .7rem/1 var(--font-mono), monospace; }
-.shirtNumber { font: 400 2.65rem/.9 var(--font-hed), Impact, sans-serif; }
+.cardTop small { font: .7rem/1 var(--font-mono), monospace; }
+.cardTop b > span { font: 400 2.65rem/.9 var(--font-hed), Impact, sans-serif; }
 .actionPhoto { border-bottom: 1px solid var(--rule-soft); }
 .jerseyFallback { display: flex; align-items: center; justify-content: center; min-height: 180px; border-block: 1px solid var(--rule-soft); color: var(--spot); font: 400 7rem/1 var(--font-hed), Impact, sans-serif; }
 .production { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .6rem; padding-top: .75rem; border-top: 1px solid var(--rule); }
-.yards { color: var(--ink); font: 400 3rem/1.1 var(--font-hed), sans-serif; font-variant-numeric: tabular-nums; }
-.unit { font-size: .76rem; color: var(--ink-2); }
+.production > strong { color: var(--ink); font: 400 3rem/1.1 var(--font-hed), sans-serif; font-variant-numeric: tabular-nums; }
+.production > span { font-size: .76rem; color: var(--ink-2); }
 .player { padding: 1rem 0 .8rem; }
 .player h3 { font-family: var(--font-sans-narrow), "Arial Narrow", sans-serif; font-size: clamp(1.55rem, 2.2vw, 2rem); font-weight: 700; line-height: 1.1; overflow-wrap: anywhere; }
 .player a { text-decoration: none; color: var(--ink); display: flex; align-items: center; justify-content: space-between; gap: .5rem; min-height: 44px; }
@@ -32,5 +32,5 @@
 .meta > p { font-size: .74rem; color: var(--ink-2); margin: .3rem 0; }
 .meta a { text-underline-offset: 4px; color: var(--spot); }
 .more { display: inline-flex; align-items: center; min-height: 44px; gap: .35rem; font-size: .78rem; font-weight: 700; margin-top: .65rem; text-underline-offset: 4px; }
-@media (max-width: 900px) { .cards { gap: 1rem; } .card { padding-right: 1rem; } .player h3 { font-size: 1.5rem; } .yards { font-size: 2.1rem; } }
-@media (max-width: 640px) { .section { margin: 2.75rem 0; } .cards { grid-template-columns: 1fr; gap: 2rem; } .card { padding-right: 0; border-right: 0; } .player h3 { font-size: 2rem; } .yards { font-size: 2.6rem; } .heading h2 { font-size: clamp(2.4rem, 10vw, 3.3rem); } }
+@media (max-width: 900px) { .cards { gap: 1rem; } .card { padding-right: 1rem; } .player h3 { font-size: 1.5rem; } .production > strong { font-size: 2.1rem; } }
+@media (max-width: 640px) { .section { margin: 2.75rem 0; } .cards { grid-template-columns: 1fr; gap: 2rem; } .card { padding-right: 0; border-right: 0; } .player h3 { font-size: 2rem; } .production > strong { font-size: 2.6rem; } .heading h2 { font-size: clamp(2.4rem, 10vw, 3.3rem); } }

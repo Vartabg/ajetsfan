@@ -190,7 +190,6 @@ export default async function TeamStatsPage({searchParams}:{searchParams:Promise
       (currentStats && coverage.stats.throughWeek != null ? " · through Week "+coverage.stats.throughWeek : "")}
       actions={<Link className={shared.go} href="/how-made">Sources &amp; definitions <span aria-hidden="true">→</span></Link>}>
       {showGame && live ? <><FootballLiveCard feed={live} id="latest-game-box-score" boxScore/><h3 className={styles.sampleTitle}>Confirmed season totals</h3></> : null}
-      <p className={shared.caption}>Passing, rushing and receiving from confirmed games in the {leaderSeason ?? "current"} edition.</p>
       {coverage ? <div className={teamStyles.content}><PlayerLeaders stats={coverage.stats} roster={coverage.roster} editionSeason={leaderSeason ?? coverage.season} externalHeadingId="leaders-heading"/></div> :
         <p className={shared.caption}>Player statistics will appear after the next successful source check.</p>}
     </FocusMoment>
