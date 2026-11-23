@@ -2,8 +2,9 @@ import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { CurrentSnapshot } from "../src/lib/current";
+import { leaders, type CoverageSnapshot } from "../src/lib/coverage";
 import type { Game } from "../src/lib/games";
-import { publishedGames } from "../src/lib/published-pages";
+import { publishedGames, publishedPlayers } from "../src/lib/published-pages";
 import { gameEditorialPhoto, playerActionPhoto } from "../src/lib/editorial-photos";
 
 const current = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/current.json"), "utf8")) as CurrentSnapshot;
@@ -12,6 +13,11 @@ const games = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/game
 const photoGameId = "2026_03_NYJ_DET";
 const photoGame = publishedGames(games, current).find((game) => game.id === photoGameId);
 const gamePhoto = gameEditorialPhoto(photoGameId);
+const coverage = JSON.parse(readFileSync(path.join(process.cwd(), "public/data/coverage.json"), "utf8")) as CoverageSnapshot;
+const rushingLeader = coverage.stats.season === current.season && coverage.stats.status !== "unavailable"
+  ? leaders(coverage.stats, "rushing", 1)[0] : undefined;
+const rushingPhoto = rushingLeader && playerActionPhoto(rushingLeader.id, current.season);
+const hasRusherProfile = publishedPlayers(coverage, current.season).some((player) => player.id === rushingLeader?.id);
 
 // Intercept only the optimizer requests for editorial club photographs. Roster
 // portraits, local assets, and ordinary page requests keep their normal behavior.
@@ -41,16 +47,19 @@ test("a verified game photograph cannot follow a different fixture or season", (
 });
 
 test("player photographs expire with their edition and keep practice context", () => {
-  for (const playerId of ["00-0030565", "00-0038120", "00-0037740"]) {
+  for (const playerId of ["00-0030565", "00-0038120", "00-0037740", "00-0039794"]) {
     expect(playerActionPhoto(playerId, 2026)?.playerId).toBe(playerId);
     for (const season of [2025, 2027]) expect(playerActionPhoto(playerId, season)).toBeNull();
   }
   expect(playerActionPhoto("00-unknown-player", 2026)).toBeNull();
   expect(playerActionPhoto("00-0038120", 2026)?.caption).toContain("Practice");
+  expect(playerActionPhoto("00-0039794", 2026)?.gameId).toBe("2026_08_LV_NYJ");
 });
 
 for (const view of [
   { route: `/games/${photoGameId}`, container: "#final", photo: gamePhoto },
+  { route: "/team/stats", container: "#season-leaders", photo: rushingPhoto },
+  ...(rushingLeader && hasRusherProfile ? [{ route: `/players/${rushingLeader.id}`, container: "#player", photo: rushingPhoto }] : []),
 ]) {
   test(`${view.route} keeps the photograph's descriptive alt, context, and official source`, async ({ page }) => {
     test.skip(!view.photo, "This edition has no verified editorial photograph for this view.");
