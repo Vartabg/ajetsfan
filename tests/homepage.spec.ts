@@ -63,7 +63,7 @@ test("the home page shows only this week and this season", async ({ page }) => {
   if (focus.division) await expect(page.locator("#division-heading")).toContainText(focus.division.place === 1 ? "in the" : focus.division.leader);
   if (team.stats.leaders.length) {
     await expect(page.locator("#leaders")).toBeVisible();
-    await expect(page.locator("#leaders").getByRole("link", { name: /^Every player’s numbers/ })).toHaveAttribute("href", "/team/stats");
+    await expect(page.locator("#leaders").getByRole("link", { name: /^Every player’s numbers/ })).toHaveAttribute("href", "/team/stats#leaders");
     await expect(page.locator("#leaders").getByRole("link", { name: /^Find a player/ })).toHaveAttribute("href", "/team/roster");
   }
   if (team.news.lead) {

@@ -8,7 +8,7 @@ import styles from "./TeamFocusNavigation.module.css";
 const sections = [
   { href: "/team", label: "Overview" },
   { href: "/team/roster", label: "Roster" },
-  { href: "/team/stats", label: "Player stats" },
+  { href: "/team/stats", label: "Team stats" },
   { href: "/team/news", label: "News" },
 ];
 

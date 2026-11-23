@@ -1,0 +1,60 @@
+.page { box-sizing: border-box; width: 100%; max-width: 860px; padding: 22px clamp(16px, 4vw, 44px) 48px; margin-inline: auto; scroll-margin-top: 60px; }
+.page :is(h1, h2, h3, p) { margin: 0; }
+.navigation { display: flex; flex-wrap: wrap; gap: 2px 16px; margin-bottom: 19px; border-bottom: 1px solid var(--faint); }
+.navigation a { display: inline-flex; align-items: center; min-height: 44px; color: var(--quiet); font-size: 14px; text-underline-offset: 4px; text-decoration: none; }
+.navigation a[aria-current] { color: var(--green); font-weight: 650; text-decoration: underline; text-decoration-thickness: 2px; }
+.navigation a:hover, .action:hover { text-decoration: underline; }
+.intro h1 { font-weight: 650; font-size: clamp(32px, 5.6vw, 53px); line-height: 1.05; letter-spacing: -.035em; text-wrap: balance; }
+.intro p { margin-top: 8px; max-width: 56ch; color: var(--quiet); font-size: 16px; line-height: 1.5; }
+.controls { display: flex; flex-wrap: wrap; align-items: end; gap: 10px 14px; margin: 19px 0 26px; }
+.controls label { display: grid; min-width: 0; gap: 4px; font-size: 14px; font-weight: 550; }
+.controls :is(select, input) { box-sizing: border-box; max-width: 100%; min-height: 44px; padding: 6px 11px; background: var(--bg); color: var(--ink); border: 1px solid var(--quiet); border-radius: var(--field-round); font: inherit; }
+.controls input { width: 7ch; }
+.controls button, .steps :is(a,span) { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; border: 1px solid var(--faint); border-radius: var(--round); padding: 0 16px; font: 550 15px/1.2 var(--text); text-decoration: none; }
+.controls button { border-color: var(--green); background: var(--green); color: var(--bg); cursor: pointer; }
+.controls :is(select,input):focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+.results h2, .samples h2, .subhead { font-weight: 600; font-size: clamp(22px, 3.4vw, 32px); letter-spacing: -.025em; line-height: 1.18; text-wrap: balance; }
+.results .scope, .sampleCount, .context { color: var(--quiet); font-size: 14px; line-height: 1.5; }
+.results .scope { margin: 5px 0 13px; }
+.comparison { border-collapse: collapse; width: 100%; line-height: 1.35; font-size: 16px; }
+.comparison :is(th,td) { padding: 11px 12px 11px 0; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--faint); }
+.comparison thead th { font-size: 14px; font-weight: 550; color: var(--quiet); }
+.comparison tbody th { width: 42%; font-weight: 600; }
+.comparison tbody th a { display: inline-flex; flex-direction: column; justify-content: center; min-height: 44px; color: var(--ink); text-decoration: none; }
+.comparison tbody th a:hover, .comparison tbody th a[aria-current] { color: var(--green); }
+.comparison small, .rate small, .playList small { display: block; color: var(--quiet); font-size: 13px; font-weight: 400; }
+.comparison th a small { margin-top: 3px; color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+.rate, .number { font-variant-numeric: tabular-nums; }
+.rate strong { font-size: clamp(19px, 3vw, 26px); letter-spacing: -.035em; font-weight: 600; }
+.track { background: var(--raise); height: 5px; max-width: 13rem; margin-top: 7px; overflow: hidden; border-radius: 3px; }
+.track i { display: block; height: 100%; background: var(--green); }
+.method { font-size: 14px; color: var(--quiet); line-height: 1.5; }
+.method summary { width: fit-content; padding-block: 11px; box-sizing: border-box; min-height: 44px; font-weight: 550; cursor: pointer; }
+.method a, .footer a, .action { color: var(--green); text-underline-offset: 4px; }
+.samples { scroll-margin-top: 65px; border-top: 1px solid var(--faint); padding-top: 17px; margin-top: 13px; }
+.samples .sampleCount { color: var(--green); font-weight: 550; margin-bottom: 4px; }
+.samples .context { margin-top: 4px; }
+.samples .score { margin-top: 6px; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.samples .readout { margin-block: 9px; }
+.steps, .footer, .pagination { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.steps { margin: 12px 0 16px; }
+.steps [aria-disabled] { background: var(--raise); color: var(--quiet); }
+.steps a:hover { color: var(--green); border-color: var(--green); }
+.action, .footer a, .pagination a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 550; font-size: 14px; }
+.playList h3 { margin-top: 12px; font-size: 20px; font-weight: 600; }
+.playList ol { margin: 6px 0; padding-left: 2.7em; font-variant-numeric: tabular-nums; }
+.playList li { padding: 3px 0; border-bottom: 1px solid var(--faint); }
+.playList li::marker { font-size: 13px; color: var(--quiet); }
+.playList a { display: inline-flex; flex-direction: column; justify-content: center; min-height: 44px; font-size: 15px; text-decoration: none; }
+.playList a[aria-current], .playList a:hover { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+.pagination { gap: 4px 16px; font-size: 14px; color: var(--quiet); }
+.footer { margin-top: 12px; gap: 3px 19px; }
+@media (max-width: 440px) {
+  .page { padding-inline: 14px; }
+  .navigation { column-gap: 13px; }
+  .controls { gap: 8px; }
+  .comparison { font-size: 15px; }
+  .comparison :is(th,td) { padding-right: 6px; }
+  .comparison tbody th { width: 37%; }
+}
+@media (min-width: 1024px) { .page { padding-block: 33px 56px; scroll-margin: 0; } .samples { scroll-margin-top: 16px; } }
