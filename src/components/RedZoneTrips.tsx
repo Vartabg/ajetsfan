@@ -14,7 +14,7 @@ export function RedZoneTrips({ games }: { games: RedZoneGame[] }) {
   if (!games.length) return null;
   return <section className={styles.chart} aria-labelledby="red-zone-games">
     <h3 id="red-zone-games">Red-zone trips by game</h3>
-    <p>Trips run from left to right. Select a result to see the score, clock and play. TD means touchdown and FG means field goal.</p>
+    <p>The latest {games.length === 1 ? "game" : games.length + " games"}, with each trip in order. Select a result to see the score, clock and play. TD means touchdown and FG means field goal.</p>
     <ol className={styles.games} role="list">
       {games.map(({ game, covered, trips }) => <li key={game.id} className={styles.game}>
         <span className={styles.match}>Week {game.week}<small>{game.atHome ? "vs. " : "at "}{game.opponentDisplay}</small></span>

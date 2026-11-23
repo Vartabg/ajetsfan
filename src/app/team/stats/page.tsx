@@ -160,7 +160,8 @@ export default async function TeamStatsPage({searchParams}:{searchParams:Promise
         <input type="hidden" name="season" value={selectedSeason}/><input type="hidden" name="side" value={settings.side}/>
         <input type="hidden" name="window" value={settings.window}/>
         <div><label htmlFor="clock-sample">Game situation</label><select id="clock-sample" name="sample" defaultValue={clock}>
-          {timeRows.map(key => <option value={key} key={key}>{situationNames[key]}</option>)}</select></div>
+          {timeRows.map(key => <option value={key} key={key}>{key === "close-fourth" ? "One-score fourth quarter" :
+            key === "two-minute" ? "Final two minutes of each half" : situationNames[key]}</option>)}</select></div>
         <button className={shared.button} type="submit">Show split</button>
       </form>
       <p className={styles.explainer}>{settings.side === "defense" ? "These are opponents’ play calls and yards against the Jets. " : ""}A one-score game is tied or within eight points before the snap. The two-minute split uses the game clock in the second and fourth quarters.
@@ -168,7 +169,7 @@ export default async function TeamStatsPage({searchParams}:{searchParams:Promise
       <Compare clock={clock} settings={settings} report={report}/>
     </FocusMoment>
     <FocusMoment id="supporting-plays" label={selectedSeason+" · "+unit} heading="Supporting plays.">
-      <h3 className={styles.sampleTitle}>{situationNames[settings.sample]} · {windowText}</h3>
+      {!tripChart && <h3 className={styles.sampleTitle}>{situationNames[settings.sample]} · {windowText}</h3>}
       {tripChart ? <RedZoneTrips games={report.redZoneGames}/> : report.examples.length ? <>
         <p className={styles.explainer}>Showing {report.start+1}–{report.start+report.examples.length} of {report.total} {settings.sample === "red-zone" ? "trips" : "plays"}.
           Select a play for its score, clock and recorded account. An Xs &amp; Os diagram appears when the play record supports one.</p>
