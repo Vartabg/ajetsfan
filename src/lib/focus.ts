@@ -10,6 +10,8 @@ import { selectHomeMedia } from "./home-media";
 import { compactMediaItem } from "./media-asset-paths.mjs";
 import { publishedGames } from "./published-pages";
 import { teamIdentity } from "./teams";
+import type { HomePlay } from "./home-play";
+import type { HomeGameRecap } from "./home-game-recap";
 
 /** One play of a game's line: the Jets' pre-play win chance and the quarter (5+ is overtime). */
 export type FocusPoint = [wp: number, quarter: number];
@@ -20,11 +22,12 @@ export type FocusData = {
   checkedAt: string | null;
   last: {
     id: string; week: number; postseason: boolean; date: string;
-    outcome: "win" | "loss" | "tie"; us: number; them: number; opponent: string; place: string; home: boolean;
-    href: string; hrefLabel: string; line: FocusPoint[]; turningPoint: FocusTurningPoint | null;
+    outcome: "win" | "loss" | "tie"; us: number; them: number; opponent: string; opponentName: string; place: string; home: boolean;
+    href: string; hrefLabel: string; line: FocusPoint[]; turningPoint: FocusTurningPoint | null; play?: HomePlay;
+    recap?: HomeGameRecap; replayHref?: string;
   } | null;
   next: { id: string; week: number; postseason: boolean; opponent: string; place: string; home: boolean; date: string; kickoff: string | null; overdue: boolean; matchup: { href: string; label: string } | null } | null;
-  season: { year: number; wins: number; losses: number; ties: number; weeks: { week: number; opponent: string | null; home: boolean | null; state: WeekState; score: string | null }[] } | null;
+  season: { year: number; wins: number; losses: number; ties: number; byeWeek: number | null; weeks: { week: number; opponent: string | null; home: boolean | null; state: WeekState; score: string | null; date?: string }[] } | null;
   division: { name: string; place: number; back: number; leader: string; tiedAtTop: number; teams: { team: string; place: string; wins: number; losses: number; ties: number; games: number; pointsFor: number; pointsAgainst: number; us: boolean }[] } | null;
   media: { id: string; title: string; outlet: string; publishedAt: string | null; item: MediaItem } | null;
 };
@@ -43,6 +46,14 @@ export const leadPlace = (place: string): string => place ? place.charAt(0).toUp
 
 export type SeasonWeeks = NonNullable<FocusData["season"]>;
 
+export function confirmedByeWeek(snapshot: CurrentSnapshot): number | null {
+  const regular = snapshot.schedule.filter(game => game.season === snapshot.season && game.seasonType === "REG");
+  const weeks = new Set(regular.map(game => game.week));
+  if (regular.length !== 17 || weeks.size !== 17 || new Set(regular.map(game => game.id)).size !== 17 ||
+      regular.some(game => !Number.isInteger(game.week) || game.week < 1 || game.week > 18)) return null;
+  return Array.from({ length: 18 }, (_, i) => i + 1).find(week => !weeks.has(week)) ?? null;
+}
+
 /** The current regular season as one entry per week: results, byes, the next game and the rest. */
 export function seasonWeeks(snapshot: CurrentSnapshot | null): SeasonWeeks | null {
   if (!snapshot) return null;
@@ -56,10 +67,10 @@ export function seasonWeeks(snapshot: CurrentSnapshot | null): SeasonWeeks | nul
     if (!game) return { week, opponent: null, home: null, state: "bye" as const, score: null };
     const final = finals.get(game.id);
     if (final) return { week, opponent: game.opponentDisplay, home: game.atHome, state: final.outcome, score: `${final.jetsScore}–${final.oppScore}` };
-    return { week, opponent: game.opponentDisplay, home: game.atHome, state: upcoming?.game.id === game.id ? "next" as const : "upcoming" as const, score: null };
+    return { week, opponent: game.opponentDisplay, home: game.atHome, state: upcoming?.game.id === game.id ? "next" as const : "upcoming" as const, score: null, date: game.date };
   });
   const results = [...finals.values()];
-  return { year: snapshot.season, wins: results.filter((game) => game.outcome === "win").length, losses: results.filter((game) => game.outcome === "loss").length, ties: results.filter((game) => game.outcome === "tie").length, weeks };
+  return { year: snapshot.season, wins: results.filter((game) => game.outcome === "win").length, losses: results.filter((game) => game.outcome === "loss").length, ties: results.filter((game) => game.outcome === "tie").length, byeWeek: confirmedByeWeek(snapshot), weeks };
 }
 
 function focusTurningPoint(points: CurvePoint[], keyPlay: KeyPlay, href: string): FocusTurningPoint | null {
@@ -84,7 +95,8 @@ export function buildFocus({ games, snapshot, curve, media, analytics = null }: 
   const reportHref = result && published.has(result.id) ? `/games/${encodeURIComponent(result.id)}` : null;
   const last = result ? {
     id: result.id, week: result.week, postseason: result.seasonType === "POST", date: result.date,
-    outcome: result.outcome, us: result.jetsScore, them: result.oppScore, opponent: result.opponentDisplay, place: placeName(result.opponentDisplay), home: result.atHome,
+    outcome: result.outcome, us: result.jetsScore, them: result.oppScore, opponent: result.opponentDisplay,
+    opponentName: teamIdentity(result.opponentDisplay)?.nickname ?? teamIdentity(result.opponentDisplay)?.city ?? result.opponentDisplay, place: placeName(result.opponentDisplay), home: result.atHome,
     href: reportHref ?? `/seasons/${result.season}`,
     hrefLabel: reportHref ? "Full game report" : "Season results", line,
     turningPoint: reportHref && lead.analysis ? focusTurningPoint(points, lead.analysis.keyPlay, reportHref) : null,

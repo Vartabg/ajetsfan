@@ -1,18 +1,21 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import Link from "./IntentLink";
 import FocusMoment from "./FocusMoment";
 import FocusNext from "./FocusNext";
 import InlineMedia from "./InlineMedia";
 import FocusShell from "./FocusShell";
-import WinLine from "./WinLine";
+import HomeSeason, { type OpenWeek } from "./HomeSeason";
+import WinLine, { WinChanceDetails } from "./WinLine";
 import type { FocusData } from "@/lib/focus";
+import type { HomeField } from "@/lib/home-play";
 import { dayOf, halfGames, on, ORDINAL, record } from "@/lib/focus-format";
 import { formatMediaDate } from "@/lib/media";
 import { useMinuteClock } from "@/lib/use-minute-clock";
 import shared from "./Focus.module.css";
 import styles from "./FocusHome.module.css";
+import winLineStyles from "./WinLine.module.css";
 
 const pct = (wp: number) => `${Math.round(wp * 100)}%`;
 const QUARTER = ["first quarter", "second quarter", "third quarter", "fourth quarter"];
@@ -26,36 +29,82 @@ function Go({ href, children }: { href: string; children: ReactNode }) {
   return <Link href={href} className={shared.go}>{children} <span aria-hidden="true">→</span></Link>;
 }
 
-function LastGame({ last, first }: { last: NonNullable<FocusData["last"]>; first: boolean }) {
-  const [keys, setKeys] = useState(false);
-  const verb = last.outcome === "win" ? "Won" : last.outcome === "loss" ? "Lost" : "Tied";
-  const line = last.line.length >= 2 ? last.line : null;
-  const best = line ? line.reduce((top, point) => point[0] > top[0] ? point : top) : null;
-  return <FocusMoment id="last" first={first}
-    label={`Last game · ${last.postseason ? "Playoffs" : `Week ${last.week}`} · ${dayOf(last.date)}`}
-    heading={<>{verb} {last.us}–{last.them} <em>{last.home ? "vs" : "at"} {last.place}.</em></>}
-    actions={<>{line ? <Toggle pressed={keys} onChange={setKeys} show="Show chart labels" hide="Hide chart labels" className={last.turningPoint ? styles.chartLabels : undefined} /> : null}<Go href={last.href}>{last.hrefLabel}</Go></>}>
-    <figure className={shared.shape}>
-      {line && best ? <WinLine line={line} keys={keys} turningPoint={last.turningPoint} label={`Estimated Jets win chance, play by play: ${pct(line[0][0])} at kickoff, best ${pct(best[0])} in the ${quarterName(best[1])}, ${pct(line.at(-1)![0])} at the end.`} />
-        : <div className={styles.score} role="img" aria-label={`Jets ${last.us}, ${last.place} ${last.them}`}><span style={{ width: `${last.us / Math.max(last.us, last.them, 1) * 100}%` }}>NYJ {last.us}</span><span style={{ width: `${last.them / Math.max(last.us, last.them, 1) * 100}%` }}>{last.opponent} {last.them}</span></div>}
-      <figcaption>{line && best ? `The line estimates the Jets’ chance to win, play by play. It started at ${pct(line[0][0])}. The best it got was ${pct(best[0])}, in the ${quarterName(best[1])}.` : "The play-by-play line appears here once the game’s data is published."}</figcaption>
-    </figure>
-  </FocusMoment>;
+function BallPosition({ field }: { field: HomeField }) {
+  const from = 100 - field.start, to = 100 - field.finish;
+  const gain = Math.abs(to - from) + "-yard " + (to > from ? "gain" : "loss");
+  const positions = {
+    "--from": from + "%", "--to": to + "%", "--left": Math.min(from, to) + "%", "--distance": Math.abs(to - from) + "%",
+    "--middle": (from + to) / 2 + "%",
+  } as CSSProperties;
+  return <figure className={styles.field} aria-label={"Ball position on a " + gain}>
+    <div className={styles.turf} aria-hidden="true">
+      <span className={styles.endZone}>{field.offense}</span>
+      <div className={styles.pitch} style={positions}>
+        <span className={styles.midfield}>50</span><i className={styles.advance} />
+        <i className={styles.startSpot} /><i className={styles.endSpot} /><span className={styles.yards}>{gain}</span>
+      </div>
+      <span className={styles.endZone}>{field.defense}</span>
+    </div>
+    <figcaption className={styles.spots}>
+      <span><i className={styles.beforeDot} />At the snap <strong>{field.startLabel}</strong></span>
+      <span><i className={styles.afterDot} />After the play <strong>{field.finishLabel}</strong></span>
+    </figcaption>
+  </figure>;
 }
 
-function Season({ season, first }: { season: NonNullable<FocusData["season"]>; first: boolean }) {
-  const [scores, setScores] = useState(false);
-  const played = season.wins + season.losses + season.ties;
-  const left = season.weeks.filter((week) => week.state === "next" || week.state === "upcoming").length;
-  return <FocusMoment id="season" first={first} label={`${season.year} season`}
-    heading={<>{record(season.wins, season.losses, season.ties)} <em>{played ? `after ${played} game${played === 1 ? "" : "s"}.` : "before the opener."}</em></>}
-    actions={<><Toggle pressed={scores} onChange={setScores} show="Show each score" hide="Hide scores" /><Go href={`/seasons/${season.year}`}>Season page</Go></>}>
-    <figure className={shared.shape}>
-      <ol className={`${styles.marks} ${scores ? styles.scored : ""}`} aria-label={`${season.wins} wins, ${season.losses} losses${season.ties ? `, ${season.ties} ties` : ""}, ${left} games to play.`}>
-        {season.weeks.map((week) => <li key={week.week} className={styles[week.state]} data-week-state={week.state}><i aria-hidden="true" /><span>{week.opponent ?? "Bye"}</span>{week.score ? <small>{week.score}</small> : null}<span className="sr-only">{week.state === "bye" ? `Week ${week.week}: bye` : `Week ${week.week}: ${week.opponent}${week.score ? `, ${week.state} ${week.score}` : week.state === "next" ? ", next game" : ""}`}</span></li>)}
-      </ol>
-      <figcaption className={styles.legend}><span className={styles.keyWin}>Win</span><span className={styles.keyLoss}>Loss</span><span>To play</span></figcaption>
-    </figure>
+type LastResult = NonNullable<FocusData["last"]>;
+
+function QuarterScore({ last }: { last: LastResult }) {
+  const periods = last.recap!.periods;
+  return <div className={styles.quarters}><table>
+    <caption>Points by quarter</caption>
+    <thead><tr><th scope="col"><span className="sr-only">Team</span></th>
+      {periods.map((_, i) => <th scope="col" key={i}>{i < 4 ? "Q" + (i + 1) : i === 4 ? "OT" : (i - 3) + "OT"}</th>)}
+      <th scope="col">Final</th></tr></thead>
+    <tbody>{["Jets", last.opponentName].map((team, i) => <tr key={team}><th scope="row">{team}</th>
+      {periods.map((points, q) => <td key={q}>{points[i]}</td>)}<td>{i === 0 ? last.us : last.them}</td></tr>)}</tbody>
+  </table></div>;
+}
+
+function LastGame({ last, first }: { last: LastResult; first: boolean }) {
+  const [keys, setKeys] = useState(false);
+  const line = last.line.length >= 2 ? last.line : null;
+  const best = line ? line.reduce((top, point) => point[0] > top[0] ? point : top) : null;
+  const play = last.play;
+  const difference = Math.abs(last.us - last.them);
+  const result = last.outcome === "tie" ? "The game ended in a tie." :
+    "The Jets " + (last.outcome === "win" ? "won" : "lost") + " by " + difference + (difference === 1 ? " point " : " points ") + (last.home ? "at home." : "on the road.");
+  return <FocusMoment id="last" first={first}
+    label={`Last game · ${last.postseason ? "Playoffs" : `Week ${last.week}`} · ${dayOf(last.date)} · Final`}
+    heading={<>Jets {last.us}, <em>{last.opponentName} {last.them}</em></>}>
+    <div className={styles.recap} data-game-recap>
+      <p className={styles.recapText} data-recap-text>{last.recap?.text ?? result}</p>
+      {last.recap && <QuarterScore last={last} />}
+      <div className={styles.gameLinks}>
+        {last.replayHref && <Link className={styles.replay} href={last.replayHref}>Replay the game <span aria-hidden="true">→</span></Link>}
+        <Go href={last.href}>{last.hrefLabel}</Go>
+      </div>
+    </div>
+    {play && <details className={winLineStyles.disclosure} data-scoring-play>
+      <summary>{play.hasDiagram ? "See a scoring play in Xs & Os" : "See a scoring play"}</summary>
+      <div className={styles.story} data-home-play>
+        <div className={styles.account}>
+          <p className={styles.gameClock}>{play.time}{play.score && " · " + play.score}</p>
+          <p className={styles.situation}>{play.situation}</p>
+          <p className={styles.playText}>{play.account}</p>
+        </div>
+        {play.field && <BallPosition field={play.field} />}
+        <div className={styles.gameLinks}>
+          <Link className={styles.replay} href={play.replay}>{play.hasDiagram ? "Replay in Xs & Os" : "Replay this play"} <span aria-hidden="true">→</span></Link>
+        </div>
+      </div>
+    </details>}
+    {line && best && <WinChanceDetails>
+      <p className={shared.caption}>The line estimates the Jets’ chance to win before each play. A rising line favors New York.</p>
+      <WinLine line={line} keys={keys} end="Last snap" turningPoint={last.turningPoint}
+        label={`Estimated Jets win chance, play by play. ${pct(line[0][0])} at kickoff, best ${pct(best[0])} in the ${quarterName(best[1])}, ${pct(line.at(-1)![0])} before the last recorded play.`} />
+      <Toggle pressed={keys} onChange={setKeys} show="Show chart labels" hide="Hide chart labels" className={styles.chartLabels} />
+    </WinChanceDetails>}
   </FocusMoment>;
 }
 
@@ -99,6 +148,7 @@ export default function FocusHome({
   liveMoment,
   leadersMoment,
   newsMoment,
+  seasonWeek,
   className = "",
 }: {
   data: FocusData;
@@ -109,6 +159,7 @@ export default function FocusHome({
   liveMoment?: HomeMoment;
   leadersMoment?: HomeMoment;
   newsMoment?: HomeMoment;
+  seasonWeek?: OpenWeek;
   className?: string;
 }) {
   const now = useMinuteClock() || renderedAt;
@@ -135,7 +186,7 @@ export default function FocusHome({
     {data.last ? <LastGame last={data.last} first={firstId === "last"} /> : null}
     {livePlacement === "postgame" ? liveMoment?.content : null}
     {showNext && data.next ? <FocusNext next={data.next} initialTime={renderedAt} matchup={stale ? null : data.next.matchup} first={firstId === "next"} go={{ href: "/game-day", label: "Game Day" }} /> : null}
-    {data.season ? <Season season={data.season} first={firstId === "season"} /> : null}
+    {data.season ? <HomeSeason season={data.season} first={firstId === "season"} detail={seasonWeek} /> : null}
     {data.division ? <Division division={data.division} first={firstId === "division"} /> : null}
     {leadersMoment?.content}
     {newsMoment?.content}

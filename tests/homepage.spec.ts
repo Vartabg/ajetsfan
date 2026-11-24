@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { readFileSync, existsSync } from "node:fs";
+import { gunzipSync } from "node:zlib";
 import path from "node:path";
 import type { SeasonAnalytics } from "../src/lib/analytics";
 import type { CoverageSnapshot } from "../src/lib/coverage";
@@ -11,6 +12,10 @@ import { buildFocus, leadPlace } from "../src/lib/focus";
 import { mediaCollection } from "../src/lib/media-catalog";
 import { SECTIONS } from "../src/lib/site-sections";
 import { buildTeamFocus } from "../src/lib/team-focus";
+import { driveReadHref } from "../src/lib/drive-read-links";
+import { replayHref } from "../src/lib/game-replay";
+import { homeGameRecap } from "../src/lib/home-game-recap";
+import type { SnapGame } from "../src/lib/snap-types";
 
 const read = <T,>(file: string) => JSON.parse(readFileSync(path.join(process.cwd(), "public/data", file), "utf8")) as T;
 const snapshot = read<CurrentSnapshot>("current.json");
@@ -23,6 +28,42 @@ const analytics = read<SeasonAnalytics>("analytics.json");
 const focus = buildFocus({ games, snapshot, curve, media: mediaCollection, analytics });
 const team = buildTeamFocus(coverage, snapshot.season);
 const record = (w: number, l: number, t: number) => `${w}–${l}${t ? `–${t}` : ""}`;
+
+test.describe("a first visit on a phone", () => {
+  test.use({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  test("the recap opens the whole game and keeps its scoring play and the chart optional", async ({ page }) => {
+    const result = lead.kind === "current" ? lead.result : null;
+    const archive = result && path.join(process.cwd(), "public/data/snaps", result.season + ".json.gz");
+    const pack: { games: SnapGame[] } | null = archive && existsSync(archive) ? JSON.parse(gunzipSync(readFileSync(archive)).toString()) : null;
+    const game = focus.last?.href.startsWith("/games/") && pack?.games.find(row => row.id === result?.id);
+    await page.goto("/");
+    const story = page.locator("#last [data-home-play]");
+    await expect(story).toBeHidden();
+    await expect(page.locator("#last [data-focus-chart]")).toBeHidden();
+    if (!game) {
+      await expect(story).toHaveCount(0);
+      if (focus.last) await expect(page.locator("#last").getByRole("link", { name: focus.last.hrefLabel })).toBeVisible();
+      return;
+    }
+    const recap = homeGameRecap(game);
+    const replay = page.getByRole("link", { name: "Replay the game", exact: true });
+    const href = replayHref(game.id, undefined, "all");
+    await expect(replay).toHaveAttribute("href", href);
+    await expect(replay).toBeInViewport({ ratio: 1 });
+    if (recap) await expect(page.getByRole("table", { name: "Points by quarter" })).toBeVisible();
+    await replay.click();
+    await expect(page).toHaveURL(url => url.pathname + url.search === href);
+    await expect(page.locator("#replay-viewer")).toBeVisible();
+    await page.goBack();
+    if (recap?.playKey) {
+      await page.locator("#last [data-scoring-play] > summary").click();
+      const snapLink = story.getByRole("link", { name: /^Replay/ });
+      await expect(snapLink).toHaveAttribute("href", driveReadHref(game.id, { play: recap.playKey, phase: "action" }));
+      await snapLink.click();
+      await expect(page.getByRole("link", { name: "Analyze this play" })).toHaveAttribute("href", "/plays/" + game.id + "/" + recap.playKey);
+    }
+  });
+});
 
 test("new playable coverage remains eligible for the landing page when publisher art needs a title card", () => {
   const video = mediaCollection.items.find((item) => item.youtubeId && item.embedAllowed !== false)!;
@@ -49,8 +90,7 @@ test("the home page shows only this week and this season", async ({ page }) => {
   await expect(page.locator("#miracle, #people, #today, #film, #discovery")).toHaveCount(0);
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   if (focus.last) {
-    const verb = focus.last.outcome === "win" ? "Won" : focus.last.outcome === "loss" ? "Lost" : "Tied";
-    await expect(page.locator("#last-heading")).toHaveText(`${verb} ${focus.last.us}–${focus.last.them} ${focus.last.home ? "vs" : "at"} ${focus.last.place}.`);
+    await expect(page.locator("#last-heading")).toHaveText(`Jets ${focus.last.us}, ${focus.last.opponentName} ${focus.last.them}`);
     await expect(page.locator("#last")).toContainText(`Last game · ${focus.last.postseason ? "Playoffs" : `Week ${focus.last.week}`}`);
     await expect(page.locator("#last a").filter({ hasText: focus.last.hrefLabel })).toHaveAttribute("href", focus.last.href);
   }
@@ -126,6 +166,8 @@ test("each moment shows one thing and opens its detail in place", async ({ page 
   expect(Math.max(...slack)).toBeLessThanOrEqual(24);
   if (focus.last && focus.last.line.length >= 2) {
     const chart = page.locator("[data-focus-chart]");
+    await expect(chart).toBeHidden();
+    await page.locator("#last [data-win-chance-disclosure] > summary").click();
     await expect(chart).toHaveAttribute("aria-label", new RegExp(`${Math.round(focus.last.line[0][0] * 100)}% at kickoff`));
     await page.getByRole("button", { name: "Show chart labels" }).click();
     await expect(page.locator("[data-focus-keys] span")).toHaveCount(3);
@@ -154,6 +196,7 @@ test("the turning point sits on its play and opens from the keyboard", async ({ 
     await expect(marker).toHaveCount(0);
     return;
   }
+  await page.locator("#last [data-win-chance-disclosure] > summary").click();
   const chart = page.locator("[data-focus-chart]");
   const plot = (await chart.locator("svg").boundingBox())!;
   const target = (await marker.boundingBox())!;
@@ -182,6 +225,7 @@ test("the turning point opens by touch without JavaScript and links to the sourc
   try {
     const page = await context.newPage();
     await page.goto("/");
+    await page.locator("#last [data-win-chance-disclosure] > summary").tap();
     await page.locator("#last summary").filter({ hasText: "Turning point" }).tap();
     await expect(page.getByText(turningPoint!.description, { exact: true })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

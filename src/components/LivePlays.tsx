@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import WinLine from "./WinLine";
+import WinLine, { WinChanceDetails } from "./WinLine";
 import { clockLine, gamePlayed, LIVE_POLL_MS, type LivePlays as Plays } from "@/lib/live-plays";
 import styles from "./LivePlays.module.css";
 
@@ -13,7 +13,7 @@ const time = (iso: string) => new Intl.DateTimeFormat("en-US", { timeZone: "Amer
  * the down and distance, the last play, and ESPN's win chance after each play. It starts from the football
  * edition's score and keeps the last good answer when a check fails.
  */
-export default function LivePlays({ event, nickname, us, them, clock }: { event: string; nickname: string; us: number | null; them: number | null; clock: string }) {
+export default function LivePlays({ event, nickname, us, them, clock, foldChart = false }: { event: string; nickname: string; us: number | null; them: number | null; clock: string; foldChart?: boolean }) {
   const [plays, setPlays] = useState<Plays | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -42,6 +42,8 @@ export default function LivePlays({ event, nickname, us, them, clock }: { event:
   const score = plays ? { us: plays.us ?? null, them: plays.them ?? null } : { us, them };
   const line = plays?.line && plays.line.length >= 2 ? plays.line : null;
   const final = plays?.state === "post";
+  const graph = line && <WinLine line={line} played={final ? 1 : gamePlayed(plays?.detail)} end={final ? "Final" : "Now"}
+    label={`ESPN's Jets win chance, play by play: ${pct(line[0][0])} at kickoff, ${pct(line.at(-1)![0])} ${final ? "at the end" : "now"}.`} />;
   return <div className={styles.live} data-live-plays={event} data-live-state={plays?.state ?? "loading"}>
     {score.us !== null && score.them !== null ? <p className={styles.score} aria-live="polite" aria-atomic="true" data-football-score>
       Jets {score.us} <span>–</span> {nickname} {score.them}
@@ -51,7 +53,7 @@ export default function LivePlays({ event, nickname, us, them, clock }: { event:
       {plays.situation ? <b>{plays.ball === "jets" ? "Jets ball" : plays.ball === "them" ? `${nickname} ball` : "Ball"} · {plays.situation}</b> : null}
       {plays.lastPlay ? <span>Last play: {plays.lastPlay}</span> : null}
     </p> : null}
-    {line ? <WinLine line={line} played={final ? 1 : gamePlayed(plays?.detail)} end={final ? "Final" : "Now"} label={`ESPN's Jets win chance, play by play: ${pct(line[0][0])} at kickoff, ${pct(line.at(-1)![0])} ${final ? "at the end" : "now"}.`} /> : null}
+    {graph && (foldChart ? <WinChanceDetails live={!final}>{graph}</WinChanceDetails> : graph)}
     <p className={styles.note}>
       {final ? "ESPN’s final. The site’s own game report, from the official play-by-play, follows when that is published. "
         : `Score, plays and win chance from ESPN, checked every ${LIVE_POLL_MS / 1000} seconds${plays ? ` (last at ${time(plays.updatedAt)} ET)` : ""}. The line is ESPN’s estimate of the Jets’ chance to win, not this site’s model. `}

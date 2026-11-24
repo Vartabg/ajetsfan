@@ -4,6 +4,8 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 
 ## Accepted
 
+- The season circles should open details for individual weeks. Home and away and the result should be legible directly in the season view.
+
 - **Focus pages** (2026-10-05): the site adapts to the device and shows one thing at a time, without overloading a screen. Each moment has a label, one plain sentence, one shape and one action.
 - **Moments fit their content** at every width, divided by a hairline (2026-10-21, PR #56).
 - **Lexend, one face** (2026-10-20, PR #50): no all-caps, no italics, no caps letter-spacing, and labels of at least 13px.
@@ -31,12 +33,18 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 
 ## Rejected
 
+- A single player’s gain as the opening account of a finished game. The owner wants to understand the whole result before deciding whether to replay a play.
+
+- **A chart as the first view of the latest game** (2026-11-24). A new visitor should be able to tell what happened and what the site lets them do at first glance. The owner found the opening win-chance graph hard to understand.
+
 - The initial exact-play view separated the score and play text from the down, distance and field position. The owner said it missed the basics of what was happening in the game.
 - A drive diagram showing only Flacco, a throw and its destination leaves out the rest of the football play.
 - The newspaper identity: "The Back Page", mastheads, desks, editions, datelines, stamps, paper tints and the condensed all-caps display type. It was an earlier agent's idea; the owner finds it corny.
 - Any other themed concept proposed on his behalf.
 
 ## Not decided
+
+- The wording, linescore and replay controls of a whole-game opening are ready for the owner to try.
 
 - New names for pages that still carry newspaper names: "The Morgue" (shown as "Game archive" in the menu) and "How the paper is made".
 

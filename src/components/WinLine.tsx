@@ -1,10 +1,17 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
+import { useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import type { FocusPoint, FocusTurningPoint } from "@/lib/focus";
 import styles from "./WinLine.module.css";
 
 const pct = (wp: number) => `${Math.round(wp * 100)}%`;
+
+export function WinChanceDetails({ children, live = false }: { children: ReactNode; live?: boolean }) {
+  return <details className={styles.disclosure} data-win-chance-disclosure>
+    <summary>{live ? "How are the Jets’ win chances changing?" : "How did the Jets’ win chances change?"}</summary>
+    {children}
+  </details>;
+}
 
 /** The game's shape: one point per play, evenly spaced, as the site's other charts do. */
 /** `played` (0–1) is how much of the game the line covers; a game in progress leaves the rest of the width empty. */

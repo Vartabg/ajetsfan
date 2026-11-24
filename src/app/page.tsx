@@ -1,5 +1,6 @@
 import { cache } from "react";
 import FocusHome from "@/components/FocusHome";
+import HomeWeekDetail from "@/components/HomeWeekDetail";
 import FocusMoment from "@/components/FocusMoment";
 import FootballLiveCard, { footballOpponent, showFootballMoment } from "@/components/football-live-card";
 import Link from "@/components/IntentLink";
@@ -7,6 +8,9 @@ import LivePlays from "@/components/LivePlays";
 import { TeamLeadersMoment, TeamNewsMoment } from "@/components/TeamMoments";
 import { selectLead } from "@/lib/current";
 import { buildFocus } from "@/lib/focus";
+import { homePlay } from "@/lib/home-play";
+import { homeGameRecap } from "@/lib/home-game-recap";
+import { replayHref } from "@/lib/game-replay";
 import { dayOf } from "@/lib/focus-format";
 import { loadCoverage } from "@/lib/load-coverage";
 import { loadAnalytics, loadCurrent, loadCurve, loadGames } from "@/lib/load-games";
@@ -28,22 +32,37 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 180;
 export const metadata = pageMetadata({
   path: "/", title: "ajetsfan · the Jets, one thing at a time",
-  description: "This week and this season for the Jets: live and latest scores, the next game, standings, player leaders, team news and coverage, one at a time.",
+  description: "Catch up on the latest Jets game with a short recap and the score by quarter. Replay the game snap by snap or open a scoring play in Xs and Os.",
 });
 
-export default async function Home() {
-  const [games, snapshot, mediaCollection, live, coverage, analytics] = await Promise.all([
-    loadGames(), loadCurrent(), loadMediaCollection(), loadFootballLive(), loadCoverage(), loadAnalytics().catch(() => null),
+export default async function Home({ searchParams }: { searchParams: Promise<{ week?: string | string[] }> }) {
+  const [games, snapshot, mediaCollection, live, coverage, analytics, query] = await Promise.all([
+    loadGames(), loadCurrent(), loadMediaCollection(), loadFootballLive(), loadCoverage(), loadAnalytics().catch(() => null), searchParams,
   ]);
   await scheduleStaleMediaRecovery();
   const lead = selectLead(games, snapshot);
   const curve = lead.kind === "current" && lead.analysisStatus === "ready" && lead.analysis ? await loadCurve(lead.analysis.id) : [];
   const data = buildFocus({ games, snapshot, curve, media: mediaCollection, analytics });
-  if (data.last?.turningPoint && lead.kind === "current" && lead.analysis) {
-    const archive = await loadSnapGame(lead.analysis.id);
-    const play = featuredSnap(archive, lead.analysis.keyPlay);
-    if (play && archive) {
-      data.last.turningPoint.snap = { href: snapPath(archive.id, play.key), label: snapHeadline(archive, play).replace(/\.$/, "") };
+  const roster = coverage?.roster;
+  const players = roster && roster.season === snapshot?.season && roster.status !== "unavailable" ? roster.players : [];
+  const selectedWeek = typeof query.week === "string" && /^[1-9]\d?$/.test(query.week) ? Number(query.week) : null;
+  const seasonWeek = selectedWeek && snapshot && data.season?.weeks.some(row => row.week === selectedWeek) ? {
+    week: selectedWeek, content: <HomeWeekDetail week={selectedWeek} snapshot={snapshot} games={games} roster={players} />,
+  } : undefined;
+  if (data.last && lead.kind === "current") {
+    const archive = await loadSnapGame(data.last.id);
+    if (archive) {
+      data.last.replayHref = replayHref(archive.id, undefined, "all");
+      const recap = homeGameRecap(archive, players);
+      if (recap) {
+        data.last.recap = recap;
+        const scoringPlay = archive.plays.find(play => play.key === recap.playKey);
+        if (scoringPlay) data.last.play = homePlay(archive, scoringPlay, players);
+      }
+      if (data.last.turningPoint && lead.analysisStatus === "ready" && lead.analysis?.id === archive.id) {
+        const play = featuredSnap(archive, lead.analysis.keyPlay);
+        if (play) data.last.turningPoint.snap = { href: snapPath(archive.id, play.key), label: snapHeadline(archive, play).replace(/\.$/, "") };
+      }
     }
   }
   const team = buildTeamFocus(coverage, snapshot?.season ?? null);
@@ -77,7 +96,7 @@ export default async function Home() {
       label={`${live.status === "retained" ? "Last verified game update" : candidate.state === "live" ? "Live game" : "Latest game update"} · ${candidate.seasonType === "POST" ? "Playoffs" : `Week ${candidate.week}`}`}
       heading={<>Jets {candidate.atHome ? "vs" : "at"} {footballOpponent(candidate)}.</>}
       actions={<Link href="/game-day" className={shared.go}>Game Day <span aria-hidden="true">→</span></Link>}>
-      <figure className={shared.shape}>{candidate.state === "live" ? <LivePlays event={candidate.eventId} nickname={footballOpponent(candidate)} us={candidate.jetsScore} them={candidate.oppScore} clock={editionClock(candidate)} />
+      <figure className={shared.shape}>{candidate.state === "live" ? <LivePlays foldChart event={candidate.eventId} nickname={footballOpponent(candidate)} us={candidate.jetsScore} them={candidate.oppScore} clock={editionClock(candidate)} />
         : <FootballLiveCard feed={live} id="home-football-score" />}</figure>
     </FocusMoment>,
   } : undefined;
@@ -95,5 +114,5 @@ export default async function Home() {
   } : undefined;
 
   return <FocusHome data={data} renderedAt={requestMinute()} firstId={firstId} showNext={showNext} livePlacement={livePlacement}
-    liveMoment={liveMoment} leadersMoment={leadersMoment} newsMoment={newsMoment} className={focusFonts} />;
+    seasonWeek={seasonWeek} liveMoment={liveMoment} leadersMoment={leadersMoment} newsMoment={newsMoment} className={focusFonts} />;
 }
