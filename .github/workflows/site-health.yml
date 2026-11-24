@@ -1,0 +1,21 @@
+name: Check Jets production site
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */4 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: node scripts/check-site-health.mjs
