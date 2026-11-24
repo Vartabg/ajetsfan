@@ -6,6 +6,7 @@ import FocusMoment from "./FocusMoment";
 import FocusNext from "./FocusNext";
 import InlineMedia from "./InlineMedia";
 import FocusShell from "./FocusShell";
+import HomeSeason, { type OpenWeek } from "./HomeSeason";
 import WinLine, { WinChanceDetails } from "./WinLine";
 import type { FocusData } from "@/lib/focus";
 import type { HomeField } from "@/lib/home-play";
@@ -107,22 +108,6 @@ function LastGame({ last, first }: { last: LastResult; first: boolean }) {
   </FocusMoment>;
 }
 
-function Season({ season, first }: { season: NonNullable<FocusData["season"]>; first: boolean }) {
-  const [scores, setScores] = useState(false);
-  const played = season.wins + season.losses + season.ties;
-  const left = season.weeks.filter((week) => week.state === "next" || week.state === "upcoming").length;
-  return <FocusMoment id="season" first={first} label={`${season.year} season`}
-    heading={<>{record(season.wins, season.losses, season.ties)} <em>{played ? `after ${played} game${played === 1 ? "" : "s"}.` : "before the opener."}</em></>}
-    actions={<><Toggle pressed={scores} onChange={setScores} show="Show each score" hide="Hide scores" /><Go href={`/seasons/${season.year}`}>Season page</Go></>}>
-    <figure className={shared.shape}>
-      <ol className={`${styles.marks} ${scores ? styles.scored : ""}`} aria-label={`${season.wins} wins, ${season.losses} losses${season.ties ? `, ${season.ties} ties` : ""}, ${left} games to play.`}>
-        {season.weeks.map((week) => <li key={week.week} className={styles[week.state]} data-week-state={week.state}><i aria-hidden="true" /><span>{week.opponent ?? "Bye"}</span>{week.score ? <small>{week.score}</small> : null}<span className="sr-only">{week.state === "bye" ? `Week ${week.week}: bye` : `Week ${week.week}: ${week.opponent}${week.score ? `, ${week.state} ${week.score}` : week.state === "next" ? ", next game" : ""}`}</span></li>)}
-      </ol>
-      <figcaption className={styles.legend}><span className={styles.keyWin}>Win</span><span className={styles.keyLoss}>Loss</span><span>To play</span></figcaption>
-    </figure>
-  </FocusMoment>;
-}
-
 function Division({ division, first }: { division: NonNullable<FocusData["division"]>; first: boolean }) {
   const [points, setPoints] = useState(false);
   const most = Math.max(1, ...division.teams.map((team) => team.games));
@@ -163,6 +148,7 @@ export default function FocusHome({
   liveMoment,
   leadersMoment,
   newsMoment,
+  seasonWeek,
   className = "",
 }: {
   data: FocusData;
@@ -173,6 +159,7 @@ export default function FocusHome({
   liveMoment?: HomeMoment;
   leadersMoment?: HomeMoment;
   newsMoment?: HomeMoment;
+  seasonWeek?: OpenWeek;
   className?: string;
 }) {
   const now = useMinuteClock() || renderedAt;
@@ -199,7 +186,7 @@ export default function FocusHome({
     {data.last ? <LastGame last={data.last} first={firstId === "last"} /> : null}
     {livePlacement === "postgame" ? liveMoment?.content : null}
     {showNext && data.next ? <FocusNext next={data.next} initialTime={renderedAt} matchup={stale ? null : data.next.matchup} first={firstId === "next"} go={{ href: "/game-day", label: "Game Day" }} /> : null}
-    {data.season ? <Season season={data.season} first={firstId === "season"} /> : null}
+    {data.season ? <HomeSeason season={data.season} first={firstId === "season"} detail={seasonWeek} /> : null}
     {data.division ? <Division division={data.division} first={firstId === "division"} /> : null}
     {leadersMoment?.content}
     {newsMoment?.content}

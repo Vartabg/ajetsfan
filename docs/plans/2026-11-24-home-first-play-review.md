@@ -1,5 +1,11 @@
 # Review of the homepage opening
 
+## Season week selection
+
+Gemini 3.8 Flash High completed a fresh, supplied-text review of revision 3 at `921b67e` in 67 seconds with no tools. Inputs included the season projection and rendering, modal navigation, snap loader and initial page budgets. The season needs real per-week destinations, visible location and results, and dismissal that returns to the same week. Use query navigation and render the selected game's server content once. Keep the existing focus-shell shortcuts out of the open dialog with `data-focus-tools`; exercise Close, Escape, backdrop and browser history. The Jets-first score order already agrees with the data contract. State it above the grid and label each team's score in the dialog. A bye requires a complete slate and an otherwise missing week. This preserves the distinction between a bye and missing schedule data.
+
+A small phone interaction proof opened separate home and away finals and restored focus when each dialog closed.
+
 ## Whole-game revision
 
 Gemini 3.8 Flash High reviewed revision 2 against `615b74a` in a fresh supplied-text session. It completed successfully in 47 seconds with no tool calls. Its inputs included the revised brief, the archive and replay contracts, the homepage code and two real scoring histories. The later review exercised the user's preference for a recap before any play.

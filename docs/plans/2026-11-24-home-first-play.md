@@ -1,5 +1,13 @@
 # A first visit to the Jets homepage
 
+## Revision 3 · Open any week in the season
+
+At `921b67e`, the owner asked to select a season circle for game details and to distinguish home and away games at a glance. Keep the whole-game opening. Make each week a large link, displaying its number, opponent, Home or Away and a text result alongside the color. Use a short instruction and plain scores for finished games. Include next, future and bye weeks in the same interaction.
+
+A week opens one native dialog over the season, with its matchup, location, date and result or kickoff. Completed games can include their verified game recap, record after the game, and existing report and replay links. Future weeks show the scheduled time in ET or a pending-time label. A bye explains the break and points to the next scheduled opponent when known. Preserve unknown and unconfirmed states. Read a single selected archive on the server, using the existing schedule, verified report list and snap loader. Do not ship eighteen recaps or fetch a whole season in the browser.
+
+Use real links at `/?week=N#season`, parse strict in-range week numbers and leave other inputs on the normal homepage. With scripting, upgrade the selected server-rendered detail into a focus-trapping dialog. Escape, a Close control, backdrop and browser Back dismiss it. Restore focus to the game circle. Without scripting the same link opens the server-rendered detail with an ordinary return link. Make the phone grid reflow, keep targets at least 44px, and retain the existing performance budgets. Verify home and away finals, future and bye weeks, dates, score order, links, focus, keyboard, direct entry and no-JavaScript navigation.
+
 ## Revision 2 · Read the whole game first
 
 At baseline `615b74a`, the owner tried the play-first preview and asked why Hall's carry was the homepage story. The opening should let someone who missed the game recount how it unfolded. Start with both teams and the final, then two or three sentences covering halftime, the second half and the finish. Put a compact, labeled team-by-quarter linescore alongside the words on wide screens and below them on phones. The first action replays the **whole game** from its opening. The full report remains available. An optional disclosure opens a scoring play tied to the recap and its Xs & Os. Keep the existing win-chance marker linked to its actual source play separately.

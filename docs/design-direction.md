@@ -4,6 +4,8 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 
 ## Accepted
 
+- The season circles should open details for individual weeks. Home and away and the result should be legible directly in the season view.
+
 - **Focus pages** (2026-10-05): the site adapts to the device and shows one thing at a time, without overloading a screen. Each moment has a label, one plain sentence, one shape and one action.
 - **Moments fit their content** at every width, divided by a hairline (2026-10-21, PR #56).
 - **Lexend, one face** (2026-10-20, PR #50): no all-caps, no italics, no caps letter-spacing, and labels of at least 13px.
