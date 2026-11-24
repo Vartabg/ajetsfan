@@ -1,8 +1,10 @@
 import { expect, test, type Locator } from "@playwright/test";
+import { ok } from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { runInNewContext } from "node:vm";
+import { gunzipSync } from "node:zlib";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
@@ -10,7 +12,8 @@ import { fieldPosition, scoreContext, snapAccount, snapHeadline, snapSituation, 
 import type { Snap, SnapGame } from "../src/lib/snap-types";
 
 const cleveland = "/plays/2022_02_NYJ_CLE/";
-const buffalo = "/plays/2026_10_BUF_NYJ/";
+const buffaloGameId = "2026_10_BUF_NYJ";
+const buffalo = `/plays/${buffaloGameId}/`;
 
 function definition(section: Locator, label: string) {
   return section.getByText(label, { exact: true }).and(section.locator("dt")).locator("xpath=following-sibling::dd[1]");
@@ -59,7 +62,17 @@ test("Davis takes the ball away from the Cleveland offense without an invented o
 });
 
 test("the Buffalo catch crosses midfield and its observed yards are separate from the model estimates", async ({ page }) => {
-  await page.goto(buffalo + "2511");
+  const key = "2511";
+  // The current-season nflverse models can change when the archive is refreshed.
+  const archive: { games: SnapGame[] } = JSON.parse(gunzipSync(readFileSync("public/data/snaps/2026.json.gz")).toString("utf8"));
+  const play = archive.games.find(game => game.id === buffaloGameId)?.plays.find(snap => snap.key === key);
+  const facts = play?.facts;
+  ok(play?.wp != null && play.postWp != null && facts?.epa != null &&
+    facts.dropbackProbability != null && facts.completionProbability != null, "Buffalo play 2511 has all archived estimates");
+  const percentage = (rate: number) => `${(rate * 100).toFixed(1)}%`;
+  const epa = Number(facts.epa.toFixed(2));
+
+  await page.goto(buffalo + key);
   const snap = page.locator("#snap"), evidence = page.locator("#evidence");
   await expect(snap).toContainText("Buffalo Bills at New York Jets");
   await expect(snap).toContainText(/Q3\s*9:54 left/);
@@ -71,11 +84,11 @@ test("the Buffalo catch crosses midfield and its observed yards are separate fro
     .toHaveText(["BUF 38", "BUF 48", "NYJ 8"]);
   await expect(evidence).toContainText(/21 air yards\s*33 after the catch/);
   await expect(evidence).toContainText("61% of the gain came after the catch.");
-  await expect(definition(evidence, "Bills EPA")).toContainText("+2.95");
-  await expect(definition(evidence, "Jets win probability")).toContainText("42.7% → 31.1%");
+  await expect(definition(evidence, "Bills EPA").locator("b")).toHaveText(`${epa > 0 ? "+" : ""}${epa.toFixed(2)}`);
+  await expect(definition(evidence, "Jets win probability")).toContainText(`${percentage(play.wp)} → ${percentage(play.postWp)}`);
   await expect(evidence.getByRole("heading", { name: "How Cleveland defended Wilson" })).toHaveCount(0);
-  await expect(definition(evidence, "Dropback probability")).toContainText("48.9%");
-  await expect(definition(evidence, "Completion probability")).toContainText("50.0%");
+  await expect(definition(evidence, "Dropback probability").locator("b")).toHaveText(percentage(facts.dropbackProbability));
+  await expect(definition(evidence, "Completion probability").locator("b")).toHaveText(percentage(facts.completionProbability));
 });
 
 test("negative air yards and a recorded zero after the catch remain visible", async ({ page }) => {
