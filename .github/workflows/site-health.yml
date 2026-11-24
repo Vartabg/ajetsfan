@@ -12,10 +12,65 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 4
+    outputs:
+      archive_incident: ${{ steps.health.outputs.archive_incident }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v5
         with:
           node-version: '24'
           package-manager-cache: false
-      - run: node scripts/check-site-health.mjs
+      - id: health
+        run: node scripts/check-site-health.mjs
+      - name: Preview archive recovery
+        if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && steps.health.outputs.archive_incident != '' }}
+        env:
+          RECOVERY_INCIDENT: ${{ steps.health.outputs.archive_incident }}
+        run: node scripts/site-maintenance-recovery.mjs --preview
+
+  recover-archive:
+    needs: check
+    if: >-
+      ${{ !cancelled() && needs.check.result == 'failure' && needs.check.outputs.archive_incident != ''
+          && github.event_name == 'schedule' && github.repository == 'Vartabg/ajetsfan'
+          && github.event.repository.default_branch == 'master' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    permissions:
+      contents: read
+      actions: write
+    concurrency:
+      group: recover-jets-trade-archive
+      cancel-in-progress: false
+    env:
+      RECOVERY_INCIDENT: ${{ needs.check.outputs.archive_incident }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Confirm the archive still needs recovery
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/site-maintenance-recovery.mjs --plan
+      - name: Record the attempt before dispatch
+        id: attempt
+        if: steps.plan.outputs.artifact_name != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ steps.plan.outputs.artifact_name }}
+          path: ${{ runner.temp }}/jets-trade-recovery-attempt.txt
+          if-no-files-found: error
+          retention-days: 30
+      - name: Dispatch the archive publisher
+        if: steps.attempt.outputs.artifact-id != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RECOVERY_ATTEMPT_ID: ${{ steps.attempt.outputs.artifact-id }}
+        run: node scripts/site-maintenance-recovery.mjs --dispatch
