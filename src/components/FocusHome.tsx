@@ -14,6 +14,7 @@ import { formatMediaDate } from "@/lib/media";
 import { useMinuteClock } from "@/lib/use-minute-clock";
 import shared from "./Focus.module.css";
 import styles from "./FocusHome.module.css";
+import winLineStyles from "./WinLine.module.css";
 
 const pct = (wp: number) => `${Math.round(wp * 100)}%`;
 const QUARTER = ["first quarter", "second quarter", "third quarter", "fourth quarter"];
@@ -50,26 +51,53 @@ function BallPosition({ field }: { field: HomeField }) {
   </figure>;
 }
 
-function LastGame({ last, first }: { last: NonNullable<FocusData["last"]>; first: boolean }) {
+type LastResult = NonNullable<FocusData["last"]>;
+
+function QuarterScore({ last }: { last: LastResult }) {
+  const periods = last.recap!.periods;
+  return <div className={styles.quarters}><table>
+    <caption>Points by quarter</caption>
+    <thead><tr><th scope="col"><span className="sr-only">Team</span></th>
+      {periods.map((_, i) => <th scope="col" key={i}>{i < 4 ? "Q" + (i + 1) : i === 4 ? "OT" : (i - 3) + "OT"}</th>)}
+      <th scope="col">Final</th></tr></thead>
+    <tbody>{["Jets", last.opponentName].map((team, i) => <tr key={team}><th scope="row">{team}</th>
+      {periods.map((points, q) => <td key={q}>{points[i]}</td>)}<td>{i === 0 ? last.us : last.them}</td></tr>)}</tbody>
+  </table></div>;
+}
+
+function LastGame({ last, first }: { last: LastResult; first: boolean }) {
   const [keys, setKeys] = useState(false);
   const line = last.line.length >= 2 ? last.line : null;
   const best = line ? line.reduce((top, point) => point[0] > top[0] ? point : top) : null;
   const play = last.play;
+  const difference = Math.abs(last.us - last.them);
+  const result = last.outcome === "tie" ? "The game ended in a tie." :
+    "The Jets " + (last.outcome === "win" ? "won" : "lost") + " by " + difference + (difference === 1 ? " point " : " points ") + (last.home ? "at home." : "on the road.");
   return <FocusMoment id="last" first={first}
     label={`Last game · ${last.postseason ? "Playoffs" : `Week ${last.week}`} · ${dayOf(last.date)} · Final`}
     heading={<>Jets {last.us}, <em>{last.opponentName} {last.them}</em></>}>
-    {play ? <div className={styles.story} data-home-play>
-      <div className={styles.account}>
-        <p className={styles.gameClock}>{play.time}{play.score && " · " + play.score}</p>
-        <p className={styles.situation}>{play.situation}</p>
-        <p className={styles.playText}>{play.account}</p>
-      </div>
-      {play.field && <BallPosition field={play.field} />}
+    <div className={styles.recap} data-game-recap>
+      <p className={styles.recapText} data-recap-text>{last.recap?.text ?? result}</p>
+      {last.recap && <QuarterScore last={last} />}
       <div className={styles.gameLinks}>
-        <Link className={styles.replay} href={play.replay}>{play.hasDiagram ? "Replay in Xs & Os" : "Replay this play"} <span aria-hidden="true">→</span></Link>
+        {last.replayHref && <Link className={styles.replay} href={last.replayHref}>Replay the game <span aria-hidden="true">→</span></Link>}
         <Go href={last.href}>{last.hrefLabel}</Go>
       </div>
-    </div> : <Go href={last.href}>{last.hrefLabel}</Go>}
+    </div>
+    {play && <details className={winLineStyles.disclosure} data-scoring-play>
+      <summary>{play.hasDiagram ? "See a scoring play in Xs & Os" : "See a scoring play"}</summary>
+      <div className={styles.story} data-home-play>
+        <div className={styles.account}>
+          <p className={styles.gameClock}>{play.time}{play.score && " · " + play.score}</p>
+          <p className={styles.situation}>{play.situation}</p>
+          <p className={styles.playText}>{play.account}</p>
+        </div>
+        {play.field && <BallPosition field={play.field} />}
+        <div className={styles.gameLinks}>
+          <Link className={styles.replay} href={play.replay}>{play.hasDiagram ? "Replay in Xs & Os" : "Replay this play"} <span aria-hidden="true">→</span></Link>
+        </div>
+      </div>
+    </details>}
     {line && best && <WinChanceDetails>
       <p className={shared.caption}>The line estimates the Jets’ chance to win before each play. A rising line favors New York.</p>
       <WinLine line={line} keys={keys} end="Last snap" turningPoint={last.turningPoint}

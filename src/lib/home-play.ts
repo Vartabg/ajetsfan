@@ -3,7 +3,7 @@ import { driveReadHref } from "./drive-read-links";
 import { snapChalkboard } from "./snap-chalkboard";
 import { fieldPosition, fieldSpot, snapAccount, snapHeadline, snapSituation } from "./snap-context";
 import { clockText, periodName } from "./snap-explorer";
-import type { Snap, SnapGame } from "./snap-types";
+import type { Snap, SnapFacts, SnapGame } from "./snap-types";
 import { teamIdentity } from "./teams";
 
 export type HomeField = {
@@ -15,8 +15,9 @@ export type HomePlay = {
   replay: string; hasDiagram: boolean; field: HomeField | null;
 };
 
-/** A small projection of the one published snap. All numbers on the field are ball spots. */
-export function homePlay(game: SnapGame, play: Snap, jetsRoster: readonly Pick<RosterPlayer, "id" | "name">[] = []): HomePlay {
+export type HomeRoster = readonly Pick<RosterPlayer, "id" | "name">[];
+
+export function creditedHomeSnap(play: Snap, jetsRoster: HomeRoster): Snap & { facts: SnapFacts } {
   const facts = { ...play.facts };
   if (play.possession === "jets") {
     for (const [role, id] of [["rusher", facts.rusherId], ["passer", facts.passerId], ["target", facts.targetId]] as const) {
@@ -24,6 +25,13 @@ export function homePlay(game: SnapGame, play: Snap, jetsRoster: readonly Pick<R
       if (player && facts[role]) facts[role] = player.name;
     }
   }
+  return { ...play, facts };
+}
+
+/** A small projection of the one published snap. All numbers on the field are ball spots. */
+export function homePlay(game: SnapGame, play: Snap, jetsRoster: HomeRoster = []): HomePlay {
+  const credited = creditedHomeSnap(play, jetsRoster);
+  const facts = credited.facts;
   const hasDiagram = snapChalkboard(game, play).kind !== "other";
   const field = hasDiagram ? fieldPosition(game, play) : null;
   const measured = field?.finish != null && field.finish !== field.start ? {
@@ -34,7 +42,6 @@ export function homePlay(game: SnapGame, play: Snap, jetsRoster: readonly Pick<R
     defense: play.possession === "jets" ? game.opponent : "NYJ",
   } : null;
 
-  const credited = { ...play, facts };
   let account = snapAccount(game, credited);
   if (account.length > 240) account = snapHeadline(game, credited);
   if (measured && facts.kind === "rush" && facts.rusher && facts.yards !== undefined && facts.yards > 0) {

@@ -1,5 +1,15 @@
 # A first visit to the Jets homepage
 
+## Revision 2 · Read the whole game first
+
+At baseline `615b74a`, the owner tried the play-first preview and asked why Hall's carry was the homepage story. The opening should let someone who missed the game recount how it unfolded. Start with both teams and the final, then two or three sentences covering halftime, the second half and the finish. Put a compact, labeled team-by-quarter linescore alongside the words on wide screens and below them on phones. The first action replays the **whole game** from its opening. The full report remains available. An optional disclosure opens a scoring play tied to the recap and its Xs & Os. Keep the existing win-chance marker linked to its actual source play separately.
+
+Use the archive already checked against the published fixture by `loadSnapGame`; resolve the game even if no featured event matches. In a small server-side projection, derive period points and narrative from chronological before/after score pairs, in Jets/opponent order. Require a connected scoring record from 0–0 through all regulation periods to the verified final. Include every overtime period. Absent or inconsistent play evidence leaves the confirmed result and its available game or season links; the lead should never fall back to an unrelated carry. Choose a late go-ahead score when there is one, a second-half score that protected a lead, or the equalizer in a tie. Verify the scoring team and type before naming players, and attach individual names to credited roles only. A summary can describe scoring by half and quarter without naming a particular player. Keep provenance, chart detail and play-level controls out of the main paragraph.
+
+Check the actual Chargers win, Buffalo loss, comeback, overtime, tie, missing evidence and a score correction. Validate quarter sums, halftime and finish descriptions, and both replay destinations. Inspect mobile, desktop, dark, large text, keyboard and no-JavaScript states, and retain the homepage's build budgets. Preserve the live score-first opening. Refresh the existing preview for assessment.
+
+## Original direction
+
 Revision 1, source `06461e6`. A fan who missed Sunday should recognize the teams and result, understand one football moment, and be able to see it unfold in one click. The owner rejected a chart-first introduction and has approved the current-week focus, one thing per moment, the existing visual identity and full-team play replays. The placement and appearance proposed here still await the owner's assessment.
 
 ## Choices
