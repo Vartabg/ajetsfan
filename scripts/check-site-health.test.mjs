@@ -24,6 +24,13 @@ function healthyEdition() {
   };
 }
 
+function overdueArchive() {
+  const health = healthyEdition();
+  health.status = 'degraded';
+  health.feeds.trades = { status: 'overdue', checkedAt: '2026-11-23T05:45:00Z', ageMinutes: 2160 };
+  return health;
+}
+
 function fixture({ health = healthyEdition(), healthStatus = 200, overrides = {} } = {}) {
   const requests = [];
   const delays = [];
@@ -90,16 +97,70 @@ test('reports a retained feed, a retained publisher, a missing feed and a schedu
 });
 
 test('includes the 503 diagnostic body alongside the specific overdue trade feed', async () => {
-  const health = healthyEdition();
-  health.status = 'degraded';
-  health.feeds.trades.status = 'overdue';
+  const health = overdueArchive();
   const { result, delays } = fixture({ health, healthStatus: 503 });
   const results = await result;
   assert.deepEqual(results.at(-1).issues, ['HTTP 503', 'Site health is degraded', 'feed trades: overdue']);
+  assert.equal(results.at(-1).archiveIncident, '20261123T054500000Z');
   const report = formatReport(results);
   assert.match(report, /feed trades: overdue/);
   assert.match(report, /"trades": \{\s+"status": "overdue"/);
   assert.deepEqual(delays, [5000]);
+});
+
+test('only diagnoses an overdue archive from complete, corroborated health JSON', async () => {
+  const fixtures = [
+    { health: { status: 'unavailable', season: null, checkedAt: null }, healthStatus: 503 },
+    { health: overdueArchive(), healthStatus: 200 },
+    { health: overdueArchive(), healthStatus: 502 },
+    { overrides: { '/api/health': () => new Response(JSON.stringify(overdueArchive()), { status: 503 }) } },
+    { overrides: { '/api/health': () => new Response('Upstream unavailable', { status: 503 }) } },
+    { health: { ...overdueArchive(), mediaSources: undefined }, healthStatus: 503 },
+  ];
+  for (const trades of [
+    { status: 'overdue', checkedAt: null, ageMinutes: 2160 },
+    { status: 'overdue', checkedAt: '2026-11-23T05:45:00Z' },
+    { status: 'overdue', checkedAt: '2026-10-32T05:45:00Z', ageMinutes: 34_000 },
+    { status: 'overdue', checkedAt: '2026-11-23T05:45:00Z', ageMinutes: 2000 },
+    { status: 'overdue', checkedAt: '2026-11-23T05:45:01Z', ageMinutes: 2160 },
+    { status: 'overdue', checkedAt: '2026-11-25T06:45:00Z', ageMinutes: 2160 },
+    { status: 'retained', checkedAt: '2026-11-23T05:45:00Z', ageMinutes: 2160 },
+  ]) {
+    const health = overdueArchive();
+    health.feeds.trades = trades;
+    fixtures.push({ health, healthStatus: 503 });
+  }
+  for (const options of fixtures) {
+    const { result } = fixture(options);
+    const health = (await result).at(-1);
+    assert.equal(health.archiveIncident, undefined, JSON.stringify(options.health));
+    assert.notEqual(health.issues.length, 0);
+  }
+});
+
+test('requires both probes to agree on the archive timestamp', async () => {
+  const earlier = overdueArchive();
+  earlier.feeds.trades = { status: 'overdue', checkedAt: '2026-11-23T00:00:00Z', ageMinutes: 2505 };
+  const variants = [
+    [overdueArchive(), earlier],
+    [overdueArchive(), { status: 'unavailable' }],
+    [{ status: 'unavailable' }, overdueArchive()],
+  ];
+  for (const health of variants) {
+    const { result } = fixture({
+      overrides: { '/api/health': () => Response.json(health.shift(), { status: 503 }) },
+    });
+    assert.equal((await result).at(-1).archiveIncident, undefined);
+  }
+
+  const newSeason = overdueArchive();
+  newSeason.season = 2027;
+  newSeason.feeds.trades.checkedAt = '2026-11-23T05:45:00.000Z';
+  const sameArchive = [overdueArchive(), newSeason];
+  const { result } = fixture({
+    overrides: { '/api/health': () => Response.json(sameArchive.shift(), { status: 503 }) },
+  });
+  assert.equal((await result).at(-1).archiveIncident, '20261123T054500000Z');
 });
 
 test('rejects unverified clocks and a missing publisher list even with a healthy HTTP response', async () => {

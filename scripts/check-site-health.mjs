@@ -5,7 +5,9 @@ import { setTimeout as pause } from 'node:timers/promises';
 const origin = 'https://ajetsfan.com';
 const feeds = ['results', 'news', 'roster', 'stats', 'analysis', 'media', 'rankings', 'nextgen', 'trades', 'history', 'drives'];
 const minute = 60_000;
+const tradeOverdueMinutes = 36 * 60; // Matches editionHealth's daily archive threshold.
 const schedulerLimits = { footballScheduler: 10, mediaScheduler: 30, analysisScheduler: 25 };
+const feedStatuses = new Set(['ready', 'retained', 'unavailable', 'overdue', 'unknown']);
 const pages = [
   ['/', [
     ['season results landmark', /<section\b[^>]*\sid="season"/i],
@@ -23,10 +25,19 @@ const pages = [
 ];
 
 const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+const canonicalClock = (value) => value.length === 20 ? value.replace('Z', '.000Z') : value;
 const validClock = (value, now) => typeof value === 'string'
   && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value)
-  && Number.isFinite(Date.parse(value)) && Date.parse(value) <= now + 5 * minute;
+  && Date.parse(value) <= now + 5 * minute && new Date(value).toISOString() === canonicalClock(value);
 const label = (value) => typeof value === 'string' && /^[a-z0-9-]+$/.test(value) ? value : 'missing or invalid';
+
+function productionRequest(fetcher, path, accept) {
+  return fetcher(origin + path, {
+    cache: 'no-store', credentials: 'omit', redirect: 'error',
+    headers: { Accept: accept, 'Cache-Control': 'no-cache' },
+    signal: AbortSignal.timeout(15_000),
+  });
+}
 
 async function checkPage(request, path, landmarks) {
   const response = await request(path, 'text/html');
@@ -37,13 +48,43 @@ async function checkPage(request, path, landmarks) {
   return { path, issues };
 }
 
-async function checkHealth(request, now) {
-  const path = '/api/health';
-  const response = await request(path, 'application/json');
-  const issues = response.status === 200 ? [] : [`HTTP ${response.status}`];
+async function readHealth(request) {
+  const response = await request('/api/health', 'application/json');
   const text = await response.text();
   let health;
   try { health = JSON.parse(text); } catch { /* A proxy failure can return plain text or HTML. */ }
+  return { response, health, text };
+}
+
+function tradeArchiveIncident(response, health, now) {
+  if (response.status !== 503 || !/^application\/json(?:\s*;|$)/i.test(response.headers.get('content-type') ?? '')
+      || !record(health) || health.status !== 'degraded' || !validClock(health.checkedAt, now)
+      || !Number.isInteger(health.season) || health.season < 1999 || health.season > new Date(now).getUTCFullYear() + 1
+      || !record(health.feeds) || !feeds.every((name) => record(health.feeds[name]) && feedStatuses.has(health.feeds[name].status))
+      || !record(health.mediaSources) || !Object.keys(health.mediaSources).length
+      || !Object.keys(schedulerLimits).every((name) => record(health[name]))) return undefined;
+
+  const trades = health.feeds.trades;
+  if (trades.status !== 'overdue' || !validClock(trades.checkedAt, now)) return undefined;
+  const checkedAt = Date.parse(trades.checkedAt);
+  const ageMinutes = Math.floor((now - checkedAt) / minute);
+  if (ageMinutes < tradeOverdueMinutes || !Number.isInteger(trades.ageMinutes)
+      || trades.ageMinutes < tradeOverdueMinutes || Math.abs(ageMinutes - trades.ageMinutes) > 5) return undefined;
+  return {
+    id: canonicalClock(trades.checkedAt).replace(/[-:.]/g, ''),
+    overdueSince: checkedAt + tradeOverdueMinutes * minute,
+  };
+}
+
+export async function readTradeArchiveIncident({ fetcher = fetch, now = Date.now } = {}) {
+  const { response, health } = await readHealth((path, accept) => productionRequest(fetcher, path, accept));
+  return tradeArchiveIncident(response, health, now());
+}
+
+async function checkHealth(request, now) {
+  const path = '/api/health';
+  const { response, health, text } = await readHealth(request);
+  const issues = response.status === 200 ? [] : [`HTTP ${response.status}`];
   const diagnostic = response.status === 503 ? (health ? JSON.stringify(health, null, 2) : text).slice(0, 12_000) : undefined;
   if (!record(health)) return { path, issues: [...issues, 'Expected a health JSON object'], diagnostic };
   if (health.status !== 'healthy') issues.push(`Site health is ${label(health.status)}`);
@@ -77,15 +118,11 @@ async function checkHealth(request, now) {
       else if (!validClock(feed.checkedAt, now)) issues.push(`${key}: missing or invalid successful check time`);
     }
   }
-  return { path, issues, diagnostic };
+  return { path, issues, diagnostic, archiveIncident: tradeArchiveIncident(response, health, now)?.id };
 }
 
 export async function checkSite({ fetcher = fetch, now = Date.now, sleep = pause } = {}) {
-  const request = (path, accept) => fetcher(origin + path, {
-    cache: 'no-store', credentials: 'omit', redirect: 'error',
-    headers: { Accept: accept, 'Cache-Control': 'no-cache' },
-    signal: AbortSignal.timeout(15_000),
-  });
+  const request = (path, accept) => productionRequest(fetcher, path, accept);
   const checks = [...pages.map(([path, landmarks]) => [path, () => checkPage(request, path, landmarks)]),
     ['/api/health', () => checkHealth(request, now())]];
   return Promise.all(checks.map(async ([path, check]) => {
@@ -96,7 +133,9 @@ export async function checkSite({ fetcher = fetch, now = Date.now, sleep = pause
     const result = await attempt();
     if (!result.issues.length) return result;
     await sleep(5_000);
-    return attempt();
+    const retry = await attempt();
+    if (retry.archiveIncident !== result.archiveIncident) delete retry.archiveIncident;
+    return retry;
   }));
 }
 
@@ -117,6 +156,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     await appendFile(process.env.GITHUB_STEP_SUMMARY, report);
   } else {
     console.log(report);
+  }
+  const incident = results.find(({ archiveIncident }) => archiveIncident)?.archiveIncident;
+  if (incident && process.env.GITHUB_OUTPUT) {
+    await appendFile(process.env.GITHUB_OUTPUT, `archive_incident=${incident}\n`);
   }
   if (results.some(({ issues }) => issues.length)) process.exitCode = 1;
 }

@@ -15,3 +15,5 @@ The agent handling a requested site change owns it through release. For finished
 Follow the checks on the current commit. If the normal merge workflow has already run, recheck the current head, reviews and all check results, then complete the authorized merge through GitHub with the expected head SHA. Verify the production deployment and the changed behavior on `https://ajetsfan.com` before reporting it shipped. For repository-only changes, verify the policy or file on `master` and the resulting production deployment. The task-lifecycle state `COMPLETE` verifies the branch push. Release work continues through production.
 
 Use the local Merge Monitor project `ajetsfan` for release handoffs and unattended PRs. Include the PR, the current blocker or explicit hold, and what will verify completion. A green check or a board message alone does not authorize another agent's draft.
+
+Every agent working on ongoing site maintenance uses the [shared site maintenance plan](docs/site-maintenance.md) and the same `ajetsfan` Merge Monitor assignment. Record the owner and evidence there so another connected client can continue the same work.
