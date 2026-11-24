@@ -10,6 +10,7 @@ import { selectHomeMedia } from "./home-media";
 import { compactMediaItem } from "./media-asset-paths.mjs";
 import { publishedGames } from "./published-pages";
 import { teamIdentity } from "./teams";
+import type { HomePlay } from "./home-play";
 
 /** One play of a game's line: the Jets' pre-play win chance and the quarter (5+ is overtime). */
 export type FocusPoint = [wp: number, quarter: number];
@@ -20,8 +21,8 @@ export type FocusData = {
   checkedAt: string | null;
   last: {
     id: string; week: number; postseason: boolean; date: string;
-    outcome: "win" | "loss" | "tie"; us: number; them: number; opponent: string; place: string; home: boolean;
-    href: string; hrefLabel: string; line: FocusPoint[]; turningPoint: FocusTurningPoint | null;
+    outcome: "win" | "loss" | "tie"; us: number; them: number; opponent: string; opponentName: string; place: string; home: boolean;
+    href: string; hrefLabel: string; line: FocusPoint[]; turningPoint: FocusTurningPoint | null; play?: HomePlay;
   } | null;
   next: { id: string; week: number; postseason: boolean; opponent: string; place: string; home: boolean; date: string; kickoff: string | null; overdue: boolean; matchup: { href: string; label: string } | null } | null;
   season: { year: number; wins: number; losses: number; ties: number; weeks: { week: number; opponent: string | null; home: boolean | null; state: WeekState; score: string | null }[] } | null;
@@ -84,7 +85,8 @@ export function buildFocus({ games, snapshot, curve, media, analytics = null }: 
   const reportHref = result && published.has(result.id) ? `/games/${encodeURIComponent(result.id)}` : null;
   const last = result ? {
     id: result.id, week: result.week, postseason: result.seasonType === "POST", date: result.date,
-    outcome: result.outcome, us: result.jetsScore, them: result.oppScore, opponent: result.opponentDisplay, place: placeName(result.opponentDisplay), home: result.atHome,
+    outcome: result.outcome, us: result.jetsScore, them: result.oppScore, opponent: result.opponentDisplay,
+    opponentName: teamIdentity(result.opponentDisplay)?.nickname ?? result.opponentDisplay, place: placeName(result.opponentDisplay), home: result.atHome,
     href: reportHref ?? `/seasons/${result.season}`,
     hrefLabel: reportHref ? "Full game report" : "Season results", line,
     turningPoint: reportHref && lead.analysis ? focusTurningPoint(points, lead.analysis.keyPlay, reportHref) : null,

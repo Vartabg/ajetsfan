@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import Link from "./IntentLink";
 import FocusMoment from "./FocusMoment";
 import FocusNext from "./FocusNext";
 import InlineMedia from "./InlineMedia";
 import FocusShell from "./FocusShell";
-import WinLine from "./WinLine";
+import WinLine, { WinChanceDetails } from "./WinLine";
 import type { FocusData } from "@/lib/focus";
+import type { HomeField } from "@/lib/home-play";
 import { dayOf, halfGames, on, ORDINAL, record } from "@/lib/focus-format";
 import { formatMediaDate } from "@/lib/media";
 import { useMinuteClock } from "@/lib/use-minute-clock";
@@ -26,20 +27,55 @@ function Go({ href, children }: { href: string; children: ReactNode }) {
   return <Link href={href} className={shared.go}>{children} <span aria-hidden="true">→</span></Link>;
 }
 
+function BallPosition({ field }: { field: HomeField }) {
+  const from = 100 - field.start, to = 100 - field.finish;
+  const gain = Math.abs(to - from) + "-yard " + (to > from ? "gain" : "loss");
+  const positions = {
+    "--from": from + "%", "--to": to + "%", "--left": Math.min(from, to) + "%", "--distance": Math.abs(to - from) + "%",
+    "--middle": (from + to) / 2 + "%",
+  } as CSSProperties;
+  return <figure className={styles.field} aria-label={"Ball position on a " + gain}>
+    <div className={styles.turf} aria-hidden="true">
+      <span className={styles.endZone}>{field.offense}</span>
+      <div className={styles.pitch} style={positions}>
+        <span className={styles.midfield}>50</span><i className={styles.advance} />
+        <i className={styles.startSpot} /><i className={styles.endSpot} /><span className={styles.yards}>{gain}</span>
+      </div>
+      <span className={styles.endZone}>{field.defense}</span>
+    </div>
+    <figcaption className={styles.spots}>
+      <span><i className={styles.beforeDot} />At the snap <strong>{field.startLabel}</strong></span>
+      <span><i className={styles.afterDot} />After the play <strong>{field.finishLabel}</strong></span>
+    </figcaption>
+  </figure>;
+}
+
 function LastGame({ last, first }: { last: NonNullable<FocusData["last"]>; first: boolean }) {
   const [keys, setKeys] = useState(false);
-  const verb = last.outcome === "win" ? "Won" : last.outcome === "loss" ? "Lost" : "Tied";
   const line = last.line.length >= 2 ? last.line : null;
   const best = line ? line.reduce((top, point) => point[0] > top[0] ? point : top) : null;
+  const play = last.play;
   return <FocusMoment id="last" first={first}
-    label={`Last game · ${last.postseason ? "Playoffs" : `Week ${last.week}`} · ${dayOf(last.date)}`}
-    heading={<>{verb} {last.us}–{last.them} <em>{last.home ? "vs" : "at"} {last.place}.</em></>}
-    actions={<>{line ? <Toggle pressed={keys} onChange={setKeys} show="Show chart labels" hide="Hide chart labels" className={last.turningPoint ? styles.chartLabels : undefined} /> : null}<Go href={last.href}>{last.hrefLabel}</Go></>}>
-    <figure className={shared.shape}>
-      {line && best ? <WinLine line={line} keys={keys} turningPoint={last.turningPoint} label={`Estimated Jets win chance, play by play: ${pct(line[0][0])} at kickoff, best ${pct(best[0])} in the ${quarterName(best[1])}, ${pct(line.at(-1)![0])} at the end.`} />
-        : <div className={styles.score} role="img" aria-label={`Jets ${last.us}, ${last.place} ${last.them}`}><span style={{ width: `${last.us / Math.max(last.us, last.them, 1) * 100}%` }}>NYJ {last.us}</span><span style={{ width: `${last.them / Math.max(last.us, last.them, 1) * 100}%` }}>{last.opponent} {last.them}</span></div>}
-      <figcaption>{line && best ? `The line estimates the Jets’ chance to win, play by play. It started at ${pct(line[0][0])}. The best it got was ${pct(best[0])}, in the ${quarterName(best[1])}.` : "The play-by-play line appears here once the game’s data is published."}</figcaption>
-    </figure>
+    label={`Last game · ${last.postseason ? "Playoffs" : `Week ${last.week}`} · ${dayOf(last.date)} · Final`}
+    heading={<>Jets {last.us}, <em>{last.opponentName} {last.them}</em></>}>
+    {play ? <div className={styles.story} data-home-play>
+      <div className={styles.account}>
+        <p className={styles.gameClock}>{play.time}{play.score && " · " + play.score}</p>
+        <p className={styles.situation}>{play.situation}</p>
+        <p className={styles.playText}>{play.account}</p>
+      </div>
+      {play.field && <BallPosition field={play.field} />}
+      <div className={styles.gameLinks}>
+        <Link className={styles.replay} href={play.replay}>{play.hasDiagram ? "Replay in Xs & Os" : "Replay this play"} <span aria-hidden="true">→</span></Link>
+        <Go href={last.href}>{last.hrefLabel}</Go>
+      </div>
+    </div> : <Go href={last.href}>{last.hrefLabel}</Go>}
+    {line && best && <WinChanceDetails>
+      <p className={shared.caption}>The line estimates the Jets’ chance to win before each play. A rising line favors New York.</p>
+      <WinLine line={line} keys={keys} end="Last snap" turningPoint={last.turningPoint}
+        label={`Estimated Jets win chance, play by play. ${pct(line[0][0])} at kickoff, best ${pct(best[0])} in the ${quarterName(best[1])}, ${pct(line.at(-1)![0])} before the last recorded play.`} />
+      <Toggle pressed={keys} onChange={setKeys} show="Show chart labels" hide="Hide chart labels" className={styles.chartLabels} />
+    </WinChanceDetails>}
   </FocusMoment>;
 }
 

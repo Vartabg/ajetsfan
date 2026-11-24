@@ -1,4 +1,9 @@
 /* The win-chance line, shared by the last game on the home page and a game in progress. */
+.disclosure { min-width: 0; border-top: 1px solid var(--faint); padding-top: 4px; }
+.disclosure > summary { width: fit-content; max-width: 100%; min-height: 44px; align-content: center; padding: 4px 0; color: var(--green); font: 550 .95rem/1.4 var(--text); cursor: pointer; }
+.disclosure > summary:hover { text-decoration: underline; text-underline-offset: 4px; }
+.disclosure[open] > :not(summary) { margin-block: 10px; }
+.disclosure [data-focus-chart] svg, .disclosure [data-focus-chart] > i { animation: none; }
 .chart, .annotated { --chart-height: clamp(180px, 40svh, 460px); }
 .chart { position: relative; height: var(--chart-height); touch-action: pan-y; cursor: crosshair; }
 .chart svg { position: absolute; inset: 0 0 24px; width: 100%; height: calc(100% - 24px); overflow: visible; }

@@ -7,6 +7,7 @@ import LivePlays from "@/components/LivePlays";
 import { TeamLeadersMoment, TeamNewsMoment } from "@/components/TeamMoments";
 import { selectLead } from "@/lib/current";
 import { buildFocus } from "@/lib/focus";
+import { homePlay } from "@/lib/home-play";
 import { dayOf } from "@/lib/focus-format";
 import { loadCoverage } from "@/lib/load-coverage";
 import { loadAnalytics, loadCurrent, loadCurve, loadGames } from "@/lib/load-games";
@@ -28,7 +29,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 180;
 export const metadata = pageMetadata({
   path: "/", title: "ajetsfan · the Jets, one thing at a time",
-  description: "This week and this season for the Jets: live and latest scores, the next game, standings, player leaders, team news and coverage, one at a time.",
+  description: "Get the Jets score, see a play that shaped the game, and replay it snap by snap. Follow the next matchup, season standings and player leaders.",
 });
 
 export default async function Home() {
@@ -39,11 +40,15 @@ export default async function Home() {
   const lead = selectLead(games, snapshot);
   const curve = lead.kind === "current" && lead.analysisStatus === "ready" && lead.analysis ? await loadCurve(lead.analysis.id) : [];
   const data = buildFocus({ games, snapshot, curve, media: mediaCollection, analytics });
-  if (data.last?.turningPoint && lead.kind === "current" && lead.analysis) {
+  if (data.last && lead.kind === "current" && lead.analysisStatus === "ready" && lead.analysis?.id === data.last.id) {
     const archive = await loadSnapGame(lead.analysis.id);
     const play = featuredSnap(archive, lead.analysis.keyPlay);
     if (play && archive) {
-      data.last.turningPoint.snap = { href: snapPath(archive.id, play.key), label: snapHeadline(archive, play).replace(/\.$/, "") };
+      const roster = coverage?.roster;
+      data.last.play = homePlay(archive, play, roster?.season === lead.analysis.season && roster.status !== "unavailable" ? roster.players : []);
+      if (data.last.turningPoint) {
+        data.last.turningPoint.snap = { href: snapPath(archive.id, play.key), label: snapHeadline(archive, play).replace(/\.$/, "") };
+      }
     }
   }
   const team = buildTeamFocus(coverage, snapshot?.season ?? null);
@@ -77,7 +82,7 @@ export default async function Home() {
       label={`${live.status === "retained" ? "Last verified game update" : candidate.state === "live" ? "Live game" : "Latest game update"} · ${candidate.seasonType === "POST" ? "Playoffs" : `Week ${candidate.week}`}`}
       heading={<>Jets {candidate.atHome ? "vs" : "at"} {footballOpponent(candidate)}.</>}
       actions={<Link href="/game-day" className={shared.go}>Game Day <span aria-hidden="true">→</span></Link>}>
-      <figure className={shared.shape}>{candidate.state === "live" ? <LivePlays event={candidate.eventId} nickname={footballOpponent(candidate)} us={candidate.jetsScore} them={candidate.oppScore} clock={editionClock(candidate)} />
+      <figure className={shared.shape}>{candidate.state === "live" ? <LivePlays foldChart event={candidate.eventId} nickname={footballOpponent(candidate)} us={candidate.jetsScore} them={candidate.oppScore} clock={editionClock(candidate)} />
         : <FootballLiveCard feed={live} id="home-football-score" />}</figure>
     </FocusMoment>,
   } : undefined;

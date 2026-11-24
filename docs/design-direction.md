@@ -31,12 +31,16 @@ What the owner has accepted, rejected and not yet decided about how ajetsfan loo
 
 ## Rejected
 
+- **A chart as the first view of the latest game** (2026-11-24). A new visitor should be able to tell what happened and what the site lets them do at first glance. The owner found the opening win-chance graph hard to understand.
+
 - The initial exact-play view separated the score and play text from the down, distance and field position. The owner said it missed the basics of what was happening in the game.
 - A drive diagram showing only Flacco, a throw and its destination leaves out the rest of the football play.
 - The newspaper identity: "The Back Page", mastheads, desks, editions, datelines, stamps, paper tints and the condensed all-caps display type. It was an earlier agent's idea; the owner finds it corny.
 - Any other themed concept proposed on his behalf.
 
 ## Not decided
+
+- A homepage that leads with the final score, one play in ordinary football language, and a button that opens its replay is a proposed direction for the owner to try.
 
 - New names for pages that still carry newspaper names: "The Morgue" (shown as "Game archive" in the menu) and "How the paper is made".
 
